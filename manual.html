@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLUID — MANUAL</title>
+<meta name="description" content="The complete manual: looks, field controls, surface, sources, camera melt, before/after, recording, exports, share links, embeds.">
+<meta name="theme-color" content="#d8d8d5">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<script src="assets/fluid-favicon.js" defer></script>
+<style>
+  :root{--bg:#d8d8d5;--ink:#101010;--line:rgba(16,16,16,.16);--soft:rgba(16,16,16,.55)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    font-size:12px;letter-spacing:.10em;padding:28px 16px 64px;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+  h1{font-size:13px;letter-spacing:.18em;font-weight:700;text-transform:uppercase}
+  .tag{font-size:10px;color:var(--soft);margin:6px 0 18px;letter-spacing:.14em;text-transform:uppercase}
+  section{border-top:1px solid var(--line);padding:16px 0 18px}
+  .sec-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;font-weight:700}
+  p{font-size:11px;line-height:1.7;letter-spacing:.06em;margin-bottom:10px}
+  dl{font-size:11px;line-height:1.7;letter-spacing:.06em;margin-bottom:10px}
+  dt{font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:10px;margin-top:10px}
+  dd{margin-left:0;color:rgba(16,16,16,.78)}
+  pre{
+    background:#06060a;color:#e8e8e4;border-radius:8px;padding:14px;
+    font-size:10px;line-height:1.6;letter-spacing:.02em;overflow-x:auto;margin:10px 0;
+  }
+  a{color:var(--ink)}
+  .soft{color:var(--soft)}
+  footer{margin-top:28px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+  footer a{margin-right:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fluid — Manual</h1>
+  <div class="tag">Everything the instrument does — two minutes to read, free forever, nothing leaves your device</div>
+
+  <section>
+    <div class="sec-title">What it is</div>
+    <p>A generative art instrument. A domain-warped noise field is colored through thermal-optics
+    palettes, quantized into pixels, screened with halftone dots, finished with grain. Load a photo
+    and its luminance drives the structure while the palette drives the color — anything melts into
+    glowing chromatic imagery. Everything renders live on your GPU; there is no server, no account,
+    no upload.</p>
+    <p class="soft">You land on a random built-in image, already melted. Tap the canvas to reseed,
+    pick a look, or load your own photo.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">01 — Source</div>
+    <p>Five built-in sources (hands, profile, orchid, silk, splash) generated for melting: strong
+    silhouette, glossy highlights, true-black background. Or bring your own —
+    <strong>LOAD PHOTO</strong>, paste from the clipboard, or drag a file anywhere onto the page.
+    Photos are read by your GPU only; they never upload anywhere.</p>
+    <p><strong>CAMERA</strong> starts the front camera live (selfies are mirrored so they read
+    naturally). <strong>FLIP</strong> switches facing. <strong>FREEZE</strong> captures the current
+    frame as a still source.</p>
+    <p>When a source loads, a <strong>before/after divider</strong> appears — drag it to compare the
+    original against the melt. It clamps at 70%, so the effect can never be fully hidden.</p>
+    <dl>
+      <dt>Liquify</dt><dd>how much the field displaces the photo — the melt amount.</dd>
+      <dt>Photo blend</dt><dd>how much the photo drives the structure vs pure noise.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">02 — Size</div>
+    <dl>
+      <dt>1:1 / 4:5 / 5:4 / 3:2 / 16:9 / 9:16</dt><dd>square, portrait, two landscapes, wide, and story.
+      The piece reflows, centered; a loaded image cover-fits the frame.</dd>
+      <dt>Reposition</dt><dd>with an image loaded, <strong>drag the artwork</strong> to pan it inside the
+      frame; <strong>CENTER IMAGE</strong> resets it.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">03 — Templates</div>
+    <p>Curated starting points, one tap each. A template sets the field, palette and shape; tweak anything
+    afterwards, or hit Randomize for a fresh pattern. The active one stays highlighted until you change
+    something.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">04 — Field</div>
+    <dl>
+      <dt>Mode — eleven engines</dt><dd>the generator. NOISE is domain-warped value noise (the default).
+      FLOW is the curl of a noise potential — divergence-free, so it swirls like fluid and smoke.
+      CELLULAR is Voronoi noise — crystalline cells whose edges vs centers are blended by Warp.
+      GYROID slices a 3D gyroid through time for interwoven organic bands. TRUCHET draws random corner
+      arcs per cell into woven maze / circuit lines. INTERFERE overlaps moving
+      ripple sources into moiré rings. KALEIDO folds the field into mirrored sectors for a mandala.
+      LINES is rotated parallel bands (Warp rotates them); GRID crosses two rulings into a lattice;
+      GOLDEN is a phyllotaxis sunflower spiral built on the golden angle; SMOKE is a soft turbulent plume.</dd>
+      <dt>Speed</dt><dd>animation rate. 0 freezes the drift; the piece itself stays.</dd>
+      <dt>Zoom</dt><dd>scale of the forms — low is large slow shapes, high is dense detail.</dd>
+      <dt>Warp</dt><dd>how violently the field folds — slides CELLULAR cells toward edges, tightens FLOW,
+      packs TRUCHET bands, and adds KALEIDO sectors.</dd>
+      <dt>Grain</dt><dd>analog noise over the final image.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">05 — Surface</div>
+    <dl>
+      <dt>Screen — Square / Hex / ASCII / Dither</dt><dd>the pixel geometry. SQUARE is the classic mosaic
+      (with optional halftone dots). HEX is a honeycomb. ASCII maps each cell's brightness to a
+      character from a dark→light ramp ( .:-=+*#%@ ). DITHER uses an ordered Bayer threshold; Threshold
+      controls the bright-pixel density. Pixelate sets the cell size.</dd>
+      <dt>Pixelate</dt><dd>mosaic / hex / glyph cell size. 1 is off (square only); 48 is brutalist.</dd>
+      <dt>Halftone + dot size</dt><dd>CMYK-style dot screen over a square field — dots over pixels is the signature look.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">05b — Colours</div>
+    <dl>
+      <dt>Palettes</dt><dd>eight designer gradients — AURORA (navy→teal→green→pink), SUNSET
+      (plum→magenta→orange→gold), OCEAN (midnight→blue→cyan→seafoam), DUSK (indigo→violet→blush),
+      EMBER (black→crimson→amber→cream), MINT (teal→mint→cream), IRIS (indigo→blue→lilac), and CHROME
+      (a procedural liquid metal).</dd>
+      <dt>Custom</dt><dd>pick your own four gradient stops (dark→light) with the colour swatches — your exact
+      brand colours. Editing any swatch drops into Custom; tap a preset to start over. Custom colours travel
+      in the share link and embeds, so the piece reproduces anywhere.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">06 — Share &amp; embed</div>
+    <dl>
+      <dt>Live / Still</dt><dd>the pill above the image. LIVE animates; STILL freezes the drift for a
+      clean static export (you can still tweak sliders and reseed while frozen). Recording is hidden in STILL.</dd>
+      <dt>Randomize</dt><dd>spins through seeds and settles. Tapping the canvas reseeds instantly.</dd>
+      <dt>Copy share link</dt><dd>a URL that reproduces this exact piece — every slider, the seed,
+      even the built-in source. Open it anywhere, remix from there.</dd>
+      <dt>Copy iframe / full-bleed / CSS</dt><dd>three ways to put the piece on a site: a responsive iframe,
+      a fixed full-bleed background that never eats clicks, or a CSS snippet for a static exported image.
+      See <a href="dev.html">DEV</a>.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">07 — Export</div>
+    <dl>
+      <dt>Size presets</dt><dd>pick a target — Wallpaper (1080p, 1440p, 4K, ultrawide, phone), Web (hero,
+      OG image, background, X header), Social (post, story), or Icon. The export is exactly those pixels and
+      the frame reflows to match. 4K / ultrawide are heavy and scale down if the GPU can't hold them.</dd>
+      <dt>PNG / JPG / WebP</dt><dd>PNG and WebP keep transparency and are crisp; JPG is much smaller. The
+      readout shows the exact pixels and format.</dd>
+      <dt>Poster + caption</dt><dd>POSTER stamps a lab caption bar onto exports — your caption (or seed +
+      palette) plus attribution. The caption also names the file; leave it empty and the piece names itself
+      with a codename like <em>neon-current</em>.</dd>
+      <dt>Export image</dt><dd>renders exactly the on-screen look at the chosen size. On phones it opens the
+      native share sheet instead of downloading.</dd>
+      <dt>Record clip</dt><dd>the REC chip on the canvas (or this button) records the animation with a live
+      timer — MP4 (H.264) where the browser allows, so it plays everywhere; Firefox saves WebM. Clips and
+      exports always render the pure effect — no divider, no UI.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">08 — Share links, under the hood</div>
+    <p>Everything after <code>#p=</code> is the piece: speed, zoom, warp, grain, pixel, dot,
+    halftone, palette, seed, liquify, blend, aspect, source preset — and an optional final flag that
+    switches to canvas-only embed mode. The format only ever grows; old links keep working.</p>
+    <pre>https://fluid.krackeddevs.com/#p=0.5,1.6,4.5,0.1,8,10,1,2,18.4,0.9,0.95,1,1</pre>
+  </section>
+
+  <section>
+    <div class="sec-title">09 — Use it in your code</div>
+    <p>Iframe embeds, an MCP server for Claude (<code>claude mcp add --transport http fluid
+    https://fluid.krackeddevs.com/mcp</code>), and a plain JSON API live on
+    <a href="dev.html">the DEV page</a>.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">10 — Notes</div>
+    <p>Free forever — all computation happens on the viewer's device, so there is nothing to pay
+    for and nothing to outgrow. No account, no upload, no app backend. Reduced-motion
+    users start paused. If the camera is blocked (some embedded browsers), photos and presets still
+    work — errors always say what still works.</p>
+  </section>
+
+  <footer>
+    <a href="index.html">&#8592; the studio</a>
+    <a href="gallery.html">gallery</a>
+    <a href="dev.html">dev</a>
+  </footer>
+</div>
+</body>
+</html>

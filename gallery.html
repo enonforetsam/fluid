@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLUID — gallery, rendered live in your browser</title>
+<meta name="description" content="A gallery of generative art pieces — each one rendered live, in real time, in your browser. Across noise, flow, cellular, gyroid, truchet, interference and kaleidoscope engines. Filter, watch them move, open one in the studio and make it yours.">
+<meta name="theme-color" content="#d8d8d5">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<script src="assets/fluid-favicon.js" defer></script>
+<meta property="og:title" content="FLUID — gallery (live)">
+<meta property="og:description" content="Generative art rendered live in your browser. Filter, watch it move, open in the studio, remix. Free forever.">
+<meta property="og:image" content="https://fluid.krackeddevs.com/og.jpg">
+<style>
+  :root{--bg:#d8d8d5;--ink:#101010;--line:rgba(16,16,16,.16);--soft:rgba(16,16,16,.55)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    font-size:12px;letter-spacing:.10em;padding:28px 16px 64px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:13px;letter-spacing:.18em;font-weight:700;text-transform:uppercase}
+  .h1live{font-size:8px;letter-spacing:.08em;vertical-align:middle;margin-left:7px;padding:2px 7px;border:1px solid var(--line);border-radius:999px;color:var(--soft);font-weight:700}
+  .h1live::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#c2160a;margin-right:5px;vertical-align:middle;animation:lp 1.6s ease-in-out infinite}
+  @keyframes lp{50%{opacity:.25}}
+  @media(prefers-reduced-motion:reduce){.h1live::before{animation:none}}
+  .tag{font-size:10px;color:var(--soft);margin:6px 0 20px;letter-spacing:.14em;text-transform:uppercase;line-height:1.7}
+  .controls{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+  .filterRow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .glabel{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin-right:4px;min-width:54px}
+  .chip{
+    font-family:inherit;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line);background:transparent;color:var(--ink);
+    border-radius:999px;padding:5px 11px;cursor:pointer;transition:.12s;
+  }
+  .chip:hover{border-color:var(--ink)}
+  .chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .searchRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  #search{
+    font-family:inherit;font-size:11px;letter-spacing:.08em;color:var(--ink);
+    background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:200px;flex:1;
+  }
+  #search:focus{outline:none;border-color:var(--ink)}
+  .count{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);white-space:nowrap}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .card{background:#06060a;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(6,6,10,.18);display:flex;flex-direction:column}
+  .card a.open{display:block;line-height:0;position:relative}
+  /* preview: a static thumb (instant + off-screen state) with a live iframe that
+     fades in over it while the tile is on screen */
+  .preview{position:relative;width:100%;aspect-ratio:16/9;background:#111;overflow:hidden}
+  .preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0}
+  .preview iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;z-index:1;opacity:0;transition:opacity .45s ease;pointer-events:none}
+  .preview iframe.on{opacity:1}
+  .card a.open::after{
+    content:"REMIX \2197";position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    font-size:10px;letter-spacing:.18em;color:#fff;background:rgba(6,6,10,.45);opacity:0;transition:.14s;
+  }
+  .card a.open:hover::after{opacity:1}
+  .cardbar{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;gap:8px}
+  .cmeta{min-width:0}
+  .cname{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ctags{font-size:8px;letter-spacing:.10em;color:rgba(255,255,255,.5);text-transform:uppercase;margin-top:3px}
+  .dl{font-size:11px;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.35);border-radius:6px;padding:2px 8px;white-space:nowrap;line-height:1.5}
+  .dl:hover{background:rgba(255,255,255,.12)}
+  .empty{color:var(--soft);font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:30px 0}
+  footer{margin-top:30px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+  footer a{color:inherit;margin-right:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fluid — Gallery <span class="h1live">live</span></h1>
+  <div class="tag">Twenty-eight pieces, each rendered live in your browser in real time — no images, the real shader.
+    Filter by engine or vibe, watch them move, tap one to open it in the studio and make it yours. Free forever.</div>
+
+  <div class="controls">
+    <div class="filterRow" id="engineRow"><span class="glabel">Engine</span></div>
+    <div class="filterRow" id="vibeRow"><span class="glabel">Vibe</span></div>
+    <div class="searchRow">
+      <input id="search" type="text" placeholder="search — e.g. kaleido, warm, cool" autocomplete="off" spellcheck="false">
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">No pieces match — clear a filter.</div>
+
+  <footer>
+    <a href="index.html">&#8592; the studio</a>
+    <a href="dev.html">embed in your site</a>
+    <a href="manual.html">manual</a>
+  </footer>
+</div>
+<script>
+var GALLERY = [
+  { id:'polar-drift', name:'Polar Drift', hash:'#p=0.4,2,4,0.03,1,10,0,0,30,0,0,1.7778', tags:['noise','cool','vibrant'] },
+  { id:'sundown', name:'Sundown', hash:'#p=0.4,1.8,4.5,0.03,1,10,0,1,21,0,0,1.7778', tags:['noise','warm','vibrant'] },
+  { id:'deep-current', name:'Deep Current', hash:'#p=0.4,2.2,3.5,0.03,1,10,0,2,48,0,0,1.7778', tags:['noise','cool'] },
+  { id:'nightfall', name:'Nightfall', hash:'#p=0.4,2.3,3,0.03,1,10,0,3,12,0,0,1.7778', tags:['noise','cool','soft'] },
+  { id:'smoke', name:'Smoke', hash:'#p=0.5,1.4,5,0.03,1,10,0,7,66,0,0,1.7778,0,0,1', tags:['flow','mono','dark'] },
+  { id:'lagoon', name:'Lagoon', hash:'#p=0.5,1.5,5,0.03,1,10,0,2,40,0,0,1.7778,0,0,1', tags:['flow','cool'] },
+  { id:'solar-wind', name:'Solar Wind', hash:'#p=0.5,1.6,4.5,0.03,1,10,0,4,52,0,0,1.7778,0,0,1', tags:['flow','warm','dark'] },
+  { id:'aurora-flow', name:'Aurora Flow', hash:'#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778,0,0,1', tags:['flow','cool','vibrant'] },
+  { id:'crystal', name:'Crystal', hash:'#p=0.4,1.9,7,0.03,1,10,0,6,40,0,0,1.7778,0,0,2', tags:['cellular','cool','vibrant'] },
+  { id:'mosaic', name:'Mosaic', hash:'#p=0.4,1.8,6.5,0.03,1,10,0,5,33,0,0,1.7778,0,0,2', tags:['cellular','cool','soft'] },
+  { id:'magma-cells', name:'Magma Cells', hash:'#p=0.4,1.9,8,0.03,1,10,0,4,60,0,0,1.7778,0,0,2', tags:['cellular','warm','dark'] },
+  { id:'onyx-cells', name:'Onyx Cells', hash:'#p=0.4,1.9,7.5,0.03,1,10,0,7,25,0,0,1.7778,0,0,2', tags:['cellular','mono','dark'] },
+  { id:'lattice', name:'Lattice', hash:'#p=0.4,1.6,5,0.03,1,10,0,5,40,0,0,1.7778,0,0,3', tags:['gyroid','cool','soft'] },
+  { id:'ribbon', name:'Ribbon', hash:'#p=0.4,1.6,4.5,0.03,1,10,0,0,28,0,0,1.7778,0,0,3', tags:['gyroid','cool','vibrant'] },
+  { id:'marble-vein', name:'Marble Vein', hash:'#p=0.4,1.5,5.5,0.03,1,10,0,7,51,0,0,1.7778,0,0,3', tags:['gyroid','mono','dark'] },
+  { id:'dusk-weave', name:'Dusk Weave', hash:'#p=0.4,1.7,4,0.03,1,10,0,3,14,0,0,1.7778,0,0,3', tags:['gyroid','cool','soft'] },
+  { id:'maze', name:'Maze', hash:'#p=0.4,2,4,0.03,1,10,0,7,22,0,0,1.7778,0,0,4,0,0,0,1,6', tags:['truchet','mono','dark'] },
+  { id:'labyrinth', name:'Labyrinth', hash:'#p=0.4,2,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,4,0,0,0,1,6', tags:['truchet','cool'] },
+  { id:'wiring', name:'Wiring', hash:'#p=0.4,1.8,3.5,0.03,1,10,0,4,44,0,0,1.7778,0,0,4', tags:['truchet','warm','dark'] },
+  { id:'moire', name:'Moire', hash:'#p=0.5,1.4,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,5', tags:['interfere','cool'] },
+  { id:'sonar', name:'Sonar', hash:'#p=0.5,1.4,4,0.03,1,10,0,5,18,0,0,1.7778,0,0,5', tags:['interfere','cool','soft'] },
+  { id:'pulse', name:'Pulse', hash:'#p=0.5,1.4,6,0.03,1,10,0,6,52,0,0,1.7778,0,0,5', tags:['interfere','cool','vibrant'] },
+  { id:'rosette', name:'Rosette', hash:'#p=0.4,1.5,6,0.03,1,10,0,6,55,0,0,1.7778,0,0,6', tags:['kaleido','cool','vibrant'] },
+  { id:'bloom', name:'Bloom', hash:'#p=0.4,1.5,5,0.03,1,10,0,1,33,0,0,1.7778,0,0,6', tags:['kaleido','warm','vibrant'] },
+  { id:'stained-glass', name:'Stained Glass', hash:'#p=0.4,1.6,7,0.03,1,10,0,0,40,0,0,1.7778,0,0,6', tags:['kaleido','cool','vibrant'] },
+  { id:'halo', name:'Halo', hash:'#p=0.4,1.5,4,0.03,1,10,0,5,61,0,0,1.7778,0,0,6', tags:['kaleido','cool','soft'] },
+  { id:'tide-tile', name:'Tide', hash:'#p=0.4,2,3,0.03,1,10,0,2,25,0,0,1.7778,0,0,0,0,0,0,1,6', tags:['noise','cool'] },
+  { id:'frost-tile', name:'Frost', hash:'#p=0.4,1.9,6,0.03,1,10,0,5,40,0,0,1.7778,0,0,2,0,0,0,1,6', tags:['cellular','cool','soft'] }
+];
+var ENGINES = ['noise','flow','cellular','gyroid','truchet','interfere','kaleido'];
+var VIBES = ['warm','cool','dark','vibrant','soft','mono'];
+var active = {};      /* tag -> true */
+var query = '';
+
+var grid = document.getElementById('grid');
+var emptyEl = document.getElementById('empty');
+var countEl = document.getElementById('count');
+
+/* ---- live previews ----------------------------------------------------------
+   Each on-screen tile renders the real shader in an iframe (embed mode); tiles
+   that scroll away unload to free the WebGL context (browsers cap how many can
+   exist at once). A hard cap keeps it safe on weaker / mobile GPUs. ---------- */
+var MAX_LIVE = (window.matchMedia && window.matchMedia('(max-width:700px)').matches) ? 4 : 9;
+var liveOrder = [];   /* previews currently live, oldest first (LRU) */
+
+function embedSrc(hash){
+  var h = hash.charAt(0) === '#' ? hash.slice(1) : hash;
+  if (h.indexOf('p=') === 0){ h = h.slice(2); }
+  var a = h.split(',');
+  while (a.length <= 13){ a.push('0'); }
+  a[13] = '1';                                  /* slot 13 = embed flag (canvas-only, live) */
+  return 'index.html#p=' + a.join(',');
+}
+function goLive(prev){
+  if (prev._iframe){ return; }
+  var f = document.createElement('iframe');
+  f.loading = 'lazy';
+  f.title = prev._name + ' — live render';
+  f.setAttribute('aria-hidden', 'true');
+  f.setAttribute('tabindex', '-1');
+  f.addEventListener('load', function(){ f.className = 'on'; });
+  f.src = embedSrc(prev._hash);
+  prev.appendChild(f);
+  prev._iframe = f;
+  liveOrder.push(prev);
+  while (liveOrder.length > MAX_LIVE){ goStatic(liveOrder.shift()); }
+}
+function goStatic(prev){
+  if (!prev || !prev._iframe){ return; }
+  prev._iframe.remove();
+  prev._iframe = null;
+  var i = liveOrder.indexOf(prev);
+  if (i >= 0){ liveOrder.splice(i, 1); }
+}
+var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (en.isIntersecting){ goLive(en.target); }
+    else { goStatic(en.target); }
+  });
+}, { rootMargin: '150px 0px' }) : null;
+
+function makeChip(tag, row){
+  var b = document.createElement('button');
+  b.className = 'chip';
+  b.type = 'button';
+  b.textContent = tag;
+  b.addEventListener('click', function(){
+    if (active[tag]){ delete active[tag]; b.className = 'chip'; }
+    else { active[tag] = true; b.className = 'chip on'; }
+    render();
+  });
+  row.appendChild(b);
+}
+ENGINES.forEach(function(t){ makeChip(t, document.getElementById('engineRow')); });
+VIBES.forEach(function(t){ makeChip(t, document.getElementById('vibeRow')); });
+
+function matches(p){
+  var keys = Object.keys(active);
+  if (keys.length){
+    var hit = false;
+    for (var i = 0; i < keys.length; i++){ if (p.tags.indexOf(keys[i]) >= 0){ hit = true; break; } }
+    if (!hit){ return false; }
+  }
+  if (query){
+    var hay = (p.name + ' ' + p.tags.join(' ')).toLowerCase();
+    if (hay.indexOf(query) < 0){ return false; }
+  }
+  return true;
+}
+
+function card(p){
+  var c = document.createElement('div');
+  c.className = 'card';
+
+  var a = document.createElement('a');
+  a.className = 'open';
+  a.href = 'index.html' + p.hash;          /* open the FULL studio to remix this piece */
+  a.title = 'Open ' + p.name + ' in the studio';
+
+  var prev = document.createElement('div');
+  prev.className = 'preview';
+  prev._hash = p.hash; prev._name = p.name; prev._iframe = null;
+  var img = document.createElement('img');                 /* instant thumb + off-screen state */
+  img.src = 'assets/gallery/x-' + p.id + '.jpg';
+  img.loading = 'lazy';
+  img.alt = p.name;
+  prev.appendChild(img);
+  a.appendChild(prev);
+  c.appendChild(a);
+
+  var bar = document.createElement('div');
+  bar.className = 'cardbar';
+  var meta = document.createElement('div');
+  meta.className = 'cmeta';
+  var nm = document.createElement('div');
+  nm.className = 'cname';
+  nm.textContent = p.name;
+  var tg = document.createElement('div');
+  tg.className = 'ctags';
+  tg.textContent = p.tags.join(' · ');
+  meta.appendChild(nm); meta.appendChild(tg);
+  var dl = document.createElement('a');
+  dl.className = 'dl';
+  dl.href = 'assets/gallery/x-' + p.id + '.jpg';
+  dl.setAttribute('download', 'fluid-' + p.id + '.jpg');
+  dl.title = 'Download preview (open in the studio to export up to 4K)';
+  dl.textContent = '↓';
+  bar.appendChild(meta); bar.appendChild(dl);
+  c.appendChild(bar);
+
+  if (io){ io.observe(prev); } else { goLive(prev); }   /* no IO support → render immediately */
+  return c;
+}
+
+function render(){
+  if (io){ io.disconnect(); }      /* drop old observations; grid.textContent below frees iframes */
+  liveOrder.length = 0;
+  var shown = GALLERY.filter(matches);
+  grid.textContent = '';
+  shown.forEach(function(p){ grid.appendChild(card(p)); });
+  emptyEl.style.display = shown.length ? 'none' : '';
+  countEl.textContent = shown.length === GALLERY.length
+    ? (GALLERY.length + ' pieces')
+    : (shown.length + ' of ' + GALLERY.length);
+}
+
+document.getElementById('search').addEventListener('input', function(e){
+  query = e.target.value.trim().toLowerCase();
+  render();
+});
+render();
+</script>
+</body>
+</html>

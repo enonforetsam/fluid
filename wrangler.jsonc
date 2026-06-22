@@ -1,0 +1,20 @@
+{
+  "name": "fluid",
+  "main": "worker.js",
+  "compatibility_date": "2026-06-01",
+  "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
+  "vars": { "STAGE": "production" },
+  "routes": [
+    { "pattern": "fluid.krackeddevs.com", "custom_domain": true }
+  ],
+  "env": {
+    "staging": {
+      "main": "worker.js",
+      "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
+      "vars": { "STAGE": "staging" },
+      "routes": [
+        { "pattern": "staging.fluid.krackeddevs.com", "custom_domain": true }
+      ]
+    }
+  }
+}

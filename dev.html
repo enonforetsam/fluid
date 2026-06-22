@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLUID — DEV</title>
+<meta name="description" content="Use Fluid in your code: iframe embeds, an MCP server for Claude, and a plain JSON API. Free forever, renders on the viewer's GPU.">
+<meta name="theme-color" content="#d8d8d5">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<script src="assets/fluid-favicon.js" defer></script>
+<style>
+  :root{--bg:#d8d8d5;--ink:#101010;--line:rgba(16,16,16,.16);--soft:rgba(16,16,16,.55)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+    font-size:12px;letter-spacing:.10em;padding:28px 16px 64px;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+  h1{font-size:13px;letter-spacing:.18em;font-weight:700;text-transform:uppercase}
+  .tag{font-size:10px;color:var(--soft);margin:6px 0 18px;letter-spacing:.14em;text-transform:uppercase}
+  section{border-top:1px solid var(--line);padding:16px 0 18px}
+  .sec-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px;font-weight:700}
+  p{font-size:11px;line-height:1.7;letter-spacing:.06em;margin-bottom:10px}
+  pre{
+    background:#06060a;color:#e8e8e4;border-radius:8px;padding:14px;
+    font-size:10px;line-height:1.6;letter-spacing:.02em;overflow-x:auto;margin:10px 0;
+  }
+  a{color:var(--ink)}
+  code{letter-spacing:.02em}
+  .soft{color:var(--soft)}
+  footer{margin-top:28px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fluid — Dev</h1>
+  <div class="tag">Generative assets for your site — embed a live background or export a static one. Free forever, renders on the viewer's GPU, no key, no quota</div>
+
+  <section>
+    <div class="sec-title">00 — Embed a live background</div>
+    <p>Design a piece in <a href="/">the studio</a>, then in <strong>06 — Share &amp; embed</strong> copy it
+    one of three ways. The iframe renders canvas-only and animates live; the hash carries every parameter, so
+    it is your exact piece. Free for any site, personal or commercial.</p>
+    <p><strong>Copy iframe</strong> — a responsive block you size yourself:</p>
+    <pre>&lt;iframe src="https://fluid.krackeddevs.com/#p=…,1"
+  style="width:100%;height:480px;border:0" loading="lazy" title="Fluid background"&gt;&lt;/iframe&gt;</pre>
+    <p><strong>Copy full-bleed</strong> — a fixed background behind your page (never eats clicks):</p>
+    <pre>&lt;div style="position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none"&gt;
+  &lt;iframe src="…/#p=…,1" title="Fluid background"
+    style="width:100%;height:100%;border:0;display:block"&gt;&lt;/iframe&gt;
+&lt;/div&gt;</pre>
+    <p><strong>Copy CSS</strong> — for a <em>static</em> background: export an image in
+    <strong>07 — Export</strong>, host it, then drop in the snippet:</p>
+    <pre>body { background: url("your-fluid.jpg") center / cover fixed no-repeat; }</pre>
+    <p class="soft">Drop the trailing ",1" from any link to open the full studio instead.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">01 — MCP (Claude)</div>
+    <p>Add the server once, then ask Claude for pieces in plain language —
+    "give my hero section a thermal fluid-chrome background, chunky pixels" — and it returns
+    working embed code.</p>
+    <pre>claude mcp add --transport http fluid \
+  https://fluid.krackeddevs.com/mcp</pre>
+    <p>Tools: <code>create_piece</code> (params or a named look, returns share URL + iframe),
+    <code>list_looks</code> (all curated starting points), <code>decode_link</code> (read parameters back out of any share URL to remix it).</p>
+  </section>
+
+  <section>
+    <div class="sec-title">02 — API</div>
+    <p>Same generator as plain JSON, no auth:</p>
+    <pre>curl "https://fluid.krackeddevs.com/api/piece?look=borealis"
+curl "https://fluid.krackeddevs.com/api/piece?field=flow&amp;palette=sunset&amp;warp=4"
+curl "https://fluid.krackeddevs.com/api/piece?field=cellular&amp;palette=ocean"
+curl "https://fluid.krackeddevs.com/api/looks"</pre>
+    <p class="soft">Params: look, field (noise / flow / cellular / gyroid / truchet / interfere / kaleido / lines / grid / golden / smoke), screen (square / hex / ascii / dither),
+    palette (aurora / sunset / ocean / dusk / ember / mint / iris / chrome) or colors (4 hex stops dark→light for a
+    custom gradient, e.g. <code>colors=0a0a1a,3a1f7a,c84fe0,ffe1f5</code>), seed 3–92, speed 0–3, zoom 0.5–4,
+    warp 0–9, grain 0–0.3, pixel 1–48, dot 4–26, threshold 0–1 for dither, halftone, aspect
+    (1:1 / 4:5 / 5:4 / 3:2 / 16:9 / 9:16). Omit seed for random.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">03 — Rules of the road</div>
+    <p>Embeds are free for any site, personal or commercial. Visitors' own photos can only be
+    loaded inside the tool — never via URL, so nothing you embed can read anyone's data.
+    Everything computes client-side; there is no server to outgrow.</p>
+  </section>
+
+  <footer><a href="index.html">&#8592; the studio</a> &nbsp; <a href="gallery.html">gallery</a> &nbsp; <a href="manual.html">manual</a></footer>
+</div>
+</body>
+</html>
