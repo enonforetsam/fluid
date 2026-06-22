@@ -4,7 +4,7 @@
    share links, embed snippets, and parameter JSON; rendering always happens
    on the visitor's GPU. */
 
-var BASE = 'https://fluid.krackeddevs.com';
+var BASE = (typeof env !== 'undefined' && env && env.BASE_URL) || 'https://fluid.krackeddevs.com';
 
 var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
 var PRESETS = [];

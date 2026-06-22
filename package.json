@@ -1,0 +1,12 @@
+{
+  "name": "fluid",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generative art backgrounds — renders on the visitor's GPU",
+  "scripts": {
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "test": "node --test tests/*.test.js",
+    "lint": "echo 'no linter configured yet'"
+  }
+}

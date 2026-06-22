@@ -137,5 +137,5 @@
     if (!prefersReduced && !document.hidden){ raf = requestAnimationFrame(tick); }
   }
   document.addEventListener('visibilitychange', start);
-  try { start(); } catch(e){}
+  try { start(); } catch(e){ console.warn('fluid-favicon:', e); }
 })();

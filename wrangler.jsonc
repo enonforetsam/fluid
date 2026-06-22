@@ -3,7 +3,7 @@
   "main": "worker.js",
   "compatibility_date": "2026-06-01",
   "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
-  "vars": { "STAGE": "production" },
+  "vars": { "STAGE": "production", "BASE_URL": "https://fluid.krackeddevs.com" },
   "routes": [
     { "pattern": "fluid.krackeddevs.com", "custom_domain": true }
   ],
