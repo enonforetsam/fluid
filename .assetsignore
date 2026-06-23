@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.assetsignore
+.wrangler
+worker.js
+docs
+README.md
+CONTRIBUTING.md
+LICENSE
+wrangler.jsonc
+node_modules
+tests
+package.json
+.DS_Store
