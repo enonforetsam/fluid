@@ -321,6 +321,7 @@
   .textfield:focus{border-color:var(--ink);box-shadow:0 0 0 2px var(--line)}
   .textclear{flex:0 0 auto;font-size:16px;line-height:1;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
   .textclear:hover{border-color:var(--ink)}
+  #maskBgDark.on,#maskBgLight.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
   .fontgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .fontbtn{
     font-size:15px;line-height:1;color:var(--ink);background:transparent;
@@ -774,8 +775,8 @@
     <div class="row gap" style="margin-top:10px;align-items:center">
       <span class="exGroupLabel" style="margin:0 2px 0 0">Background</span>
       <input class="swatch" id="maskBgInput" type="color" value="#0d0d10" aria-label="Text background colour">
-      <button type="button" id="maskBgDark">Dark</button>
-      <button type="button" id="maskBgLight">Light</button>
+      <button type="button" id="maskBgDark" aria-pressed="true">Dark</button>
+      <button type="button" id="maskBgLight" aria-pressed="false">Light</button>
     </div>
   </section>
 
@@ -1541,7 +1542,7 @@ if (gl){
 /* text/logo mask on texture unit 2: render the user's words to a 2D canvas (white on
    black, auto-fit to the frame) and upload it; the shader fills the white with the field.
    Rebuilt on text or aspect change; sampled by UV so resolution changes need no rebuild. */
-var maskTex = null, maskCanvas = null, maskCtx = null, maskAr = 0;
+var maskTex = null, maskCanvas = null, maskCtx = null, maskAr = 0, maskCanvas2d = null;
 if (gl){
   maskTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
@@ -1576,6 +1577,7 @@ function applyTextState(t, f, bg){
   if (bg && /^#?[0-9a-fA-F]{6}$/.test(bg)){ state.maskBg = bg.charAt(0) === '#' ? bg : '#' + bg; }
   var ti = document.getElementById('textInput'); if (ti){ ti.value = state.text; }
   var mb = document.getElementById('maskBgInput'); if (mb){ mb.value = state.maskBg; }
+  syncMaskBgUI();
   var btns = document.querySelectorAll('#fontGrid .fontbtn'), k;
   for (k = 0; k < btns.length; k++){ btns[k].classList.toggle('on', k === state.font); btns[k].setAttribute('aria-pressed', k === state.font ? 'true' : 'false'); }
   updateMaskTex();
@@ -1837,6 +1839,34 @@ function renderFallback2d(k){
     renderGenerated2d(fallback2d, w, h);
     applyFallbackSurface(fallback2d, w, h, k);
   }
+  if (maskActive()){ draw2dTextMask(w, h); }   /* text mask also works in the no-WebGL 2D preview */
+}
+/* 2D-path text mask: render the words to an alpha canvas, keep the field only inside the
+   letters (destination-in), then fill the chosen bg behind (destination-over). GL path is
+   untouched — this runs only when WebGL is unavailable. */
+function draw2dTextMask(w, h){
+  if (!fallback2d || !maskActive()){ return; }
+  if (!maskCanvas2d){ maskCanvas2d = document.createElement('canvas'); }
+  if (maskCanvas2d.width !== w || maskCanvas2d.height !== h){ maskCanvas2d.width = w; maskCanvas2d.height = h; }
+  var mx = maskCanvas2d.getContext('2d');
+  mx.clearRect(0, 0, w, h);
+  mx.fillStyle = '#fff'; mx.textAlign = 'center'; mx.textBaseline = 'middle';
+  var F = TEXT_FONTS[state.font] || TEXT_FONTS[0];
+  var lines = (F.upper ? state.text.toUpperCase() : state.text).split('\n');
+  function setF(s){ mx.font = F.weight + ' ' + s + 'px ' + F.stack; }
+  var fs = h * 0.6, i, widest = 1; setF(fs);
+  for (i = 0; i < lines.length; i++){ widest = Math.max(widest, mx.measureText(lines[i] || ' ').width); }
+  fs = fs * (w * 0.86 / widest); setF(fs);
+  var totalH = lines.length * fs * 1.08; if (totalH > h * 0.8){ fs = fs * (h * 0.8 / totalH); setF(fs); }
+  var lh = fs * 1.08, y0 = h / 2 - (lines.length - 1) * lh / 2;
+  for (i = 0; i < lines.length; i++){ mx.fillText(lines[i], w / 2, y0 + i * lh); }
+  fallback2d.save();
+  fallback2d.globalCompositeOperation = 'destination-in';
+  fallback2d.drawImage(maskCanvas2d, 0, 0);
+  fallback2d.globalCompositeOperation = 'destination-over';
+  fallback2d.fillStyle = state.maskBg;
+  fallback2d.fillRect(0, 0, w, h);
+  fallback2d.restore();
 }
 function uploadTexture(source, aspect){
   if (!gl){
@@ -2138,13 +2168,20 @@ if (textClear && textInput){
 var maskBgInput = document.getElementById('maskBgInput');
 if (maskBgInput){
   maskBgInput.value = state.maskBg;
-  maskBgInput.addEventListener('input', function(){ state.maskBg = maskBgInput.value; requestRender(); persistText(); });
+  maskBgInput.addEventListener('input', function(){ state.maskBg = maskBgInput.value; requestRender(); persistText(); syncMaskBgUI(); });
 }
-function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); persistText(); }
+function syncMaskBgUI(){
+  var bd = document.getElementById('maskBgDark'), bl = document.getElementById('maskBgLight');
+  var bg = (state.maskBg || '').toLowerCase();
+  if (bd){ var d = bg === '#0d0d10'; bd.classList.toggle('on', d); bd.setAttribute('aria-pressed', d ? 'true' : 'false'); }
+  if (bl){ var l = bg === '#f4f4ef'; bl.classList.toggle('on', l); bl.setAttribute('aria-pressed', l ? 'true' : 'false'); }
+}
+function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); persistText(); syncMaskBgUI(); }
 (function(){
   var bd = document.getElementById('maskBgDark'), bl = document.getElementById('maskBgLight');
   if (bd){ bd.addEventListener('click', function(){ setMaskBg('#0d0d10'); }); }
   if (bl){ bl.addEventListener('click', function(){ setMaskBg('#f4f4ef'); }); }
+  syncMaskBgUI();
 })();
 (function(){
   var grid = document.getElementById('fontGrid');
@@ -3916,6 +3953,7 @@ syncFmtBtn();
 
 /* ---------- per-section info tooltips ---------- */
 var SECTION_TIPS = {
+  'your words in living colour': 'Type a word or brand name and the living field fills the letters. Pick a font and a background colour; clear (✕) to go back to full art. Kept on this device, and shared links carry it.',
   'Source': 'Optional. Melt a photo, the camera, or a built-in image into the field — its light shapes the pattern, the palette colours it. Liquify sets the melt, Photo blend the mix. Everything stays on your GPU; nothing uploads. Leave it closed for pure generative patterns.',
   'Size': 'The frame shape. Pick an aspect ratio for the export.',
   'Templates': 'One-tap beautiful starting points. A template sets the field, palette and shape; tweak anything afterwards, or Randomize for a fresh one.',

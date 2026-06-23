@@ -26,6 +26,7 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 - Square, hex, ASCII, halftone, and ordered-dither surface modes.
 - Preset palettes plus shareable custom four-stop gradients.
 - Optional image melt: uploaded image luminance drives the field.
+- Text in living colour: fill a word or brand name with the field, with a 9-font picker and a background-colour choice; persists locally and travels in share links.
 - Exact-size export as PNG, JPG, or WebP.
 - Clip recording through `MediaRecorder`.
 - URL hash format that round-trips every piece without server storage.
