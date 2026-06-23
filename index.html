@@ -319,6 +319,8 @@
   }
   .textfield::placeholder{color:var(--soft)}
   .textfield:focus{border-color:var(--ink);box-shadow:0 0 0 2px var(--line)}
+  .textclear{flex:0 0 auto;font-size:16px;line-height:1;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
+  .textclear:hover{border-color:var(--ink)}
   .fontgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .fontbtn{
     font-size:15px;line-height:1;color:var(--ink);background:transparent;
@@ -763,7 +765,10 @@
 
   <section>
     <div class="sec-title">Text — your words in living colour</div>
-    <input id="textInput" class="textfield" type="text" maxlength="48" placeholder="Type a word or name…" aria-label="Text to fill with the pattern" autocomplete="off" spellcheck="false">
+    <div class="row gap" style="align-items:center">
+      <input id="textInput" class="textfield" style="flex:1;min-width:0" type="text" maxlength="48" placeholder="Type a word or name…" aria-label="Text to fill with the pattern" autocomplete="off" spellcheck="false">
+      <button id="textClear" type="button" class="textclear" title="Remove text — back to full art" aria-label="Remove text">&times;</button>
+    </div>
     <div id="fontGrid" class="fontgrid" role="group" aria-label="Font"></div>
     <p class="cnote" style="margin:8px 0 0">Fills the letters with the living pattern — clear to turn off. Tip: pick a wide frame in Size for a banner.</p>
     <div class="row gap" style="margin-top:10px;align-items:center">
@@ -2083,6 +2088,10 @@ var textInput = document.getElementById('textInput');
 if (textInput){
   textInput.value = state.text || '';
   textInput.addEventListener('input', function(){ state.text = textInput.value; updateMaskTex(); });
+}
+var textClear = document.getElementById('textClear');
+if (textClear && textInput){
+  textClear.addEventListener('click', function(){ textInput.value = ''; state.text = ''; updateMaskTex(); textInput.focus(); });
 }
 var maskBgInput = document.getElementById('maskBgInput');
 if (maskBgInput){
