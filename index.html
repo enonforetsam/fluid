@@ -1567,6 +1567,48 @@ var TEXT_FONTS = [
   { label:'Engrave', stack:'Copperplate,"Copperplate Gothic Bold",serif', weight:'700', upper:true }
 ];
 function maskActive(){ return !!(state.text && state.text.replace(/\s/g, '')); }
+/* apply restored/shared text state SAFELY: clamp length (bounds the mask cost), bounds-check
+   the font index, validate the bg hex. state.text only ever reaches canvas fillText + the
+   input value (both non-executable sinks), so a stored/shared value cannot inject. */
+function applyTextState(t, f, bg){
+  state.text = (t == null ? '' : String(t)).slice(0, 48);
+  state.font = Math.min(TEXT_FONTS.length - 1, Math.max(0, parseInt(f, 10) || 0));
+  if (bg && /^#?[0-9a-fA-F]{6}$/.test(bg)){ state.maskBg = bg.charAt(0) === '#' ? bg : '#' + bg; }
+  var ti = document.getElementById('textInput'); if (ti){ ti.value = state.text; }
+  var mb = document.getElementById('maskBgInput'); if (mb){ mb.value = state.maskBg; }
+  var btns = document.querySelectorAll('#fontGrid .fontbtn'), k;
+  for (k = 0; k < btns.length; k++){ btns[k].classList.toggle('on', k === state.font); btns[k].setAttribute('aria-pressed', k === state.font ? 'true' : 'false'); }
+  updateMaskTex();
+}
+/* text/font/bg live in their own localStorage key (they can't go in the numeric share hash) */
+function persistText(){
+  if (EMBED){ return; }
+  try {
+    if (maskActive()){ localStorage.setItem('fluid:text', JSON.stringify({ t: state.text, f: state.font, bg: state.maskBg })); }
+    else { localStorage.removeItem('fluid:text'); }
+  } catch(e){}
+}
+function restoreTextFromStorage(){
+  try { var ts = localStorage.getItem('fluid:text'); if (ts){ var o = JSON.parse(ts); applyTextState(o.t, o.f, o.bg); } } catch(e){}
+}
+/* shared links carry text after the numeric hash as &t=&tf=&tb= — the numeric parser AND
+   the worker's decodeLink regex both stop at '&', so the piece hash is unaffected. */
+function parseTextFromHash(h){
+  if (!h || h.indexOf('&') < 0){ return false; }
+  var parts = h.slice(h.indexOf('&') + 1).split('&'), t = null, f = 0, bg = null, i, kv;
+  for (i = 0; i < parts.length; i++){
+    kv = parts[i].split('=');
+    if (kv[0] === 't'){ try { t = decodeURIComponent(kv[1] || ''); } catch(e){ t = ''; } }
+    else if (kv[0] === 'tf'){ f = parseInt(kv[1], 10) || 0; }
+    else if (kv[0] === 'tb'){ bg = kv[1]; }
+  }
+  if (t == null){ return false; }
+  applyTextState(t, f, bg);
+  return true;
+}
+function shareTextSuffix(){
+  return maskActive() ? ('&t=' + encodeURIComponent(state.text) + '&tf=' + state.font + '&tb=' + state.maskBg.replace('#', '')) : '';
+}
 function updateMaskTex(){
   if (!gl || !maskTex){ return; }
   var ar = canvas.width / canvas.height; if (!ar || !isFinite(ar)){ ar = 1; }
@@ -2087,18 +2129,18 @@ bindSlider('liq', 'liq');
 var textInput = document.getElementById('textInput');
 if (textInput){
   textInput.value = state.text || '';
-  textInput.addEventListener('input', function(){ state.text = textInput.value; updateMaskTex(); });
+  textInput.addEventListener('input', function(){ state.text = textInput.value; updateMaskTex(); persistText(); });
 }
 var textClear = document.getElementById('textClear');
 if (textClear && textInput){
-  textClear.addEventListener('click', function(){ textInput.value = ''; state.text = ''; updateMaskTex(); textInput.focus(); });
+  textClear.addEventListener('click', function(){ textInput.value = ''; state.text = ''; updateMaskTex(); persistText(); textInput.focus(); });
 }
 var maskBgInput = document.getElementById('maskBgInput');
 if (maskBgInput){
   maskBgInput.value = state.maskBg;
-  maskBgInput.addEventListener('input', function(){ state.maskBg = maskBgInput.value; requestRender(); });
+  maskBgInput.addEventListener('input', function(){ state.maskBg = maskBgInput.value; requestRender(); persistText(); });
 }
-function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); }
+function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); persistText(); }
 (function(){
   var bd = document.getElementById('maskBgDark'), bl = document.getElementById('maskBgLight');
   if (bd){ bd.addEventListener('click', function(){ setMaskBg('#0d0d10'); }); }
@@ -2121,6 +2163,7 @@ function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value
         var all = grid.querySelectorAll('.fontbtn'), k;
         for (k = 0; k < all.length; k++){ all[k].classList.toggle('on', k === idx); all[k].setAttribute('aria-pressed', k === idx ? 'true' : 'false'); }
         updateMaskTex();
+        persistText();
       });
       grid.appendChild(b);
     })(i);
@@ -3008,7 +3051,7 @@ function copyText(txt, okMsg, failMsg){
 }
 document.getElementById('shareBtn').addEventListener('click', function(){
   /* build the link without writing it to the address bar — keep the URL clean */
-  var url = window.location.origin + window.location.pathname + buildHash(0);
+  var url = window.location.origin + window.location.pathname + buildHash(0) + shareTextSuffix();
   copyText(url,
     'LINK COPIED TO CLIPBOARD — opens this exact piece',
     'COPY FAILED — tap again to retry');
@@ -3944,9 +3987,11 @@ function nextPaletteIndex(){
 }
 
 /* ---------- boot ---------- */
+var bootHash = window.location.hash;
 var fromHash = parseHash();
 if (fromHash){
   /* a shared #p= link must reproduce exactly — keep its colour */
+  parseTextFromHash(bootHash);   /* restore shared text/font/bg, if any */
   setStatus('SHARED PIECE LOADED — remix it, it is yours now');
   /* clean the URL bar — state is in memory and persisted to localStorage on first change */
   try { history.replaceState(null, '', window.location.pathname); } catch(e){}
@@ -3963,6 +4008,7 @@ if (fromHash){
   }
   /* rotate the palette every refresh — applied before first paint, so instant */
   state.pal = nextPaletteIndex();
+  restoreTextFromStorage();   /* text/font/bg survive reloads — saved-design or random alike */
 }
 /* the default piece animates on load (mobile + desktop) at its own speed — but honour
    prefers-reduced-motion (stay still) and don't "play" a speed-0 (intentionally still)
