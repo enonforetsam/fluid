@@ -194,6 +194,25 @@
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
   #designDock.open{display:block}
+  #embedDock{
+    position:absolute;right:0;top:34px;z-index:8;
+    width:min(360px,100%);display:none;
+    color:var(--ink);background:var(--panel-metal);
+    border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #embedDock.open{display:block}
+  #closeEmbed{font-size:16px;line-height:1;color:var(--ink);background:transparent;border:0;cursor:pointer;padding:0 4px}
+  .embedBody{padding:10px}
+  .embedCode{
+    margin:0;padding:9px 10px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;line-height:1.5;
+    color:var(--ink);background:rgba(0,0,0,.28);
+    border:1px solid var(--line);border-radius:6px;
+    white-space:pre-wrap;word-break:break-all;overflow:auto;max-height:140px;
+  }
+  .embedBody code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;color:var(--ink)}
+  #copyEmbed{margin-top:8px;width:100%}
   .designDockHead{
     display:flex;align-items:center;gap:10px;padding:10px 10px 8px;
     border-bottom:1px solid var(--line);
@@ -673,6 +692,21 @@
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
         </button>
+        <button id="embedChip" class="chipIcon" title="Use on your site" aria-label="Use on your site" aria-expanded="false" aria-controls="embedDock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4"></path><path d="M16 8l4 4-4 4"></path><path d="M13 7l-2 10"></path></svg>
+        </button>
+        <div id="embedDock" role="dialog" aria-label="Use on your site">
+          <div class="designDockHead">
+            <div class="designDockTitle">Use on your site</div>
+            <button id="closeEmbed" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div class="embedBody">
+            <p class="cnote" style="margin:0 0 8px">A live background of your current piece — one tag, nothing to host.</p>
+            <pre id="embedSnippet" class="embedCode"></pre>
+            <button id="copyEmbed" type="button">Copy code</button>
+            <p class="cnote" style="margin:8px 0 0">Or <code>npm i fluid-bg</code> &middot; React <code>&lt;FluidBg/&gt;</code></p>
+          </div>
+        </div>
         <button id="designsChip" class="chipIcon" title="My designs" aria-label="My designs" aria-expanded="false" aria-controls="designDock">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h6l2 2h10v11H3z"></path><path d="M3 6v13"></path></svg>
           <span id="designCount" class="chipCount">0</span>
@@ -3267,7 +3301,7 @@ function deleteSavedDesign(id){
   setStatus('DESIGN REMOVED — local saves updated');
 }
 saveChip.addEventListener('click', saveCurrentDesign);
-designsChip.addEventListener('click', function(){ setDesignDock(designDock.className !== 'open'); });
+designsChip.addEventListener('click', function(){ setEmbedDock(false); setDesignDock(designDock.className !== 'open'); });
 document.getElementById('closeDesigns').addEventListener('click', function(){ setDesignDock(false); });
 designList.addEventListener('click', function(e){
   var del = closestDesignAttr(e.target, 'data-delete-design');
@@ -3281,6 +3315,36 @@ document.addEventListener('pointerdown', function(e){
   if (designDock.contains(e.target) || designsChip.contains(e.target) || saveChip.contains(e.target)){ return; }
   setDesignDock(false);
 });
+/* ---------- "Use on your site" embed-code popover ---------- */
+var embedChip = document.getElementById('embedChip');
+var embedDock = document.getElementById('embedDock');
+function embedSnippetText(){
+  /* split the closing script tag so it doesn't end THIS inline script */
+  return '<script src="https://cdn.jsdelivr.net/npm/fluid-bg"><\/script>\n<fluid-bg fixed hash="' + buildHash(0) + '"></fluid-bg>';
+}
+function setEmbedDock(open){
+  if (!embedDock){ return; }
+  if (open){
+    setDesignDock(false);                       /* only one dock open at a time */
+    var pre = document.getElementById('embedSnippet');
+    if (pre){ pre.textContent = embedSnippetText(); }   /* bake the current piece in */
+  }
+  embedDock.className = open ? 'open' : '';
+  if (embedChip){ embedChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+}
+if (embedChip && embedDock){
+  embedChip.addEventListener('click', function(){ setEmbedDock(embedDock.className !== 'open'); });
+  document.getElementById('closeEmbed').addEventListener('click', function(){ setEmbedDock(false); });
+  document.getElementById('copyEmbed').addEventListener('click', function(){
+    copyText(embedSnippetText(), 'EMBED CODE COPIED — paste it into any page', 'COPY FAILED — tap again to retry');
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setEmbedDock(false); } });
+  document.addEventListener('pointerdown', function(e){
+    if (embedDock.className !== 'open'){ return; }
+    if (embedDock.contains(e.target) || embedChip.contains(e.target)){ return; }
+    setEmbedDock(false);
+  });
+}
 updateDesignCount();
 syncSaveChip();
 /* ---------- copy a self-describing payload Claude can read (with or without the MCP) ---------- */
