@@ -1994,7 +1994,7 @@ function render(k, tgt){
   gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt);
   gl.uniform1f(U.u_rec, recHiRes ? 1 : 0);
   if (maskTex){ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, maskTex); gl.uniform1i(U.u_mask, 2); gl.activeTexture(gl.TEXTURE0); }
-  gl.uniform1f(U.u_hasMask, maskActive() ? 1.0 : 0.0);
+  gl.uniform1f(U.u_hasMask, (!tgt && maskActive()) ? 1.0 : 0.0);   /* never mask offscreen preview thumbnails — they show the look, not your text */
   var mbg = hexToRgb01(state.maskBg || '#0d0d10');
   gl.uniform3f(U.u_maskBg, mbg[0], mbg[1], mbg[2]);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
