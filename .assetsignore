@@ -13,3 +13,4 @@ node_modules
 tests
 package.json
 .DS_Store
+fluid-bg

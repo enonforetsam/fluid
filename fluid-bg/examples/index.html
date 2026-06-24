@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fluid-bg — demo</title>
+<!-- Local build; on the web use: https://cdn.jsdelivr.net/npm/fluid-bg -->
+<script src="../dist/fluid-bg.iife.js"></script>
+<style>
+  body { margin: 0; min-height: 100vh; font: 16px/1.5 system-ui, sans-serif; color: #fff; }
+  main { position: relative; z-index: 1; max-width: 40rem; padding: 22vh 8vw; text-shadow: 0 1px 12px rgba(0,0,0,.5); }
+  h1 { font-size: clamp(2rem, 8vw, 4rem); margin: 0 0 .3em; }
+  code { background: rgba(255,255,255,.15); padding: .15em .4em; border-radius: .3em; }
+</style>
+
+<!-- full-viewport background behind everything -->
+<fluid-bg fixed></fluid-bg>
+
+<main>
+  <h1>fluid-bg</h1>
+  <p>A live Fluid generative background, behind everything — one tag, zero setup.</p>
+  <p>This page is just <code>&lt;fluid-bg fixed&gt;&lt;/fluid-bg&gt;</code> plus the CDN script.</p>
+</main>
