@@ -8,7 +8,7 @@ var BASE = 'https://fluid.krackeddevs.com';
 
 var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
 var PRESETS = [];
-var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal'];
+var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb'];
 var SCREENS = ['square', 'hex', 'ascii', 'dither'];
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
 function aspectName(v){
