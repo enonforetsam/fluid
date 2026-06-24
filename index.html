@@ -835,6 +835,7 @@
       <button class="fieldBtn" data-field="8" title="Grid" aria-label="Grid" aria-pressed="false"><span>Grid</span></button>
       <button class="fieldBtn" data-field="9" title="Golden" aria-label="Golden" aria-pressed="false"><span>Golden</span></button>
       <button class="fieldBtn" data-field="10" title="Smoke" aria-label="Smoke" aria-pressed="false"><span>Smoke</span></button>
+      <button class="fieldBtn" data-field="11" title="Crystal" aria-label="Crystal" aria-pressed="false"><span>Crystal</span></button>
     </div>
     <div class="knobgrid">
       <div class="knobctl">
@@ -856,6 +857,11 @@
         <div class="knob" data-for="grain" role="slider" aria-label="Grain"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
         <div class="knoblabel">Grain <output id="grainOut">0.06</output></div>
         <input id="grain" type="range" min="0" max="0.3" step="0.005" value="0.06">
+      </div>
+      <div class="knobctl">
+        <div class="knob" data-for="sym" role="slider" aria-label="Symmetry"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+        <div class="knoblabel">Symmetry <output id="symOut">0</output></div>
+        <input id="sym" type="range" min="0" max="12" step="1" value="0">
       </div>
     </div>
     <div class="row gap">
@@ -1074,7 +1080,7 @@ var state = {
   seed: 3 + Math.random()*89,
   liq:0.8, mix:0.85,
   ar:1,
-  field:0, screen:0,
+  field:0, screen:0, sym:0,
   hasTex:0, texAspect:1,
   split:0,
   panX:0, panY:0,
@@ -1100,6 +1106,7 @@ var FSRC = [
   'uniform float u_seed;',
   'uniform float u_scale;',
   'uniform float u_warp;',
+  'uniform float u_sym;',
   'uniform float u_pixel;',
   'uniform float u_dots;',
   'uniform float u_dot;',
@@ -1305,6 +1312,19 @@ var FSRC = [
   '  return pow(clamp((d - 0.15) * 1.65, 0.0, 1.0), 1.6);',
   '}',
   '',
+  '/* field L: quasicrystal — sum of plane-wave gratings at evenly spaced angles gives crisp',
+  '   N-fold rotational symmetry (the classic 5-fold quasicrystal). warp picks the order. */',
+  'float fieldQuasi(vec2 p, float t){',
+  '  float n = 5.0 + floor(u_warp * 0.6);',
+  '  float v = 0.0;',
+  '  for (int i = 0; i < 12; i++){',
+  '    float on = step(float(i), n - 0.5);',          /* mask, not break: WebGL1-safe on every driver */
+  '    float a = 3.14159265 * float(i) / max(n, 1.0);',
+  '    v += on * cos((p.x * cos(a) + p.y * sin(a)) * 8.0 + t * 0.3);',
+  '  }',
+  '  return 0.5 + 0.5 * (v / n);',
+  '}',
+  '',
   '/* smooth 4-stop designer gradient (dark -> light) */',
   'vec3 ramp4(float t, vec3 a, vec3 b, vec3 c, vec3 d){',
   '  t = clamp(t, 0.0, 1.0);',
@@ -1380,6 +1400,16 @@ var FSRC = [
   '  float d2 = 1.8 * cos(u_time * 0.10) + 1.2 * sin(u_time * 0.084);',
   '  vec2 disp = vec2(0.5);',
   '  float f;',
+  '  /* symmetry modifier: fold the field coordinate into N mirrored wedges -> instant mandala',
+  '     of whatever engine is selected. u_sym < 2 leaves it untouched. */',
+  '  if (u_sym >= 1.5){',
+  '    float ka = atan(p.y, p.x);',
+  '    float kr = length(p);',
+  '    float kseg = 6.2831853 / u_sym;',
+  '    ka = mod(ka, kseg);',
+  '    ka = abs(ka - 0.5 * kseg);',
+  '    p = vec2(cos(ka), sin(ka)) * kr;',
+  '  }',
   '  if (u_field == 1){',
   '    f = fieldFlow(p, u_time);',
   '  } else if (u_field == 2){',
@@ -1400,6 +1430,8 @@ var FSRC = [
   '    f = fieldGolden(p, u_time);',
   '  } else if (u_field == 10){',
   '    f = fieldSmoke(p, u_time);',
+  '  } else if (u_field == 11){',
+  '    f = fieldQuasi(p, u_time);',
   '  } else {',
   '    vec2 m1 = vec2(d1, d2);',
   '    vec2 m2 = vec2(d2, -d1);',
@@ -1540,7 +1572,7 @@ if (gl){
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-  ['u_res','u_time','u_seed','u_scale','u_warp','u_pixel','u_dots','u_dot','u_dither','u_grain',
+  ['u_res','u_time','u_seed','u_scale','u_warp','u_sym','u_pixel','u_dots','u_dot','u_dither','u_grain',
    'u_pal','u_c0','u_c1','u_c2','u_c3','u_tex','u_hasTex','u_texAspect','u_liq','u_mix','u_split',
    'u_field','u_screen','u_glyph','u_pan','u_mouse','u_mouseAmt','u_rec','u_mask','u_hasMask','u_maskBg'].forEach(function(n){
     U[n] = gl.getUniformLocation(prog, n);
@@ -2017,6 +2049,7 @@ function render(k, tgt){
   gl.uniform1f(U.u_seed, state.seed);
   gl.uniform1f(U.u_scale, state.scale);
   gl.uniform1f(U.u_warp, state.warp);
+  gl.uniform1f(U.u_sym, state.sym);
   var tex = state.hasTex ? 1 : 0;
   gl.uniform1f(U.u_pixel, state.pixel <= 1.5 ? 1.0 : state.pixel * k);
   gl.uniform1f(U.u_dots, state.dots);
@@ -2199,6 +2232,7 @@ bindSlider('speed', 'speed');
 bindSlider('scale', 'scale');
 bindSlider('warp', 'warp');
 bindSlider('grain', 'grain');
+bindSlider('sym', 'sym');
 bindSlider('pixel', 'pixel');
 bindSlider('dot', 'dot');
 bindSlider('thresh', 'thresh');
@@ -2330,7 +2364,7 @@ function makeKnob(knobEl){
 Array.prototype.forEach.call(document.querySelectorAll('.knob[data-for]'), makeKnob);
 
 function syncControls(){
-  ['speed','scale','warp','grain','pixel','dot','thresh','liq','mix'].forEach(function(k){
+  ['speed','scale','warp','grain','sym','pixel','dot','thresh','liq','mix'].forEach(function(k){
     var el = document.getElementById(k);
     el.value = state[k];
     document.getElementById(k + 'Out').value = el.value;
@@ -2532,7 +2566,7 @@ function randomPattern(){
   var rnd = Math.random;
   var key, tries = 0;
   do {
-    state.field = Math.floor(rnd() * 10);             /* any of the 10 engines, evenly */
+    state.field = Math.floor(rnd() * 12);             /* any of the 12 engines, evenly */
     state.pal = Math.floor(rnd() * 8);                /* any of the 8 palettes */
     state.scale = 1.0 + rnd() * 2.2;                  /* 1.0 .. 3.2 — wide range of form size */
     state.warp = 1.5 + rnd() * 7.0;                   /* 1.5 .. 8.5 — calm to violent */
@@ -3057,7 +3091,7 @@ function buildHash(embedFlag){
     +state.liq.toFixed(2), +state.mix.toFixed(2), +(+state.ar).toFixed(4), pi,
     embedFlag ? 1 : 0, state.field, state.screen,
     +state.panX.toFixed(3), +state.panY.toFixed(3),
-    0, 0                                          /* [18][19] reserved (was seamless/tile) */
+    Math.round(state.sym || 0), 0                 /* [18] symmetry (kaleido fold), [19] reserved */
   ];
   /* custom palette: append the 4 packed gradient stops as slots [20..23].
      pal===8 forces them to stay (minLen 24) so a black-ending custom never trims. */
@@ -3098,11 +3132,12 @@ function parseHash(src){
   state.ar = (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1;
   pendingPreset = n.length > 12 ? Math.min(PRESETS.length, Math.max(0, Math.round(n[12]))) : 0;
   EMBED = n.length > 13 && Math.round(n[13]) === 1;
-  state.field = n.length > 14 ? Math.min(10, Math.max(0, Math.round(n[14]))) : 0;
+  state.field = n.length > 14 ? Math.min(11, Math.max(0, Math.round(n[14]))) : 0;
   state.screen = n.length > 15 ? Math.min(3, Math.max(0, Math.round(n[15]))) : 0;
   state.panX = n.length > 16 ? Math.max(-0.5, Math.min(0.5, n[16])) : 0;
   state.panY = n.length > 17 ? Math.max(-0.5, Math.min(0.5, n[17])) : 0;
-  /* [18][19] reserved (was seamless/tile); custom palette stops at [20..23] (pal===8 only) */
+  state.sym = n.length > 18 ? Math.min(12, Math.max(0, Math.round(n[18]))) : 0;
+  /* [18] symmetry; [19] reserved; custom palette stops at [20..23] (pal===8 only) */
   if (state.pal === 8 && n.length > 23){
     state.cols = [unpackCol(n[20]), unpackCol(n[21]), unpackCol(n[22]), unpackCol(n[23])];
   } else if (state.pal === 8){

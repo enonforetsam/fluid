@@ -47,7 +47,7 @@ function makeCtx() {
   return sandbox;
 }
 
-const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, panX: 0, panY: 0, thresh: 0.5, cols: null };
+const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, sym: 0, panX: 0, panY: 0, thresh: 0.5, cols: null };
 
 function roundtrip(overrides) {
   const enc = makeCtx();
@@ -70,8 +70,16 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     assert.ok(Math.abs(after.ar - before.ar) < 0.001, 'ar drifted');
   });
 
-  it('every field index 0..10 round-trips', () => {
-    for (let f = 0; f <= 10; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
+  it('every field index 0..11 round-trips (incl. crystal)', () => {
+    for (let f = 0; f <= 11; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
+  });
+
+  it('symmetry (kaleido fold) round-trips via the reserved slot [18]', () => {
+    for (const sym of [0, 2, 6, 8, 12]) {
+      assert.strictEqual(roundtrip({ field: 11, sym }).after.sym, sym, 'sym ' + sym);
+    }
+    // sym=0 is the default and must trim away (no hash bloat for the common case)
+    assert.ok(roundtrip({ sym: 0 }).hash.split(',').length <= 16, 'sym=0 must not pad the hash');
   });
 
   it('every screen 0..3 round-trips', () => {
