@@ -185,6 +185,8 @@
   #recChip.armed .dot{color:#fff;animation:recblink 1.2s step-end infinite}
   @keyframes recblink{50%{opacity:0}}
   @media(prefers-reduced-motion:reduce){#recChip.armed .dot{animation:none}}
+  #recChip.saveready,#recBtn.saveready{background:#1f9d55;border-color:#1f9d55;color:#fff}
+  #recChip.saveready .dot{color:#fff}
   #designDock{
     position:absolute;right:0;top:34px;z-index:8;
     width:min(360px,100%);max-height:min(430px,calc(100vh - 76px));
@@ -3511,6 +3513,40 @@ function shareOrDownload(blob, filename, doneMsg){
   downloadBlob(blob, filename);
   setStatus(doneMsg);
 }
+/* iOS Safari only saves a video to Photos through the share sheet, and navigator.share MUST
+   run inside a live tap. A recording finishes asynchronously (after flush/onstop), so sharing
+   straight away is outside the gesture and silently falls back to a download that never reaches
+   Photos. On touch devices we stash the clip and turn the record chip into a Save button — the
+   user's tap on it is a fresh gesture, so the share sheet (and "Save Video") works. */
+var pendingClip = null;
+function isTouchShare(){
+  return !!(navigator.canShare && window.File && window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+}
+function clearSaveReady(){
+  if (recChip){ recChip.classList.remove('saveready'); recChip.setAttribute('aria-label', 'Record clip'); }
+  if (recBtn){ recBtn.classList.remove('saveready'); recBtn.textContent = 'Record clip'; }
+  if (recChipText){ recChipText.textContent = ''; }
+}
+function deliverClip(blob, name, msg){
+  if (isTouchShare()){
+    pendingClip = { blob: blob, name: name, msg: msg };
+    if (recChip){ recChip.classList.add('saveready'); recChip.setAttribute('aria-label', 'Save clip to your photos'); }
+    if (recBtn){ recBtn.classList.add('saveready'); recBtn.textContent = 'Save clip to Photos'; }
+    if (recChipText){ recChipText.textContent = 'Save'; }
+    setStatus('CLIP READY — tap Save to add it to your Photos');
+  } else {
+    shareOrDownload(blob, name, msg);
+  }
+}
+function savePendingClip(){
+  var c = pendingClip; pendingClip = null;
+  clearSaveReady();
+  shareOrDownload(c.blob, c.name, c.msg);   /* runs inside this tap → iOS opens the share sheet */
+}
+function recChipTap(){
+  if (pendingClip){ savePendingClip(); return; }   /* a clip is waiting → this tap saves it */
+  toggleRecording();
+}
 
 /* ---------- export: target W×H, format, dpr rule via k, half-size GPU fallback ---------- */
 /* WebP encode support varies (Safari history) — disable the button if toDataURL
@@ -3918,7 +3954,7 @@ function stopWebCodecs(){
     var clipName = exportName('mp4'), okMsg = 'CLIP SAVED — ' + clipName.toUpperCase();
     var mp4 = (!wcErr && wcChunks.length && wcAvcc) ? buildMp4(wcAvcc, wcChunks, wcW, wcH) : null;
     wcChunks = []; wcAvcc = null;
-    if (mp4){ shareOrDownload(new Blob([mp4], { type:'video/mp4' }), clipName, okMsg); }
+    if (mp4){ deliverClip(new Blob([mp4], { type:'video/mp4' }), clipName, okMsg); }
     else { setStatus('ERR — recording failed; try again'); }
   }
   enc.flush().then(function(){ try { enc.close(); } catch(e){} finish(); }, function(){ try { enc.close(); } catch(e){} finish(); });
@@ -3989,18 +4025,18 @@ function startMediaRecorder(safe){
       rawBlob.arrayBuffer().then(function(ab){
         var prog = null;
         try { prog = defragMp4(new Uint8Array(ab)); } catch(e){ prog = null; }
-        shareOrDownload(prog ? new Blob([prog], { type:'video/mp4' }) : rawBlob, clipName, okMsg);
-      }, function(){ shareOrDownload(rawBlob, clipName, okMsg); });
+        deliverClip(prog ? new Blob([prog], { type:'video/mp4' }) : rawBlob, clipName, okMsg);
+      }, function(){ deliverClip(rawBlob, clipName, okMsg); });
     } else {
-      shareOrDownload(rawBlob, clipName, isMp4 ? okMsg : (okMsg + '; this browser cannot write MP4'));
+      deliverClip(rawBlob, clipName, isMp4 ? okMsg : (okMsg + '; this browser cannot write MP4'));
     }
   };
   recorder.start();
   captureRecorderFrame();
   startRecUI();
 }
-recBtn.addEventListener('click', toggleRecording);
-recChip.addEventListener('click', toggleRecording);
+recBtn.addEventListener('click', recChipTap);
+recChip.addEventListener('click', recChipTap);
 
 /* ---------- export targets UI ---------- */
 var exportGroupsEl = document.getElementById('exportGroups');
