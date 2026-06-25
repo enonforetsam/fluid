@@ -571,6 +571,8 @@
   }
   .fieldBtn.on span{opacity:1}
   .surfacegrid .fieldBtn span{opacity:1}
+  #cursorGrid .fieldBtn span{opacity:1}
+  .cmIcon{display:block;width:46%;height:46%;position:absolute;top:43%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
   /* horizontal aspect-ratio fader — slides portrait → landscape, saves space */
   .ardial{position:relative;padding:2px 2px 0}
   #arSlider{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;touch-action:none;margin:0}
@@ -907,6 +909,29 @@
     <div class="row gap">
       <button id="randBtn">Randomize</button>
     </div>
+    <div class="exGroupLabel">Cursor</div>
+    <div class="fieldgrid" id="cursorGrid">
+      <button class="fieldBtn" data-cmode="0" title="No cursor effect" aria-label="Off" aria-pressed="false">
+        <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="white" stroke-width="1.4" opacity="0.35"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/><line x1="15.5" y1="8.5" x2="8.5" y2="15.5" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/></svg>
+        <span>Off</span>
+      </button>
+      <button class="fieldBtn on" data-cmode="1" title="Ripple waves" aria-label="Ripple" aria-pressed="true">
+        <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2" fill="white"/><circle cx="12" cy="12" r="6" stroke="white" stroke-width="1.2" opacity="0.7"/><circle cx="12" cy="12" r="10.5" stroke="white" stroke-width="0.9" opacity="0.35"/></svg>
+        <span>Ripple</span>
+      </button>
+      <button class="fieldBtn" data-cmode="2" title="Magnify field around cursor" aria-label="Lens" aria-pressed="false">
+        <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><line x1="15.5" y1="15.5" x2="20.5" y2="20.5" stroke="white" stroke-width="2" stroke-linecap="round"/><line x1="7.5" y1="10" x2="12.5" y2="10" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/><line x1="10" y1="7.5" x2="10" y2="12.5" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.55"/></svg>
+        <span>Lens</span>
+      </button>
+      <button class="fieldBtn" data-cmode="3" title="Swirl field around cursor" aria-label="Vortex" aria-pressed="false">
+        <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><path d="M12 3.5C7.3 3.5 3.5 7.3 3.5 12s3.8 8.5 8.5 8.5" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M12 7C9 7 7 9 7 12s2 5 5 5" stroke="white" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/><path d="M12 10.5c-.8 0-1.5.7-1.5 1.5" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="1.3" fill="white"/></svg>
+        <span>Vortex</span>
+      </button>
+      <button class="fieldBtn" data-cmode="4" title="Push field away from cursor" aria-label="Push" aria-pressed="false">
+        <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="white" opacity="0.85"/><path d="M12 8.5V4" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M10 6l2-2 2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 12H20" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M18 10l2 2-2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.5V20" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M10 18l2 2 2-2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 12H4" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M6 10L4 12l2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Push</span>
+      </button>
+    </div>
   </section>
 
   <section>
@@ -1196,6 +1221,7 @@ var FSRC = [
   'uniform vec2  u_pan;',
   'uniform vec2  u_mouse;',
   'uniform float u_mouseAmt;',
+  'uniform int   u_mouseMode;',
   'uniform float u_rec;',
   '',
   'float hash(vec2 p){',
@@ -1498,17 +1524,28 @@ var FSRC = [
   '  float mn = sqrt(u_res.x * u_res.y);',
   '  vec2 uv = (fc - 0.5 * u_res) / mn;',
   '  vec2 p = uv * u_scale * 3.0;',
-  '  /* cursor ripples: small, irregular waves that refract the field (live only) */',
-  '  if (u_mouseAmt > 0.001){',
+  '  /* cursor effect: mode 1=ripple 2=lens 3=vortex 4=push */',
+  '  if (u_mouseAmt > 0.001 && u_mouseMode > 0){',
   '    vec2 mUv = (u_mouse * u_res - 0.5 * u_res) / mn;',
   '    vec2 dv = uv - mUv;',
   '    float md = length(dv);',
-  '    /* noise breaks the perfect circle: wavy rings + jittered push direction */',
-  '    vec2 nz = vec2(fbm(dv * 6.0 + u_time * 0.3), fbm(dv * 6.0 + vec2(7.3, 2.1) - u_time * 0.25)) - 0.5;',
-  '    float env = exp(-md * 9.0);',
-  '    float wave = cos((md + nz.x * 0.12) * 30.0 - u_time * 2.0);',
-  '    vec2 dir = normalize(dv / max(md, 0.0008) + nz * 0.9);',
-  '    p += dir * wave * env * u_mouseAmt * 0.08;',
+  '    if (u_mouseMode == 1){',
+  '      vec2 nz = vec2(fbm(dv * 6.0 + u_time * 0.3), fbm(dv * 6.0 + vec2(7.3, 2.1) - u_time * 0.25)) - 0.5;',
+  '      float env = exp(-md * 9.0);',
+  '      float wave = cos((md + nz.x * 0.12) * 30.0 - u_time * 2.0);',
+  '      vec2 dir = normalize(dv / max(md, 0.0008) + nz * 0.9);',
+  '      p += dir * wave * env * u_mouseAmt * 0.08;',
+  '    } else if (u_mouseMode == 2){',
+  '      float env = exp(-md * 7.0);',
+  '      p -= dv * env * u_mouseAmt * 0.35;',
+  '    } else if (u_mouseMode == 3){',
+  '      float angle = u_mouseAmt * 2.5 * exp(-md * 5.0);',
+  '      float ca = cos(angle), sa = sin(angle);',
+  '      p += vec2(dv.x * ca - dv.y * sa, dv.x * sa + dv.y * ca) - dv;',
+  '    } else if (u_mouseMode == 4){',
+  '      float env = exp(-md * 6.0);',
+  '      p += normalize(dv / max(md, 0.0008)) * env * u_mouseAmt * 0.18;',
+  '    }',
   '  }',
   '  /* time evolution: small, bounded, multi-frequency sway. The old large single-',
   '     frequency offset translated the whole field like a rigid sheet; mixing low',
@@ -1666,7 +1703,7 @@ if (gl){
 
   ['u_res','u_time','u_seed','u_scale','u_warp','u_sym','u_pixel','u_dots','u_dot','u_dither','u_grain',
    'u_pal','u_c0','u_c1','u_c2','u_c3','u_tex','u_hasTex','u_texAspect','u_liq','u_mix','u_split',
-   'u_field','u_field2','u_blend','u_layerMix','u_screen','u_glyph','u_pan','u_mouse','u_mouseAmt','u_rec','u_mask','u_hasMask','u_maskBg'].forEach(function(n){
+   'u_field','u_field2','u_blend','u_layerMix','u_screen','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg'].forEach(function(n){
     U[n] = gl.getUniformLocation(prog, n);
   });
 
@@ -2167,6 +2204,7 @@ function render(k, tgt){
   gl.uniform2f(U.u_pan, tex ? state.panX : 0, tex ? state.panY : 0);
   gl.uniform2f(U.u_mouse, mouse.x, mouse.y);
   gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt);
+  gl.uniform1i(U.u_mouseMode, mouse.mode);
   gl.uniform1f(U.u_rec, recHiRes ? 1 : 0);
   if (maskTex){ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, maskTex); gl.uniform1i(U.u_mask, 2); gl.activeTexture(gl.TEXTURE0); }
   gl.uniform1f(U.u_hasMask, (!tgt && maskActive()) ? 1.0 : 0.0);   /* never mask offscreen preview thumbnails — they show the look, not your text */
@@ -2187,7 +2225,16 @@ function render(k, tgt){
 }
 
 /* ---------- cursor ripple state ---------- */
-var mouse = { x:0.5, y:0.5, amt:0, target:0 };
+var mouse = { x:0.5, y:0.5, amt:0, target:0, mode:1 };
+try { var _cm = parseInt(localStorage.getItem('fluid:cursorMode'), 10); if (_cm >= 0 && _cm <= 4){ mouse.mode = _cm; } } catch(e){}
+function syncCursorButtons(){
+  Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
+    var m = parseInt(b.getAttribute('data-cmode'), 10);
+    var on = m === mouse.mode;
+    b.className = 'fieldBtn' + (on ? ' on' : '');
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
 
 /* ---------- animation loop (accumulated time, never wall clock) ---------- */
 state.t = 0;
@@ -2623,6 +2670,15 @@ Array.prototype.forEach.call(document.querySelectorAll('.screenBtn'), function(b
     setStatus(['SQUARE SCREEN — pixels + optional dots','HEX SCREEN — honeycomb mosaic','ASCII SCREEN — luminance maps to glyphs','DITHER SCREEN — Bayer 2-tone; tune Threshold'][state.screen]);
   });
 });
+Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
+  b.addEventListener('click', function(){
+    mouse.mode = parseInt(b.getAttribute('data-cmode'), 10);
+    try { localStorage.setItem('fluid:cursorMode', String(mouse.mode)); } catch(e){}
+    syncCursorButtons();
+    requestRender();
+  });
+});
+syncCursorButtons();
 function applyAspect(){
   if (EMBED){ canvas.style.aspectRatio = ''; return; }
   /* a bare number is a valid CSS aspect-ratio (width / height) */
@@ -2797,7 +2853,7 @@ canvas.addEventListener('pointermove', function(e){
       state.panY = Math.max(-0.5, Math.min(0.5, panBY + dy));  /* +dy: texture is FLIP_Y, so drag follows the finger */
     }
   }
-  if (!panning){ mouse.target = 1.0; }   /* ripple only when NOT dragging a photo — no double effect */
+  if (!panning && mouse.mode > 0){ mouse.target = 1.0; }   /* cursor effect only when NOT dragging a photo — no double effect */
   requestRender();                 /* ripple kick + image pan both need a redraw */
 });
 canvas.addEventListener('pointerup', function(e){
@@ -4359,12 +4415,12 @@ Array.prototype.forEach.call(document.querySelectorAll('.panel .sec-title'), fun
   var name = t.textContent.split('—').pop().replace(/\s+/g, ' ').replace(/^ | $/g, '');
   var tip = SECTION_TIPS[name];
   if (!tip){ return; }
-  var b = document.createElement('button');
+  var b = document.createElement('span');
   b.className = 'info';
-  b.type = 'button';
   b.textContent = 'i';
   b.setAttribute('data-tip', tip);
-  b.setAttribute('aria-label', name + ' — ' + tip);
+  b.setAttribute('aria-hidden', 'true');
+  b.addEventListener('click', function(e){ e.stopPropagation(); });
   t.appendChild(b);
 });
 
