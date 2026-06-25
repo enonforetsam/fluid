@@ -717,6 +717,7 @@
             <p class="cnote" style="margin:0 0 8px">A live background of your current piece — one tag, nothing to host.</p>
             <div class="embedTabs" role="tablist">
               <button class="embedTab on" type="button" data-etab="code" role="tab" aria-selected="true">Code</button>
+              <button class="embedTab" type="button" data-etab="standalone" role="tab" aria-selected="false">Standalone</button>
               <button class="embedTab" type="button" data-etab="claude" role="tab" aria-selected="false">For Claude</button>
             </div>
             <pre id="embedSnippet" class="embedCode"></pre>
@@ -3539,7 +3540,47 @@ function embedClaudeText(){
     + embedSnippetText() + '\n\n'
     + 'Then put the page content — a hero headline, a line of subtext, and a CTA button — on top of it with position:relative and z-index:1. The <fluid-bg> tag renders a live Fluid background served from fluid.krackeddevs.com, so there is nothing to self-host. Note: fluid-bg is a brand-new npm package, so if it is not in your training data, use the CDN snippet above exactly as written (or run "npm i fluid-bg" and add import "fluid-bg"). Open the page in my browser when you are done.';
 }
-function activeEmbedText(){ return embedTab === 'claude' ? embedClaudeText() : embedSnippetText(); }
+/* a COMPLETE, dependency-free HTML file that renders THIS exact piece with the live shaders
+   inlined — no <fluid-bg>, no iframe, no fluid.krackeddevs.com. Save as index.html, open/host
+   anywhere. Uses the app's own VSRC/FSRC so it never drifts from the studio. */
+function buildStandaloneHTML(){
+  var cc = effectiveCols();
+  function r4(c){ return [+c[0].toFixed(4), +c[1].toFixed(4), +c[2].toFixed(4)]; }
+  var P = {
+    speed:+state.speed.toFixed(3), scale:+state.scale.toFixed(3), warp:+state.warp.toFixed(2),
+    sym:Math.round(state.sym || 0), pixel:Math.round(state.pixel), dots:state.dots ? 1 : 0,
+    dot:Math.round(state.dot), thresh:+state.thresh.toFixed(3), grain:+state.grain.toFixed(3),
+    pal:state.pal, cols:[r4(cc[0]), r4(cc[1]), r4(cc[2]), r4(cc[3])],
+    field:state.field, field2:state.field2 || 0, blend:state.blend || 0,
+    layerMix:+(state.layerMix || 0).toFixed(3), screen:state.screen, seed:+state.seed.toFixed(2)
+  };
+  var boot =
+    "var cv=document.getElementById('fluid');var gl=cv.getContext('webgl',{antialias:false})||cv.getContext('experimental-webgl');if(!gl){document.body.style.background='#0d0d10';return;}" +
+    "function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o;}" +
+    "var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);" +
+    "var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);" +
+    "var al=gl.getAttribLocation(pr,'a_pos');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);var U={};" +
+    "'u_res u_time u_seed u_scale u_warp u_sym u_pixel u_dots u_dot u_dither u_grain u_pal u_c0 u_c1 u_c2 u_c3 u_hasTex u_texAspect u_liq u_mix u_split u_field u_field2 u_blend u_layerMix u_screen u_glyph u_pan u_mouse u_mouseAmt u_rec u_mask u_hasMask u_maskBg'.split(' ').forEach(function(n){U[n]=gl.getUniformLocation(pr,n);});" +
+    "function dt(u){var t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+u);gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);}dt(0);dt(2);" +
+    "(function(){var ch=' .:-=+*#%@',ce=28;var c=document.createElement('canvas');c.width=ce*ch.length;c.height=ce;var x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.fillStyle='#fff';x.font='bold '+Math.round(ce*0.82)+'px monospace';x.textAlign='center';x.textBaseline='middle';for(var i=0;i<ch.length;i++)x.fillText(ch.charAt(i),i*ce+ce/2,ce/2+1);var t=gl.createTexture();gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);})();" +
+    "gl.activeTexture(gl.TEXTURE0);gl.uniform1i(U.u_glyph,1);gl.uniform1i(U.u_mask,2);" +
+    "gl.uniform1f(U.u_seed,P.seed);gl.uniform1f(U.u_scale,P.scale);gl.uniform1f(U.u_warp,P.warp);gl.uniform1f(U.u_sym,P.sym);gl.uniform1f(U.u_dots,P.dots);gl.uniform1f(U.u_dither,P.thresh);gl.uniform1f(U.u_grain,P.grain);gl.uniform1i(U.u_pal,P.pal);" +
+    "gl.uniform3f(U.u_c0,P.cols[0][0],P.cols[0][1],P.cols[0][2]);gl.uniform3f(U.u_c1,P.cols[1][0],P.cols[1][1],P.cols[1][2]);gl.uniform3f(U.u_c2,P.cols[2][0],P.cols[2][1],P.cols[2][2]);gl.uniform3f(U.u_c3,P.cols[3][0],P.cols[3][1],P.cols[3][2]);" +
+    "gl.uniform1f(U.u_hasTex,0);gl.uniform1f(U.u_texAspect,1);gl.uniform1f(U.u_liq,0);gl.uniform1f(U.u_mix,0);gl.uniform1f(U.u_split,0);" +
+    "gl.uniform1i(U.u_field,P.field);gl.uniform1i(U.u_field2,P.field2);gl.uniform1i(U.u_blend,P.blend);gl.uniform1f(U.u_layerMix,P.layerMix);gl.uniform1i(U.u_screen,P.screen);" +
+    "gl.uniform2f(U.u_pan,0,0);gl.uniform2f(U.u_mouse,0.5,0.5);gl.uniform1f(U.u_mouseAmt,0);gl.uniform1f(U.u_rec,0);gl.uniform1f(U.u_hasMask,0);gl.uniform3f(U.u_maskBg,0.05,0.05,0.06);" +
+    "var dpr=Math.min(window.devicePixelRatio||1,2);function rs(){var w=Math.round(cv.clientWidth*dpr),h=Math.round(cv.clientHeight*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(U.u_res,cv.width,cv.height);gl.uniform1f(U.u_pixel,P.pixel<=1.5?1.0:P.pixel*dpr);gl.uniform1f(U.u_dot,P.dot*dpr);}window.addEventListener('resize',rs);rs();" +
+    "var st=null;function fr(now){if(st===null)st=now;gl.uniform1f(U.u_time,(now-st)*0.001*P.speed);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(fr);}requestAnimationFrame(fr);";
+  var sv = function(v){ return JSON.stringify(v).replace(/<\//g, '<\\/'); };   /* never let a literal </ end this script */
+  var h = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n';
+  h += '<title>Fluid background</title>\n<!-- Generated by Fluid (fluid.krackeddevs.com) — self-contained, no dependencies. Save as index.html. -->\n';
+  h += '<style>html,body{margin:0;height:100%;overflow:hidden;background:#0d0d10}#fluid{position:fixed;inset:0;width:100%;height:100%;display:block}</style>\n';
+  h += '</head>\n<body>\n<canvas id="fluid"></canvas>\n<script>\n(function(){\n';
+  h += 'var VS=' + sv(VSRC) + ';\nvar FS=' + sv(FSRC) + ';\nvar P=' + sv(P) + ';\n';
+  h += boot + '\n})();\n<\/script>\n</body>\n</html>\n';
+  return h;
+}
+function activeEmbedText(){ return embedTab === 'standalone' ? buildStandaloneHTML() : embedTab === 'claude' ? embedClaudeText() : embedSnippetText(); }
 function renderEmbed(){
   var pre = document.getElementById('embedSnippet');
   if (pre){ pre.textContent = activeEmbedText(); }   /* bake the current piece in */
@@ -3567,6 +3608,7 @@ if (embedChip && embedDock){
   });
   document.getElementById('copyEmbed').addEventListener('click', function(){
     copyText(activeEmbedText(),
+      embedTab === 'standalone' ? 'STANDALONE HTML COPIED — save as index.html, open anywhere' :
       embedTab === 'claude' ? 'PROMPT COPIED — paste into Claude Code / Cursor' : 'EMBED CODE COPIED — paste into any page',
       'COPY FAILED — tap again to retry');
   });

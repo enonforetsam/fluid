@@ -30,6 +30,7 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 - Optional image melt: uploaded image luminance drives the field.
 - Text in living colour: fill a word or brand name with the field, with a 9-font picker and a background-colour choice; persists locally and travels in share links.
 - Exact-size export as PNG, JPG, or WebP.
+- Self-contained HTML export: copy the piece as a complete, dependency-free file with the shaders inlined — no iframe, no server.
 - Clip recording through `MediaRecorder`.
 - URL hash format that round-trips every piece without server storage.
 - Cloudflare Worker API and Streamable HTTP MCP endpoint.
