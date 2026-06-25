@@ -49,6 +49,43 @@ export function buildSrc(opts: FluidBgOptions = {}): string {
   return base + "/" + ensureEmbed(opts.hash);
 }
 
+/** True if an element paints an opaque background colour (a non-zero alpha). */
+function hasOpaqueBackground(el: Element | null): boolean {
+  if (!el) return false;
+  const bg = getComputedStyle(el).backgroundColor;
+  if (!bg || bg === "transparent") return false;
+  const m = bg.match(/^rgba?\(([^)]+)\)/i);
+  if (!m) return true; // a named/opaque colour (e.g. "black") — no rgba() to inspect
+  const parts = m[1].split(",");
+  const alpha = parts.length >= 4 ? parseFloat(parts[3]) : 1;
+  return alpha > 0;
+}
+
+/**
+ * A `fixed` background sits at a negative z-index, *behind* the page. If the
+ * page itself paints an opaque background (on `<body>` or `<html>`), that colour
+ * covers the iframe and you see nothing — usually a black or white screen that
+ * looks like the package is broken. Warn the developer (once) with the exact fix
+ * instead of leaving them to debug a blank page. No-op outside the browser, and
+ * only relevant when the background is actually behind the page (z < 0).
+ */
+let warnedHidden = false;
+export function warnIfBackgroundHidden(z: number): void {
+  if (warnedHidden) return;
+  if (typeof document === "undefined" || typeof getComputedStyle === "undefined") return;
+  if (z >= 0) return; // sitting in front of the page — nothing paints over it
+  if (hasOpaqueBackground(document.body) || hasOpaqueBackground(document.documentElement)) {
+    warnedHidden = true;
+    console.warn(
+      "[fluid-bg] A `fixed` background sits at z-index " + z + ", but the page " +
+      "background (on <body>/<html>) is opaque and paints over it, so you'll see " +
+      "nothing (often a black screen). Make the page background transparent — e.g. " +
+      "`html, body { background: transparent }` — or raise the z-index above your " +
+      "page background. See https://github.com/enonforetsam/fluid/tree/master/fluid-bg#using-fixed-keep-the-page-background-transparent"
+    );
+  }
+}
+
 function makeIframe(src: string): HTMLIFrameElement {
   const f = document.createElement("iframe");
   f.src = src;
@@ -79,10 +116,12 @@ export function fluidBackground(
   const iframe = makeIframe(buildSrc(opts));
 
   if (opts.fixed) {
+    const z = opts.z == null ? -1 : opts.z;
+    warnIfBackgroundHidden(z);
     const host = document.createElement("div");
     host.style.cssText =
       "position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:" +
-      (opts.z == null ? -1 : opts.z) + ";";
+      z + ";";
     host.appendChild(iframe);
     (target || document.body).appendChild(host);
     return { el: host, destroy: () => host.remove() };

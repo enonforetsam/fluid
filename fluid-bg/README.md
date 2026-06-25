@@ -24,6 +24,20 @@ A `<fluid-bg>` web component, a React wrapper, and a CDN one-liner — one tag, 
 
 That's it. Put your content anywhere with `position: relative; z-index: 1` and it sits on top.
 
+> ### Using `fixed`? Keep the page background transparent
+>
+> A `fixed` background sits **behind** the page at `z-index: -1`. If your `<body>` or
+> `<html>` has an **opaque** background colour, it paints right over the background and
+> you'll see nothing — usually a black or white screen that looks like `fluid-bg` is broken.
+> It isn't; the page is simply in front of it. Keep the page background transparent:
+>
+> ```css
+> html, body { background: transparent; }
+> ```
+>
+> (`fluid-bg` will `console.warn` with this exact fix if it detects an opaque page
+> background behind a `fixed` instance.) Alternatively, raise `z` above your page background.
+
 ## npm
 
 ```sh

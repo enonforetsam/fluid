@@ -1,6 +1,6 @@
 {
   "name": "fluid-bg",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Drop a live Fluid generative-art background into any page — a <fluid-bg> web component, a React wrapper, and a CDN one-liner. Wraps the hosted Fluid studio (fluid.krackeddevs.com).",
   "type": "module",
   "license": "MIT",

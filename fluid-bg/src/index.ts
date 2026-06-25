@@ -1,7 +1,7 @@
 // fluid-bg — main entry. Re-exports the core API and registers the
 // <fluid-bg> custom element automatically in the browser.
 export * from "./core";
-import { buildSrc } from "./core";
+import { buildSrc, warnIfBackgroundHidden } from "./core";
 
 /**
  * `<fluid-bg hash="#p=…" fixed z="-1" base="…"></fluid-bg>`
@@ -18,6 +18,10 @@ export class FluidBgElement extends HTMLElement {
 
   connectedCallback(): void {
     this.render();
+    if (this.hasAttribute("fixed")) {
+      const z = this.getAttribute("z");
+      warnIfBackgroundHidden(z == null ? -1 : Number(z));
+    }
   }
 
   attributeChangedCallback(): void {

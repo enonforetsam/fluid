@@ -1,6 +1,6 @@
 // fluid-bg/react — a thin React wrapper. React is an optional peer dependency.
 import * as React from "react";
-import { buildSrc, type FluidBgOptions } from "./core";
+import { buildSrc, warnIfBackgroundHidden, type FluidBgOptions } from "./core";
 
 export interface FluidBgProps extends FluidBgOptions {
   className?: string;
@@ -13,6 +13,9 @@ export interface FluidBgProps extends FluidBgOptions {
  */
 export function FluidBg({ hash, fixed, z, base, className, style }: FluidBgProps): React.ReactElement {
   const src = buildSrc({ hash, base });
+  React.useEffect(() => {
+    if (fixed) warnIfBackgroundHidden(z ?? -1);
+  }, [fixed, z]);
   const layout: React.CSSProperties = fixed
     ? {
         position: "fixed",
