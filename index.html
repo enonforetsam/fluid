@@ -823,7 +823,31 @@
   </section>
 
   <section>
-    <div class="sec-title">02 — Field</div>
+    <div class="sec-title">02 — Colours</div>
+    <div class="exGroupLabel">Palette</div>
+    <div class="fieldgrid palettegrid">
+      <button class="fieldBtn palBtn on" data-pal="0" aria-label="Aurora" aria-pressed="true"><span>Aurora</span></button>
+      <button class="fieldBtn palBtn" data-pal="1" aria-label="Sunset" aria-pressed="false"><span>Sunset</span></button>
+      <button class="fieldBtn palBtn" data-pal="2" aria-label="Ocean" aria-pressed="false"><span>Ocean</span></button>
+      <button class="fieldBtn palBtn" data-pal="3" aria-label="Dusk" aria-pressed="false"><span>Dusk</span></button>
+      <button class="fieldBtn palBtn" data-pal="4" aria-label="Ember" aria-pressed="false"><span>Ember</span></button>
+      <button class="fieldBtn palBtn" data-pal="5" aria-label="Mint" aria-pressed="false"><span>Mint</span></button>
+      <button class="fieldBtn palBtn" data-pal="6" aria-label="Iris" aria-pressed="false"><span>Iris</span></button>
+      <button class="fieldBtn palBtn" data-pal="7" aria-label="Chrome" aria-pressed="false"><span>Chrome</span></button>
+      <button class="fieldBtn palBtn" data-pal="8" aria-label="Custom" aria-pressed="false"><span>Custom</span></button>
+    </div>
+    <div class="exGroupLabel">Custom gradient — dark to light</div>
+    <div class="row gap swatchRow" id="swatchRow">
+      <input class="swatch" id="c0" type="color" aria-label="Gradient stop 1 (darkest)">
+      <input class="swatch" id="c1" type="color" aria-label="Gradient stop 2">
+      <input class="swatch" id="c2" type="color" aria-label="Gradient stop 3">
+      <input class="swatch" id="c3" type="color" aria-label="Gradient stop 4 (lightest)">
+    </div>
+    <div class="cnote" id="cnote"></div>
+  </section>
+
+  <section>
+    <div class="sec-title">03 — Field</div>
     <div class="fieldgrid">
       <button class="fieldBtn on" data-field="0" title="Noise" aria-label="Noise" aria-pressed="true"><span>Noise</span></button>
       <button class="fieldBtn" data-field="1" title="Flow" aria-label="Flow" aria-pressed="false"><span>Flow</span></button>
@@ -909,7 +933,7 @@
   </section>
 
   <section>
-    <div class="sec-title">03 — Surface</div>
+    <div class="sec-title">04 — Surface</div>
     <div class="knobgrid" style="grid-template-columns:repeat(3,1fr)">
       <div class="knobctl">
         <div class="knob" data-for="pixel" role="slider" aria-label="Pixelate"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
@@ -935,30 +959,6 @@
       <button class="fieldBtn screenBtn" data-screen="3" title="Dither" aria-label="Dither" aria-pressed="false"><span>Dither</span></button>
       <button id="dotsBtn" class="fieldBtn on" title="Halftone" aria-label="Halftone" aria-pressed="true"><span>Halftone</span></button>
     </div>
-  </section>
-
-  <section>
-    <div class="sec-title">04 — Colours</div>
-    <div class="exGroupLabel">Palette</div>
-    <div class="fieldgrid palettegrid">
-      <button class="fieldBtn palBtn on" data-pal="0" aria-label="Aurora" aria-pressed="true"><span>Aurora</span></button>
-      <button class="fieldBtn palBtn" data-pal="1" aria-label="Sunset" aria-pressed="false"><span>Sunset</span></button>
-      <button class="fieldBtn palBtn" data-pal="2" aria-label="Ocean" aria-pressed="false"><span>Ocean</span></button>
-      <button class="fieldBtn palBtn" data-pal="3" aria-label="Dusk" aria-pressed="false"><span>Dusk</span></button>
-      <button class="fieldBtn palBtn" data-pal="4" aria-label="Ember" aria-pressed="false"><span>Ember</span></button>
-      <button class="fieldBtn palBtn" data-pal="5" aria-label="Mint" aria-pressed="false"><span>Mint</span></button>
-      <button class="fieldBtn palBtn" data-pal="6" aria-label="Iris" aria-pressed="false"><span>Iris</span></button>
-      <button class="fieldBtn palBtn" data-pal="7" aria-label="Chrome" aria-pressed="false"><span>Chrome</span></button>
-      <button class="fieldBtn palBtn" data-pal="8" aria-label="Custom" aria-pressed="false"><span>Custom</span></button>
-    </div>
-    <div class="exGroupLabel">Custom gradient — dark to light</div>
-    <div class="row gap swatchRow" id="swatchRow">
-      <input class="swatch" id="c0" type="color" aria-label="Gradient stop 1 (darkest)">
-      <input class="swatch" id="c1" type="color" aria-label="Gradient stop 2">
-      <input class="swatch" id="c2" type="color" aria-label="Gradient stop 3">
-      <input class="swatch" id="c3" type="color" aria-label="Gradient stop 4 (lightest)">
-    </div>
-    <div class="cnote" id="cnote"></div>
   </section>
 
   <section>
