@@ -774,6 +774,16 @@
     <div class="metaLine">Fluid v3 · updated 25 Jun 2026</div>
     <div class="signature">Made by <a href="https://themasterofnone.xyz" target="_blank" rel="noopener">TheMasterOfNone</a></div>
   </div>
+  <!-- Vibe — describe a mood, get a piece (client-side keyword mapper) -->
+  <section>
+    <div class="sec-title">✨ Vibe</div>
+    <div class="row gap">
+      <input id="vibeInput" class="textfield" style="flex:1;min-width:0" type="text" maxlength="200" placeholder="Describe a vibe — &ldquo;stormy ocean at dusk&rdquo;" aria-label="Describe a vibe" autocomplete="off" spellcheck="false">
+      <button id="vibeGo" type="button" class="primary">Paint</button>
+    </div>
+    <p class="cnote" id="vibeNote" style="margin:8px 0 0">Describe a mood, get a piece — instant, on your device.</p>
+  </section>
+
   <!-- quick-start templates at the top — collapsed by default, expand to pick one -->
   <section data-collapsed>
     <div class="sec-title">Templates</div>
@@ -4406,6 +4416,79 @@ function nextPaletteIndex(){
   try { localStorage.setItem('fluid:palstep', String(step)); } catch(e){}
   return step;
 }
+
+/* ---------- Vibe prompt: describe a mood, get a piece. Client-side keyword mapper, zero-backend.
+   (A semantic browser model can lazy-load behind this later — see the fluid-vibe plan.) ---------- */
+var vibeInput = document.getElementById('vibeInput');
+var vibeNote = document.getElementById('vibeNote');
+var vibeGo = document.getElementById('vibeGo');
+function vibeHas(p){
+  for (var i = 1; i < arguments.length; i++){
+    var w = arguments[i];
+    if (w.charAt(0) === ' '){ if (p.indexOf(w) >= 0){ return true; } }   /* phrases like ' and ' — substring */
+    else if (new RegExp('\\b' + w).test(p)){ return true; }              /* word-prefix: 'storm' hits 'stormy', but 'red' won't hit 'layered' */
+  }
+  return false;
+}
+function vibeToState(prompt){
+  var p = ' ' + (prompt || '').toLowerCase() + ' ';
+  var f = 0;
+  if (vibeHas(p, 'flow', 'liquid', 'water', 'river', 'current', 'wave')) f = 1;
+  else if (vibeHas(p, 'cell', 'organic', 'bubble', 'blob', 'lava')) f = 2;
+  else if (vibeHas(p, 'gyroid', 'woven', 'weave', 'knot')) f = 3;
+  else if (vibeHas(p, 'maze', 'circuit', 'truchet', 'path')) f = 4;
+  else if (vibeHas(p, 'ripple', 'interfere', 'moire', 'pond')) f = 5;
+  else if (vibeHas(p, 'mandala', 'kaleidoscope', 'kaleido')) f = 6;
+  else if (vibeHas(p, 'line', 'stripe', 'band', 'rain')) f = 7;
+  else if (vibeHas(p, 'grid', 'lattice', 'net', 'mesh')) f = 8;
+  else if (vibeHas(p, 'spiral', 'sunflower', 'swirl', 'vortex')) f = 9;
+  else if (vibeHas(p, 'smoke', 'cloud', 'fog', 'mist', 'storm', 'nebula', 'dust')) f = 10;
+  else if (vibeHas(p, 'crystal', 'facet', 'prism', 'shard', 'geometric', 'quartz')) f = 11;
+  else if (vibeHas(p, 'honeycomb', 'hex', 'bee', 'comb')) f = 12;
+  state.field = f;
+  var pal = 0;
+  if (vibeHas(p, 'ocean', 'sea', 'blue', 'cool', 'ice', 'frost', 'arctic')) pal = 2;
+  else if (vibeHas(p, 'sunset', 'peach', 'gold', 'amber', 'dawn')) pal = 1;
+  else if (vibeHas(p, 'fire', 'fier', 'flame', 'ember', 'lava', 'red', 'hot', 'magma', 'blood')) pal = 4;
+  else if (vibeHas(p, 'mint', 'green', 'forest', 'jade', 'emerald', 'spring')) pal = 5;
+  else if (vibeHas(p, 'iris', 'purple', 'violet', 'lavender', 'dream')) pal = 6;
+  else if (vibeHas(p, 'dusk', 'twilight', 'night', 'evening', 'midnight')) pal = 3;
+  else if (vibeHas(p, 'chrome', 'metal', 'silver', 'steel', 'mono', 'noir', 'grey', 'gray')) pal = 7;
+  else if (vibeHas(p, 'neon', 'electric', 'cyber', 'vivid', 'rainbow', 'psychedelic')){ state.cols = randomGradient(); pal = 8; }
+  state.pal = pal;
+  state.speed = 0.8; state.warp = 4.5;
+  if (vibeHas(p, 'calm', 'gentle', 'slow', 'serene', 'soft', 'sleepy', 'quiet', 'still', 'peaceful')){ state.speed = 0.55; state.warp = 2.6; }
+  else if (vibeHas(p, 'energetic', 'wild', 'intense', 'storm', 'chaos', 'frantic', 'fast', 'explosive', 'angry')){ state.speed = 1.1; state.warp = 7.6; }
+  state.sym = vibeHas(p, 'mandala', 'symmetric', 'radial', 'kaleidoscope', 'sacred', 'snowflake', 'symmetry') ? (vibeHas(p, 'intricate', 'complex', 'detailed') ? 8 : 6) : 0;
+  state.screen = 0; state.pixel = 1; state.dots = 0;
+  if (vibeHas(p, 'pixel', 'retro', '8-bit', '8bit', 'lo-fi', 'lofi', 'arcade')){ state.pixel = 10; }
+  else if (vibeHas(p, 'ascii', 'terminal', 'matrix', 'hacker')){ state.screen = 2; state.pixel = 10; }
+  else if (vibeHas(p, 'halftone', 'comic', 'pop', 'dotted')){ state.dots = 1; }
+  else if (vibeHas(p, 'dither', 'vintage', 'grainy', 'noisy')){ state.screen = 3; state.pixel = 5; }
+  state.field2 = 0; state.blend = 0; state.layerMix = 0;
+  if (vibeHas(p, ' and ', ' over ', ' with ', 'layered', 'mixed', 'combined', 'complex', 'rich', 'deep')){
+    state.field2 = (f + 5) % 13;
+    state.blend = vibeHas(p, 'glow', 'bright', 'light', 'shimmer') ? 2 : vibeHas(p, 'dark', 'shadow', 'moody') ? 1 : 5;
+    state.layerMix = 0.5;
+  }
+  state.grain = vibeHas(p, 'grainy', 'rough', 'textured', 'dusty') ? 0.12 : 0.05;
+  state.scale = vibeHas(p, 'zoom', 'close', 'macro') ? 1.1 : vibeHas(p, 'far', 'wide', 'vast', 'cosmic') ? 2.6 : 1.7;
+  state.seed = 3 + Math.random() * 89;
+  state.hasTex = 0; state.userSource = false;
+  var fn = ['cloudy', 'flowing', 'cellular', 'gyroid', 'truchet', 'interference', 'kaleido', 'lines', 'grid', 'golden-spiral', 'smoke', 'crystal', 'honeycomb'][f];
+  var pn = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome', 'custom'][pal];
+  var op = ['Got it.', 'Ooh, nice.', 'Say no more.', 'I feel that.', 'Here you go.', 'Love it.'][Math.floor(Math.random() * 6)];
+  return op + ' ' + fn + ' in ' + pn + (state.layerMix > 0 ? ', layered' : '') + (state.sym ? ', as a mandala' : '') + '.';
+}
+function paintVibe(){
+  var prompt = (vibeInput && vibeInput.value || '').trim();
+  if (!prompt){ if (vibeInput){ vibeInput.focus(); } return; }
+  var msg = vibeToState(prompt);
+  markPreset(null); markLook(null); syncControls(); setPlaying(true);
+  vibeNote.textContent = msg;
+}
+if (vibeGo){ vibeGo.addEventListener('click', paintVibe); }
+if (vibeInput){ vibeInput.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); paintVibe(); } }); }
 
 /* ---------- boot ---------- */
 var bootHash = window.location.hash;
