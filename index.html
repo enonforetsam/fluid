@@ -383,7 +383,9 @@
   .outputSpec{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;margin-bottom:8px}
   .outputSpec .tag{margin:0;flex:1;min-width:0}
   .exportRow{display:grid;grid-template-columns:auto 1fr;gap:8px;margin-top:8px}
-  .exportActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .exportActions{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:8px}
+  #recResBtn{white-space:nowrap;letter-spacing:.1em}
+  #recResBtn:disabled{opacity:.5;cursor:default}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
   @media(max-width:520px){.grid{grid-template-columns:1fr}}
   .ctl label{
@@ -998,6 +1000,7 @@
     <div class="exportActions">
       <button id="exportBtn" class="primary">Export image</button>
       <button id="recBtn" aria-pressed="false">Record clip</button>
+      <button id="recResBtn" type="button" aria-label="Recording resolution — tap to cycle 1080p, 2K, 4K" title="Recording resolution">1080p ▸</button>
     </div>
     <details class="moresizes">
       <summary>More sizes</summary>
@@ -3774,7 +3777,7 @@ function isTouchShare(){
 function clearSaveReady(){
   if (recChip){ recChip.classList.remove('saveready'); recChip.setAttribute('aria-label', 'Record clip'); }
   if (recBtn){ recBtn.classList.remove('saveready'); recBtn.textContent = 'Record clip'; }
-  if (recChipText){ recChipText.textContent = ''; }
+  paintIdleChip();
 }
 function deliverClip(blob, name, msg){
   if (isTouchShare()){
@@ -3793,6 +3796,7 @@ function savePendingClip(){
   shareOrDownload(c.blob, c.name, c.msg);   /* runs inside this tap → iOS opens the share sheet */
 }
 function recChipTap(){
+  if (recLongPressed){ recLongPressed = false; return; }   /* a long-press just cycled resolution → swallow this click */
   if (pendingClip){ savePendingClip(); return; }   /* a clip is waiting → this tap saves it */
   toggleRecording();
 }
@@ -3810,6 +3814,7 @@ function updateExportSpec(){
     : (exportFmt === 'jpg' ? 'no transparency'
       : (t.heavy ? 'heavy — may scale down' : (exportFmt === 'png' ? 'lossless' : 'small')));
   document.getElementById('exportSpec').textContent = t.w + '×' + t.h + ' · ' + fmt + ' · ' + note;
+  if (typeof syncRecResBtn === 'function'){ syncRecResBtn(); }
 }
 function customFromAr(ar){
   return ar >= 1
@@ -3863,13 +3868,22 @@ var REC_FRAME_MS = 1000 / REC_FPS;
 var REC_FRAME_US = Math.round(1000000 / REC_FPS);
 var REC_BITRATE = 30000000;
 var REC_KEYFRAME_EVERY = 1;
-var REC_MAX_SIDE = 1920;
-var REC_FALLBACK_MAX_SIDE = 1440;
+/* user-selectable recording resolution. tier = the LONG edge in px, so it adapts to any
+   aspect (square/portrait too). side = WebCodecs/primary cap; fbSide = MediaRecorder
+   fallback cap, kept one notch lower for clean cadence on browsers without hi-level H.264. */
+var REC_TIERS = [
+  { label:'1080p', side:1920, fbSide:1440 },
+  { label:'2K',    side:2560, fbSide:1920 },
+  { label:'4K',    side:3840, fbSide:2560 }
+];
+var recTierIdx = 0;
+function recTier(){ return REC_TIERS[recTierIdx]; }
+var recLongPressed = false, recLongPressTimer = null;
 var recCanvas = null, recCtx = null, recHiRes = null, recTrack = null, recLastCap = 0, recFrame = 0, recBaseT = 0;
 var wcEncoder = null, wcChunks = [], wcAvcc = null, wcCount = 0, wcLastCap = 0, wcW = 0, wcH = 0, wcErr = false, wcT0 = 0;
-/* Premium recording size for an aspect. WebCodecs gets a 1920px edge; MediaRecorder
-   fallback uses a lower cap so it can keep clean cadence on browsers without H.264
-   WebCodecs. H.264 still needs even dimensions. */
+/* Recording size for an aspect, capped to the chosen tier's long edge. WebCodecs uses the
+   primary cap; the MediaRecorder fallback a lower one for clean cadence on weaker browsers.
+   H.264 still needs even dimensions. */
 function recSizeForMax(ar, maxSide){
   ar = Math.max(0.1, Math.min(10, ar || 1));
   var w, h;
@@ -3877,8 +3891,16 @@ function recSizeForMax(ar, maxSide){
   else { h = maxSide; w = h * ar; }
   return { w: Math.max(2, Math.floor(w / 2) * 2), h: Math.max(2, Math.floor(h / 2) * 2) };
 }
-function recSize(ar){ return recSizeForMax(ar, REC_MAX_SIDE); }
-function recFallbackSize(ar){ return recSizeForMax(ar, REC_FALLBACK_MAX_SIDE); }
+function recSize(ar){ return recSizeForMax(ar, recTier().side); }
+function recFallbackSize(ar){ return recSizeForMax(ar, recTier().fbSide); }
+/* lowest AVC level (hex) whose max frame size fits w×h, so 2K/4K negotiate a high-enough
+   level instead of silently failing down to the MediaRecorder fallback. */
+function avcLevelHex(w, h){
+  var mbs = Math.ceil(w / 16) * Math.ceil(h / 16);
+  var L = [[1620,'1E'],[3600,'1F'],[5120,'20'],[8704,'2A'],[22080,'32'],[36864,'33']];
+  for (var i = 0; i < L.length; i++){ if (mbs <= L[i][0]) return L[i][1]; }
+  return '34'; /* 5.2 */
+}
 /* MediaRecorder writes a FRAGMENTED MP4 (moov declares mvex, samples live in moof boxes).
    X's web uploader rejects that. Remux it into a standard progressive MP4 (one moov whose
    sample tables describe everything, one mdat) so it uploads cleanly. Pure parse + rebuild,
@@ -4091,11 +4113,13 @@ function setRecUI(on){
   if (on){
     recBtn.classList.add('armed');
     recChip.classList.add('armed');
+    if (recResBtn){ recResBtn.disabled = true; }
   } else {
     recBtn.classList.remove('armed');
     recChip.classList.remove('armed');
     recBtn.textContent = 'Record clip';
-    recChipText.textContent = '';
+    paintIdleChip();
+    if (recResBtn){ recResBtn.disabled = false; }
   }
   recBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   recChip.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -4154,18 +4178,24 @@ function toggleRecording(){
     /* negotiate: Safari may reject latencyMode/hwAccel in isConfigSupported, so try the
        richest config first and fall back through simpler ones before MediaRecorder. */
     var common = { width:safe.w, height:safe.h, bitrate:REC_BITRATE, framerate:REC_FPS, avc:{ format:'avc' } };
-    var opts = [
-      { codec:'avc1.64002A', hardwareAcceleration:'prefer-hardware', latencyMode:'quality', bitrateMode:'constant' },
-      { codec:'avc1.64002A', hardwareAcceleration:'prefer-hardware', latencyMode:'quality' },
-      { codec:'avc1.640029', hardwareAcceleration:'prefer-hardware', latencyMode:'quality', bitrateMode:'constant' },
-      { codec:'avc1.640029', hardwareAcceleration:'prefer-hardware', latencyMode:'quality' },
-      { codec:'avc1.640028', hardwareAcceleration:'prefer-hardware', latencyMode:'quality', bitrateMode:'constant' },
-      { codec:'avc1.640028', hardwareAcceleration:'prefer-hardware', latencyMode:'quality' },
-      { codec:'avc1.640028', hardwareAcceleration:'prefer-hardware' },
-      { codec:'avc1.640028' },
-      { codec:'avc1.4d0028' },
-      { codec:'avc1.42e01e' }
+    /* codec strings at the level the chosen resolution needs (1080p→4.2, 2K→5.0, 4K→5.1),
+       richest profile/tuning first; tryNext falls through to MediaRecorder if none stick. */
+    var lvl = avcLevelHex(safe.w, safe.h);
+    var codecs = [ 'avc1.6400' + lvl, 'avc1.4D00' + lvl, 'avc1.42E0' + lvl ];
+    var tuning = [
+      { hardwareAcceleration:'prefer-hardware', latencyMode:'quality', bitrateMode:'constant' },
+      { hardwareAcceleration:'prefer-hardware', latencyMode:'quality' },
+      { hardwareAcceleration:'prefer-hardware' },
+      {}
     ];
+    var opts = [];
+    for (var ci = 0; ci < codecs.length; ci++){
+      for (var tj = 0; tj < tuning.length; tj++){
+        var oo = { codec: codecs[ci] };
+        for (var ok in tuning[tj]){ oo[ok] = tuning[tj][ok]; }
+        opts.push(oo);
+      }
+    }
     var tryNext = function(i){
       if (i >= opts.length){ startMediaRecorder(fallbackSafe); return; }
       var cfg = {}, key;
@@ -4297,6 +4327,43 @@ function startMediaRecorder(safe){
 }
 recBtn.addEventListener('click', recChipTap);
 recChip.addEventListener('click', recChipTap);
+
+/* ---------- recording resolution: panel cycle button + on-canvas long-press ---------- */
+var recResBtn = document.getElementById('recResBtn');
+function paintIdleChip(){ if (recChipText){ recChipText.textContent = recTier().label; } }
+function syncRecResBtn(){
+  if (!recResBtn){ return; }
+  recResBtn.textContent = recTier().label + ' ▸';
+  var ar = (canvas && canvas.width) ? canvas.width / canvas.height : 1;
+  var s = recSize(ar);
+  recResBtn.title = 'Recording resolution — ' + recTier().label + ' (' + s.w + '×' + s.h + ' for this shape). Tap to cycle.';
+}
+function cycleRecRes(){
+  if (recorder || wcEncoder){ return; }   /* can't resize mid-recording */
+  recTierIdx = (recTierIdx + 1) % REC_TIERS.length;
+  syncRecResBtn();
+  paintIdleChip();
+  setStatus('Recording size — ' + recTier().label);
+}
+if (recResBtn){ recResBtn.addEventListener('click', cycleRecRes); }
+/* long-press / right-click the on-canvas dot to cycle, without firing a record toggle */
+function startRecChipPress(){
+  recLongPressed = false;
+  if (recorder || wcEncoder || pendingClip){ return; }   /* only when idle */
+  recLongPressTimer = setTimeout(function(){
+    recLongPressed = true;
+    cycleRecRes();
+    if (navigator.vibrate){ try { navigator.vibrate(8); } catch(e){} }
+  }, 500);
+}
+function cancelRecChipPress(){ if (recLongPressTimer){ clearTimeout(recLongPressTimer); recLongPressTimer = null; } }
+recChip.addEventListener('pointerdown', startRecChipPress);
+recChip.addEventListener('pointerup', cancelRecChipPress);
+recChip.addEventListener('pointerleave', cancelRecChipPress);
+recChip.addEventListener('pointercancel', cancelRecChipPress);
+recChip.addEventListener('contextmenu', function(e){ e.preventDefault(); if (!(recorder || wcEncoder || pendingClip)){ cycleRecRes(); } });
+syncRecResBtn();
+paintIdleChip();
 
 /* ---------- export targets UI ---------- */
 var exportGroupsEl = document.getElementById('exportGroups');
