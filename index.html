@@ -3434,7 +3434,9 @@ function renderDesignList(){
     load.setAttribute('aria-label', 'Open saved design ' + (item.title || 'Untitled'));
     var img = document.createElement('img');
     img.alt = '';
-    img.src = item.thumb || EMPTY_THUMB;
+    /* only trust a data:image/ thumb (it's always produced locally as one); anything else in a
+       poisoned localStorage falls back to the blank placeholder — no unvalidated input -> img.src */
+    img.src = (item.thumb && /^data:image\//.test(item.thumb)) ? item.thumb : EMPTY_THUMB;
     var meta = document.createElement('span');
     meta.className = 'designMeta';
     var name = document.createElement('span');
