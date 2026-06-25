@@ -293,7 +293,7 @@ var SEC = {
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
     "font-src 'self'",
-    "connect-src 'self' https://cloudflareinsights.com",
+    "connect-src 'self' https://cloudflareinsights.com https://api.openai.com https://*.openai.azure.com",
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
     "frame-ancestors *",
