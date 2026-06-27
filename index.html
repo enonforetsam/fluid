@@ -948,6 +948,10 @@
         <span>Push</span>
       </button>
     </div>
+    <div style="margin-top:8px">
+      <div class="knoblabel">Cursor impact <output id="cursorImpactOut">1.0</output></div>
+      <input id="cursorImpact" type="range" min="0" max="3" step="0.05" value="1">
+    </div>
   </section>
 
   <section>
@@ -1607,15 +1611,15 @@ var FSRC = [
   '      vec2 dir = normalize(dv / max(md, 0.0008) + nz * 0.9);',
   '      p += dir * wave * env * u_mouseAmt * 0.08;',
   '    } else if (u_mouseMode == 2){',
-  '      float env = exp(-md * 7.0);',
-  '      p -= dv * env * u_mouseAmt * 0.35;',
+  '      float env = exp(-md * 5.0);',
+  '      p -= dv * env * u_mouseAmt * 0.5;',
   '    } else if (u_mouseMode == 3){',
-  '      float angle = u_mouseAmt * 2.5 * exp(-md * 5.0);',
+  '      float angle = u_mouseAmt * 3.0 * exp(-md * 4.0);',
   '      float ca = cos(angle), sa = sin(angle);',
   '      p += vec2(dv.x * ca - dv.y * sa, dv.x * sa + dv.y * ca) - dv;',
   '    } else if (u_mouseMode == 4){',
-  '      float env = exp(-md * 6.0);',
-  '      p += normalize(dv / max(md, 0.0008)) * env * u_mouseAmt * 0.18;',
+  '      float env = exp(-md * 5.0);',
+  '      p += normalize(dv / max(md, 0.0008)) * env * u_mouseAmt * 0.28;',
   '    }',
   '  }',
   '  /* time evolution: small, bounded, multi-frequency sway. The old large single-',
@@ -2292,7 +2296,7 @@ function render(k, tgt){
   gl.uniform1i(U.u_material, state.material || 0);
   gl.uniform2f(U.u_pan, tex ? state.panX : 0, tex ? state.panY : 0);
   gl.uniform2f(U.u_mouse, mouse.x, mouse.y);
-  gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt);
+  gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt * (mouse.impacts[mouse.mode] || 1));
   gl.uniform1i(U.u_mouseMode, mouse.mode);
   gl.uniform1f(U.u_rec, recHiRes ? 1 : 0);
   if (maskTex){ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, maskTex); gl.uniform1i(U.u_mask, 2); gl.activeTexture(gl.TEXTURE0); }
@@ -2314,8 +2318,9 @@ function render(k, tgt){
 }
 
 /* ---------- cursor ripple state ---------- */
-var mouse = { x:0.5, y:0.5, amt:0, target:0, mode:1 };
+var mouse = { x:0.5, y:0.5, amt:0, target:0, mode:1, over:false, impacts:[1,1,1,1,1] };
 try { var _cm = parseInt(localStorage.getItem('fluid:cursorMode'), 10); if (_cm >= 0 && _cm <= 4){ mouse.mode = _cm; } } catch(e){}
+try { var _ci = JSON.parse(localStorage.getItem('fluid:cursorImpacts')); if (_ci && _ci.length === 5){ mouse.impacts = _ci; } } catch(e){}
 function syncCursorButtons(){
   Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
     var m = parseInt(b.getAttribute('data-cmode'), 10);
@@ -2346,7 +2351,8 @@ function frame(now){
   last = now;
   if (state.playing && !warming && !recHiRes){ state.t += dt * state.speed; }
   /* ripple swells while the mouse moves, then lingers and settles like real water */
-  mouse.target *= 0.94;
+  if (mouse.mode >= 2 && mouse.over){ mouse.target = 1.0; }   /* lens/vortex/push stay on while the cursor is over the canvas */
+  else { mouse.target *= 0.94; }                              /* ripple (mode 1) trails the motion and fades */
   mouse.amt += (mouse.target - mouse.amt) * 0.10;
   if (mouse.amt < 0.002){ mouse.amt = 0; }
   resize();
@@ -2789,10 +2795,27 @@ Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'),
     mouse.mode = parseInt(b.getAttribute('data-cmode'), 10);
     try { localStorage.setItem('fluid:cursorMode', String(mouse.mode)); } catch(e){}
     syncCursorButtons();
+    syncCursorImpact();
     requestRender();
   });
 });
+function syncCursorImpact(){
+  var sl = document.getElementById('cursorImpact'), o = document.getElementById('cursorImpactOut');
+  var v = mouse.impacts[mouse.mode]; if (v === undefined){ v = 1; }
+  if (sl){ sl.value = v; }
+  if (o){ o.textContent = (+v).toFixed(1); }
+}
+(function(){
+  var ci = document.getElementById('cursorImpact');
+  if (ci){ ci.addEventListener('input', function(){
+    mouse.impacts[mouse.mode] = parseFloat(ci.value);
+    var o = document.getElementById('cursorImpactOut'); if (o){ o.textContent = parseFloat(ci.value).toFixed(1); }
+    try { localStorage.setItem('fluid:cursorImpacts', JSON.stringify(mouse.impacts)); } catch(e){}
+    requestRender();
+  }); }
+})();
 syncCursorButtons();
+syncCursorImpact();
 function applyAspect(){
   if (EMBED){ canvas.style.aspectRatio = ''; return; }
   /* a bare number is a valid CSS aspect-ratio (width / height) */
@@ -2968,7 +2991,7 @@ canvas.addEventListener('pointermove', function(e){
       state.panY = Math.max(-0.5, Math.min(0.5, panBY + dy));  /* +dy: texture is FLIP_Y, so drag follows the finger */
     }
   }
-  if (!panning && mouse.mode > 0){ mouse.target = 1.0; }   /* cursor effect only when NOT dragging a photo — no double effect */
+  if (!panning && mouse.mode > 0){ mouse.target = 1.0; mouse.over = true; }   /* cursor effect only when NOT dragging a photo — no double effect */
   requestRender();                 /* ripple kick + image pan both need a redraw */
 });
 canvas.addEventListener('pointerup', function(e){
@@ -2981,7 +3004,7 @@ canvas.addEventListener('pointerup', function(e){
   ptrDown = false;
 });
 canvas.addEventListener('pointercancel', function(){ panning = false; ptrDown = false; });
-canvas.addEventListener('pointerleave', function(){ mouse.target = 0; });
+canvas.addEventListener('pointerleave', function(){ mouse.target = 0; mouse.over = false; });
 function resetPan(){ state.panX = 0; state.panY = 0; }
 function reseed(){
   state.seed = 3 + Math.random() * 89;
@@ -4935,7 +4958,7 @@ var thumbJobs = null, thumbSave = null, thumbSavedAmt = 0, thumbGen = 0;
 var thumbTimer = null, lastThumbPal = null, presetThumbsDone = false;
 var THUMB_RES = 144, THUMB_K = 1;
 var thumbFB = null, thumbTex = null, thumbPixels = null, thumbCv = null, thumbCtx = null, thumbImg = null;
-var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','hasTex','t','cols','dot'];
+var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','hasTex','t','cols','dot'];
 function palSig(){ return state.pal===8 ? '8:'+state.cols.join(',') : String(state.pal); }
 function ensureThumbGL(){
   if (thumbFB || !gl){ return !!thumbFB; }
@@ -4991,6 +5014,7 @@ function thumbSpecs(){
 function applyThumbState(src){ for (var i = 0; i < THUMB_KEYS.length; i++){ state[THUMB_KEYS[i]] = src[THUMB_KEYS[i]]; } }
 function renderOneThumb(job){
   for (var k in job.ov){ state[k] = job.ov[k]; }
+  state.material = 0; state.dots = 0; state.pixel = 1; state.screen = 0;   /* clean engine previews — no finish / halftone / pixelate / glitch */
   if (job.pal === 8){ state.cols = cloneStops(thumbSave.cols); }
   try {
     render(THUMB_K, { fb: thumbFB, w: THUMB_RES, h: THUMB_RES });
