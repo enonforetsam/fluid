@@ -37,6 +37,7 @@ export function ensureEmbed(hash?: string): string {
   let h = hash || DEFAULT_HASH;
   if (h.charAt(0) === "#") h = h.slice(1);
   if (h.indexOf("p=") === 0) h = h.slice(2);
+  if (!/^[0-9.,\-]*$/.test(h)) h = DEFAULT_HASH.replace(/^#p=/, "");   // share hashes are numeric-only — reject anything else
   const a = h.split(",");
   while (a.length <= EMBED_SLOT) a.push("0");
   a[EMBED_SLOT] = "1";
@@ -45,7 +46,8 @@ export function ensureEmbed(hash?: string): string {
 
 /** Build the full embed URL for an options object. */
 export function buildSrc(opts: FluidBgOptions = {}): string {
-  const base = (opts.base || DEFAULT_BASE).replace(/\/+$/, "");
+  let base = (opts.base || DEFAULT_BASE).replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(base)) base = DEFAULT_BASE.replace(/\/+$/, "");   // only http(s) origins — reject javascript:/data: etc.
   return base + "/" + ensureEmbed(opts.hash);
 }
 
@@ -116,7 +118,7 @@ export function fluidBackground(
   const iframe = makeIframe(buildSrc(opts));
 
   if (opts.fixed) {
-    const z = opts.z == null ? -1 : opts.z;
+    const z = (opts.z == null || isNaN(Number(opts.z))) ? -1 : Number(opts.z);
     warnIfBackgroundHidden(z);
     const host = document.createElement("div");
     host.style.cssText =

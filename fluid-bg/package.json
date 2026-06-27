@@ -1,17 +1,33 @@
 {
   "name": "fluid-bg",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Drop a live Fluid generative-art background into any page — a <fluid-bg> web component, a React wrapper, and a CDN one-liner. Wraps the hosted Fluid studio (fluid.krackeddevs.com).",
   "type": "module",
   "license": "MIT",
   "author": "KrackedDevs",
   "homepage": "https://fluid.krackeddevs.com",
-  "repository": { "type": "git", "url": "git+https://github.com/enonforetsam/fluid.git", "directory": "fluid-bg" },
-  "bugs": { "url": "https://github.com/enonforetsam/fluid/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enonforetsam/fluid.git",
+    "directory": "fluid-bg"
+  },
+  "bugs": {
+    "url": "https://github.com/enonforetsam/fluid/issues"
+  },
   "keywords": [
-    "background", "animated-background", "generative-art", "webgl", "fluid",
-    "web-component", "custom-element", "react", "gradient", "wallpaper",
-    "iframe", "backdrop", "hero"
+    "background",
+    "animated-background",
+    "generative-art",
+    "webgl",
+    "fluid",
+    "web-component",
+    "custom-element",
+    "react",
+    "gradient",
+    "wallpaper",
+    "iframe",
+    "backdrop",
+    "hero"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -19,18 +35,40 @@
   "unpkg": "./dist/fluid-bg.iife.js",
   "jsdelivr": "./dist/fluid-bg.iife.js",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./react": { "types": "./dist/react.d.ts", "import": "./dist/react.js" },
-    "./core": { "types": "./dist/core.d.ts", "import": "./dist/core.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js"
+    }
   },
-  "sideEffects": ["./dist/index.js", "./dist/fluid-bg.iife.js"],
-  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": [
+    "./dist/index.js",
+    "./dist/fluid-bg.iife.js"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "node build.mjs && tsc -p tsconfig.json",
     "prepublishOnly": "npm run build"
   },
-  "peerDependencies": { "react": ">=17" },
-  "peerDependenciesMeta": { "react": { "optional": true } },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/react": "^18.3.12",
     "esbuild": "^0.24.0",

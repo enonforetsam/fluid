@@ -29,7 +29,8 @@ export class FluidBgElement extends HTMLElement {
   }
 
   private render(): void {
-    const z = this.getAttribute("z");
+    const zRaw = this.getAttribute("z");
+    const z = (zRaw == null || isNaN(Number(zRaw))) ? -1 : Number(zRaw);   // numeric only — never let z break out of the <style> block
     const src = buildSrc({
       hash: this.getAttribute("hash") || undefined,
       base: this.getAttribute("base") || undefined,
@@ -39,7 +40,7 @@ export class FluidBgElement extends HTMLElement {
       "<style>" +
       ":host{display:block;position:relative;width:100%;height:100%}" +
       ":host([fixed]){position:fixed;inset:0;width:100vw;height:100vh;" +
-      "pointer-events:none;overflow:hidden;z-index:" + (z == null ? "-1" : z) + "}" +
+      "pointer-events:none;overflow:hidden;z-index:" + z + "}" +
       "iframe{border:0;display:block;width:100%;height:100%;pointer-events:none}" +
       "</style>" +
       '<iframe title="Fluid background" loading="lazy" aria-hidden="true" tabindex="-1" src="' +

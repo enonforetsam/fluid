@@ -2296,7 +2296,8 @@ function render(k, tgt){
   gl.uniform1i(U.u_material, state.material || 0);
   gl.uniform2f(U.u_pan, tex ? state.panX : 0, tex ? state.panY : 0);
   gl.uniform2f(U.u_mouse, mouse.x, mouse.y);
-  gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt * (mouse.impacts[mouse.mode] || 1));
+  var _im = mouse.impacts[mouse.mode]; if (_im == null || isNaN(_im)){ _im = 1; }   /* 0 is a valid impact (disables the effect), so don't || it away */
+  gl.uniform1f(U.u_mouseAmt, exporting ? 0 : mouse.amt * _im);
   gl.uniform1i(U.u_mouseMode, mouse.mode);
   gl.uniform1f(U.u_rec, recHiRes ? 1 : 0);
   if (maskTex){ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, maskTex); gl.uniform1i(U.u_mask, 2); gl.activeTexture(gl.TEXTURE0); }
@@ -4101,7 +4102,7 @@ document.getElementById('exportBtn').addEventListener('click', runExport);
 /* ---------- Frame: drop a post (e.g. an X screenshot) onto the live art -> PNG or clip.
    100% local — composites the WebGL canvas + the uploaded image onto a 2D canvas, exports it. ---------- */
 var frameCanvas = document.getElementById('frameCanvas');
-var frameImg = null, frameScale = 0.66, frameRadius = 18, frameShadow = true, frameRAF = 0, frameRec = null;
+var frameImg = null, frameScale = 0.66, frameRadius = 18, frameShadow = true, frameRAF = 0, frameRec = null, frameUrl = null;
 function frameRoundRect(c, x, y, w, h, r){ r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 function drawFrameInto(out){
   var cx = out.getContext('2d'), W = out.width, H = out.height;
@@ -4134,9 +4135,13 @@ function frameShow(on){ frameCanvas.style.display = on ? 'block' : 'none'; if (o
   var fileEl = document.getElementById('frameFile');
   if (fileEl){ fileEl.addEventListener('change', function(){
     var f = fileEl.files && fileEl.files[0]; if (!f){ return; }
+    if (f.type.indexOf('image') !== 0){ setStatus('Please choose an image file'); fileEl.value = ''; return; }
+    if (frameUrl){ URL.revokeObjectURL(frameUrl); }    /* free the previous blob — keep only the live one alive */
+    frameUrl = URL.createObjectURL(f);
     var img = new Image();
     img.onload = function(){ frameImg = img; frameShow(true); setStatus('FRAME — your post is on the live art. Download PNG or record a clip.'); };
-    img.src = URL.createObjectURL(f);
+    img.onerror = function(){ if (frameUrl){ URL.revokeObjectURL(frameUrl); frameUrl = null; } setStatus('Could not load that image'); };
+    img.src = frameUrl;
   }); }
   var upBtn = document.getElementById('frameUpload');
   if (upBtn && fileEl){ upBtn.addEventListener('click', function(){ fileEl.click(); }); }
@@ -4147,7 +4152,7 @@ function frameShow(on){ frameCanvas.style.display = on ? 'block' : 'none'; if (o
   var sh = document.getElementById('frameShadow');
   if (sh){ sh.addEventListener('change', function(){ frameShadow = sh.checked; }); }
   var clr = document.getElementById('frameClear');
-  if (clr){ clr.addEventListener('click', function(){ frameImg = null; frameShow(false); if (fileEl){ fileEl.value = ''; } setStatus('FRAME CLEARED'); }); }
+  if (clr){ clr.addEventListener('click', function(){ frameImg = null; frameShow(false); if (frameUrl){ URL.revokeObjectURL(frameUrl); frameUrl = null; } if (fileEl){ fileEl.value = ''; } setStatus('FRAME CLEARED'); }); }
 })();
 
 /* ---------- clip recording: panel button + on-canvas chip, shared timer ---------- */
