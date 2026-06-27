@@ -747,6 +747,7 @@
       </div>
       <div class="card">
         <canvas id="cv" aria-label="Generative fluid artwork. Tap to reseed the field."></canvas>
+        <canvas id="frameCanvas" style="display:none;position:absolute;inset:0;width:100%;height:100%;pointer-events:none" aria-hidden="true"></canvas>
         <div id="ba" style="display:none">
           <span class="balabel" id="baBefore">Before</span>
           <span class="balabel" id="baAfter">After</span>
@@ -998,6 +999,23 @@
       <button class="fieldBtn materialBtn" data-material="3" title="Sand" aria-label="Sand" aria-pressed="false"><span>Sand</span></button>
       <button class="fieldBtn materialBtn" data-material="4" title="Liquid" aria-label="Liquid" aria-pressed="false"><span>Liquid</span></button>
     </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Frame — a post on your art</div>
+    <button id="frameUpload" type="button" class="primary" style="width:100%">Upload a screenshot</button>
+    <input id="frameFile" type="file" accept="image/*">
+    <div style="margin-top:10px">
+      <div class="knoblabel">Size <output id="frameSizeOut">66</output>%</div>
+      <input id="frameSize" type="range" min="0.35" max="0.95" step="0.01" value="0.66">
+    </div>
+    <div style="margin-top:8px">
+      <div class="knoblabel">Corners <output id="frameRadOut">18</output></div>
+      <input id="frameRad" type="range" min="0" max="45" step="1" value="18">
+    </div>
+    <label class="cnote" style="display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer"><input id="frameShadow" type="checkbox" checked> Drop shadow</label>
+    <button id="frameClear" type="button" style="width:100%;margin-top:10px">Clear screenshot</button>
+    <p class="cnote" style="margin:8px 0 0">Your post floats on the live art. Now hit <b>Export image</b> or the <b>&#9679; Record</b> button — they capture the framed post (MP4, ready for X). 100% on your device.</p>
   </section>
 
   <section>
@@ -2317,8 +2335,12 @@ function renderRecordingSource(){
 function captureRecorderFrame(){
   try {
     renderRecordingSource();
-    recCtx.imageSmoothingEnabled = false;
-    recCtx.drawImage(canvas, 0, 0, recCanvas.width, recCanvas.height);
+    if (typeof frameImg !== 'undefined' && frameImg){
+      drawFrameInto(recCanvas);                            /* composite the framed post into the recording canvas */
+    } else {
+      recCtx.imageSmoothingEnabled = false;
+      recCtx.drawImage(canvas, 0, 0, recCanvas.width, recCanvas.height);
+    }
     if (recTrack && recTrack.requestFrame){ recTrack.requestFrame(); }
     recFrame++;
   } catch(e){}
@@ -2329,12 +2351,17 @@ function captureWebCodecsFrame(now){
     renderRecordingSource();
     var ts = recFrame * REC_FRAME_US;   /* fixed-step timestamps: no browser-stall cadence in the MP4 */
     var vf = null;
-    try {
-      vf = new VideoFrame(canvas, { timestamp: ts });
-    } catch(e){
-      recCtx.imageSmoothingEnabled = false;
-      recCtx.drawImage(canvas, 0, 0, recCanvas.width, recCanvas.height);
+    if (typeof frameImg !== 'undefined' && frameImg){
+      drawFrameInto(recCanvas);                            /* composite the framed post into the recording canvas */
       vf = new VideoFrame(recCanvas, { timestamp: ts });
+    } else {
+      try {
+        vf = new VideoFrame(canvas, { timestamp: ts });
+      } catch(e){
+        recCtx.imageSmoothingEnabled = false;
+        recCtx.drawImage(canvas, 0, 0, recCanvas.width, recCanvas.height);
+        vf = new VideoFrame(recCanvas, { timestamp: ts });
+      }
     }
     wcEncoder.encode(vf, { keyFrame: (wcCount % REC_KEYFRAME_EVERY) === 0 });
     vf.close();
@@ -3966,6 +3993,11 @@ function runExport(){
   function attempt(w, h){
     canvas.width = w; canvas.height = h;
     render(w / cw);                          /* dpr rule: k = exportW / clientW */
+    if (typeof frameImg !== 'undefined' && frameImg){
+      var oc = document.createElement('canvas'); oc.width = w; oc.height = h;
+      drawFrameInto(oc);                     /* composite the framed post on export too */
+      return oc.toDataURL(mime, qual);
+    }
     return canvas.toDataURL(mime, qual);
   }
   var W = t.w, H = t.h, data = '', scaled = false;
@@ -3986,6 +4018,58 @@ function runExport(){
            : ('EXPORTED — ' + name.toUpperCase() + ' (' + W + '×' + H + ')'));
 }
 document.getElementById('exportBtn').addEventListener('click', runExport);
+
+/* ---------- Frame: drop a post (e.g. an X screenshot) onto the live art -> PNG or clip.
+   100% local — composites the WebGL canvas + the uploaded image onto a 2D canvas, exports it. ---------- */
+var frameCanvas = document.getElementById('frameCanvas');
+var frameImg = null, frameScale = 0.66, frameRadius = 18, frameShadow = true, frameRAF = 0, frameRec = null;
+function frameRoundRect(c, x, y, w, h, r){ r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function drawFrameInto(out){
+  var cx = out.getContext('2d'), W = out.width, H = out.height;
+  cx.clearRect(0, 0, W, H);
+  try { cx.drawImage(canvas, 0, 0, W, H); } catch(e){}            /* the live Fluid art as the backdrop */
+  if (!frameImg){ return; }
+  var iw = frameImg.naturalWidth || 1, ih = frameImg.naturalHeight || 1;
+  var cw = W * frameScale, ch = cw * ih / iw;
+  if (ch > H * 0.92){ ch = H * 0.92; cw = ch * iw / ih; }
+  var x = (W - cw) / 2, y = (H - ch) / 2, r = frameRadius / 1000 * W;
+  if (frameShadow){
+    cx.save();
+    cx.shadowColor = 'rgba(0,0,0,0.45)'; cx.shadowBlur = W * 0.03; cx.shadowOffsetY = W * 0.012;
+    frameRoundRect(cx, x, y, cw, ch, r); cx.fillStyle = '#000'; cx.fill();
+    cx.restore();
+  }
+  cx.save();
+  frameRoundRect(cx, x, y, cw, ch, r); cx.clip();
+  cx.drawImage(frameImg, x, y, cw, ch);
+  cx.restore();
+}
+function frameLoop(){
+  if (!frameImg){ frameRAF = 0; return; }
+  if (frameCanvas.width !== canvas.width || frameCanvas.height !== canvas.height){ frameCanvas.width = canvas.width; frameCanvas.height = canvas.height; }
+  drawFrameInto(frameCanvas);
+  frameRAF = requestAnimationFrame(frameLoop);
+}
+function frameShow(on){ frameCanvas.style.display = on ? 'block' : 'none'; if (on && !frameRAF){ frameLoop(); } }
+(function bindFrame(){
+  var fileEl = document.getElementById('frameFile');
+  if (fileEl){ fileEl.addEventListener('change', function(){
+    var f = fileEl.files && fileEl.files[0]; if (!f){ return; }
+    var img = new Image();
+    img.onload = function(){ frameImg = img; frameShow(true); setStatus('FRAME — your post is on the live art. Download PNG or record a clip.'); };
+    img.src = URL.createObjectURL(f);
+  }); }
+  var upBtn = document.getElementById('frameUpload');
+  if (upBtn && fileEl){ upBtn.addEventListener('click', function(){ fileEl.click(); }); }
+  var sz = document.getElementById('frameSize'), szo = document.getElementById('frameSizeOut');
+  if (sz){ sz.addEventListener('input', function(){ frameScale = parseFloat(sz.value); if (szo){ szo.textContent = Math.round(frameScale * 100); } }); }
+  var rd = document.getElementById('frameRad'), rdo = document.getElementById('frameRadOut');
+  if (rd){ rd.addEventListener('input', function(){ frameRadius = parseFloat(rd.value); if (rdo){ rdo.textContent = Math.round(frameRadius); } }); }
+  var sh = document.getElementById('frameShadow');
+  if (sh){ sh.addEventListener('change', function(){ frameShadow = sh.checked; }); }
+  var clr = document.getElementById('frameClear');
+  if (clr){ clr.addEventListener('click', function(){ frameImg = null; frameShow(false); if (fileEl){ fileEl.value = ''; } setStatus('FRAME CLEARED'); }); }
+})();
 
 /* ---------- clip recording: panel button + on-canvas chip, shared timer ---------- */
 var recBtn = document.getElementById('recBtn');
