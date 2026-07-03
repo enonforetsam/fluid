@@ -2246,7 +2246,17 @@ canvas.addEventListener('webglcontextlost', function(e){
   e.preventDefault();
   if (exporting){ return; } /* the export path handles its own half-size retry */
   setStatus('ERR — GPU context lost; reloading');
-  setTimeout(function(){ window.location.reload(); }, 800);
+  setTimeout(function(){
+    /* an embed must come back as the same chrome-less piece. Normally its #p= hash
+       is still in the URL (boot keeps it in embed mode) and a plain reload re-parses
+       it; if the hash was somehow lost, rebuild it — the URL then differs, so
+       location.replace is a real cross-document load, not a same-URL no-op. */
+    if (EMBED && !window.location.hash){
+      window.location.replace(window.location.pathname + buildHash(1));
+    } else {
+      window.location.reload();
+    }
+  }, 800);
 });
 function screenK(){ return canvas.width / canvas.clientWidth; }
 
@@ -4899,8 +4909,13 @@ if (fromHash){
   /* a shared #p= link must reproduce exactly — keep its colour */
   parseTextFromHash(bootHash);   /* restore shared text/font/bg, if any */
   setStatus('SHARED PIECE LOADED — remix it, it is yours now');
-  /* clean the URL bar — state is in memory and persisted to localStorage on first change */
-  try { history.replaceState(null, '', window.location.pathname); } catch(e){}
+  /* clean the URL bar — state is in memory and persisted to localStorage on first change.
+     NOT in embed mode: embeds reload themselves on GPU context loss and never write
+     fluid:last, so the hash is the only thing that brings the chrome-less piece back —
+     stripping it made embeds boot as the full studio UI after a context loss. */
+  if (!EMBED){
+    try { history.replaceState(null, '', window.location.pathname); } catch(e){}
+  }
 } else {
   /* no share link in the URL — pick up the last design (survives reloads &
      the context-loss reload); only a brand-new visitor gets a random pattern */
