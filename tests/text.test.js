@@ -45,7 +45,10 @@ describe('text-in-living-colour feature', () => {
     const i = src.indexOf('function applyTextState');
     const body = src.slice(i, i + 700);
     assert.match(body, /\.slice\(0,\s*48\)/, 'text must be clamped to 48 chars');
-    assert.match(body, /\[0-9a-fA-F\]\{6\}/, 'bg must be hex-validated before use');
+    assert.match(body, /safeHex\(/, 'bg stops must go through the safeHex validator');
+    const j = src.indexOf('function safeHex');
+    assert.ok(j >= 0, 'safeHex validator must exist');
+    assert.match(src.slice(j, j + 300), /\[0-9a-fA-F\]\{6\}/, 'safeHex must hex-validate before use');
   });
 
   it('share-text params do not affect the worker (decodeLink captures only numbers)', () => {

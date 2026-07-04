@@ -371,7 +371,7 @@
   .textfield:focus{border-color:var(--ink);box-shadow:0 0 0 2px var(--line)}
   .textclear{flex:0 0 auto;font-size:16px;line-height:1;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
   .textclear:hover{border-color:var(--ink)}
-  #maskBgDark.on,#maskBgLight.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+  #maskBgDark.on,#maskBgLight.on,#maskBgGradBtn.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
   .fontgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .fontbtn{
     font-size:15px;line-height:1;color:var(--ink);background:transparent;
@@ -912,6 +912,7 @@
       <button class="fieldBtn" data-field="10" title="Smoke" aria-label="Smoke" aria-pressed="false"><span>Smoke</span></button>
       <button class="fieldBtn" data-field="11" title="Crystal" aria-label="Crystal" aria-pressed="false"><span>Crystal</span></button>
       <button class="fieldBtn" data-field="12" title="Honeycomb" aria-label="Honeycomb" aria-pressed="false"><span>Honeycomb</span></button>
+      <button class="fieldBtn" data-field="13" title="Bloom" aria-label="Bloom" aria-pressed="false"><span>Bloom</span></button>
     </div>
     <div class="knobgrid">
       <div class="knobctl">
@@ -989,6 +990,7 @@
         <option value="10">Smoke</option>
         <option value="11">Crystal</option>
         <option value="12">Honeycomb</option>
+        <option value="13">Bloom</option>
       </select>
       <select id="blendSel" class="layerSel" aria-label="Blend mode">
         <option value="0">Normal</option>
@@ -1045,6 +1047,7 @@
       <button class="fieldBtn materialBtn" data-material="2" title="Metal" aria-label="Metal" aria-pressed="false"><span>Metal</span></button>
       <button class="fieldBtn materialBtn" data-material="3" title="Sand" aria-label="Sand" aria-pressed="false"><span>Sand</span></button>
       <button class="fieldBtn materialBtn" data-material="4" title="Liquid" aria-label="Liquid" aria-pressed="false"><span>Liquid</span></button>
+      <button class="fieldBtn materialBtn" data-material="5" title="Molten" aria-label="Molten" aria-pressed="false"><span>Molten</span></button>
     </div>
   </section>
 
@@ -1097,18 +1100,27 @@
   </section>
 
   <section data-collapsed>
-    <div class="sec-title">Text — your words in living colour</div>
+    <div class="sec-title">Text &amp; logo — your mark in living colour</div>
     <div class="row gap" style="align-items:center">
       <input id="textInput" class="textfield" style="flex:1;min-width:0" type="text" maxlength="48" placeholder="Type a word or name…" aria-label="Text to fill with the pattern" autocomplete="off" spellcheck="false">
       <button id="textClear" type="button" class="textclear" title="Remove text — back to full art" aria-label="Remove text">&times;</button>
     </div>
     <div id="fontGrid" class="fontgrid" role="group" aria-label="Font"></div>
-    <p class="cnote" style="margin:8px 0 0">Fills the letters with the living pattern — clear to turn off. Tip: pick a wide frame in Size for a banner.</p>
+    <div class="row gap" style="margin-top:10px;align-items:center">
+      <span class="exGroupLabel" style="margin:0 2px 0 0">Logo</span>
+      <button type="button" id="logoBtn">Upload a logo…</button>
+      <span id="logoName" class="cnote" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:9em"></span>
+      <button id="logoClear" type="button" class="textclear" title="Remove logo — back to full art" aria-label="Remove logo" style="display:none">&times;</button>
+      <input id="logoFile" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden>
+    </div>
+    <p class="cnote" style="margin:8px 0 0">Fills your words or logo with the living pattern — clear to turn off. Transparent PNG/SVG logos work best.</p>
     <div class="row gap" style="margin-top:10px;align-items:center">
       <span class="exGroupLabel" style="margin:0 2px 0 0">Background</span>
-      <input class="swatch" id="maskBgInput" type="color" value="#0d0d10" aria-label="Text background colour">
+      <input class="swatch" id="maskBgInput" type="color" value="#0d0d10" aria-label="Background colour (top of the gradient)">
+      <input class="swatch" id="maskBg2Input" type="color" value="#2a2a44" aria-label="Background gradient second colour (bottom)" style="display:none">
       <button type="button" id="maskBgDark" aria-pressed="true">Dark</button>
       <button type="button" id="maskBgLight" aria-pressed="false">Light</button>
+      <button type="button" id="maskBgGradBtn" aria-pressed="false" title="Background becomes a top-to-bottom gradient between the two colours">Gradient</button>
     </div>
   </section>
 
@@ -1190,7 +1202,10 @@ var LOOKS = [
   { label:'ABYSS',    field:0,            p:[0.22, 2.25, 7.6, 0.03, 5,  8, 1, 2, 87, 0, 0, 0.5625] },
   { label:'NOVA',     field:5,            p:[0.32, 1.18, 6.4, 0.02, 4,  7, 1, 7, 52, 0, 0, 0.5625] },
   { label:'PIXELBEAM',field:1, screen:3, thresh:0.46, p:[0.45, 1.6, 4.0, 0.0, 7, 10, 0, 4, 40, 0, 0, 1] },
-  { label:'SMOKE',    field:10, cols:['#040414','#0a3a7a','#0484fc','#c2dbdc'], p:[0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] }
+  { label:'SMOKE',    field:10, cols:['#040414','#0a3a7a','#0484fc','#c2dbdc'], p:[0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] },
+  { label:'GILDED',   field:0, material:5, cols:['#0a0602','#6b3a05','#e8940f','#ffdf8a'], p:[0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
+  { label:'MERCURY',  field:0, material:5, cols:['#020204','#1c1a2e','#5a5670','#e8e0f2'], p:[0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
+  { label:'BLOOM',    field:13, cols:['#c2b830','#e04a12','#e8489a','#f2ead8'], p:[0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] }
 ];
 
 /* the 4 gradient stops (dark->light) for each preset palette, RGB 0-1. Indices
@@ -1236,7 +1251,7 @@ var state = {
   hasTex:0, texAspect:1,
   split:0,
   panX:0, panY:0,
-  text:'', maskBg:'#0d0d10', font:0,
+  text:'', maskBg:'#0d0d10', maskBg2:'#2a2a44', maskBgGrad:0, font:0,
   cols: cloneStops(PALETTES_RGB[0]),
   userSource:false,
   playing:false
@@ -1286,6 +1301,8 @@ var FSRC = [
   'uniform sampler2D u_mask;',    /* text/logo mask — field shows inside white, u_maskBg outside */
   'uniform float u_hasMask;',
   'uniform vec3  u_maskBg;',
+  'uniform vec3  u_maskBg2;',     /* second stop when the mask background is a gradient */
+  'uniform float u_maskGrad;',    /* 0 = solid u_maskBg, 1 = vertical u_maskBg -> u_maskBg2 */
   'uniform vec2  u_pan;',
   'uniform vec2  u_mouse;',
   'uniform float u_mouseAmt;',
@@ -1515,6 +1532,34 @@ var FSRC = [
   '  return c + sheen * edge * 0.22;',
   '}',
   '',
+  '/* bloom engine (13): a true mesh gradient — the 4 palette stops live at drifting 2D',
+  '   anchor points and blend by distance, instead of riding the 1D ramp. bloomW returns',
+  '   the 4 normalized blob weights; the scalar field (for dither/material/mask edges) is',
+  '   the weighted ramp position, the colour stage blends the stop colours directly. */',
+  'vec2 bloomAnchor(int i, float t){',
+  '  float fi = float(i);',
+  '  float aa = u_seed * 0.61803 + fi * 2.399963;              /* golden-angle ring: guaranteed spread */',
+  '  float rr = 1.05 + 0.35 * sin(u_seed * 1.3 + fi * 2.1);',
+  '  vec2 base = vec2(cos(aa), sin(aa)) * rr;',
+  '  float w1 = 0.05 + 0.023 * fi;                             /* non-commensurate drift rates */',
+  '  float w2 = 0.041 + 0.017 * fi;',
+  '  return base + vec2(sin(t * w1 + aa * 3.0), cos(t * w2 + aa * 1.7)) * 0.45;',
+  '}',
+  'vec4 bloomW(vec2 p, float t){',
+  '  /* wobble the domain so blob edges go organic instead of perfectly radial */',
+  '  vec2 q = p + (vec2(fbm(p * 0.7 + t * 0.04), fbm(p * 0.7 + vec2(4.1, 7.7) - t * 0.03)) - 0.5) * u_warp * 0.35;',
+  '  vec4 w;',
+  '  w.x = exp(-dot(q - bloomAnchor(0, t), q - bloomAnchor(0, t)) * 1.4);',
+  '  w.y = exp(-dot(q - bloomAnchor(1, t), q - bloomAnchor(1, t)) * 1.4);',
+  '  w.z = exp(-dot(q - bloomAnchor(2, t), q - bloomAnchor(2, t)) * 1.4);',
+  '  w.w = exp(-dot(q - bloomAnchor(3, t), q - bloomAnchor(3, t)) * 1.4);',
+  '  return w / max(w.x + w.y + w.z + w.w, 0.0008);',
+  '}',
+  'float fieldBloom(vec2 p, float t){',
+  '  vec4 w = bloomW(p, t);',
+  '  return dot(w, vec4(0.02, 0.35, 0.68, 0.98));',
+  '}',
+  '',
   '/* ordered (Bayer) dither thresholds, recursive 2x2 -> 4x4 -> 8x8, WebGL1-safe */',
   'float bayer2(vec2 a){ a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }',
   'float bayer4(vec2 a){ return bayer2(0.5 * a) * 0.25 + bayer2(a); }',
@@ -1537,6 +1582,7 @@ var FSRC = [
   '  else if (eng == 10){ return fieldSmoke(p, t); }',
   '  else if (eng == 11){ return fieldQuasi(p, t); }',
   '  else if (eng == 12){ return fieldHoneycomb(p, t); }',
+  '  else if (eng == 13){ return fieldBloom(p, t); }',
   '  vec2 m1 = vec2(d1, d2);',
   '  vec2 m2 = vec2(d2, -d1);',
   '  vec2 q = vec2(fbm(p + m1 * 0.5), fbm(p + vec2(5.2, 1.3) + m2 * 0.5));',
@@ -1558,8 +1604,9 @@ var FSRC = [
   '  return mix(a, r, amt);',
   '}',
   '/* material finish: treat the field as a height map (screen-space gradient -> normal) and',
-  '   re-light the palette colour as glass / metal / sand / liquid. mat 0 = off. */',
-  'vec3 shadeMaterial(int mat, vec3 base, vec3 N){',
+  '   re-light the palette colour as glass / metal / sand / liquid / molten. mat 0 = off.',
+  '   fv = the raw field value — molten draws its ribbons on its level sets. */',
+  'vec3 shadeMaterial(int mat, vec3 base, vec3 N, float fv){',
   '  vec3 L = normalize(vec3(0.4, 0.7, 0.6));',
   '  vec3 H = normalize(L + vec3(0.0, 0.0, 1.0));',
   '  float ndl = max(dot(N, L), 0.0);',
@@ -1576,6 +1623,19 @@ var FSRC = [
   '    col = base * (0.4 + 0.6 * ndl) * ao + (hash(gl_FragCoord.xy * 1.91) - 0.5) * 0.18;',
   '  } else if (mat == 4){   /* liquid — wet sheen: glossy spec + fresnel highlights */',
   '    col = base * (0.5 + 0.4 * ndl) + pow(ndh, 28.0) * 1.3 + fres * 0.4 * (base + 0.3);',
+  '  } else if (mat == 5){   /* molten — liquid metal: near-black body, luminous ribbons riding',
+  '                             the fold CONTOURS (level sets of the field — smooth curves even',
+  '                             where the per-pixel normals are noisy), hot specular core */',
+  '    float ph = fv * 12.56637;                               /* ~2 ribbons per field octave */',
+  '    float s1 = 0.5 + 0.5 * sin(ph);',
+  '    float s2 = 0.5 + 0.5 * sin(ph * 2.618 + 1.7);',
+  '    float bands = pow(s1, 12.0) * 1.35 + pow(s2, 34.0) * 0.85;',
+  '    float sheen = pow(s1, 3.0) * 0.20;                      /* wide under-glow so the body reads as metal */',
+  '    vec3 tint = base / max(max(base.r, max(base.g, base.b)), 0.12);  /* palette hue at full brightness */',
+  '    col = base * 0.12 + 0.012',
+  '        + tint * (bands + sheen) * (0.75 + 0.25 * ndl)',
+  '        + tint * pow(ndh, 60.0) * 1.6',
+  '        + fres * tint * 0.15;',
   '  }',
   '  return col;',
   '}',
@@ -1684,16 +1744,22 @@ var FSRC = [
   '  }',
   '',
   '  /* 4 - palette: Chrome is procedural; every other palette (presets + custom)',
-  '       is a 4-stop ramp fed by colour uniforms set on the JS side */',
+  '       is a 4-stop ramp fed by colour uniforms set on the JS side.',
+  '       Bloom (13) blends the stop COLOURS by blob weight — orange meets blue',
+  '       directly instead of detouring through the middle of the ramp. */',
   '  vec3 col;',
-  '  if (u_pal == 7){ col = palChrome(f); }',
+  '  if (u_field == 13 && u_hasTex < 0.5 && u_pal != 7){',
+  '    vec4 bw = bloomW(p, u_time);',
+  '    col = bw.x * u_c0 + bw.y * u_c1 + bw.z * u_c2 + bw.w * u_c3;',
+  '  }',
+  '  else if (u_pal == 7){ col = palChrome(f); }',
   '  else           { col = ramp4(f, u_c0, u_c1, u_c2, u_c3); }',
   '  /* soft highlight bloom for a premium glow */',
   '  col += smoothstep(0.72, 1.0, f) * 0.12;',
   '  /* 4b - material finish: field gradient -> normal, re-light as glass/metal/sand/liquid */',
   '  if (u_material > 0){',
   '    vec2 grd = vec2(dFdx(f), dFdy(f)) * u_res.y * 0.06;',
-  '    col = shadeMaterial(u_material, col, normalize(vec3(-grd, 1.0)));',
+  '    col = shadeMaterial(u_material, col, normalize(vec3(-grd, 1.0)), f);',
   '  }',
   '',
   '  /* 5 - halftone in real (un-pixelated) coords (square screen only) */',
@@ -1739,10 +1805,12 @@ var FSRC = [
   '  col += gr * u_grain * mix(1.0, 0.28, u_rec);',
   '  col *= 1.0 - 0.22 * dot(uv, uv);',
   '',
-  '  /* 7 - text/logo mask: the living field fills the letters, clean bg outside */',
+  '  /* 7 - text/logo mask: the living field fills the letters, clean bg outside.',
+  '       The background is solid u_maskBg, or a vertical A->B gradient when u_maskGrad. */',
   '  if (u_hasMask > 0.5){',
   '    float mk = texture2D(u_mask, vec2(gl_FragCoord.x / u_res.x, 1.0 - gl_FragCoord.y / u_res.y)).r;',
-  '    col = mix(u_maskBg, col, smoothstep(0.42, 0.58, mk));',
+  '    vec3 mbg = mix(u_maskBg, u_maskBg2, u_maskGrad * (1.0 - gl_FragCoord.y / u_res.y));',
+  '    col = mix(mbg, col, smoothstep(0.42, 0.58, mk));',
   '  }',
   '',
   '  gl_FragColor = vec4(col, 1.0);',
@@ -1813,7 +1881,7 @@ if (gl){
 
   ['u_res','u_time','u_seed','u_scale','u_warp','u_sym','u_pixel','u_dots','u_dot','u_dither','u_grain',
    'u_pal','u_c0','u_c1','u_c2','u_c3','u_tex','u_hasTex','u_texAspect','u_liq','u_mix','u_split',
-   'u_field','u_field2','u_blend','u_layerMix','u_screen','u_material','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg'].forEach(function(n){
+   'u_field','u_field2','u_blend','u_layerMix','u_screen','u_material','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg','u_maskBg2','u_maskGrad'].forEach(function(n){
     U[n] = gl.getUniformLocation(prog, n);
   });
 
@@ -1861,6 +1929,9 @@ if (gl){
    black, auto-fit to the frame) and upload it; the shader fills the white with the field.
    Rebuilt on text or aspect change; sampled by UV so resolution changes need no rebuild. */
 var maskTex = null, maskCanvas = null, maskCtx = null, maskAr = 0, maskCanvas2d = null;
+/* uploaded logo mask: the image, its silhouette mode (alpha / dark-marks / light-marks),
+   and its dataURL for localStorage persistence (small logos survive reloads) */
+var logoImg = null, logoMode = 'alpha', logoData = '';
 if (gl){
   maskTex = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
@@ -1885,16 +1956,29 @@ var TEXT_FONTS = [
   { label:'Chalk',   stack:'Chalkduster,"Comic Sans MS",cursive', weight:'400' },
   { label:'Engrave', stack:'Copperplate,"Copperplate Gothic Bold",serif', weight:'700', upper:true }
 ];
-function maskActive(){ return !!(state.text && state.text.replace(/\s/g, '')); }
+function textActive(){ return !!(state.text && state.text.replace(/\s/g, '')); }
+function maskActive(){ return textActive() || !!logoImg; }
+/* a valid 6-digit hex or null — shared/stored colours never reach the DOM unvalidated */
+function safeHex(v){
+  return (v && /^#?[0-9a-fA-F]{6}$/.test(v)) ? (String(v).charAt(0) === '#' ? String(v) : '#' + v) : null;
+}
 /* apply restored/shared text state SAFELY: clamp length (bounds the mask cost), bounds-check
    the font index, validate the bg hex. state.text only ever reaches canvas fillText + the
-   input value (both non-executable sinks), so a stored/shared value cannot inject. */
+   input value (both non-executable sinks), so a stored/shared value cannot inject.
+   bg may be "rrggbb" (solid) or "rrggbb-rrggbb" (vertical gradient, top -> bottom). */
 function applyTextState(t, f, bg){
   state.text = (t == null ? '' : String(t)).slice(0, 48);
   state.font = Math.min(TEXT_FONTS.length - 1, Math.max(0, parseInt(f, 10) || 0));
-  if (bg && /^#?[0-9a-fA-F]{6}$/.test(bg)){ state.maskBg = bg.charAt(0) === '#' ? bg : '#' + bg; }
+  if (bg){
+    var stops = String(bg).split('-');
+    var a = safeHex(stops[0]), b = safeHex(stops[1]);
+    if (a){ state.maskBg = a; }
+    state.maskBgGrad = b ? 1 : 0;
+    if (b){ state.maskBg2 = b; }
+  }
   var ti = document.getElementById('textInput'); if (ti){ ti.value = state.text; }
   var mb = document.getElementById('maskBgInput'); if (mb){ mb.value = state.maskBg; }
+  var mb2 = document.getElementById('maskBg2Input'); if (mb2){ mb2.value = state.maskBg2; }
   syncMaskBgUI();
   var btns = document.querySelectorAll('#fontGrid .fontbtn'), k;
   for (k = 0; k < btns.length; k++){ btns[k].classList.toggle('on', k === state.font); btns[k].setAttribute('aria-pressed', k === state.font ? 'true' : 'false'); }
@@ -1904,12 +1988,15 @@ function applyTextState(t, f, bg){
 function persistText(){
   if (EMBED){ return; }
   try {
-    if (maskActive()){ localStorage.setItem('fluid:text', JSON.stringify({ t: state.text, f: state.font, bg: state.maskBg })); }
+    if (textActive() || logoImg){
+      localStorage.setItem('fluid:text', JSON.stringify({ t: state.text, f: state.font, bg: maskBgToken() }));
+    }
     else { localStorage.removeItem('fluid:text'); }
   } catch(e){}
 }
 function restoreTextFromStorage(){
   try { var ts = localStorage.getItem('fluid:text'); if (ts){ var o = JSON.parse(ts); applyTextState(o.t, o.f, o.bg); } } catch(e){}
+  restoreLogoFromStorage();
 }
 /* shared links carry text after the numeric hash as &t=&tf=&tb= — the numeric parser AND
    the worker's decodeLink regex both stop at '&', so the piece hash is unaffected. */
@@ -1926,8 +2013,61 @@ function parseTextFromHash(h){
   applyTextState(t, f, bg);
   return true;
 }
+/* the &tb= value: solid = one hex, gradient = "top-bottom" pair (no #) */
+function maskBgToken(){
+  var tk = state.maskBg.replace('#', '');
+  if (state.maskBgGrad){ tk += '-' + (state.maskBg2 || state.maskBg).replace('#', ''); }
+  return tk;
+}
 function shareTextSuffix(){
-  return maskActive() ? ('&t=' + encodeURIComponent(state.text) + '&tf=' + state.font + '&tb=' + state.maskBg.replace('#', '')) : '';
+  /* only TEXT rides the link — an uploaded logo stays on this device */
+  return textActive() ? ('&t=' + encodeURIComponent(state.text) + '&tf=' + state.font + '&tb=' + maskBgToken()) : '';
+}
+/* decide how an uploaded logo reads as a silhouette: transparent PNGs/SVGs use their
+   alpha; flat images use luminance (dark marks on a light image, light marks on a dark
+   one). Sampled at 64px — cheap, and robust enough for real logos. */
+function detectLogoMode(img){
+  try {
+    var c = document.createElement('canvas'); c.width = c.height = 64;
+    var g = c.getContext('2d');
+    g.clearRect(0, 0, 64, 64);
+    g.drawImage(img, 0, 0, 64, 64);
+    var d = g.getImageData(0, 0, 64, 64).data, i, hasAlpha = false, sum = 0, n = 0;
+    for (i = 0; i < d.length; i += 4){
+      if (d[i + 3] < 250){ hasAlpha = true; }
+      else { sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; n++; }
+    }
+    if (hasAlpha){ return 'alpha'; }
+    return (sum / Math.max(n, 1)) > 127 ? 'dark' : 'light';
+  } catch(e){ return 'alpha'; }   /* tainted canvas etc. — alpha is the safe default */
+}
+/* white-on-transparent silhouette of the logo, contain-fit into bw x bh */
+var logoSilCv = null;
+function logoSilhouette(bw, bh){
+  var iw = logoImg.naturalWidth || logoImg.width || 1024;
+  var ih = logoImg.naturalHeight || logoImg.height || 1024;
+  var s = Math.min(bw / iw, bh / ih), dw = Math.max(1, Math.round(iw * s)), dh = Math.max(1, Math.round(ih * s));
+  if (!logoSilCv){ logoSilCv = document.createElement('canvas'); }
+  logoSilCv.width = dw; logoSilCv.height = dh;
+  var g = logoSilCv.getContext('2d');
+  g.clearRect(0, 0, dw, dh);
+  g.drawImage(logoImg, 0, 0, dw, dh);
+  if (logoMode === 'alpha'){
+    g.globalCompositeOperation = 'source-in';
+    g.fillStyle = '#fff'; g.fillRect(0, 0, dw, dh);
+    g.globalCompositeOperation = 'source-over';
+  } else {
+    try {
+      var im = g.getImageData(0, 0, dw, dh), d = im.data, i, lum;
+      for (i = 0; i < d.length; i += 4){
+        lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        var v = logoMode === 'dark' ? 255 - lum : lum;   /* the marks become white */
+        d[i] = d[i + 1] = d[i + 2] = 255; d[i + 3] = v;
+      }
+      im.data.set(d); g.putImageData(im, 0, 0);
+    } catch(e){}
+  }
+  return logoSilCv;
 }
 function updateMaskTex(){
   if (!gl || !maskTex){ return; }
@@ -1941,6 +2081,17 @@ function updateMaskTex(){
   if (maskCanvas.width !== W || maskCanvas.height !== H){ maskCanvas.width = W; maskCanvas.height = H; maskCtx = null; }
   var x = maskCtx || (maskCtx = maskCanvas.getContext('2d'));
   x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
+  if (logoImg){
+    var sil = logoSilhouette(W * 0.72, H * 0.72);
+    x.drawImage(sil, Math.round((W - sil.width) / 2), Math.round((H - sil.height) / 2));
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, maskTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, maskCanvas);
+    gl.activeTexture(gl.TEXTURE0);
+    requestRender();
+    return;
+  }
   x.fillStyle = '#fff';
   x.textAlign = 'center'; x.textBaseline = 'middle';
   var F = TEXT_FONTS[state.font] || TEXT_FONTS[0];
@@ -2168,21 +2319,33 @@ function draw2dTextMask(w, h){
   if (maskCanvas2d.width !== w || maskCanvas2d.height !== h){ maskCanvas2d.width = w; maskCanvas2d.height = h; }
   var mx = maskCanvas2d.getContext('2d');
   mx.clearRect(0, 0, w, h);
-  mx.fillStyle = '#fff'; mx.textAlign = 'center'; mx.textBaseline = 'middle';
-  var F = TEXT_FONTS[state.font] || TEXT_FONTS[0];
-  var lines = (F.upper ? state.text.toUpperCase() : state.text).split('\n');
-  function setF(s){ mx.font = F.weight + ' ' + s + 'px ' + F.stack; }
-  var fs = h * 0.6, i, widest = 1; setF(fs);
-  for (i = 0; i < lines.length; i++){ widest = Math.max(widest, mx.measureText(lines[i] || ' ').width); }
-  fs = fs * (w * 0.86 / widest); setF(fs);
-  var totalH = lines.length * fs * 1.08; if (totalH > h * 0.8){ fs = fs * (h * 0.8 / totalH); setF(fs); }
-  var lh = fs * 1.08, y0 = h / 2 - (lines.length - 1) * lh / 2;
-  for (i = 0; i < lines.length; i++){ mx.fillText(lines[i], w / 2, y0 + i * lh); }
+  if (logoImg){
+    var sil = logoSilhouette(w * 0.72, h * 0.72);
+    mx.drawImage(sil, Math.round((w - sil.width) / 2), Math.round((h - sil.height) / 2));
+  } else {
+    mx.fillStyle = '#fff'; mx.textAlign = 'center'; mx.textBaseline = 'middle';
+    var F = TEXT_FONTS[state.font] || TEXT_FONTS[0];
+    var lines = (F.upper ? state.text.toUpperCase() : state.text).split('\n');
+    var setF = function(s){ mx.font = F.weight + ' ' + s + 'px ' + F.stack; };
+    var fs = h * 0.6, i, widest = 1; setF(fs);
+    for (i = 0; i < lines.length; i++){ widest = Math.max(widest, mx.measureText(lines[i] || ' ').width); }
+    fs = fs * (w * 0.86 / widest); setF(fs);
+    var totalH = lines.length * fs * 1.08; if (totalH > h * 0.8){ fs = fs * (h * 0.8 / totalH); setF(fs); }
+    var lh = fs * 1.08, y0 = h / 2 - (lines.length - 1) * lh / 2;
+    for (i = 0; i < lines.length; i++){ mx.fillText(lines[i], w / 2, y0 + i * lh); }
+  }
   fallback2d.save();
   fallback2d.globalCompositeOperation = 'destination-in';
   fallback2d.drawImage(maskCanvas2d, 0, 0);
   fallback2d.globalCompositeOperation = 'destination-over';
-  fallback2d.fillStyle = state.maskBg;
+  if (state.maskBgGrad){
+    var mg = fallback2d.createLinearGradient(0, 0, 0, h);
+    mg.addColorStop(0, state.maskBg);
+    mg.addColorStop(1, state.maskBg2 || state.maskBg);
+    fallback2d.fillStyle = mg;
+  } else {
+    fallback2d.fillStyle = state.maskBg;
+  }
   fallback2d.fillRect(0, 0, w, h);
   fallback2d.restore();
 }
@@ -2332,6 +2495,9 @@ function render(k, tgt){
   gl.uniform1f(U.u_hasMask, (!tgt && maskActive()) ? 1.0 : 0.0);   /* never mask offscreen preview thumbnails — they show the look, not your text */
   var mbg = hexToRgb01(state.maskBg || '#0d0d10');
   gl.uniform3f(U.u_maskBg, mbg[0], mbg[1], mbg[2]);
+  var mbg2 = hexToRgb01(state.maskBg2 || state.maskBg || '#0d0d10');
+  gl.uniform3f(U.u_maskBg2, mbg2[0], mbg2[1], mbg2[2]);
+  gl.uniform1f(U.u_maskGrad, state.maskBgGrad ? 1.0 : 0.0);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   if (tgt){ return; }            /* offscreen thumbnail render: no glow, FBO stays bound for read-back */
   if (!exporting && !recHiRes && glowVisible()){
@@ -2522,28 +2688,121 @@ bindSlider('liq', 'liq');
 var textInput = document.getElementById('textInput');
 if (textInput){
   textInput.value = state.text || '';
-  textInput.addEventListener('input', function(){ state.text = textInput.value; updateMaskTex(); persistText(); });
+  textInput.addEventListener('input', function(){
+    state.text = textInput.value;
+    if (textActive() && logoImg){ clearLogo(true); }   /* one mark at a time: typing replaces the logo */
+    updateMaskTex(); persistText();
+  });
 }
 var textClear = document.getElementById('textClear');
 if (textClear && textInput){
   textClear.addEventListener('click', function(){ textInput.value = ''; state.text = ''; updateMaskTex(); persistText(); textInput.focus(); });
 }
+/* ---------- logo upload: the image's silhouette becomes the mask, same path as text ---------- */
+var logoBtn = document.getElementById('logoBtn');
+var logoFile = document.getElementById('logoFile');
+var logoNameEl = document.getElementById('logoName');
+var logoClearBtn = document.getElementById('logoClear');
+function syncLogoUI(name){
+  if (logoNameEl){ logoNameEl.textContent = logoImg ? (name || 'logo') : ''; }
+  if (logoClearBtn){ logoClearBtn.style.display = logoImg ? '' : 'none'; }
+}
+function setLogo(img, dataURL, name){
+  logoImg = img;
+  logoMode = detectLogoMode(img);
+  logoData = dataURL || '';
+  if (state.text){ state.text = ''; if (textInput){ textInput.value = ''; } }   /* logo replaces text */
+  syncLogoUI(name);
+  updateMaskTex();
+  persistText();
+  persistLogo(name);
+}
+function clearLogo(quiet){
+  logoImg = null; logoData = '';
+  try { localStorage.removeItem('fluid:logo'); } catch(e){}
+  syncLogoUI();
+  if (!quiet){ updateMaskTex(); persistText(); setStatus('LOGO REMOVED — back to full art'); }
+}
+/* small logos survive reloads via localStorage; big ones stay for this session only */
+function persistLogo(name){
+  if (EMBED){ return; }
+  try {
+    if (logoData && logoData.length < 400000){
+      localStorage.setItem('fluid:logo', JSON.stringify({ d: logoData, n: (name || 'logo').slice(0, 40) }));
+      setStatus('LOGO LOADED — the pattern fills it; it stays on this device');
+    } else if (logoData){
+      localStorage.removeItem('fluid:logo');
+      setStatus('LOGO LOADED — too big to keep after a reload, but it works now');
+    }
+  } catch(e){}
+}
+function restoreLogoFromStorage(){
+  try {
+    var ls = localStorage.getItem('fluid:logo');
+    if (!ls){ return; }
+    var o = JSON.parse(ls);
+    if (!o || typeof o.d !== 'string' || o.d.indexOf('data:image/') !== 0){ return; }
+    var img = new Image();
+    img.onload = function(){
+      logoImg = img; logoMode = detectLogoMode(img); logoData = o.d;
+      syncLogoUI(o.n); updateMaskTex();
+    };
+    img.src = o.d;
+  } catch(e){}
+}
+if (logoBtn && logoFile){
+  logoBtn.addEventListener('click', function(){ logoFile.click(); });
+  logoFile.addEventListener('change', function(){
+    var file = logoFile.files && logoFile.files[0];
+    logoFile.value = '';
+    if (!file){ return; }
+    if (file.size > 6 * 1024 * 1024){ setStatus('ERR — logo over 6 MB; export a smaller one'); return; }
+    var rd = new FileReader();
+    rd.onload = function(){
+      var img = new Image();
+      img.onload = function(){ setLogo(img, String(rd.result), file.name); };
+      img.onerror = function(){ setStatus('ERR — could not read that image'); };
+      img.src = String(rd.result);
+    };
+    rd.readAsDataURL(file);
+  });
+}
+if (logoClearBtn){ logoClearBtn.addEventListener('click', function(){ clearLogo(); }); }
 var maskBgInput = document.getElementById('maskBgInput');
 if (maskBgInput){
   maskBgInput.value = state.maskBg;
   maskBgInput.addEventListener('input', function(){ state.maskBg = maskBgInput.value; requestRender(); persistText(); syncMaskBgUI(); });
 }
+var maskBg2Input = document.getElementById('maskBg2Input');
+if (maskBg2Input){
+  maskBg2Input.value = state.maskBg2;
+  maskBg2Input.addEventListener('input', function(){
+    state.maskBg2 = maskBg2Input.value;
+    if (!state.maskBgGrad){ state.maskBgGrad = 1; }   /* touching the second stop turns the gradient on */
+    requestRender(); persistText(); syncMaskBgUI();
+  });
+}
 function syncMaskBgUI(){
   var bd = document.getElementById('maskBgDark'), bl = document.getElementById('maskBgLight');
+  var gb = document.getElementById('maskBgGradBtn'), b2 = document.getElementById('maskBg2Input');
   var bg = (state.maskBg || '').toLowerCase();
-  if (bd){ var d = bg === '#0d0d10'; bd.classList.toggle('on', d); bd.setAttribute('aria-pressed', d ? 'true' : 'false'); }
-  if (bl){ var l = bg === '#f4f4ef'; bl.classList.toggle('on', l); bl.setAttribute('aria-pressed', l ? 'true' : 'false'); }
+  var solid = !state.maskBgGrad;
+  if (bd){ var d = solid && bg === '#0d0d10'; bd.classList.toggle('on', d); bd.setAttribute('aria-pressed', d ? 'true' : 'false'); }
+  if (bl){ var l = solid && bg === '#f4f4ef'; bl.classList.toggle('on', l); bl.setAttribute('aria-pressed', l ? 'true' : 'false'); }
+  if (gb){ gb.classList.toggle('on', !solid); gb.setAttribute('aria-pressed', solid ? 'false' : 'true'); }
+  if (b2){ b2.style.display = solid ? 'none' : ''; }
 }
-function setMaskBg(hex){ state.maskBg = hex; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); persistText(); syncMaskBgUI(); }
+function setMaskBg(hex){ state.maskBg = hex; state.maskBgGrad = 0; if (maskBgInput){ maskBgInput.value = hex; } requestRender(); persistText(); syncMaskBgUI(); }
 (function(){
   var bd = document.getElementById('maskBgDark'), bl = document.getElementById('maskBgLight');
+  var gb = document.getElementById('maskBgGradBtn');
   if (bd){ bd.addEventListener('click', function(){ setMaskBg('#0d0d10'); }); }
   if (bl){ bl.addEventListener('click', function(){ setMaskBg('#f4f4ef'); }); }
+  if (gb){ gb.addEventListener('click', function(){
+    state.maskBgGrad = state.maskBgGrad ? 0 : 1;
+    requestRender(); persistText(); syncMaskBgUI();
+    setStatus(state.maskBgGrad ? 'GRADIENT BACKGROUND — two colours, top to bottom' : 'SOLID BACKGROUND');
+  }); }
   syncMaskBgUI();
 })();
 (function(){
@@ -2772,7 +3031,10 @@ var FIELD_STATUS = [
   'LINES FIELD — rotated parallel bands; warp rotates them',
   'GRID FIELD — crossed rulings, a clean lattice',
   'GOLDEN FIELD — phyllotaxis sunflower spiral',
-  'SMOKE FIELD — billowing domain-warped clouds'
+  'SMOKE FIELD — billowing domain-warped clouds',
+  'CRYSTAL FIELD — quasicrystal plane-waves; warp sets symmetry',
+  'HONEYCOMB FIELD — hex lattice, walls and cells',
+  'BLOOM FIELD — soft colour blobs, a living mesh gradient'
 ];
 function selectField(fv){
   if (state.field === fv){ return; }
@@ -2816,7 +3078,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.materialBtn'), function
     state.material = parseInt(b.getAttribute('data-material'), 10);
     markLook(null);
     syncControls();
-    setStatus(['NO FINISH — flat colour','GLASS — refractive rim + sheen','METAL — chrome reflection','SAND — matte grain','LIQUID — wet gloss'][state.material]);
+    setStatus(['NO FINISH — flat colour','GLASS — refractive rim + sheen','METAL — chrome reflection','SAND — matte grain','LIQUID — wet gloss','MOLTEN — liquid metal, palette-tinted'][state.material]);
   });
 });
 Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
@@ -2892,7 +3154,7 @@ var fieldBag = [];
 function nextFieldFromBag(){
   if (fieldBag.length === 0){
     var i, j, k, t;
-    for (i = 0; i < 13; i++){ fieldBag.push(i); }
+    for (i = 0; i < 14; i++){ fieldBag.push(i); }
     for (j = fieldBag.length - 1; j > 0; j--){                 /* Fisher–Yates shuffle */
       k = Math.floor(Math.random() * (j + 1));
       t = fieldBag[j]; fieldBag[j] = fieldBag[k]; fieldBag[k] = t;
@@ -2918,7 +3180,8 @@ var FIELD_TUNE = [
   [1.0, 2.5, 2.0, 8.0],  /* golden    */
   [1.0, 2.8, 3.0, 9.0],  /* smoke     */
   [1.0, 2.5, 2.0, 9.0],  /* crystal   */
-  [0.8, 2.2, 1.5, 6.0]   /* honeycomb */
+  [0.8, 2.2, 1.5, 6.0],  /* honeycomb */
+  [0.7, 1.6, 1.0, 5.0]   /* bloom — low zoom keeps blobs big and soft */
 ];
 /* #3 procedural palette: a harmonious dark->light 4-stop ramp around a random hue (analogous
    or complementary), so the shuffle occasionally invents a colourway instead of a preset. */
@@ -2968,7 +3231,7 @@ function randomPattern(){
   state.dot = 6 + Math.floor(rnd() * 14);
   /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend, moderate mix */
   if (rnd() < 0.25){
-    do { state.field2 = Math.floor(rnd() * 13); } while (state.field2 === state.field);
+    do { state.field2 = Math.floor(rnd() * 14); } while (state.field2 === state.field);
     state.blend = 1 + Math.floor(rnd() * 5);          /* 1..5: skip Normal so the composite reads */
     state.layerMix = 0.3 + rnd() * 0.4;               /* 0.3 .. 0.7 */
   } else {
@@ -3152,6 +3415,8 @@ function applyLook(lk, btn){
   state.field = lk.field || 0;
   state.screen = lk.screen || 0;
   state.thresh = lk.thresh != null ? lk.thresh : 0.5;
+  /* a look is a complete recipe: it sets (or clears) the material finish too */
+  state.material = lk.material || 0;
   /* a look may ship its own gradient: load it into the custom palette (pal 8) */
   if (lk.cols){ state.pal = 8; state.cols = lk.cols.map(hexToRgb01); }
   stopCamera();
@@ -3496,7 +3761,7 @@ function buildHash(embedFlag){
     while (a.length < 25){ a.push(0); }
     a.push(state.field2 || 0, state.blend || 0, Math.round((state.layerMix || 0) * 100));
   }
-  /* [28] material finish (1 glass / 2 metal / 3 sand / 4 liquid) — only when set; pads [19..27] */
+  /* [28] material finish (1 glass / 2 metal / 3 sand / 4 liquid / 5 molten) — only when set; pads [19..27] */
   if ((state.material || 0) > 0){
     while (a.length < 28){ a.push(0); }
     a.push(Math.round(state.material));
@@ -3528,7 +3793,7 @@ function parseHash(src){
   state.ar = (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1;
   pendingPreset = n.length > 12 ? Math.min(PRESETS.length, Math.max(0, Math.round(n[12]))) : 0;
   EMBED = n.length > 13 && Math.round(n[13]) === 1;
-  state.field = n.length > 14 ? Math.min(12, Math.max(0, Math.round(n[14]))) : 0;
+  state.field = n.length > 14 ? Math.min(13, Math.max(0, Math.round(n[14]))) : 0;
   state.screen = n.length > 15 ? Math.min(4, Math.max(0, Math.round(n[15]))) : 0;
   state.panX = n.length > 16 ? Math.max(-0.5, Math.min(0.5, n[16])) : 0;
   state.panY = n.length > 17 ? Math.max(-0.5, Math.min(0.5, n[17])) : 0;
@@ -3540,10 +3805,10 @@ function parseHash(src){
     state.cols = cloneStops(PALETTES_RGB[0]);
   }
   state.thresh = n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5;
-  state.field2 = n.length > 25 ? Math.min(12, Math.max(0, Math.round(n[25]))) : 0;
+  state.field2 = n.length > 25 ? Math.min(13, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
-  state.material = n.length > 28 ? Math.min(4, Math.max(0, Math.round(n[28]))) : 0;
+  state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;
   return true;
 }
 function copyText(txt, okMsg, failMsg){
@@ -5071,6 +5336,10 @@ function renderOneThumb(job){
 }
 function thumbStep(gen){
   if (gen !== thumbGen || !thumbJobs){ return; }
+  /* snapshot the LIVE state at each batch, not once per pass — the user may click a
+     look/field mid-pass (slow GPUs take seconds) and restoring a stale pre-pass
+     snapshot silently reverted their choice while the status still named the look */
+  thumbSave = {}; for (var si = 0; si < THUMB_KEYS.length; si++){ thumbSave[THUMB_KEYS[si]] = state[THUMB_KEYS[si]]; }
   var budget = 4;                       /* offscreen + cheap -> batch several, no flicker */
   while (budget-- > 0 && thumbJobs.length){ renderOneThumb(thumbJobs.shift()); }
   applyThumbState(thumbSave);            /* restore live state each step so the main loop renders correctly */
@@ -5082,7 +5351,9 @@ function thumbStep(gen){
 }
 function regenThumbs(){
   if (!canvas.width || !ensureThumbGL()){ return; }
-  if (thumbJobs){ applyThumbState(thumbSave); mouse.amt = thumbSavedAmt; thumbJobs = null; }  /* cancel an in-flight pass */
+  /* cancel an in-flight pass — between batches the live state is already correct
+     (each thumbStep restores it), so restoring here would clobber newer changes */
+  if (thumbJobs){ mouse.amt = thumbSavedAmt; thumbJobs = null; }
   thumbSave = {}; for (var i = 0; i < THUMB_KEYS.length; i++){ thumbSave[THUMB_KEYS[i]] = state[THUMB_KEYS[i]]; }
   thumbSavedAmt = mouse.amt; mouse.amt = 0;
   thumbJobs = thumbSpecs();

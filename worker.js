@@ -8,8 +8,9 @@ var BASE = 'https://fluid.krackeddevs.com';
 
 var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
 var PRESETS = [];
-var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb'];
+var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom'];
 var SCREENS = ['square', 'hex', 'ascii', 'dither', 'glitch'];
+var FINISHES = ['none', 'glass', 'metal', 'sand', 'liquid', 'molten'];   /* share-hash slot [28] */
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
 function aspectName(v){
   var best = '1:1', bd = 1e9, k;
@@ -44,14 +45,17 @@ var LOOKS = {
   abyss:    { field: 0,             p: [0.22, 2.25, 7.6, 0.03, 5,  8, 1, 2, 87, 0, 0, 0.5625] },
   nova:     { field: 5,             p: [0.32, 1.18, 6.4, 0.02, 4,  7, 1, 7, 52, 0, 0, 0.5625] },
   pixelbeam:{ field: 1, screen: 3, thresh: 0.46, p: [0.45, 1.6, 4.0, 0.0, 7, 10, 0, 4, 40, 0, 0, 1] },
-  smoke:    { field: 10, cols: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'], p: [0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] }
+  smoke:    { field: 10, cols: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'], p: [0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] },
+  gilded:   { field: 0, material: 5, cols: ['#0a0602', '#6b3a05', '#e8940f', '#ffdf8a'], p: [0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
+  mercury:  { field: 0, material: 5, cols: ['#020204', '#1c1a2e', '#5a5670', '#e8e0f2'], p: [0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
+  bloom:    { field: 13, cols: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], p: [0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] }
 };
 
 var DEFAULTS = {
   speed: 0.6, zoom: 1.6, warp: 4.5, grain: 0.06,
   pixel: 6, dot: 10, halftone: true, palette: 'aurora',
   seed: null, liquify: 0.8, blend: 0.85, aspect: '1:1', preset: 'none',
-  field: 'noise', screen: 'square', threshold: 0.5
+  field: 'noise', screen: 'square', threshold: 0.5, finish: 'none'
 };
 
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
@@ -84,6 +88,7 @@ function buildPiece(input, base){
     p.field = FIELDS[lk.field || 0];
     p.screen = SCREENS[lk.screen || 0];
     p.threshold = lk.thresh != null ? lk.thresh : 0.5;
+    p.finish = FINISHES[lk.material || 0];
     if (lk.cols){ p.palette = 'custom'; p.lookCols = lk.cols; }
   } else if (lookName){
     throw new Error('unknown look "' + lookName + '" — valid: ' + Object.keys(LOOKS).join(', '));
@@ -116,6 +121,11 @@ function buildPiece(input, base){
     var sc = input.screen.toLowerCase();
     if (SCREENS.indexOf(sc) < 0){ throw new Error('unknown screen — valid: ' + SCREENS.join(', ')); }
     p.screen = sc;
+  }
+  if (typeof input.finish === 'string'){
+    var fn = input.finish.toLowerCase();
+    if (FINISHES.indexOf(fn) < 0){ throw new Error('unknown finish — valid: ' + FINISHES.join(', ')); }
+    p.finish = fn;
   }
   /* custom palette: 4 hex gradient stops (dark->light) override the named palette.
      A look can ship its own gradient (p.lookCols); an explicit palette/colors wins. */
@@ -159,6 +169,12 @@ function buildPiece(input, base){
       while (a.length < 24){ a.push(0); }
       a.push(dOff);
     }
+    /* [28] material finish — only when set; pads [19..27] like the app's buildHash */
+    var fIdx = FINISHES.indexOf(p.finish);
+    if (fIdx > 0){
+      while (a.length < 28){ a.push(0); }
+      a.push(fIdx);
+    }
     var minLen = customPacked ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
     return base + '/#p=' + a.join(',');
@@ -201,7 +217,8 @@ function decodeLink(url){
     embed: n.length > 13 && Math.round(n[13]) === 1,
     field: FIELDS[clamp(n.length > 14 ? Math.round(n[14]) : 0, 0, FIELDS.length - 1)],
     screen: SCREENS[clamp(n.length > 15 ? Math.round(n[15]) : 0, 0, SCREENS.length - 1)],
-    threshold: n.length > 24 ? clamp(0.5 + n[24], 0, 1) : 0.5
+    threshold: n.length > 24 ? clamp(0.5 + n[24], 0, 1) : 0.5,
+    finish: FINISHES[clamp(n.length > 28 ? Math.round(n[28]) : 0, 0, FINISHES.length - 1)]
   };
 }
 
@@ -226,8 +243,9 @@ var TOOLS = [
       type: 'object',
       properties: {
         look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated starting point' },
-        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds)' },
+        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
+        finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },
         palette: { type: 'string', enum: PALETTES },
         colors: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4, description: 'custom palette: 4 hex gradient stops dark->light, e.g. ["#0a0a1a","#3a1f7a","#c84fe0","#ffe1f5"] (overrides palette)' },
@@ -404,7 +422,7 @@ function api(req, url){
   if (url.pathname === '/api/piece'){
     var q = url.searchParams;
     var input = {};
-    ['look', 'preset', 'palette', 'aspect', 'field', 'screen'].forEach(function(k){
+    ['look', 'preset', 'palette', 'aspect', 'field', 'screen', 'finish'].forEach(function(k){
       if (q.has(k)){ input[k] = q.get(k); }
     });
     ['seed', 'speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'threshold', 'liquify', 'blend'].forEach(function(k){
@@ -418,7 +436,7 @@ function api(req, url){
   return json({
     name: 'fluid api',
     endpoints: {
-      'GET /api/piece': 'query params: look, preset, palette, colors (4 hex, comma-separated, for a custom gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen',
+      'GET /api/piece': 'query params: look, preset, palette, colors (4 hex, comma-separated, for a custom gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish',
       'GET /api/looks': 'curated looks with links',
       'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp'
     },
