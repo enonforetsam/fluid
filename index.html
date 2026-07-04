@@ -371,7 +371,7 @@
   .textfield:focus{border-color:var(--ink);box-shadow:0 0 0 2px var(--line)}
   .textclear{flex:0 0 auto;font-size:16px;line-height:1;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
   .textclear:hover{border-color:var(--ink)}
-  #maskBgDark.on,#maskBgLight.on,#maskBgGradBtn.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+  #maskBgDark.on,#maskBgLight.on,#maskBgGradBtn.on,#stops2.on,#stops3.on,#stops4.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
   .fontgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .fontbtn{
     font-size:15px;line-height:1;color:var(--ink);background:transparent;
@@ -889,6 +889,12 @@
       <button class="fieldBtn palBtn" data-pal="8" aria-label="Custom" aria-pressed="false"><span>Custom</span></button>
     </div>
     <div class="exGroupLabel">Custom gradient — dark to light</div>
+    <div class="row gap swatchRow" id="stopsRow" style="margin-bottom:8px">
+      <span class="exGroupLabel" style="margin:0 2px 0 0">Colours</span>
+      <button type="button" id="stops2" aria-pressed="false" title="Pick 2 colours — Fluid blends between them">2</button>
+      <button type="button" id="stops3" aria-pressed="false" title="Pick 3 colours — Fluid blends between them">3</button>
+      <button type="button" id="stops4" class="on" aria-pressed="true" title="Design all 4 gradient stops yourself">4</button>
+    </div>
     <div class="row gap swatchRow" id="swatchRow">
       <input class="swatch" id="c0" type="color" aria-label="Gradient stop 1 (darkest)">
       <input class="swatch" id="c1" type="color" aria-label="Gradient stop 2">
@@ -2934,13 +2940,26 @@ function syncControls(){
   document.documentElement.style.setProperty('--tile-ink', rgb01ToCss(accent));
   var arcCol = state.pal === 7 ? [0.85,0.90,0.96] : state.pal === 8 ? state.cols[2] : PALETTES_RGB[state.pal][2];
   document.documentElement.style.setProperty('--knob-arc', rgb01ToCss(arcCol));
-  for (ci = 0; ci < 4; ci++){ sel = document.getElementById(sw[ci]); if (sel){ sel.value = rgb01ToHex(cc[ci]); } }
-  var swRow = document.getElementById('swatchRow');
+  /* 2/3-colour mode shows only the base swatches; 4 shows every derived stop */
+  var nShow = (customN < 4 && customBase) ? customN : 4;
+  for (ci = 0; ci < 4; ci++){
+    sel = document.getElementById(sw[ci]);
+    if (!sel){ continue; }
+    sel.style.display = ci < nShow ? '' : 'none';
+    sel.value = rgb01ToHex(ci < nShow && nShow < 4 ? customBase[ci] : cc[ci]);
+  }
+  for (ci = 2; ci <= 4; ci++){
+    sel = document.getElementById('stops' + ci);
+    if (sel){ var son2 = ci === (nShow < 4 ? nShow : 4); sel.classList.toggle('on', son2); sel.setAttribute('aria-pressed', son2 ? 'true' : 'false'); }
+  }
+  var swRow = document.getElementById('swatchRow'), stRow = document.getElementById('stopsRow');
   if (swRow){ swRow.className = 'row gap swatchRow' + (state.pal === 7 ? ' disabled' : ''); }
+  if (stRow){ stRow.className = 'row gap swatchRow' + (state.pal === 7 ? ' disabled' : ''); }
   var cnote = document.getElementById('cnote');
   if (cnote){
     cnote.textContent = state.pal === 7 ? 'Chrome is a procedural metal — no editable stops.'
-      : state.pal === 8 ? 'Custom gradient — your colours. Tap a preset to start over.'
+      : state.pal === 8 ? (nShow < 4 ? 'Pick your ' + nShow + ' colours — the gradient blends between them.'
+                                     : 'Custom gradient — your colours. Tap a preset to start over.')
       : 'Edit any swatch to make this palette your own.';
   }
   syncFieldButtons();
@@ -3007,17 +3026,95 @@ Array.prototype.forEach.call(document.querySelectorAll('.palBtn'), function(b){
     /* entering Custom seeds the swatches from whatever palette is showing now */
     if (v === 8 && state.pal !== 8){ state.cols = cloneStops(effectiveCols()); }
     state.pal = v;
+    resetCustomMode();
     markLook(null);
     syncControls();
   });
 });
-/* swatch pickers: editing one drops into Custom mode (seeded from the current look) */
+/* ---------- custom gradient from 2 or 3 colours ----------
+   The engine always runs on 4 stops (share-hash slots [20..23] unchanged); in
+   2- or 3-colour mode the extra stops are derived by blending, so a designer can
+   just pick a pair and get a clean gradient. customBase = the user's N colours. */
+var customN = 4, customBase = null;
+function mixC(a, b, t){ return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+function deriveStops(base){
+  if (!base || base.length >= 4){ return cloneStops(base || state.cols); }
+  if (base.length === 2){
+    return [base[0].slice(), mixC(base[0], base[1], 1 / 3), mixC(base[0], base[1], 2 / 3), base[1].slice()];
+  }
+  /* 3 colours: A at 0, B at the middle, C at 1 — sampled at the 4 ramp positions */
+  return [base[0].slice(), mixC(base[0], base[1], 2 / 3), mixC(base[1], base[2], 1 / 3), base[2].slice()];
+}
+function persistCustomMode(){
+  try {
+    if (customN < 4 && customBase){
+      localStorage.setItem('fluid:customMode', JSON.stringify({ n: customN, base: customBase.map(rgb01ToHex) }));
+    } else { localStorage.removeItem('fluid:customMode'); }
+  } catch(e){}
+}
+/* anything that overwrites the colours wholesale (look / shuffle / preset / shared
+   link) speaks in 4 stops again — drop back to 4-swatch mode so the UI matches */
+function resetCustomMode(){
+  if (customN === 4 && !customBase){ return; }
+  customN = 4; customBase = null;
+  try { localStorage.removeItem('fluid:customMode'); } catch(e){}
+}
+/* bring the 2/3-colour mode back after a reload — only when the saved base still
+   derives EXACTLY the colours that booted (else it describes some older design) */
+function restoreCustomMode(){
+  try {
+    var s = localStorage.getItem('fluid:customMode');
+    if (!s || state.pal !== 8){ return; }
+    var o = JSON.parse(s);
+    if (!o || (o.n !== 2 && o.n !== 3) || !Array.isArray(o.base) || o.base.length !== o.n){ return; }
+    var base = [], i;
+    for (i = 0; i < o.base.length; i++){
+      if (!/^#[0-9a-fA-F]{6}$/.test(String(o.base[i]))){ return; }
+      base.push(hexToRgb01(o.base[i]));
+    }
+    var derived = deriveStops(base);
+    for (i = 0; i < 4; i++){ if (packCol(derived[i]) !== packCol(state.cols[i])){ return; } }
+    customN = o.n; customBase = base;
+  } catch(e){}
+}
+function setCustomN(n){
+  var cc = effectiveCols();
+  customN = n;
+  if (n === 4){
+    customBase = null;
+    if (state.pal !== 8){ state.cols = cloneStops(cc); state.pal = 8; }
+  } else {
+    customBase = n === 2
+      ? [cc[0].slice(), cc[3].slice()]
+      : [cc[0].slice(), mixC(cc[1], cc[2], 0.5), cc[3].slice()];
+    state.pal = 8;
+    state.cols = deriveStops(customBase);
+  }
+  markLook(null);
+  persistCustomMode();
+  syncControls();
+  setStatus(n === 4 ? 'CUSTOM GRADIENT — design all 4 stops'
+    : n + ' COLOURS — Fluid blends the gradient between them');
+}
+[2, 3, 4].forEach(function(n){
+  var b = document.getElementById('stops' + n);
+  if (b){ b.addEventListener('click', function(){ setCustomN(n); }); }
+});
+/* swatch pickers: editing one drops into Custom mode (seeded from the current look).
+   In 2/3-colour mode the visible swatches edit the BASE colours; the stops derive. */
 ['c0', 'c1', 'c2', 'c3'].forEach(function(id, idx){
   var el = document.getElementById(id);
   if (!el){ return; }
   el.addEventListener('input', function(){
-    if (state.pal !== 8){ state.cols = cloneStops(effectiveCols()); state.pal = 8; }
-    state.cols[idx] = hexToRgb01(el.value);
+    if (customN < 4 && customBase && idx < customN){
+      customBase[idx] = hexToRgb01(el.value);
+      state.pal = 8;
+      state.cols = deriveStops(customBase);
+      persistCustomMode();
+    } else {
+      if (state.pal !== 8){ state.cols = cloneStops(effectiveCols()); state.pal = 8; }
+      state.cols[idx] = hexToRgb01(el.value);
+    }
     markLook(null);
     syncControls();
   });
@@ -3204,6 +3301,7 @@ function randomPattern(){
   var rnd = Math.random;
   state.field = nextFieldFromBag();                 /* #1 even rotation, no consecutive repeat */
   var key, tries = 0;
+  resetCustomMode();                                /* a shuffle speaks in 4 stops again */
   var useCustom = rnd() < 0.17;                     /* #3 decided once (not inside the loop) -> exactly ~1 in 6 */
   if (useCustom){ state.cols = randomGradient(); }
   do {
@@ -3421,6 +3519,7 @@ function applyLook(lk, btn){
   state.material = lk.material || 0;
   /* a look may ship its own gradient: load it into the custom palette (pal 8) */
   if (lk.cols){ state.pal = 8; state.cols = lk.cols.map(hexToRgb01); }
+  resetCustomMode();
   stopCamera();
   /* the photo stays loaded through a look change — it overrides the field as the source */
   markPreset(null);
@@ -5212,8 +5311,10 @@ if (fromHash){
     randomPattern();
     setStatus('RANDOM PATTERN — move your cursor over it to ripple');
   }
-  /* rotate the palette every refresh — applied before first paint, so instant */
-  state.pal = nextPaletteIndex();
+  /* rotate the palette every refresh — applied before first paint, so instant.
+     NEVER off a custom design (pal 8): rotating to a preset would silently
+     discard hand-picked colours (2/3-colour gradients, GILDED-style look cols) */
+  if (state.pal !== 8){ state.pal = nextPaletteIndex(); }
   restoreTextFromStorage();   /* text/font/bg survive reloads — saved-design or random alike */
 }
 /* the default piece animates on load (mobile + desktop) at its own speed — but honour
@@ -5224,6 +5325,7 @@ state.playing = !reduceMotion && state.speed > 0;
 /* authoritative embed switch — the head pre-paint script already guessed from
    slot [13]; toggle (not add) so a wrong guess self-heals to the full parse */
 document.documentElement.classList.toggle('embed', EMBED);
+restoreCustomMode();   /* 2/3-colour picking survives reloads when the colours still match */
 exportTarget = customFromAr(state.ar);
 updateExportSpec();
 syncControls();

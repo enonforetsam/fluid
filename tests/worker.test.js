@@ -58,6 +58,30 @@ describe('worker.js (behavioral)', () => {
     await res.json(); // must be valid JSON either way
   });
 
+  it('GET /api/piece with 2 colors -> expands to a 4-stop custom gradient', async () => {
+    const res = await GET('/api/piece?colors=000000,ffffff');
+    assert.strictEqual(res.status, 200);
+    const body = await res.json();
+    assert.strictEqual(body.params.palette, 'custom');
+    assert.deepStrictEqual(body.params.colors, ['#000000', '#555555', '#aaaaaa', '#ffffff']);
+    assert.match(body.share_url, /,8,/, 'share hash should carry pal=8 custom');
+  });
+
+  it('GET /api/piece with 3 colors -> ends on the exact picked colours', async () => {
+    const res = await GET('/api/piece?colors=110000,001100,000011');
+    const body = await res.json();
+    assert.strictEqual(body.params.colors.length, 4);
+    assert.strictEqual(body.params.colors[0], '#110000');
+    assert.strictEqual(body.params.colors[3], '#000011');
+  });
+
+  it('GET /api/piece with 1 color -> handled 400, not a crash', async () => {
+    const res = await GET('/api/piece?colors=123456');
+    assert.strictEqual(res.status, 400);
+    const body = await res.json();
+    assert.match(body.error, /2, 3 or 4/);
+  });
+
   it('GET /api -> 200 JSON api index', async () => {
     const res = await GET('/api');
     assert.strictEqual(res.status, 200);

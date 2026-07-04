@@ -70,6 +70,19 @@ function packHex(h){
   var x = parseInt(m[1], 16);
   return (x >> 16 & 255) * 65536 + (x >> 8 & 255) * 256 + (x & 255);
 }
+/* 2 or 3 colours -> the 4 gradient stops the hash carries (mirrors the app's deriveStops) */
+function mixHex(a, b, t){
+  var pa = packHex(a), pb = packHex(b);
+  var r = Math.round((pa >> 16 & 255) + ((pb >> 16 & 255) - (pa >> 16 & 255)) * t);
+  var g = Math.round((pa >> 8 & 255) + ((pb >> 8 & 255) - (pa >> 8 & 255)) * t);
+  var bl = Math.round((pa & 255) + ((pb & 255) - (pa & 255)) * t);
+  return '#' + hex2(r) + hex2(g) + hex2(bl);
+}
+function expandColors(cols){
+  if (cols.length === 4){ return cols; }
+  if (cols.length === 2){ return [cols[0], mixHex(cols[0], cols[1], 1 / 3), mixHex(cols[0], cols[1], 2 / 3), cols[1]]; }
+  return [cols[0], mixHex(cols[0], cols[1], 2 / 3), mixHex(cols[1], cols[2], 1 / 3), cols[2]];
+}
 
 function buildPiece(input, base){
   input = input || {};
@@ -127,10 +140,14 @@ function buildPiece(input, base){
     if (FINISHES.indexOf(fn) < 0){ throw new Error('unknown finish — valid: ' + FINISHES.join(', ')); }
     p.finish = fn;
   }
-  /* custom palette: 4 hex gradient stops (dark->light) override the named palette.
+  /* custom palette: 2-4 hex colours (dark->light) override the named palette — 2 or 3
+     expand to the 4 hash stops by blending, exactly like the app's colour picker.
      A look can ship its own gradient (p.lookCols); an explicit palette/colors wins. */
   var customPacked = null;
-  var srcCols = (Array.isArray(input.colors) && input.colors.length === 4) ? input.colors
+  if (Array.isArray(input.colors) && (input.colors.length < 2 || input.colors.length > 4)){
+    throw new Error('colors takes 2, 3 or 4 hex values (dark -> light)');
+  }
+  var srcCols = (Array.isArray(input.colors) && input.colors.length >= 2) ? expandColors(input.colors)
     : (!input.palette && Array.isArray(p.lookCols) && p.lookCols.length === 4 ? p.lookCols : null);
   if (srcCols){
     customPacked = srcCols.map(packHex);
@@ -248,7 +265,7 @@ var TOOLS = [
         finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },
         palette: { type: 'string', enum: PALETTES },
-        colors: { type: 'array', items: { type: 'string' }, minItems: 4, maxItems: 4, description: 'custom palette: 4 hex gradient stops dark->light, e.g. ["#0a0a1a","#3a1f7a","#c84fe0","#ffe1f5"] (overrides palette)' },
+        colors: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 4, description: 'custom palette: 2-4 hex colours dark->light (2 or 3 blend into a full gradient), e.g. ["#0a0a1a","#ffe1f5"] or ["#0a0a1a","#3a1f7a","#c84fe0","#ffe1f5"] (overrides palette)' },
         seed: { type: 'number', minimum: 3, maximum: 92 },
         speed: { type: 'number', minimum: 0, maximum: 3, description: 'animation speed' },
         zoom: { type: 'number', minimum: 0.5, maximum: 4 },
@@ -436,7 +453,7 @@ function api(req, url){
   return json({
     name: 'fluid api',
     endpoints: {
-      'GET /api/piece': 'query params: look, preset, palette, colors (4 hex, comma-separated, for a custom gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish',
+      'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish',
       'GET /api/looks': 'curated looks with links',
       'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp'
     },
