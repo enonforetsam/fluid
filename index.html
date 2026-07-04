@@ -20,6 +20,24 @@
 <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <script src="assets/fluid-favicon.js" defer></script>
+<script>
+/* pre-paint embed detect: the studio markup below is visible by default and the
+   real embed switch lives at the end of the main script, so a cold-cache embed
+   iframe used to flash the full studio UI before going chrome-less. Decide here,
+   before first paint. Mirrors parseHash's accept rules for slot [13] ONLY — a
+   hash the full parser would reject (short, or any non-numeric slot) must NOT
+   hide the studio, so this no-ops unless the numbers parse clean. The boot code
+   re-derives EMBED from the full parse and toggles the class authoritatively. */
+(function(){
+  var m = /^#p=(.+)/.exec(location.hash);
+  if (!m){ return; }
+  var n = m[1].split(',').map(parseFloat);
+  if (n.length < 12 || n.some(isNaN)){ return; }
+  if (n.length > 13 && Math.round(n[13]) === 1){
+    document.documentElement.classList.add('embed');
+  }
+})();
+</script>
 <style>
   :root{
     --bg:#0c0c10;
@@ -4936,7 +4954,9 @@ if (fromHash){
    shared piece. The random default always carries a lively speed (see randomPattern). */
 var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 state.playing = !reduceMotion && state.speed > 0;
-if (EMBED){ document.documentElement.className += ' embed'; }
+/* authoritative embed switch — the head pre-paint script already guessed from
+   slot [13]; toggle (not add) so a wrong guess self-heals to the full parse */
+document.documentElement.classList.toggle('embed', EMBED);
 exportTarget = customFromAr(state.ar);
 updateExportSpec();
 syncControls();
