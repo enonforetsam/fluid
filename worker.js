@@ -8,7 +8,7 @@ var BASE = 'https://fluid.krackeddevs.com';
 
 var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
 var PRESETS = [];
-var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom'];
+var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom', 'sweep'];
 var SCREENS = ['square', 'hex', 'ascii', 'dither', 'glitch'];
 var FINISHES = ['none', 'glass', 'metal', 'sand', 'liquid', 'molten'];   /* share-hash slot [28] */
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
@@ -48,7 +48,8 @@ var LOOKS = {
   smoke:    { field: 10, cols: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'], p: [0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] },
   gilded:   { field: 0, material: 5, cols: ['#0a0602', '#6b3a05', '#e8940f', '#ffdf8a'], p: [0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
   mercury:  { field: 0, material: 5, cols: ['#020204', '#1c1a2e', '#5a5670', '#e8e0f2'], p: [0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
-  bloom:    { field: 13, cols: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], p: [0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] }
+  bloom:    { field: 13, cols: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], p: [0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] },
+  horizon:  { field: 14, cols: ['#0d0b2e', '#552a8a', '#f27059', '#ffd9a0'], p: [0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] }
 };
 
 var DEFAULTS = {
@@ -260,7 +261,7 @@ var TOOLS = [
       type: 'object',
       properties: {
         look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated starting point' },
-        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient)' },
+        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
         finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },
