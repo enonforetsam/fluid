@@ -38,6 +38,11 @@ That's it. Put your content anywhere with `position: relative; z-index: 1` and i
 > (`fluid-bg` will `console.warn` with this exact fix if it detects an opaque page
 > background behind a `fixed` instance.) Alternatively, raise `z` above your page background.
 
+> **No studio flash on load.** Older builds of the Fluid page briefly painted the full
+> studio UI inside the iframe on cold-cache loads before going chrome-less. Fixed
+> server-side (embed mode is now decided before first paint) — every `fluid-bg`
+> embed gets the fix automatically, no package update needed.
+
 ## npm
 
 ```sh
