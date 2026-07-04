@@ -490,8 +490,10 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.32), 0 2px 5px rgba(0,0,0,.42);
     text-shadow:0 1px 1px rgba(0,0,0,.45);
   }
-  /* skeuomorphic rotary knobs (Speed / Zoom / Warp / Grain) */
-  .knobgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+  /* skeuomorphic rotary knobs (Speed / Zoom / Warp / Grain). The dials are a fixed
+     72px, so the grid must WRAP on narrow panels (split-screen windows) instead of
+     forcing 4 columns — a fixed repeat(4,1fr) cut the 4th dial off the panel edge. */
+  .knobgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:10px;margin-top:10px}
   .knobctl{display:flex;flex-direction:column;align-items:center;gap:7px;position:relative}
   .knobctl input[type=range]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;margin:0;padding:0}
   .knoblabel{
