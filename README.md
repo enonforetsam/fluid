@@ -105,6 +105,7 @@ claude mcp add --transport http fluid https://fluid.krackeddevs.com/mcp
 | `gallery.html` | Curated examples and downloadable preview images |
 | `manual.html` | User reference |
 | `dev.html` | Embed, API, and MCP reference |
+| `fluid-core/` | Zero-dependency native canvas library — shader + engine/palette/look tables generated from `index.html` by `fluid-core/build.mjs`, plus a small mount runtime; see `fluid-core/README.md` |
 | `assets/` | Favicon, gallery previews, Open Graph images, and README media |
 
 Important invariants:
@@ -113,6 +114,7 @@ Important invariants:
 - Keep the shader source as joined string arrays.
 - Preserve the append-only `#p=` share-hash field order.
 - Keep mirrored constants in `index.html` and `worker.js` in sync.
+- After changing engines, palettes, or looks, run `node fluid-core/build.mjs` — the test suite fails on drift.
 - Scale screen-space shader sizes by the render scale `k` used for export.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the share-hash contract and Worker mirror notes.

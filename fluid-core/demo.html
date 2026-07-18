@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fluid-core demo — native mounts, no iframe</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #0b0b0e; color: #e8e8ee; font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+  header { padding: 20px 24px 6px; }
+  h1 { font-size: 16px; margin: 0 0 4px; letter-spacing: 0.06em; }
+  p { margin: 0; color: #9a9aa8; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; padding: 18px 24px 28px; }
+  .cell { position: relative; aspect-ratio: 16/10; border-radius: 10px; overflow: hidden; background: #000; }
+  .cell .tag { position: absolute; left: 10px; bottom: 8px; z-index: 2; font-size: 11px; color: #fff;
+    background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 999px; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+<header>
+  <h1>fluid-core</h1>
+  <p>six native canvas mounts on one page — no iframes; offscreen + hidden-tab pausing on; last one is static (zero rAF)</p>
+</header>
+<div class="grid" id="grid"></div>
+<script type="module">
+  import { createFluid, VERSION, FIELDS } from './src/index.js';
+
+  const pieces = [
+    { tag: 'flow · sunset',              params: { field: 'flow', palette: 'sunset', seed: 21, speed: 0.5, zoom: 1.6, warp: 4 } },
+    { tag: 'look: BOREALIS',             params: { look: 'BOREALIS', seed: 30 } },
+    { tag: 'bloom · custom colors',      params: { field: 'bloom', colors: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], seed: 24, speed: 0.35, zoom: 0.95, warp: 2.5, grain: 0.14 } },
+    { tag: 'smoke + crystal layer',      params: { field: 'smoke', palette: 'ocean', layer: { field: 'crystal', blend: 'screen', mix: 0.35 }, seed: 48, speed: 0.4 } },
+    { tag: 'cellular · molten · hex',    params: { field: 'cellular', palette: 'ember', material: 'molten', screen: 'hex', seed: 52, speed: 0.4, zoom: 1.8, warp: 7 } },
+    { tag: 'sweep · static (speed 0)',   params: { field: 'sweep', colors: ['#0d0b2e', '#552a8a', '#f27059', '#ffd9a0'], seed: 33, speed: 0 } }
+  ];
+
+  const grid = document.getElementById('grid');
+  const mounts = [];
+  for (const p of pieces){
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = p.tag;
+    grid.appendChild(cell);
+    const m = createFluid(cell, p.params);
+    cell.appendChild(tag);
+    mounts.push(m);
+  }
+  window.__fluidMounts = mounts;   /* for console poking + headless checks */
+  console.log('[fluid-core] v' + VERSION + ' — ' + mounts.length + ' mounts, engines: ' + FIELDS.join(','));
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "fluid-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fluid's engines as a zero-dependency native canvas library — generated from the studio, never drifting from it",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
