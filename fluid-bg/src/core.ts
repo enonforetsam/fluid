@@ -1,13 +1,32 @@
 // fluid-bg core — framework-agnostic, side-effect-free.
-// Builds the embed URL and mounts an iframe pointing at the hosted Fluid studio.
-// There is NO shader here: the iframe always renders the studio's latest engines,
-// so this package never drifts from the app.
+//
+// 0.2.0: renders NATIVELY on a canvas via fluid-core (bundled at build time,
+// generated from the studio with a CI drift guard — the engines cannot drift
+// from the app). No iframe, kilobytes not megabytes, zero rAF when static,
+// pauses offscreen and in hidden tabs. The old iframe embed remains as an
+// automatic fallback when WebGL is unavailable, or on request (mode:"iframe").
+import { createFluid, parseShareHash } from "../../fluid-core/src/index.js";
+
+/**
+ * Public surface of a native mount (fluid-core's FluidMount, bundled at build
+ * time). Declared locally so the published types are self-contained.
+ */
+export interface FluidBgMount {
+  canvas: HTMLCanvasElement;
+  play(): FluidBgMount;
+  pause(): FluidBgMount;
+  readonly playing: boolean;
+  /** Studio share link for this piece. */
+  shareUrl(base?: string, embed?: boolean): string;
+  toDataURL(type?: string, quality?: number): string;
+  destroy(): void;
+}
 
 export interface FluidBgOptions {
   /**
    * A Fluid share hash, e.g. `"#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778"`.
-   * Copy one from the studio (Copy share link) or the gallery. The embed flag
-   * is set for you. Omit to use a calm built-in default look.
+   * Copy one from the studio (Copy share link) or the gallery. Omit to use a
+   * calm built-in default look.
    */
   hash?: string;
   /**
@@ -18,8 +37,14 @@ export interface FluidBgOptions {
   fixed?: boolean;
   /** z-index to use when `fixed`. Default `-1`. */
   z?: number;
-  /** Override the Fluid origin (for a self-hosted instance). */
+  /** Override the Fluid origin (for a self-hosted instance; iframe mode only). */
   base?: string;
+  /**
+   * How to render. `"native"` (default) draws on a canvas in your page via the
+   * bundled fluid-core engines; `"iframe"` embeds the hosted studio like 0.1.x.
+   * Native automatically falls back to the iframe when WebGL is unavailable.
+   */
+  mode?: "native" | "iframe";
 }
 
 /** Default Fluid origin. */
@@ -44,7 +69,7 @@ export function ensureEmbed(hash?: string): string {
   return "#p=" + a.join(",");
 }
 
-/** Build the full embed URL for an options object. */
+/** Build the full embed URL for an options object (iframe mode). */
 export function buildSrc(opts: FluidBgOptions = {}): string {
   let base = (opts.base || DEFAULT_BASE).replace(/\/+$/, "");
   if (!/^https?:\/\//i.test(base)) base = DEFAULT_BASE.replace(/\/+$/, "");   // only http(s) origins — reject javascript:/data: etc.
@@ -66,10 +91,10 @@ function hasOpaqueBackground(el: Element | null): boolean {
 /**
  * A `fixed` background sits at a negative z-index, *behind* the page. If the
  * page itself paints an opaque background (on `<body>` or `<html>`), that colour
- * covers the iframe and you see nothing — usually a black or white screen that
- * looks like the package is broken. Warn the developer (once) with the exact fix
- * instead of leaving them to debug a blank page. No-op outside the browser, and
- * only relevant when the background is actually behind the page (z < 0).
+ * covers the background and you see nothing — usually a black or white screen
+ * that looks like the package is broken. Warn the developer (once) with the
+ * exact fix instead of leaving them to debug a blank page. No-op outside the
+ * browser, and only relevant when the background is actually behind the page (z < 0).
  */
 let warnedHidden = false;
 export function warnIfBackgroundHidden(z: number): void {
@@ -100,11 +125,45 @@ function makeIframe(src: string): HTMLIFrameElement {
   return f;
 }
 
+/**
+ * Mount the bundled fluid-core engines into `container` from a share hash.
+ * Exported for advanced use; throws when WebGL is unavailable.
+ */
+export function mountNative(container: HTMLElement, hash?: string): FluidBgMount {
+  const params = parseShareHash(ensureEmbed(hash)) || parseShareHash(DEFAULT_HASH)!;
+  return createFluid(container, params) as unknown as FluidBgMount;
+}
+
 export interface FluidBgHandle {
-  /** The element that contains the iframe (the created host when `fixed`, else the target). */
+  /** The element that contains the background (the created host when `fixed`, else the target). */
   el: HTMLElement;
-  /** Remove the background from the DOM. */
+  /** Remove the background from the DOM (and free its WebGL context). */
   destroy(): void;
+  /** How this background is rendered: "native" canvas or the "iframe" fallback. */
+  mode: "native" | "iframe";
+  /** Pause the animation. Native mode only (undefined on the iframe fallback). */
+  pause?: () => void;
+  /** Resume the animation. Native mode only (undefined on the iframe fallback). */
+  play?: () => void;
+}
+
+/** Fill `inner` with the chosen renderer; returns handle pieces. */
+function renderInto(
+  inner: HTMLElement,
+  opts: FluidBgOptions
+): { mode: "native" | "iframe"; cleanup: () => void; mount?: FluidBgMount } {
+  if (opts.mode !== "iframe") {
+    try {
+      const mount = mountNative(inner, opts.hash);
+      return { mode: "native", cleanup: () => mount.destroy(), mount };
+    } catch (e) {
+      /* WebGL unavailable (or blocked) — fall back to the hosted embed, which
+         has its own 2D fallback. Never leave a blank hole. */
+    }
+  }
+  const iframe = makeIframe(buildSrc(opts));
+  inner.appendChild(iframe);
+  return { mode: "iframe", cleanup: () => iframe.remove() };
 }
 
 /**
@@ -115,8 +174,6 @@ export function fluidBackground(
   target?: Element | null,
   opts: FluidBgOptions = {}
 ): FluidBgHandle {
-  const iframe = makeIframe(buildSrc(opts));
-
   if (opts.fixed) {
     const z = (opts.z == null || isNaN(Number(opts.z))) ? -1 : Number(opts.z);
     warnIfBackgroundHidden(z);
@@ -124,15 +181,29 @@ export function fluidBackground(
     host.style.cssText =
       "position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:" +
       z + ";";
-    host.appendChild(iframe);
     (target || document.body).appendChild(host);
-    return { el: host, destroy: () => host.remove() };
+    const r = renderInto(host, opts);
+    return {
+      el: host,
+      mode: r.mode,
+      destroy: () => { r.cleanup(); host.remove(); },
+      pause: r.mount ? () => { r.mount!.pause(); } : undefined,
+      play: r.mount ? () => { r.mount!.play(); } : undefined,
+    };
   }
 
   const host = (target as HTMLElement) || document.body;
   if (getComputedStyle(host).position === "static") host.style.position = "relative";
-  iframe.style.cssText =
-    "border:0;display:block;position:absolute;inset:0;width:100%;height:100%;pointer-events:none;";
-  host.appendChild(iframe);
-  return { el: host, destroy: () => iframe.remove() };
+  const inner = document.createElement("div");
+  inner.style.cssText =
+    "position:absolute;inset:0;width:100%;height:100%;overflow:hidden;pointer-events:none;";
+  host.appendChild(inner);
+  const r = renderInto(inner, opts);
+  return {
+    el: host,
+    mode: r.mode,
+    destroy: () => { r.cleanup(); inner.remove(); },
+    pause: r.mount ? () => { r.mount!.pause(); } : undefined,
+    play: r.mount ? () => { r.mount!.play(); } : undefined,
+  };
 }

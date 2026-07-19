@@ -1,0 +1,50 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fluid-bg 0.2.0 — native mount test</title>
+<script src="../dist/fluid-bg.iife.js"></script>
+<style>
+  body { margin: 0; background: #0b0b0e; color: #fff; font: 13px/1.5 ui-monospace, Menlo, monospace; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; position: relative; z-index: 1; }
+  .cell { position: relative; height: 300px; border-radius: 8px; overflow: hidden; background: #000; }
+  .tag { position: absolute; left: 8px; bottom: 6px; z-index: 2; background: rgba(0,0,0,.5); padding: 2px 8px; border-radius: 999px; }
+  #report { padding: 0 16px 16px; position: relative; z-index: 1; white-space: pre-wrap; }
+</style>
+
+<div class="grid">
+  <div class="cell"><fluid-bg id="a" hash="#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778,0,0,1"></fluid-bg><span class="tag">element · flow aurora</span></div>
+  <div class="cell"><fluid-bg id="b" hash="#p=0.35,0.95,2.5,0.14,1,10,0,8,24,0,0,1,0,0,13,0,0,0,0,0,12760112,14699026,15222938,15920856"></fluid-bg><span class="tag">element · bloom custom colours</span></div>
+  <div class="cell" id="c"><span class="tag">imperative · smoke ocean + layer</span></div>
+  <div class="cell"><fluid-bg id="d" hash="#p=0.5,1.5,5.5,0.03,1,10,0,2,18,0,0,1,0,0,1" mode="iframe"></fluid-bg><span class="tag">element · forced iframe fallback</span></div>
+</div>
+<div id="report">running…</div>
+
+<script>
+  var h = FluidBg.fluidBackground(document.getElementById('c'), {
+    hash: '#p=0.38,1.3,3,0.015,1,10,0,2,30,0,0,1,0,0,10,0,0,0,0,0,0,0,0,0,0,11,2,35'
+  });
+  setTimeout(function(){
+    function probe(id){
+      var el = document.getElementById(id);
+      var root = el.shadowRoot;
+      return {
+        canvas: !!(root && root.querySelector('canvas')),
+        iframe: !!(root && root.querySelector('iframe'))
+      };
+    }
+    var a = probe('a'), b = probe('b'), d = probe('d');
+    var cCanvas = !!document.getElementById('c').querySelector('canvas');
+    var lines = [
+      'a element native: canvas=' + a.canvas + ' iframe=' + a.iframe,
+      'b custom-colours native: canvas=' + b.canvas + ' iframe=' + b.iframe,
+      'c imperative: mode=' + h.mode + ' canvas=' + cCanvas + ' pause=' + (typeof h.pause),
+      'd forced-iframe: canvas=' + d.canvas + ' iframe=' + d.iframe
+    ];
+    var pass = a.canvas && !a.iframe && b.canvas && !b.iframe &&
+               h.mode === 'native' && cCanvas && typeof h.pause === 'function' &&
+               d.iframe && !d.canvas;
+    lines.push(pass ? 'ALL PASS' : 'FAIL');
+    document.getElementById('report').textContent = lines.join('\n');
+    console.log('[native-test] ' + lines.join(' | '));
+  }, 2500);
+</script>

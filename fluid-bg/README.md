@@ -6,6 +6,12 @@
 
 A `<fluid-bg>` web component, a React wrapper, and a CDN one-liner — one tag, zero setup, GPU-rendered.
 
+**0.2.0: renders natively on a canvas in your page — no iframe.** All 15 engines are bundled
+(~15 KB gzipped), generated straight from the studio with a CI drift guard. Zero animation
+frames when static, pauses offscreen and in hidden tabs, respects `prefers-reduced-motion`,
+works offline. The 0.1.x iframe embed remains as an automatic fallback when WebGL is
+unavailable (or on request with `mode="iframe"`).
+
 [![npm](https://img.shields.io/npm/v/fluid-bg.svg)](https://www.npmjs.com/package/fluid-bg)
 &nbsp;[![License: MIT](https://img.shields.io/badge/license-MIT-3a1f7a.svg)](LICENSE)
 &nbsp;[![Studio](https://img.shields.io/badge/design%20a%20look-fluid.krackeddevs.com-c84fe0.svg)](https://fluid.krackeddevs.com)
@@ -38,10 +44,8 @@ That's it. Put your content anywhere with `position: relative; z-index: 1` and i
 > (`fluid-bg` will `console.warn` with this exact fix if it detects an opaque page
 > background behind a `fixed` instance.) Alternatively, raise `z` above your page background.
 
-> **No studio flash on load.** Older builds of the Fluid page briefly painted the full
-> studio UI inside the iframe on cold-cache loads before going chrome-less. Fixed
-> server-side (embed mode is now decided before first paint) — every `fluid-bg`
-> embed gets the fix automatically, no package update needed.
+> **No studio flash on load.** Native mode never had one; the `mode="iframe"` fallback
+> gets its chrome-less mode decided server-side before first paint, so it doesn't either.
 
 ## npm
 
@@ -100,7 +104,8 @@ const bg = fluidBackground(document.querySelector("#hero"), {
 | `hash` | string | a calm built-in look | A Fluid share hash (`#p=…`). Embed flag is applied automatically. |
 | `fixed` | boolean | `false` | Pin as a fixed, full-viewport background (`z-index:-1`, `pointer-events:none`). Otherwise fills the parent element. |
 | `z` | number | `-1` | `z-index` when `fixed`. |
-| `base` | string | `https://fluid.krackeddevs.com` | Point at your own [self-hosted Fluid](https://github.com/enonforetsam/fluid) instance. |
+| `mode` | `"native"` \| `"iframe"` | `"native"` | `native` draws on a canvas in your page (bundled engines). `iframe` embeds the hosted studio like 0.1.x. Native falls back to the iframe automatically when WebGL is unavailable. |
+| `base` | string | `https://fluid.krackeddevs.com` | Point at your own [self-hosted Fluid](https://github.com/enonforetsam/fluid) instance (`iframe` mode). |
 
 Filling a parent (not `fixed`)? Give the parent a size — the background fills it edge to edge:
 
@@ -113,17 +118,29 @@ Filling a parent (not `fixed`)? Give the parent a size — the background fills 
 
 ---
 
-## How it works (and the one caveat)
+## How it works
 
-`fluid-bg` renders an `<iframe>` pointing at the hosted Fluid studio in canvas-only **embed** mode.
-The upside: it ships **no shader code**, weighs almost nothing, and always renders the studio's
-latest engines. **The caveat:** the background loads from `fluid.krackeddevs.com`, so it needs a
-network connection and that host being up. If you need a fully self-contained, offline background,
-[self-host Fluid](https://github.com/enonforetsam/fluid) (`npx wrangler deploy`) and pass your own
-origin via `base`.
+`fluid-bg` bundles **fluid-core** — Fluid's engines extracted mechanically from the studio's
+source with a CI drift guard, so the package renders exactly what the studio renders. Your
+share hash is decoded locally and drawn on a WebGL canvas right in your page: no iframe, no
+network dependency, no third-party document.
 
-The iframe is `aria-hidden`, `tabindex="-1"`, and `pointer-events:none` — it's decorative and never
-steals focus or clicks.
+Embed etiquette is built in:
+
+- **Zero cost when static** — `speed 0` (or `prefers-reduced-motion`) means no
+  `requestAnimationFrame` at all, not a hidden 60 fps loop.
+- **Pauses when it can't be seen** — scrolled offscreen or a hidden tab.
+- **Pixel budget** — renders at devicePixelRatio capped to a 4K budget, so a huge hero
+  canvas never melts a laptop.
+- **Recovers from GPU context loss** automatically.
+- The background is `aria-hidden` and `pointer-events:none` — decorative, never steals
+  focus or clicks.
+
+Native mode returns a handle with `pause()` / `play()` if you want to control it.
+
+If WebGL is unavailable, `fluid-bg` automatically falls back to the 0.1.x `<iframe>` embed of
+the hosted studio (which has its own 2D fallback) — set `mode="iframe"` to force that path, and
+`base` to point it at a [self-hosted Fluid](https://github.com/enonforetsam/fluid).
 
 ## License
 

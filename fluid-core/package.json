@@ -1,6 +1,6 @@
 {
   "name": "fluid-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Fluid's engines as a zero-dependency native canvas library — generated from the studio, never drifting from it",
   "license": "MIT",
