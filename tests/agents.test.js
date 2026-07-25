@@ -51,7 +51,7 @@ describe('/llms.txt', () => {
     for (const needle of [
       '/mcp', 'create_piece', 'get_embed_code', 'list_looks', 'decode_link',
       'fluid-bg', 'cdn.jsdelivr.net/npm/fluid-bg', '<fluid-bg fixed',
-      '/api/piece', 'Share-hash contract', '[13] embed flag',
+      'npm i fluid-core', '/api/piece', 'Share-hash contract', '[13] embed flag',
       'custom connector', 'transparent'
     ]) {
       assert.ok(body.includes(needle), 'llms.txt should mention ' + needle);

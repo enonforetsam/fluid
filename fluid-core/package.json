@@ -1,17 +1,47 @@
 {
   "name": "fluid-core",
   "version": "0.2.0",
-  "private": true,
   "description": "Fluid's engines as a zero-dependency native canvas library — generated from the studio, never drifting from it",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "main": "./src/index.js",
   "module": "./src/index.js",
+  "types": "./src/index.d.ts",
   "exports": {
-    ".": "./src/index.js"
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
   },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enonforetsam/fluid.git",
+    "directory": "fluid-core"
+  },
+  "homepage": "https://fluid.krackeddevs.com",
+  "bugs": "https://github.com/enonforetsam/fluid/issues",
+  "keywords": [
+    "generative-art",
+    "webgl",
+    "canvas",
+    "background",
+    "animated-background",
+    "shader",
+    "mesh-gradient",
+    "gradient",
+    "creative-coding",
+    "fluid",
+    "wallpaper",
+    "hero"
+  ],
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "prepublishOnly": "node build.mjs && node --test ../tests/fluid-core.test.js ../tests/fluid-core-hash.test.js"
   }
 }

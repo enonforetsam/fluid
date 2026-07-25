@@ -360,6 +360,7 @@ function llmsTxt(base){
     '```',
     '',
     '- React: `npm i fluid-bg`, then `import FluidBg from \'fluid-bg/react\'` and `<FluidBg fixed hash="#p=…" />`.',
+    '- Raw engine library: `npm i fluid-core` — `createFluid(el, {field, palette|colors, look, …})` + `parseShareHash()`; zero deps, ~21 KB, TypeScript types included. fluid-bg is built on it.',
     '- Native by default (canvas in the page, engines bundled); falls back to a hosted iframe automatically when WebGL is unavailable. `mode="iframe"` forces the old behaviour.',
     '- FOOTGUN: `fixed` sits at z-index -1 — keep the html/body background TRANSPARENT or the page paints over the art.',
     '- A non-fixed `<fluid-bg>` fills its parent: give the parent a size.',

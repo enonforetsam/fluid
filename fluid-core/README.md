@@ -20,12 +20,30 @@ index.html  ──(node fluid-core/build.mjs)──▶  src/generated/{shader,da
 After changing engines/palettes/looks in `index.html`, re-run
 `node fluid-core/build.mjs` and commit — the drift test enforces it.
 
+## Install
+
+```sh
+npm install fluid-core
+```
+
+…or import it with no npm at all — the module is pure ESM with zero dependencies:
+
+```js
+import { createFluid } from 'https://cdn.jsdelivr.net/npm/fluid-core@0.2/src/index.js';
+// or straight from the studio's own deployment:
+import { createFluid } from 'https://fluid.krackeddevs.com/fluid-core/src/index.js';
+```
+
+TypeScript types ship with the package. Want a drop-in `<fluid-bg>` element or React
+component instead of the raw API? That's [fluid-bg](https://www.npmjs.com/package/fluid-bg),
+built on this library.
+
 ## Use
 
 ```html
 <div id="bg" style="position:fixed;inset:0;z-index:-1"></div>
 <script type="module">
-  import { createFluid } from './fluid-core/src/index.js';
+  import { createFluid } from 'fluid-core';
   const art = createFluid(document.getElementById('bg'), {
     field: 'flow',          // noise | flow | cellular | gyroid | truchet | interfere | kaleido
                             // lines | grid | golden | smoke | crystal | honeycomb | bloom | sweep
