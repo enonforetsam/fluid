@@ -207,6 +207,8 @@ function buildPiece(input, base){
     embed_html: '<iframe src="' + embedSrc + '" style="width:100%;height:480px;border:0" loading="lazy" title="Fluid background"></iframe>',
     gallery_url: base + '/gallery',
     notes: 'share_url opens the studio; embed_url / embed_html render canvas-only and animate live. ' +
+      'For copy-paste site code (native <fluid-bg> web component, React, or iframe) call ' +
+      'get_embed_code with this share_url. ' +
       'For a STATIC image (PNG/JPG/WebP at wallpaper / OG / social sizes), open ' +
       'share_url and use the Export panel — it renders the file in the visitor’s browser. There is no ' +
       'image-render API: all rendering is client-side on the viewer’s GPU, and a visitor’s own photo ' +
@@ -248,6 +250,145 @@ function looksList(base){
   });
 }
 
+/* ---------- embed code (fluid-bg snippets) ---------- */
+
+/* Set/clear the embed flag (slot [13]) directly on the numeric hash so every other
+   slot — pan, symmetry, layers, anything future — survives untouched. */
+function withEmbedFlag(nums, on){
+  var a = nums.slice();
+  while (a.length < 14){ a.push(0); }
+  a[13] = on ? 1 : 0;
+  var minLen = Math.round(a[7]) === 8 ? 24 : 12;
+  while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
+  return a;
+}
+
+var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.2';
+
+function embedCode(input, base){
+  input = input || {};
+  base = base || BASE;
+  var nums;
+  if (typeof input.url === 'string' && input.url){
+    var m = /p=([0-9.,-]+)/.exec(input.url);
+    if (!m){ throw new Error('no #p= hash found in that URL — pass a share_url from create_piece'); }
+    nums = m[1].split(',').map(parseFloat);
+    if (nums.length < 12 || nums.some(function(v){ return isNaN(v); })){ throw new Error('malformed #p= hash'); }
+  } else if (typeof input.look === 'string' && input.look){
+    var piece = buildPiece({ look: input.look }, base);
+    nums = /#p=(.+)$/.exec(piece.share_url)[1].split(',').map(parseFloat);
+  } else {
+    throw new Error('pass url (a share link — design one with create_piece first) or look (a curated name from list_looks)');
+  }
+
+  var shareHash = '#p=' + withEmbedFlag(nums, false).join(',');
+  var embedHash = '#p=' + withEmbedFlag(nums, true).join(',');
+  var fixed = input.target !== 'element';
+
+  var html = fixed
+    ? '<script src="' + FLUID_BG_CDN + '"></script>\n' +
+      '<fluid-bg fixed hash="' + shareHash + '"></fluid-bg>'
+    : '<script src="' + FLUID_BG_CDN + '"></script>\n' +
+      '<div style="position:relative;height:420px">\n' +
+      '  <fluid-bg hash="' + shareHash + '"></fluid-bg>\n' +
+      '</div>';
+
+  var react = 'npm install fluid-bg\n\n' +
+    "import FluidBg from 'fluid-bg/react';\n\n" +
+    (fixed
+      ? '<FluidBg fixed hash="' + shareHash + '" />'
+      : '<div style={{position:"relative",height:420}}>\n' +
+        '  <FluidBg hash="' + shareHash + '" />\n' +
+        '</div>');
+
+  var iframe = fixed
+    ? '<div style="position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none">\n' +
+      '  <iframe src="' + base + '/' + embedHash + '" title="Fluid background"' +
+      ' style="width:100%;height:100%;border:0;display:block"></iframe>\n' +
+      '</div>'
+    : '<iframe src="' + base + '/' + embedHash + '" style="width:100%;height:480px;border:0"' +
+      ' loading="lazy" title="Fluid background"></iframe>';
+
+  return {
+    share_url: base + '/' + shareHash,
+    embed_url: base + '/' + embedHash,
+    html: html,
+    react: react,
+    iframe_html: iframe,
+    notes: 'html/react use the fluid-bg npm package: it renders NATIVELY on a canvas in the page ' +
+      '(~15 KB gz, engines bundled, no iframe) and falls back to a hosted iframe only when WebGL is ' +
+      'unavailable. FOOTGUN: a fixed background sits at z-index:-1, so the page/body background must ' +
+      'stay transparent or it paints over the art. Non-fixed instances fill their parent — give the ' +
+      'parent a size. iframe_html needs no npm dependency at all. Static images are exported in the ' +
+      'studio (open share_url → Export panel); there is no server render API.'
+  };
+}
+
+/* ---------- llms.txt (agent-readable site guide) ---------- */
+
+function llmsTxt(base){
+  var text = [
+    '# Fluid',
+    '',
+    '> Fluid is a free, zero-backend generative-art studio at ' + base + '. It designs animated',
+    '> WebGL backgrounds, wallpapers and OG images that render on the viewer\'s GPU. Every design',
+    '> is a share URL carrying an append-only numeric `#p=` hash — no server rendering, no account,',
+    '> no quota. Embeds are free for any site, personal or commercial.',
+    '',
+    'Key facts:',
+    '',
+    '- Design in the studio at ' + base + '/, or programmatically via MCP or REST — both return share and embed URLs.',
+    '- Embed on any site with the `fluid-bg` npm package (native canvas in the page, ~15 KB gz) or a plain iframe.',
+    '- Static images (PNG/JPG/WebP at any size) are exported client-side from the studio\'s Export panel. There is NO image-render API — never promise a server-rendered file.',
+    '',
+    '## Connect (AI agents)',
+    '',
+    '- MCP server (streamable HTTP, stateless, no auth): ' + base + '/mcp',
+    '  - Claude Code: `claude mcp add --transport http fluid ' + base + '/mcp`',
+    '  - claude.ai (web / desktop / mobile): Settings -> Connectors -> Add custom connector -> paste ' + base + '/mcp',
+    '  - Tools: `create_piece` (design from params, a look, or 2-4 brand hex colours -> share_url + embed code),',
+    '    `get_embed_code` (share_url -> copy-paste native <fluid-bg> / React / iframe snippets),',
+    '    `list_looks` (curated starting points), `decode_link` (share URL -> named params, for remixing).',
+    '- REST, same generator as plain JSON: GET ' + base + '/api/piece?look=…&field=…&colors=… and GET ' + base + '/api/looks',
+    '- Human docs: ' + base + '/dev (integration) and ' + base + '/manual (studio manual); gallery: ' + base + '/gallery',
+    '',
+    '## Embed on a site (fluid-bg)',
+    '',
+    '```html',
+    '<script src="' + FLUID_BG_CDN + '"></script>',
+    '<fluid-bg fixed hash="#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778"></fluid-bg>',
+    '```',
+    '',
+    '- React: `npm i fluid-bg`, then `import FluidBg from \'fluid-bg/react\'` and `<FluidBg fixed hash="#p=…" />`.',
+    '- Native by default (canvas in the page, engines bundled); falls back to a hosted iframe automatically when WebGL is unavailable. `mode="iframe"` forces the old behaviour.',
+    '- FOOTGUN: `fixed` sits at z-index -1 — keep the html/body background TRANSPARENT or the page paints over the art.',
+    '- A non-fixed `<fluid-bg>` fills its parent: give the parent a size.',
+    '',
+    '## Recipes',
+    '',
+    '- Live background for a site: `create_piece` (match the brand with `colors`) -> `get_embed_code` -> paste the html snippet; keep the body background transparent.',
+    '- OG image / wallpaper: `create_piece` with `aspect: "16:9"` (OG) or `"9:16"` (phone) -> open share_url in a browser -> Export panel renders the file locally.',
+    '- Match brand colours: pass `colors`: 2-4 hex stops dark -> light, e.g. ["#0a0a1a", "#ffe1f5"].',
+    '- Remix an existing piece: `decode_link` on any share URL -> tweak the named params -> `create_piece`.',
+    '',
+    '## Share-hash contract (`#p=`)',
+    '',
+    'Comma-separated numbers, append-only, trailing zeros trimmed (old links round-trip forever):',
+    '[0] speed [1] zoom [2] warp [3] grain [4] pixel [5] dot [6] halftone [7] palette (8 = custom)',
+    '[8] seed [9] liquify [10] blend [11] aspect [12] preset [13] embed flag (1 = chrome-less canvas)',
+    '[14] field [15] screen [16-17] pan [18] symmetry [20-23] packed custom RGB stops',
+    '[24] dither-threshold offset [25-27] layer [28] material finish.',
+    'Values are numeric only; parsers must clamp and reject NaN.',
+    ''
+  ].join('\n');
+  return new Response(text, {
+    headers: Object.assign({
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'public, max-age=3600'
+    }, CORS)
+  });
+}
+
 /* ---------- MCP ---------- */
 
 var TOOLS = [
@@ -284,6 +425,21 @@ var TOOLS = [
     }
   },
   {
+    name: 'get_embed_code',
+    description: 'Turn a Fluid share URL into ready-to-paste site code: a native <fluid-bg> web-component ' +
+      'snippet (CDN one-liner, renders on a canvas in the page — no iframe), a React version, and a ' +
+      'dependency-free iframe fallback. Design the piece with create_piece first (or pass a curated look), ' +
+      'then call this with its share_url.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'a Fluid share/embed URL (or bare #p= hash) — e.g. the share_url returned by create_piece' },
+        look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated look to embed instead of a url' },
+        target: { type: 'string', enum: ['background', 'element'], description: 'background (default): fixed full-page backdrop behind the content. element: fills a sized parent block.' }
+      }
+    }
+  },
+  {
     name: 'list_looks',
     description: 'List the curated Fluid looks with their share and embed links.',
     inputSchema: { type: 'object', properties: {} }
@@ -301,6 +457,7 @@ var TOOLS = [
 
 function callTool(name, args, base){
   if (name === 'create_piece'){ return buildPiece(args, base); }
+  if (name === 'get_embed_code'){ return embedCode(args, base); }
   if (name === 'list_looks'){ return { looks: looksList(base) }; }
   if (name === 'decode_link'){ return decodeLink(args && args.url); }
   throw new Error('unknown tool: ' + name);
@@ -387,8 +544,9 @@ function handleRpc(msg, base){
       capabilities: { tools: {} },
       serverInfo: { name: 'fluid', version: '1.0.0' },
       instructions: 'Designs Fluid generative backgrounds / wallpapers / OG images as share links and ' +
-        'live iframe embeds. create_piece designs ' +
-        'one, list_looks gives curated starting points, decode_link reads params back out of a URL. ' +
+        'live embeds. create_piece designs one, get_embed_code turns its share_url into copy-paste ' +
+        'site code (native <fluid-bg> web component, React, or iframe), list_looks gives curated ' +
+        'starting points, decode_link reads params back out of a URL. ' +
         'Static image files are exported in the visitor’s browser from share_url — there is no render API.'
     });
   }
@@ -413,8 +571,10 @@ async function mcp(req){
   if (req.method === 'OPTIONS'){ return new Response(null, { status: 204, headers: CORS }); }
   if (req.method === 'GET'){
     /* stateless server: no SSE stream to offer */
-    return new Response('fluid MCP — POST JSON-RPC here. Add with:\n' +
-      'claude mcp add --transport http fluid ' + base + '/mcp\n',
+    return new Response('fluid MCP — POST JSON-RPC here.\n\n' +
+      'Claude Code:  claude mcp add --transport http fluid ' + base + '/mcp\n' +
+      'claude.ai:    Settings -> Connectors -> Add custom connector -> ' + base + '/mcp\n\n' +
+      'Agent guide:  ' + base + '/llms.txt\n',
       { status: 405, headers: Object.assign({ 'content-type': 'text/plain', allow: 'POST, OPTIONS' }, CORS) });
   }
   if (req.method !== 'POST'){ return new Response('method not allowed', { status: 405, headers: CORS }); }
@@ -456,7 +616,8 @@ function api(req, url){
     endpoints: {
       'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish',
       'GET /api/looks': 'curated looks with links',
-      'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp'
+      'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp (or add as a claude.ai custom connector)',
+      'GET /llms.txt': 'agent-readable site guide'
     },
     docs: base + '/dev'
   });
@@ -524,6 +685,7 @@ export default {
     var url = new URL(req.url);
     var resp;
     if (url.pathname === '/mcp'){ resp = await mcp(req); }
+    else if (url.pathname === '/llms.txt'){ resp = llmsTxt(url.origin); }
     else if (url.pathname === '/og.jpg'){ resp = await ogImage(req, env, url); }
     else if (url.pathname === '/favicon.ico'){
       resp = fluidFavicon();

@@ -61,10 +61,16 @@
     <p>Add the server once, then ask Claude for pieces in plain language —
     "give my hero section a thermal fluid-chrome background, chunky pixels" — and it returns
     working embed code.</p>
+    <p><strong>Claude Code</strong> (terminal):</p>
     <pre>claude mcp add --transport http fluid \
   https://fluid.krackeddevs.com/mcp</pre>
-    <p>Tools: <code>create_piece</code> (params or a named look, returns share URL + iframe),
+    <p><strong>claude.ai</strong> (web, desktop or mobile): Settings &rarr; Connectors &rarr; Add custom
+    connector &rarr; paste <code>https://fluid.krackeddevs.com/mcp</code>. No key, no auth — then just ask
+    Claude to design you a background and it hands back the link and the code.</p>
+    <p>Tools: <code>create_piece</code> (params, a named look, or your 2–4 brand hex colours — returns share URL + iframe),
+    <code>get_embed_code</code> (share URL &rarr; copy-paste native <code>&lt;fluid-bg&gt;</code> / React / iframe snippets),
     <code>list_looks</code> (all curated starting points), <code>decode_link</code> (read parameters back out of any share URL to remix it).</p>
+    <p class="soft">Agents without MCP can read <a href="/llms.txt">/llms.txt</a> — the whole integration surface in one page.</p>
   </section>
 
   <section>
