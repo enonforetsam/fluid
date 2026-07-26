@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>fluid-vibe browser test</title></head>
+<body>
+<pre id="o">loading model…</pre>
+<script type="module">
+  import { match } from './vibe-web.mjs';
+  var o = document.getElementById('o');
+  (async function () {
+    var tests = [
+      'a tempest brewing over the deep sea',
+      'glitchy hacker terminal screen',
+      'polished liquid mercury',
+      'buzzing beehive full of bees'
+    ];
+    var out = '';
+    for (var i = 0; i < tests.length; i++) {
+      var r = await match(tests[i]);
+      out += '"' + tests[i] + '"  ->  ' + r.text + '  (' + r.score.toFixed(2) + ')\n';
+      o.textContent = out;
+    }
+    o.textContent = out + 'DONE';
+    window.__vibeDone = out;
+  })().catch(function (e) {
+    o.textContent = 'ERR: ' + (e && e.message);
+    window.__vibeErr = (e && e.message) || String(e);
+  });
+</script>
+</body></html>
