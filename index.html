@@ -594,6 +594,30 @@
   .fieldBtn.on span{opacity:1}
   .surfacegrid .fieldBtn span{opacity:1}
   #cursorGrid .fieldBtn span{opacity:1}
+  /* picker strips: field/palette/cursor/screen/finish in one swipeable row each —
+     100px tiles, arrows for mouse (auto-hidden when everything fits), edge fades hint overflow */
+  .striprow{display:flex;align-items:center;gap:5px;margin-bottom:14px}
+  .fieldstrip{
+    display:flex;gap:6px;flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x proximity;overscroll-behavior-x:contain;touch-action:pan-x pan-y;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);
+  }
+  .fieldstrip::-webkit-scrollbar{display:none}
+  .fieldstrip.atStart{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 18px),transparent)}
+  .fieldstrip.atEnd{-webkit-mask-image:linear-gradient(90deg,transparent,#000 18px,#000);mask-image:linear-gradient(90deg,transparent,#000 18px,#000)}
+  .fieldstrip.atStart.atEnd{-webkit-mask-image:none;mask-image:none}
+  .fieldstrip .fieldBtn{flex:0 0 100px;width:100px;scroll-snap-align:start}
+  .fieldstrip .fieldBtn span{opacity:1;font-size:9px;padding:4px 0}
+  .stripBtn{
+    flex:0 0 20px;height:100px;padding:0;border-radius:8px;border:1px solid var(--line);
+    background:rgba(255,255,255,.04);color:var(--ink);font-size:15px;line-height:1;cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 2px 4px rgba(0,0,0,.35);
+  }
+  .stripBtn:hover{background:rgba(255,255,255,.09)}
+  .stripBtn:disabled{opacity:.28;cursor:default}
+  @media (pointer:coarse){ .stripBtn{display:none} }
   .cmIcon{display:block;width:46%;height:46%;position:absolute;top:43%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
   /* horizontal aspect-ratio fader — slides portrait → landscape, saves space */
   .ardial{position:relative;padding:2px 2px 0}
@@ -877,7 +901,9 @@
   <section>
     <div class="sec-title">02 — Colours</div>
     <div class="exGroupLabel">Palette</div>
-    <div class="fieldgrid palettegrid">
+    <div class="striprow">
+    <button id="palPrev" class="stripBtn" aria-label="Scroll palettes left">&#8249;</button>
+    <div class="fieldstrip palettegrid" id="palStrip">
       <button class="fieldBtn palBtn on" data-pal="0" aria-label="Aurora" aria-pressed="true"><span>Aurora</span></button>
       <button class="fieldBtn palBtn" data-pal="1" aria-label="Sunset" aria-pressed="false"><span>Sunset</span></button>
       <button class="fieldBtn palBtn" data-pal="2" aria-label="Ocean" aria-pressed="false"><span>Ocean</span></button>
@@ -887,6 +913,8 @@
       <button class="fieldBtn palBtn" data-pal="6" aria-label="Iris" aria-pressed="false"><span>Iris</span></button>
       <button class="fieldBtn palBtn" data-pal="7" aria-label="Chrome" aria-pressed="false"><span>Chrome</span></button>
       <button class="fieldBtn palBtn" data-pal="8" aria-label="Custom" aria-pressed="false"><span>Custom</span></button>
+    </div>
+    <button id="palNext" class="stripBtn" aria-label="Scroll palettes right">&#8250;</button>
     </div>
     <div class="exGroupLabel">Custom gradient — dark to light</div>
     <div class="row gap swatchRow" id="stopsRow" style="margin-bottom:8px">
@@ -906,7 +934,9 @@
 
   <section>
     <div class="sec-title">03 — Field</div>
-    <div class="fieldgrid">
+    <div class="striprow">
+    <button id="fieldPrev" class="stripBtn" aria-label="Scroll fields left">&#8249;</button>
+    <div class="fieldstrip" id="fieldStrip">
       <button class="fieldBtn on" data-field="0" title="Noise" aria-label="Noise" aria-pressed="true"><span>Noise</span></button>
       <button class="fieldBtn" data-field="1" title="Flow" aria-label="Flow" aria-pressed="false"><span>Flow</span></button>
       <button class="fieldBtn" data-field="2" title="Cellular" aria-label="Cellular" aria-pressed="false"><span>Cellular</span></button>
@@ -922,6 +952,15 @@
       <button class="fieldBtn" data-field="12" title="Honeycomb" aria-label="Honeycomb" aria-pressed="false"><span>Honeycomb</span></button>
       <button class="fieldBtn" data-field="13" title="Bloom" aria-label="Bloom" aria-pressed="false"><span>Bloom</span></button>
       <button class="fieldBtn" data-field="14" title="Sweep" aria-label="Sweep" aria-pressed="false"><span>Sweep</span></button>
+      <button class="fieldBtn" data-field="15" title="Marble" aria-label="Marble" aria-pressed="false"><span>Marble</span></button>
+      <button class="fieldBtn" data-field="16" title="Plaid" aria-label="Plaid" aria-pressed="false"><span>Plaid</span></button>
+      <button class="fieldBtn" data-field="17" title="Curtain" aria-label="Curtain" aria-pressed="false"><span>Curtain</span></button>
+      <button class="fieldBtn" data-field="18" title="Stitch" aria-label="Stitch" aria-pressed="false"><span>Stitch</span></button>
+      <button class="fieldBtn" data-field="19" title="Pursuit" aria-label="Pursuit" aria-pressed="false"><span>Pursuit</span></button>
+      <button class="fieldBtn" data-field="20" title="Chladni" aria-label="Chladni" aria-pressed="false"><span>Chladni</span></button>
+      <button class="fieldBtn" data-field="21" title="Cassini" aria-label="Cassini" aria-pressed="false"><span>Cassini</span></button>
+    </div>
+    <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
     </div>
     <div class="knobgrid">
       <div class="knobctl">
@@ -954,7 +993,9 @@
       <button id="randBtn">Randomize</button>
     </div>
     <div class="exGroupLabel">Cursor</div>
-    <div class="fieldgrid" id="cursorGrid">
+    <div class="striprow">
+    <button id="curPrev" class="stripBtn" aria-label="Scroll cursor modes left">&#8249;</button>
+    <div class="fieldstrip" id="cursorGrid">
       <button class="fieldBtn" data-cmode="0" title="No cursor effect" aria-label="Off" aria-pressed="false">
         <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="white" stroke-width="1.4" opacity="0.35"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/><line x1="15.5" y1="8.5" x2="8.5" y2="15.5" stroke="white" stroke-width="1.6" stroke-linecap="round" opacity="0.35"/></svg>
         <span>Off</span>
@@ -975,6 +1016,8 @@
         <svg class="cmIcon" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.2" fill="white" opacity="0.85"/><path d="M12 8.5V4" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M10 6l2-2 2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 12H20" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M18 10l2 2-2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.5V20" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M10 18l2 2 2-2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 12H4" stroke="white" stroke-width="1.4" stroke-linecap="round"/><path d="M6 10L4 12l2 2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Push</span>
       </button>
+    </div>
+    <button id="curNext" class="stripBtn" aria-label="Scroll cursor modes right">&#8250;</button>
     </div>
     <div style="margin-top:8px">
       <div class="knoblabel">Cursor impact <output id="cursorImpactOut">1.0</output></div>
@@ -1001,6 +1044,13 @@
         <option value="12">Honeycomb</option>
         <option value="13">Bloom</option>
         <option value="14">Sweep</option>
+        <option value="15">Marble</option>
+        <option value="16">Plaid</option>
+        <option value="17">Curtain</option>
+        <option value="18">Stitch</option>
+        <option value="19">Pursuit</option>
+        <option value="20">Chladni</option>
+        <option value="21">Cassini</option>
       </select>
       <select id="blendSel" class="layerSel" aria-label="Blend mode">
         <option value="0">Normal</option>
@@ -1042,7 +1092,9 @@
       </div>
     </div>
     <div class="exGroupLabel">Screen</div>
-    <div class="fieldgrid surfacegrid">
+    <div class="striprow">
+    <button id="scrPrev" class="stripBtn" aria-label="Scroll screens left">&#8249;</button>
+    <div class="fieldstrip" id="screenStrip">
       <button class="fieldBtn screenBtn on" data-screen="0" title="Square" aria-label="Square" aria-pressed="true"><span>Square</span></button>
       <button class="fieldBtn screenBtn" data-screen="1" title="Hex" aria-label="Hex" aria-pressed="false"><span>Hex</span></button>
       <button class="fieldBtn screenBtn" data-screen="2" title="ASCII" aria-label="ASCII" aria-pressed="false"><span>ASCII</span></button>
@@ -1050,14 +1102,20 @@
       <button class="fieldBtn screenBtn" data-screen="4" title="Glitch" aria-label="Glitch" aria-pressed="false"><span>Glitch</span></button>
       <button id="dotsBtn" class="fieldBtn on" title="Halftone" aria-label="Halftone" aria-pressed="true"><span>Halftone</span></button>
     </div>
+    <button id="scrNext" class="stripBtn" aria-label="Scroll screens right">&#8250;</button>
+    </div>
     <div class="exGroupLabel">Finish</div>
-    <div class="fieldgrid surfacegrid">
+    <div class="striprow">
+    <button id="matPrev" class="stripBtn" aria-label="Scroll finishes left">&#8249;</button>
+    <div class="fieldstrip" id="matStrip">
       <button class="fieldBtn materialBtn on" data-material="0" title="No finish" aria-label="No finish" aria-pressed="true"><span>None</span></button>
       <button class="fieldBtn materialBtn" data-material="1" title="Glass" aria-label="Glass" aria-pressed="false"><span>Glass</span></button>
       <button class="fieldBtn materialBtn" data-material="2" title="Metal" aria-label="Metal" aria-pressed="false"><span>Metal</span></button>
       <button class="fieldBtn materialBtn" data-material="3" title="Sand" aria-label="Sand" aria-pressed="false"><span>Sand</span></button>
       <button class="fieldBtn materialBtn" data-material="4" title="Liquid" aria-label="Liquid" aria-pressed="false"><span>Liquid</span></button>
       <button class="fieldBtn materialBtn" data-material="5" title="Molten" aria-label="Molten" aria-pressed="false"><span>Molten</span></button>
+    </div>
+    <button id="matNext" class="stripBtn" aria-label="Scroll finishes right">&#8250;</button>
     </div>
   </section>
 
@@ -1216,7 +1274,14 @@ var LOOKS = [
   { label:'GILDED',   field:0, material:5, cols:['#0a0602','#6b3a05','#e8940f','#ffdf8a'], p:[0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
   { label:'MERCURY',  field:0, material:5, cols:['#020204','#1c1a2e','#5a5670','#e8e0f2'], p:[0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
   { label:'BLOOM',    field:13, cols:['#c2b830','#e04a12','#e8489a','#f2ead8'], p:[0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] },
-  { label:'HORIZON',  field:14, cols:['#0d0b2e','#552a8a','#f27059','#ffd9a0'], p:[0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] }
+  { label:'HORIZON',  field:14, cols:['#0d0b2e','#552a8a','#f27059','#ffd9a0'], p:[0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] },
+  { label:'SUMI',     field:15,           p:[0.30, 1.5, 5.0, 0.02, 1, 10, 0, 6, 41, 0, 0, 1] },
+  { label:'TARTAN',   field:16,           p:[0.35, 1.4, 3.5, 0.02, 1, 10, 0, 4, 26, 0, 0, 1] },
+  { label:'VEIL',     field:17,           p:[0.40, 1.4, 4.0, 0.03, 1, 10, 0, 5, 63, 0, 0, 1] },
+  { label:'FILAMENT', field:18, cols:['#070512','#4a1f7a','#e05c10','#ffe8b0'], p:[0.30, 0.95, 5.0, 0.02, 1, 10, 0, 0, 44, 0, 0, 1] },
+  { label:'GYRE',     field:19, cols:['#0a0714','#3a2a7e','#b0489a','#ffe9b0'], p:[0.35, 1.15, 4.5, 0.02, 1, 10, 0, 0, 54, 0, 0, 1] },
+  { label:'CYMATIC',  field:20, cols:['#0b0907','#4a3418','#c99b3f','#fff4d8'], p:[0.85, 1.3, 4.2, 0.02, 1, 10, 0, 0, 57, 0, 0, 1] },
+  { label:'CASSINI',  field:21, cols:['#0a0f2e','#274690','#e8a33d','#fdf6e3'], p:[0.40, 1.2, 5.5, 0.02, 1, 10, 0, 0, 41, 0, 0, 1] }
 ];
 
 /* the 4 gradient stops (dark->light) for each preset palette, RGB 0-1. Indices
@@ -1579,6 +1644,149 @@ var FSRC = [
   '  float wob = (fbm(p * 0.9 + vec2(t * 0.05, 3.7 - t * 0.04)) - 0.5) * u_warp * 0.12;',
   '  return clamp(tt + wob, 0.0, 1.0);',
   '}',
+  '/* marble engine (15): paper marbling — horizontal ink bands dragged through two',
+  '   passes of combed fbm swirls (suminagashi). Warp = drag depth; the bands stay',
+  '   readable as stripes while the swirls churn them. */',
+  'float fieldMarble(vec2 p, float t){',
+  '  vec2 a = vec2(sin(t * 0.11), cos(t * 0.09)) * 0.6;',
+  '  vec2 q = vec2(fbm(p * 0.9 + a), fbm(p * 0.9 + vec2(3.1, 7.3) - a));',
+  '  vec2 r = vec2(fbm(p * 1.3 + 2.2 * q + vec2(6.4, 1.9)),',
+  '               fbm(p * 1.3 + 2.2 * q + vec2(0.7, 8.8)));',
+  '  float band = sin((p.y + (r.x - 0.5) * u_warp * 1.6) * 5.0 + r.y * 4.0 + t * 0.15);',
+  '  return 0.5 + 0.5 * band;',
+  '}',
+  '/* plaid engine (16): woven tartan — a three-frequency stripe sett per axis, crossed',
+  '   like grid but richer, with an over/under weave shimmer at the thread crossings.',
+  '   Warp = thread density. */',
+  'float plaidSett(float x, float t){',
+  '  float s = 0.45 * sin(x + t) + 0.35 * sin(x * 3.0 - t * 0.7) + 0.20 * sin(x * 7.0 + t * 0.4);',
+  '  return 0.5 + 0.5 * s;',
+  '}',
+  'float fieldPlaid(vec2 p, float t){',
+  '  vec2 q = p * (1.4 + u_warp * 0.35);',
+  '  float sx = plaidSett(q.x, t * 0.25);',
+  '  float sy = plaidSett(q.y, t * 0.20);',
+  '  float over = 0.5 + 0.5 * sin(q.x * 6.0) * sin(q.y * 6.0);   /* weave: which thread is on top */',
+  '  float v = mix(max(sx, sy), sx * sy, 0.4) * (0.82 + 0.18 * over);',
+  '  return spreadF(clamp(v, 0.0, 1.0), 1.3);',
+  '}',
+  '/* curtain engine (17): aurora curtains — thin luminous verticals from ridged folds,',
+  '   ruffled sideways by fbm and swaying, over a soft backglow. Warp = ruffle depth. */',
+  'float fieldCurtain(vec2 p, float t){',
+  '  vec2 q = vec2(p.x * 1.6, p.y * 0.35);              /* stretch: verticals dominate */',
+  '  float ruff = fbm(vec2(q.x * 1.8 + t * 0.10, q.y + t * 0.05)) - 0.5;',
+  '  float x = q.x + ruff * u_warp * 0.5 + sin(q.y * 1.3 + t * 0.22) * 0.35;',
+  '  float ridge = pow(1.0 - abs(sin(x * 2.2 + t * 0.10)), 2.2);',
+  '  float glow = fbm(vec2(x * 0.7, q.y * 0.8 - t * 0.07));',
+  '  return clamp(ridge * 0.85 + glow * 0.35, 0.0, 1.0);',
+  '}',
+  '/* stitch engine (18): curve stitching — the Boole / Cremona times-table. 64 pegs on a',
+  '   ring of radius 1.1; the peg at angle a is threaded to angle k*a. The chord family',
+  '   envelope is the epicycloid with k-1 cusps (k=2 cardioid, k=3 nephroid). Threads =',
+  '   min distance to any chord; the caustic glow is the chord-density sum, brightest',
+  '   where chords crowd — so the cusped envelope emerges exactly like physical string',
+  '   art. The exterior is circle-inverted through the peg ring, so the web reflects',
+  '   into a full-frame halo of circular arcs — a rose window. Warp = k (2 -> 8: the',
+  '   species changes entirely); k also drifts with t so the figure morphs live while',
+  '   the ring slowly turns. */',
+  'float stitchSegD(vec2 p, vec2 a, vec2 b){',
+  '  vec2 pa = p - a; vec2 ba = b - a;',
+  '  float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.0001), 0.0, 1.0);',
+  '  return length(pa - ba * h);',
+  '}',
+  'float fieldStitch(vec2 p, float t){',
+  '  float rot = t * 0.05 + u_seed * 0.13;',
+  '  float k = 0.85 + u_warp * 0.9 + fract(u_seed * 0.377) * 0.7 + 0.6 * sin(t * 0.07);',
+  '  float lenO = length(p);',
+  '  if (lenO > 1.1){ p *= 1.21 / dot(p, p); }          /* circle-invert the exterior: the web reflects into a halo */',
+  '  float minD = 9.0; float glow = 0.0;',
+  '  for (int i = 0; i < 64; i++){',
+  '    float a = float(i) * 0.09817477;         /* 2*pi/64 */',
+  '    vec2 A = 1.1 * vec2(cos(a + rot), sin(a + rot));',
+  '    vec2 B = 1.1 * vec2(cos(k * a + rot), sin(k * a + rot));',
+  '    float d = stitchSegD(p, A, B);',
+  '    minD = min(minD, d);',
+  '    glow += exp(-d * 22.0);',
+  '  }',
+  '  float thread = 1.0 - smoothstep(0.0, 0.045, minD); /* the strings themselves */',
+  '  float caust = 1.0 - exp(-glow * 0.3);              /* density caustic: the envelope */',
+  '  float v = 0.12 + 0.62 * caust + 0.34 * thread;     /* lit floor + caustic + strings */',
+  '  float rim = exp(-abs(lenO - 1.1) * 24.0);          /* the peg ring */',
+  '  v = max(v, rim * 0.9);',
+  '  return clamp(v, 0.0, 1.0);',
+  '}',
+  '/* pursuit engine (19): whirling polygons - Lucas mice. Ring j+1 joins the points a',
+  '   fraction f along ring j edges: one step = rotate phi + shrink s about the centroid,',
+  '   a discrete similarity whose orbit closure is a logarithmic spiral. Warp = f (chase',
+  '   fraction); seed picks n in {3..6} + orientation; deep rings spin faster (inward whirl). */',
+  'float fieldPursuit(vec2 p, float t){',
+  '  float nf = 3.0 + mod(floor(u_seed + 0.5), 4.0);              /* polygon order n */',
+  '  float an = 3.14159265 / nf;                                   /* half face-sector angle */',
+  '  float c = cos(2.0 * an), sn = sin(2.0 * an);',
+  '  float fr = 0.03 + u_warp * 0.04;                              /* pursuit fraction from Warp */',
+  '  float fmax = 0.5 - sqrt(max(0.25 - 0.1638 / (1.0 - c), 0.0)); /* keep shrink s >= 0.82 */',
+  '  float f = min(fr, fmax);',
+  '  float phi = atan(f * sn / (1.0 - f + f * c));                 /* per-ring whirl angle */',
+  '  float s = sqrt(1.0 - 2.0 * f * (1.0 - f) * (1.0 - c));        /* per-ring shrink */',
+  '  float r = length(p), a0 = atan(p.y, p.x);',
+  '  float th = u_seed * 0.7853 + t * 0.12;                        /* whole-nest precession */',
+  '  float dth = phi + (fr - f) * 1.2 + t * 0.0072;                /* deep rings spin faster */',
+  '  float A = 2.3 * cos(an);                                      /* outer apothem: equal circumradius */',
+  '  float minD = 1000.0, depth = 0.0;',
+  '  for (int j = 0; j < 22; j++){',
+  '    float b = mod(a0 - th + an, 2.0 * an) - an;                 /* fold angle into one face sector */',
+  '    float sd = r * cos(b) - A;                                  /* regular n-gon outline SDF */',
+  '    minD = min(minD, abs(sd));',
+  '    depth += step(sd, 0.0);                                     /* rings containing p -> terraced ground */',
+  '    th += dth; A *= s;',
+  '  }',
+  '  float v = 0.05 + 0.028 * depth + 0.20 * exp(-minD * 6.0) + 0.22 * exp(-r * r * 1.5);',
+  '  return clamp(mix(v, 1.0, smoothstep(0.05, 0.012, minD) * 0.95), 0.0, 1.0);',
+  '}',
+  '/* chladni engine (20): square-plate eigenmodes — the sand figures of a vibrating',
+  '   plate. u_mn(x,y) = cos(m pi x)cos(n pi y) - cos(n pi x)cos(m pi y); sand collects',
+  '   on the nodal set u = 0, drawn as thin bright lines. A resonance sweep crossfades',
+  '   two adjacent mode pairs so the nodal web migrates and reconnects through avoided',
+  '   crossings, like sand sliding between resonances.',
+  '   Warp = eigenmode order: line count and topology change, not just density. */',
+  'float chlPlate(vec2 q, float m, float n, float s){',
+  '  float a = cos(m * 3.14159265 * q.x) * cos(n * 3.14159265 * q.y);',
+  '  float b = cos(n * 3.14159265 * q.x) * cos(m * 3.14159265 * q.y);',
+  '  return (a - b) + s * (a + b);   /* classic "-" family + a seed pinch of "+" */',
+  '}',
+  'float fieldChladni(vec2 p, float t){',
+  '  vec2 q = p * 0.5 + vec2(fract(u_seed * 0.127), fract(u_seed * 0.211)); /* plate coords; seed shifts origin */',
+  '  float m = 1.0 + floor(u_warp * 0.6);       /* warp = mode order (m <= 6, n <= 9: precision-safe) */',
+  '  float n = m + 2.0;                         /* n != m or the "-" family vanishes identically */',
+  '  float s = 0.35 * fract(u_seed * 0.61);     /* per-seed mix of the symmetric family */',
+  '  float a = t * 0.13 + u_seed * 0.9;         /* resonance sweep phase */',
+  '  float u = cos(a) * chlPlate(q, m, n, s) + sin(a) * chlPlate(q, m + 1.0, n + 1.0, s);',
+  '  float L = 1.0 - smoothstep(0.0, 0.07 + 0.05 * m, abs(u)); /* sand: bright where u ~ 0; width tracks |grad| ~ pi m */',
+  '  return clamp(L * 0.80 + 0.40 * (0.5 + 0.45 * u), 0.0, 1.0);',
+  '}',
+  '/* cassini engine (21): polynomial lemniscates — the level sets of the 2D log-',
+  '   potential Phi(p) = (1/4) sum log|p - c_k| of four drifting foci (|P(z)| = c for',
+  '   P(z) = prod(z - z_k): Cassini ovals, pinching through Bernoulli figure-eights at',
+  '   the saddles as levels cross the zeros of P prime). Foci orbit on non-commensurate',
+  '   ellipses so ovals merge and split; Warp = contour density + constellation spread. */',
+  'vec2 casFocus(int i, float t){',
+  '  float fi = float(i);',
+  '  float aa = u_seed * 0.7853 + fi * 2.399963;               /* golden-angle ring: never collinear */',
+  '  float rr = (0.5 + 0.3 * sin(u_seed * 1.7 + fi * 2.6)) * (0.8 + u_warp * 0.06);',
+  '  float w1 = 0.083 + 0.034 * fi;                            /* non-commensurate orbit rates */',
+  '  float w2 = 0.107 + 0.027 * fi;',
+  '  return vec2(cos(aa), sin(aa)) * rr + vec2(sin(t * w1 + aa * 2.1), cos(t * w2 + aa * 1.3)) * 0.4;',
+  '}',
+  'float fieldCassini(vec2 p, float t){',
+  '  /* harmonic away from the foci; the 0.05 epsilon caps the log singularity */',
+  '  float phi = log(length(p - casFocus(0, t)) + 0.05)',
+  '            + log(length(p - casFocus(1, t)) + 0.05)',
+  '            + log(length(p - casFocus(2, t)) + 0.05)',
+  '            + log(length(p - casFocus(3, t)) + 0.05);',
+  '  phi *= 0.25;',
+  '  float v = 0.5 + 0.5 * cos(phi * (0.6 + u_warp * 1.8) - t * 0.55);   /* shells radiate steadily outward */',
+  '  return spreadF(v, 1.4);',
+  '}',
   '',
   '/* ordered (Bayer) dither thresholds, recursive 2x2 -> 4x4 -> 8x8, WebGL1-safe */',
   'float bayer2(vec2 a){ a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }',
@@ -1604,6 +1812,13 @@ var FSRC = [
   '  else if (eng == 12){ return fieldHoneycomb(p, t); }',
   '  else if (eng == 13){ return fieldBloom(p, t); }',
   '  else if (eng == 14){ return fieldSweep(p, t); }',
+  '  else if (eng == 15){ return fieldMarble(p, t); }',
+  '  else if (eng == 16){ return fieldPlaid(p, t); }',
+  '  else if (eng == 17){ return fieldCurtain(p, t); }',
+  '  else if (eng == 18){ return fieldStitch(p, t); }',
+  '  else if (eng == 19){ return fieldPursuit(p, t); }',
+  '  else if (eng == 20){ return fieldChladni(p, t); }',
+  '  else if (eng == 21){ return fieldCassini(p, t); }',
   '  vec2 m1 = vec2(d1, d2);',
   '  vec2 m2 = vec2(d2, -d1);',
   '  vec2 q = vec2(fbm(p + m1 * 0.5), fbm(p + vec2(5.2, 1.3) + m2 * 0.5));',
@@ -3147,7 +3362,14 @@ var FIELD_STATUS = [
   'CRYSTAL FIELD — quasicrystal plane-waves; warp sets symmetry',
   'HONEYCOMB FIELD — hex lattice, walls and cells',
   'BLOOM FIELD — soft colour blobs, a living mesh gradient',
-  'SWEEP FIELD — corner-to-corner gradient, edges alive'
+  'SWEEP FIELD — corner-to-corner gradient, edges alive',
+  'MARBLE FIELD — combed ink swirls, paper marbling',
+  'PLAID FIELD — woven tartan, crossed stripe setts',
+  'CURTAIN FIELD — aurora curtains, luminous verticals',
+  'STITCH FIELD — times-table string art, epicycloid caustic',
+  'PURSUIT FIELD — whirling polygons, a nested spiral chase',
+  'CHLADNI FIELD — vibrating-plate nodal figures; warp sets mode order',
+  'CASSINI FIELD — lemniscate ovals, equipotential contours'
 ];
 function selectField(fv){
   if (state.field === fv){ return; }
@@ -3178,6 +3400,45 @@ Array.prototype.forEach.call(document.querySelectorAll('.fieldBtn[data-field]'),
     run();
   });
 });
+/* picker strips: arrow nudges, edge fades, and keeping each strip's active tile in view */
+function initStrip(id, prevId, nextId){
+  var st = document.getElementById(id);
+  if (!st){ return; }
+  var pv = document.getElementById(prevId), nx = document.getElementById(nextId);
+  var lastOn = null, revealed = false;
+  function sync(){
+    var max = st.scrollWidth - st.clientWidth - 1;
+    var fits = max <= 1;
+    st.classList.toggle('atStart', st.scrollLeft <= 1);
+    st.classList.toggle('atEnd', st.scrollLeft >= max);
+    if (pv){ pv.disabled = st.scrollLeft <= 1; pv.style.display = fits ? 'none' : ''; }
+    if (nx){ nx.disabled = st.scrollLeft >= max; nx.style.display = fits ? 'none' : ''; }
+  }
+  function nudge(dir){
+    st.scrollBy({ left: dir * Math.max(120, Math.round(st.clientWidth * 0.8)), behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+  function reveal(){                       /* centre the active tile whenever it CHANGES */
+    var b = st.querySelector('.fieldBtn.on');
+    if (!b || b === lastOn){ return; }
+    lastOn = b;
+    var target = st.scrollLeft +
+      (b.getBoundingClientRect().left - st.getBoundingClientRect().left) -
+      (st.clientWidth - b.offsetWidth) / 2;
+    st.scrollTo({ left: Math.max(0, target), behavior: (!revealed || reduceMotion) ? 'auto' : 'smooth' });
+    revealed = true;
+  }
+  st.addEventListener('scroll', sync, { passive: true });
+  window.addEventListener('resize', sync);
+  if (pv){ pv.addEventListener('click', function(){ nudge(-1); }); }
+  if (nx){ nx.addEventListener('click', function(){ nudge(1); }); }
+  new MutationObserver(reveal).observe(st, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  sync(); reveal();
+}
+initStrip('fieldStrip', 'fieldPrev', 'fieldNext');
+initStrip('palStrip', 'palPrev', 'palNext');
+initStrip('cursorGrid', 'curPrev', 'curNext');
+initStrip('screenStrip', 'scrPrev', 'scrNext');
+initStrip('matStrip', 'matPrev', 'matNext');
 Array.prototype.forEach.call(document.querySelectorAll('.screenBtn'), function(b){
   b.addEventListener('click', function(){
     state.screen = parseInt(b.getAttribute('data-screen'), 10);
@@ -3267,7 +3528,7 @@ var fieldBag = [];
 function nextFieldFromBag(){
   if (fieldBag.length === 0){
     var i, j, k, t;
-    for (i = 0; i < 15; i++){ fieldBag.push(i); }
+    for (i = 0; i < 22; i++){ fieldBag.push(i); }
     for (j = fieldBag.length - 1; j > 0; j--){                 /* Fisher–Yates shuffle */
       k = Math.floor(Math.random() * (j + 1));
       t = fieldBag[j]; fieldBag[j] = fieldBag[k]; fieldBag[k] = t;
@@ -3295,7 +3556,14 @@ var FIELD_TUNE = [
   [1.0, 2.5, 2.0, 9.0],  /* crystal   */
   [0.8, 2.2, 1.5, 6.0],  /* honeycomb */
   [0.7, 1.6, 1.0, 5.0],  /* bloom — low zoom keeps blobs big and soft */
-  [0.8, 1.8, 1.5, 5.0]   /* sweep — corner-to-corner ramp; warp = boundary wobble */
+  [0.8, 1.8, 1.5, 5.0],  /* sweep — corner-to-corner ramp; warp = boundary wobble */
+  [0.9, 2.4, 2.5, 8.0],  /* marble — needs real warp or the combing goes flat */
+  [0.9, 2.4, 1.5, 6.0],  /* plaid  */
+  [0.8, 2.0, 2.0, 7.0],  /* curtain */
+  [0.7, 1.6, 1.5, 8.0],  /* stitch — warp = chord multiplier k, low zoom keeps the ring framed */
+  [0.7, 1.7, 1.5, 7.0],  /* pursuit */
+  [0.8, 2.0, 1.5, 9.0],  /* chladni — warp = eigenmode order */
+  [0.8, 1.8, 2.5, 9.0]   /* cassini — warp = contour density */
 ];
 /* #3 procedural palette: a harmonious dark->light 4-stop ramp around a random hue (analogous
    or complementary), so the shuffle occasionally invents a colourway instead of a preset. */
@@ -3909,7 +4177,7 @@ function parseHash(src){
   state.ar = (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1;
   pendingPreset = n.length > 12 ? Math.min(PRESETS.length, Math.max(0, Math.round(n[12]))) : 0;
   EMBED = n.length > 13 && Math.round(n[13]) === 1;
-  state.field = n.length > 14 ? Math.min(14, Math.max(0, Math.round(n[14]))) : 0;
+  state.field = n.length > 14 ? Math.min(21, Math.max(0, Math.round(n[14]))) : 0;
   state.screen = n.length > 15 ? Math.min(4, Math.max(0, Math.round(n[15]))) : 0;
   state.panX = n.length > 16 ? Math.max(-0.5, Math.min(0.5, n[16])) : 0;
   state.panY = n.length > 17 ? Math.max(-0.5, Math.min(0.5, n[17])) : 0;
@@ -3921,7 +4189,7 @@ function parseHash(src){
     state.cols = cloneStops(PALETTES_RGB[0]);
   }
   state.thresh = n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5;
-  state.field2 = n.length > 25 ? Math.min(14, Math.max(0, Math.round(n[25]))) : 0;
+  state.field2 = n.length > 25 ? Math.min(21, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;
@@ -4286,8 +4554,9 @@ updateDesignCount();
 syncSaveChip();
 /* ---------- copy a self-describing payload Claude can read (with or without the MCP) ---------- */
 function buildClaudePayload(){
-  var fields = ['Noise', 'Flow', 'Cellular', 'Gyroid', 'Truchet', 'Interfere', 'Kaleido', 'Lines', 'Grid', 'Golden', 'Smoke'];
-  var screens = ['Square', 'Hex', 'ASCII', 'Dither'];
+  /* derive from the pickers so new engines/screens can never go stale here */
+  var fields = Array.prototype.map.call(document.querySelectorAll('.fieldBtn[data-field]'), function(b){ return b.title; });
+  var screens = Array.prototype.map.call(document.querySelectorAll('.screenBtn'), function(b){ return b.title; });
   var ars = [[1, '1:1'], [0.8, '4:5'], [1.25, '5:4'], [1.5, '3:2'], [1.7778, '16:9'], [0.5625, '9:16']];
   var arName = '1:1', bd = 9, i;
   for (i = 0; i < ars.length; i++){ var d = Math.abs(ars[i][0] - state.ar); if (d < bd){ bd = d; arName = ars[i][1]; } }

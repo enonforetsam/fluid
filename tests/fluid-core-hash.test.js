@@ -72,7 +72,7 @@ test('parseShareHash clamps out-of-range values like the studio', async () => {
   const { parseShareHash } = await import('../fluid-core/src/hash.js');
   const p = parseShareHash('#p=0.5,1.5,5,0.03,1,10,0,99,18,0,0,9,0,0,99,99,0,0,99');
   assert.ok(p);
-  assert.strictEqual(p.field, 14, 'field clamped to 14');
+  assert.strictEqual(p.field, 21, 'field clamped to 21');
   assert.strictEqual(p.screen, 4, 'screen clamped to 4');
   assert.strictEqual(p.sym, 12, 'sym clamped to 12');
   assert.strictEqual(p.ar, 1, 'silly aspect falls back to 1');

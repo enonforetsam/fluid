@@ -24,7 +24,7 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 
 ## Features
 
-- WebGL1 fragment-shader renderer with 15 field engines, including a quasicrystal, a hexagonal honeycomb, a bloom mesh-gradient, and a corner-to-corner sweep.
+- WebGL1 fragment-shader renderer with 22 field engines, including a quasicrystal, paper marbling, string-art caustics, whirling pursuit polygons, Chladni plate figures, and Cassini ovals.
 - Kaleidoscope symmetry modifier: fold any field into an N-fold radial mandala.
 - Layers: composite a second engine over the first with multiply / screen / add / difference / overlay blends.
 - Material finishes: glass, metal, sand, liquid, and molten relighting.

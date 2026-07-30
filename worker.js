@@ -8,7 +8,7 @@ var BASE = 'https://fluid.krackeddevs.com';
 
 var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
 var PRESETS = [];
-var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom', 'sweep'];
+var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom', 'sweep', 'marble', 'plaid', 'curtain', 'stitch', 'pursuit', 'chladni', 'cassini'];
 var SCREENS = ['square', 'hex', 'ascii', 'dither', 'glitch'];
 var FINISHES = ['none', 'glass', 'metal', 'sand', 'liquid', 'molten'];   /* share-hash slot [28] */
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
@@ -49,7 +49,14 @@ var LOOKS = {
   gilded:   { field: 0, material: 5, cols: ['#0a0602', '#6b3a05', '#e8940f', '#ffdf8a'], p: [0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
   mercury:  { field: 0, material: 5, cols: ['#020204', '#1c1a2e', '#5a5670', '#e8e0f2'], p: [0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
   bloom:    { field: 13, cols: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], p: [0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] },
-  horizon:  { field: 14, cols: ['#0d0b2e', '#552a8a', '#f27059', '#ffd9a0'], p: [0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] }
+  horizon:  { field: 14, cols: ['#0d0b2e', '#552a8a', '#f27059', '#ffd9a0'], p: [0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] },
+  sumi:     { field: 15,            p: [0.30, 1.5, 5.0, 0.02, 1, 10, 0, 6, 41, 0, 0, 1] },
+  tartan:   { field: 16,            p: [0.35, 1.4, 3.5, 0.02, 1, 10, 0, 4, 26, 0, 0, 1] },
+  veil:     { field: 17,            p: [0.40, 1.4, 4.0, 0.03, 1, 10, 0, 5, 63, 0, 0, 1] },
+  filament: { field: 18, cols: ['#070512', '#4a1f7a', '#e05c10', '#ffe8b0'], p: [0.30, 0.95, 5.0, 0.02, 1, 10, 0, 0, 44, 0, 0, 1] },
+  gyre:     { field: 19, cols: ['#0a0714', '#3a2a7e', '#b0489a', '#ffe9b0'], p: [0.35, 1.15, 4.5, 0.02, 1, 10, 0, 0, 54, 0, 0, 1] },
+  cymatic:  { field: 20, cols: ['#0b0907', '#4a3418', '#c99b3f', '#fff4d8'], p: [0.85, 1.3, 4.2, 0.02, 1, 10, 0, 0, 57, 0, 0, 1] },
+  cassini:  { field: 21, cols: ['#0a0f2e', '#274690', '#e8a33d', '#fdf6e3'], p: [0.40, 1.2, 5.5, 0.02, 1, 10, 0, 0, 41, 0, 0, 1] }
 };
 
 var DEFAULTS = {
@@ -403,7 +410,7 @@ var TOOLS = [
       type: 'object',
       properties: {
         look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated starting point' },
-        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive)' },
+        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
         finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },

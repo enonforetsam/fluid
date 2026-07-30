@@ -41,7 +41,7 @@ export function parseShareHash(hash){
     dots: Math.round(n[6]) ? 1 : 0,
     seed: n[8],
     ar: (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1,
-    field: n.length > 14 ? clampInt(n[14], 0, 14) : 0,
+    field: n.length > 14 ? clampInt(n[14], 0, 21) : 0,
     screen: n.length > 15 ? clampInt(n[15], 0, 4) : 0,
     sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
     thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
@@ -61,7 +61,7 @@ export function parseShareHash(hash){
   const layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   if (layerMix > 0.001){
     params.layer = {
-      field: n.length > 25 ? clampInt(n[25], 0, 14) : 0,
+      field: n.length > 25 ? clampInt(n[25], 0, 21) : 0,
       blend: n.length > 26 ? clampInt(n[26], 0, 5) : 0,
       mix: layerMix
     };

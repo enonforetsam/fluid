@@ -25,7 +25,9 @@ The app draws one full-screen triangle into a canvas. The fragment shader:
 
 1. Quantizes screen coordinates when pixel, hex, ASCII, or dither surfaces are active.
 2. Builds a scalar field using one of the field engines: noise, flow, cellular,
-   gyroid, truchet, interfere, kaleido, lines, grid, golden, or smoke.
+   gyroid, truchet, interfere, kaleido, lines, grid, golden, smoke, crystal,
+   honeycomb, bloom, sweep, marble, plaid, curtain, stitch, pursuit, chladni,
+   or cassini.
 3. Optionally uses an uploaded image texture as luminance input for the field.
 4. Maps the scalar field through a preset palette or a custom four-stop gradient.
 5. Applies the selected surface mode and optional halftone dots.

@@ -70,8 +70,8 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     assert.ok(Math.abs(after.ar - before.ar) < 0.001, 'ar drifted');
   });
 
-  it('every field index 0..14 round-trips (incl. bloom + sweep)', () => {
-    for (let f = 0; f <= 14; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
+  it('every field index 0..21 round-trips (incl. stitch, pursuit, chladni + cassini)', () => {
+    for (let f = 0; f <= 21; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
   });
 
   it('symmetry (kaleido fold) round-trips via the reserved slot [18]', () => {
