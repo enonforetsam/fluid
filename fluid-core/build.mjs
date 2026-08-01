@@ -1,14 +1,16 @@
 #!/usr/bin/env node
-/* fluid-core extractor.
+/* fluid-core + worker extractor.
  *
  * The studio (../index.html) is the single source of truth for every engine,
- * palette, and look. This script mechanically extracts those blocks and emits
- * them as ES modules under src/generated/. Nothing is written by hand there.
+ * palette, lens, and look. This script mechanically extracts those blocks and
+ * emits them as ES modules: src/generated/ for the fluid-core package and
+ * ../worker-data.js for the edge worker. Nothing is written by hand there.
  *
  * Run:            node fluid-core/build.mjs
- * Drift guard:    tests/fluid-core.test.js re-runs the extraction in memory and
- *                 fails if the committed generated files differ — so index.html
- *                 and the package can never drift apart on CI.
+ * Drift guard:    tests/fluid-core.test.js and tests/data-sync.test.js re-run the
+ *                 extraction in memory and fail if the committed generated files
+ *                 differ — so index.html, the package and the API can never drift
+ *                 apart on CI.
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -19,7 +21,6 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'fluid-core', 'src', 'generated');
 
 const studio = readFileSync(join(ROOT, 'index.html'), 'utf8');
-const worker = readFileSync(join(ROOT, 'worker.js'), 'utf8');
 
 /* Capture the full `[ ... ]` literal after `var NAME = ` with a quote-aware
    bracket scan, then evaluate it in an empty sandbox (the blocks are pure
@@ -52,29 +53,81 @@ function extractArray(src, name){
 const VSRC = extractArray(studio, 'VSRC').join('\n');
 const FSRC = extractArray(studio, 'FSRC').join('\n');
 
+/* Button label -> public slug: decode the numeric entities the markup uses and
+   drop diacritics, so `M&#246;bius` lands on `mobius` and `ASCII` on `ascii`. */
+function slugify(label){
+  return String(label)
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(+d))
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+/* The studio's own control buttons are the registry: their data-* index IS the
+   share-hash value, so reading them keeps slug order and hash order identical.
+   `capture` continues the pattern after data-ATTR="N" up to the label group. */
+function buttonSlugs(attr, capture){
+  const out = [];
+  for (const m of studio.matchAll(new RegExp('data-' + attr + '="(\\d+)"' + capture, 'g'))){
+    out[+m[1]] = slugify(m[2]);
+  }
+  if (!out.length) throw new Error('extract: no data-' + attr + ' buttons found');
+  for (let i = 0; i < out.length; i++){
+    if (out[i] === undefined) throw new Error('extract: data-' + attr + ' buttons skip index ' + i);
+  }
+  return out;
+}
+const TITLED = '[^>]*title="([^"]+)"';
+const LABELLED = '[^>]*aria-label="([^"]+)"';
+const SPANNED = '[^>]*><span>([^<]+)<\\/span>';
+
 /* studio data blocks */
 const PALETTES_RGB = extractArray(studio, 'PALETTES_RGB');
 const LOOKS = extractArray(studio, 'LOOKS');
 const FIELD_TUNE = extractArray(studio, 'FIELD_TUNE');
 const FIELD_STATUS = extractArray(studio, 'FIELD_STATUS');
+const PRESETS = extractArray(studio, 'PRESETS');
 
-/* worker slug lists (already the studio's public API names) */
-const FIELDS = extractArray(worker, 'FIELDS');
-const PALETTES = extractArray(worker, 'PALETTES');
-const SCREENS = extractArray(worker, 'SCREENS');
+/* slug lists, straight off the pickers */
+const FIELDS = buttonSlugs('field', TITLED);
+const SCREENS = buttonSlugs('screen', TITLED);
+const MATERIALS = buttonSlugs('material', SPANNED);
+/* lens buttons spell the map out ("Square z²", "Invert 1/z"); the slug is the name */
+const LENSES = buttonSlugs('lens', SPANNED).map((s) => s.split(' ')[0]);
+/* the last palette button is the custom-stops slot (hash palette index 8), which
+   is a mode rather than a named palette */
+const PAL_BUTTONS = buttonSlugs('pal', LABELLED);
+if (PAL_BUTTONS[PAL_BUTTONS.length - 1] !== 'custom'){
+  throw new Error('extract: last palette button should be the custom slot, got ' + PAL_BUTTONS[PAL_BUTTONS.length - 1]);
+}
+const PALETTES = PAL_BUTTONS.slice(0, -1);
 
-/* material names from the studio's own buttons */
-const MATERIALS = [];
-for (const m of studio.matchAll(/data-material="(\d+)"[^>]*><span>([^<]+)<\/span>/g)){
-  MATERIALS[+m[1]] = m[2].toLowerCase();
+/* worker-shaped looks: the studio array keyed by lowercase name. Only the keys the
+   worker actually reads are carried over — a new studio-side key would otherwise be
+   dropped in silence and the API would render something else, so it hard-fails. */
+const LOOK_KEYS = ['field', 'screen', 'thresh', 'material', 'lens', 'lensAmt', 'preset', 'cols'];
+const WORKER_LOOKS = {};
+for (const lk of LOOKS){
+  const name = slugify(lk.label || '');
+  if (!name) throw new Error('extract: a look has no label');
+  if (WORKER_LOOKS[name]) throw new Error('extract: duplicate look name "' + name + '"');
+  for (const k of Object.keys(lk)){
+    if (k !== 'label' && k !== 'p' && LOOK_KEYS.indexOf(k) < 0){
+      throw new Error('look "' + name + '" carries "' + k + '", which the worker cannot express — ' +
+        'teach worker.js + LOOK_KEYS about it, or the API will render a different piece');
+    }
+  }
+  const out = {};
+  for (const k of LOOK_KEYS){ if (lk[k] !== undefined) out[k] = lk[k]; }
+  out.p = lk.p;
+  WORKER_LOOKS[name] = out;
 }
 
 /* blend slugs follow the blendField() mode order inside FSRC (0..5) */
 const BLENDS = ['normal', 'multiply', 'screen', 'add', 'difference', 'overlay'];
 
-/* sanity: the studio and worker must agree before we emit anything */
+/* sanity: the pickers, the tuning table and the shader must agree before we emit */
 if (FIELDS.length !== FIELD_TUNE.length){
-  throw new Error('field count mismatch: worker FIELDS=' + FIELDS.length + ' vs FIELD_TUNE=' + FIELD_TUNE.length);
+  throw new Error('field count mismatch: field buttons=' + FIELDS.length + ' vs FIELD_TUNE=' + FIELD_TUNE.length);
 }
 for (const name of ['fieldOf', 'blendField', 'ramp4']){
   if (FSRC.indexOf(name) < 0) throw new Error('FSRC missing ' + name + ' — extraction is stale or index.html changed shape');
@@ -85,7 +138,12 @@ for (let i = 0; i < FIELDS.length; i++){
   }
 }
 
+/* HEADER's wording is frozen: it is the first line of the committed src/generated/
+   files, so any edit marks them stale until they are regenerated. (index.html is now
+   the only input — the slug lists used to be read back out of worker.js.) */
 const HEADER = '/* GENERATED from index.html + worker.js by fluid-core/build.mjs — DO NOT EDIT.\n' +
+  '   Regenerate with: node fluid-core/build.mjs */\n';
+const WORKER_HEADER = '/* GENERATED from index.html by fluid-core/build.mjs — DO NOT EDIT.\n' +
   '   Regenerate with: node fluid-core/build.mjs */\n';
 
 export function emitShader(){
@@ -114,11 +172,38 @@ export function emitData(){
     'export const LOOKS = ' + JSON.stringify(LOOKS, null, 0) + ';\n';
 }
 
+/* The edge worker's registry. Same slugs, same order, same share-hash indices as
+   the studio — worker.js imports this instead of keeping its own copy, so the API
+   cannot answer with an engine/lens/look the app does not have. */
+export function emitWorkerData(){
+  const j = (v) => JSON.stringify(v);
+  const looks = Object.keys(WORKER_LOOKS)
+    .map((name) => '  ' + j(name) + ': ' + j(WORKER_LOOKS[name]))
+    .join(',\n');
+  return WORKER_HEADER +
+    '/* engine slugs by index — index = the #p= hash field id */\n' +
+    'export const FIELDS = ' + j(FIELDS) + ';\n' +
+    'export const SCREENS = ' + j(SCREENS) + ';\n' +
+    '/* material finishes — share-hash slot [28] */\n' +
+    'export const FINISHES = ' + j(MATERIALS) + ';\n' +
+    '/* math lenses — share-hash slots [29][30] */\n' +
+    'export const LENSES = ' + j(LENSES) + ';\n' +
+    '/* named palettes; hash index 8 is the custom-stops slot, not a name */\n' +
+    'export const PALETTES = ' + j(PALETTES) + ';\n' +
+    '/* built-in source images to melt (hash slot [12], 1-based) */\n' +
+    'export const PRESETS = ' + j(PRESETS) + ';\n' +
+    '/* curated looks keyed by lowercase name (the API\'s `look` argument).\n' +
+    '   p = [speed,zoom,warp,grain,pixel,dot,dots,pal,seed,liq,mix,ar] */\n' +
+    'export const LOOKS = {\n' + looks + '\n};\n';
+}
+
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isMain){
   mkdirSync(OUT, { recursive: true });
   writeFileSync(join(OUT, 'shader.js'), emitShader());
   writeFileSync(join(OUT, 'data.js'), emitData());
+  writeFileSync(join(ROOT, 'worker-data.js'), emitWorkerData());
   console.log('fluid-core: generated src/generated/shader.js (' + FSRC.length + ' bytes of GLSL) and data.js');
+  console.log('worker: generated worker-data.js (' + Object.keys(WORKER_LOOKS).length + ' looks)');
   console.log('engines: ' + FIELDS.join(', '));
 }

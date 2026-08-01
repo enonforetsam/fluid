@@ -45,7 +45,9 @@ export function parseShareHash(hash){
     screen: n.length > 15 ? clampInt(n[15], 0, 4) : 0,
     sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
     thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
-    material: n.length > 28 ? clampInt(n[28], 0, 5) : 0
+    material: n.length > 28 ? clampInt(n[28], 0, 5) : 0,
+    lens: n.length > 29 ? clampInt(n[29], 0, 12) : 0,
+    lensAmt: n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1
   };
 
   const pal = clampInt(n[7], 0, 8);

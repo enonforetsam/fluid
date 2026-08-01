@@ -3,19 +3,19 @@
    mock env, rather than grepping the source for route strings. */
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
-const fs = require('node:fs');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 
 const WORKER_PATH = path.resolve(__dirname, '..', 'worker.js');
-const workerSrc = fs.readFileSync(WORKER_PATH, 'utf8');
 
-/* worker.js is ESM (export default). A base64 data: URI is always parsed as a module,
-   regardless of package.json "type", so this loads it without a real Workers runtime. */
+/* worker.js is ESM (export default) and imports ./worker-data.js, so it has to be
+   loaded from a real file: URL — a data: URI has no base for a relative specifier.
+   Node reparses both files as ESM (the repo package.json is type-less because the
+   tests themselves are CommonJS); that warning is noise, not a failure. */
 let handlerPromise;
 function loadWorker() {
   if (!handlerPromise) {
-    const uri = 'data:text/javascript;base64,' + Buffer.from(workerSrc).toString('base64');
-    handlerPromise = import(uri).then((m) => m.default);
+    handlerPromise = import(pathToFileURL(WORKER_PATH).href).then((m) => m.default);
   }
   return handlerPromise;
 }
@@ -107,4 +107,107 @@ describe('worker.js (behavioral)', () => {
                    res.headers.get('referrer-policy');
     assert.ok(hasSec, 'expected security headers from withSec()');
   });
+});
+
+/* End-to-end cover for the registries worker.js no longer hand-declares: LOOKS' optional
+   fields (lens/cols) and LENSES. escher is the only look carrying BOTH a lens and custom
+   colours, so it exercises every optional look field in one request. The hashes are
+   asserted whole: a mis-shaped emit from fluid-core/build.mjs (dropped `lens`, reordered
+   LENSES, cols lost) moves a slot and fails here, not just in the data-level parity test.
+   escher pins seed 52, so the response is deterministic — no random seed to mask. */
+const ESCHER_SHARE = '#p=0.3,1.4,3,0.02,1,10,0,8,52,0,0,1,0,0,4,0,0,0,0,0,789000,4864803,12159548,16116434,0,0,0,0,0,4,100';
+const ESCHER_EMBED = '#p=0.3,1.4,3,0.02,1,10,0,8,52,0,0,1,0,1,4,0,0,0,0,0,789000,4864803,12159548,16116434,0,0,0,0,0,4,100';
+
+describe('worker.js looks + lenses (generated data, behavioral)', () => {
+  it('GET /api/piece?look=escher -> truchet + droste + custom stops, byte-identical hash', async () => {
+    const res = await GET('/api/piece?look=escher');
+    assert.strictEqual(res.status, 200);
+    const body = await res.json();
+    assert.ok(!body.error, 'escher returned an error: ' + body.error);
+    assert.strictEqual(body.params.field, 'truchet');
+    assert.strictEqual(body.params.lens, 'droste');
+    assert.strictEqual(body.params.lensAmount, 1);
+    assert.strictEqual(body.params.palette, 'custom');
+    assert.deepStrictEqual(body.params.colors, ['#0c0a08', '#4a3b23', '#b98a3c', '#f5ead2']);
+    assert.strictEqual(body.share_url, 'https://fluid.test/' + ESCHER_SHARE);
+    assert.strictEqual(body.embed_url, 'https://fluid.test/' + ESCHER_EMBED);
+    assert.ok(body.embed_html.includes(ESCHER_EMBED), 'embed_html should carry the embed hash');
+  });
+
+  it('GET /api/looks lists escher with the same hash the piece endpoint builds', async () => {
+    const res = await GET('/api/looks');
+    const body = await res.json();
+    const escher = body.looks.find((l) => l.look === 'escher');
+    assert.ok(escher, 'escher should be in /api/looks: ' + body.looks.map((l) => l.look).join(', '));
+    assert.strictEqual(escher.share_url, 'https://fluid.test/' + ESCHER_SHARE);
+  });
+
+  it('GET /api/piece?lens=droste -> hash slots [29] lens [30] amount×100', async () => {
+    const res = await GET('/api/piece?lens=droste&lensAmount=0.42&seed=50');
+    assert.strictEqual(res.status, 200);
+    const body = await res.json();
+    assert.strictEqual(body.params.lens, 'droste');
+    assert.strictEqual(body.params.lensAmount, 0.42);
+    /* droste is LENSES index 4; the slots pad from [12] with zeros, so the whole tail is pinned */
+    assert.strictEqual(body.share_url,
+      'https://fluid.test/#p=0.6,1.6,4.5,0.06,6,10,1,0,50,0.8,0.85,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,42');
+    assert.strictEqual(body.embed_url,
+      'https://fluid.test/#p=0.6,1.6,4.5,0.06,6,10,1,0,50,0.8,0.85,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,42');
+  });
+
+  it('GET /api/piece?lens=droste&lensAmount=0 -> lens is invisible, slots are trimmed', async () => {
+    const res = await GET('/api/piece?lens=droste&lensAmount=0&seed=50');
+    const body = await res.json();
+    assert.strictEqual(body.params.lensAmount, 0);
+    assert.strictEqual(body.share_url, 'https://fluid.test/#p=0.6,1.6,4.5,0.06,6,10,1,0,50,0.8,0.85,1');
+  });
+
+  it('GET /api/piece with an unknown lens -> 400 listing the generated lenses', async () => {
+    const res = await GET('/api/piece?lens=not-a-lens');
+    assert.strictEqual(res.status, 400);
+    const body = await res.json();
+    assert.match(body.error, /unknown lens/);
+    assert.match(body.error, /droste/);
+  });
+
+  it('GET /api/piece with an unknown look -> 400 listing the generated looks', async () => {
+    const res = await GET('/api/piece?look=not-a-look');
+    assert.strictEqual(res.status, 400);
+    const body = await res.json();
+    assert.match(body.error, /unknown look/);
+    assert.match(body.error, /escher/);
+  });
+
+  /* the three curated lens looks each pin a DIFFERENT lens index, and the seed is part of
+     the recipe (julia's c and newton's root circle both ride u_seed), so asserting the
+     whole hash catches a reordered LENSES list or a dropped seed, not just a missing key. */
+  const LENS_LOOKS = [
+    { look: 'filigree',  field: 'crystal',   lens: 'julia',
+      cols: ['#07030e', '#22084a', '#6a2a9c', '#f5c34e'],
+      share: '#p=0.3,1.45,3.5,0.02,1,10,0,8,71,0,0,1,0,0,11,0,0,0,0,0,459534,2230346,6957724,16106318,0,0,0,0,0,6,100',
+      embed: '#p=0.3,1.45,3.5,0.02,1,10,0,8,71,0,0,1,0,1,11,0,0,0,0,0,459534,2230346,6957724,16106318,0,0,0,0,0,6,100' },
+    { look: 'shoreline', field: 'flow',      lens: 'newton',
+      cols: ['#03121c', '#0e4664', '#4fb3a8', '#f2e2b6'],
+      share: '#p=0.35,2.2,6,0.02,1,10,0,8,18,0,0,1,0,0,1,0,0,0,0,0,201244,935524,5223336,15917750,0,0,0,0,0,11,100',
+      embed: '#p=0.35,2.2,6,0.02,1,10,0,8,18,0,0,1,0,1,1,0,0,0,0,0,201244,935524,5223336,15917750,0,0,0,0,0,11,100' },
+    { look: 'rosette',   field: 'honeycomb', lens: 'modular',
+      cols: ['#0b0d14', '#2f3648', '#8a8f99', '#efe6d0'],
+      share: '#p=0.3,0.9,4,0.02,1,10,0,8,63,0,0,1,0,0,12,0,0,0,0,0,724244,3094088,9080729,15722192,0,0,0,0,0,12,100',
+      embed: '#p=0.3,0.9,4,0.02,1,10,0,8,63,0,0,1,0,1,12,0,0,0,0,0,724244,3094088,9080729,15722192,0,0,0,0,0,12,100' }
+  ];
+  for (const lk of LENS_LOOKS) {
+    it('GET /api/piece?look=' + lk.look + ' -> ' + lk.field + ' + ' + lk.lens + ', byte-identical hash', async () => {
+      const res = await GET('/api/piece?look=' + lk.look);
+      assert.strictEqual(res.status, 200);
+      const body = await res.json();
+      assert.ok(!body.error, lk.look + ' returned an error: ' + body.error);
+      assert.strictEqual(body.params.field, lk.field);
+      assert.strictEqual(body.params.lens, lk.lens);
+      assert.strictEqual(body.params.lensAmount, 1);
+      assert.strictEqual(body.params.palette, 'custom');
+      assert.deepStrictEqual(body.params.colors, lk.cols);
+      assert.strictEqual(body.share_url, 'https://fluid.test/' + lk.share);
+      assert.strictEqual(body.embed_url, 'https://fluid.test/' + lk.embed);
+    });
+  }
 });

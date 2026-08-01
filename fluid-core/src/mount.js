@@ -12,6 +12,9 @@ import { FIELDS, PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LOOKS } fro
 /* hard cap on physical pixels rendered (a 4K frame); DPR is scaled down past it */
 const MAX_PIXEL_COUNT = 3840 * 2160;
 
+/* math-lens slugs, share-hash slots [29][30] — mirrors the studio's lens picker order */
+const LENSES = ['none', 'square', 'invert', 'mobius', 'droste', 'hyperbolic', 'julia', 'cube', 'exp', 'sine', 'joukowski', 'newton', 'modular'];
+
 function hexToRgb01(h){
   h = String(h).replace('#', '');
   if (h.length === 3){ h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; }
@@ -28,7 +31,7 @@ function slugIndex(list, v){
 /* studio defaults (state block in index.html) minus studio-only concerns */
 const DEFAULTS = {
   field: 0, field2: 0, blend: 0, layerMix: 0,
-  screen: 0, material: 0, sym: 0,
+  screen: 0, material: 0, sym: 0, lens: 0, lensAmt: 1,
   pal: 0, cols: null,
   speed: 0.6, zoom: 1.6, warp: 4.5, grain: 0.06,
   pixel: 1, dot: 10, dots: 0, thresh: 0.5,
@@ -149,6 +152,11 @@ export class FluidMount {
       while (a.length < 28){ a.push(0); }
       a.push(Math.round(s.material));
     }
+    /* gate on the ENCODED amount — a value that rounds to 0 would trim away and decode as 1.0 */
+    if ((s.lens || 0) > 0 && Math.round((s.lensAmt == null ? 1 : s.lensAmt) * 100) >= 1){
+      while (a.length < 29){ a.push(0); }
+      a.push(Math.round(s.lens), Math.round((s.lensAmt == null ? 1 : s.lensAmt) * 100));
+    }
     const minLen = s.pal === 8 ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
     return base + '#p=' + a.join(',');
@@ -186,6 +194,8 @@ export class FluidMount {
       s.field = lk.field || 0;
       s.screen = lk.screen || 0;
       s.material = lk.material || 0;
+      s.lens = lk.lens || 0;
+      s.lensAmt = lk.lensAmt != null ? lk.lensAmt : 1;
       s.thresh = lk.thresh != null ? lk.thresh : 0.5;
       if (lk.cols){ s.pal = 8; s.cols = lk.cols.map(hexToRgb01); }
     }
@@ -227,7 +237,12 @@ export class FluidMount {
       if (mt < 0){ throw new Error('fluid-core: unknown material — valid: ' + MATERIALS.join(', ')); }
       s.material = mt;
     }
-    for (const k of ['speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'dots', 'thresh', 'sym', 'seed']){
+    if (p.lens != null){
+      const ln = slugIndex(LENSES, p.lens);
+      if (ln < 0){ throw new Error('fluid-core: unknown lens — valid: ' + LENSES.join(', ')); }
+      s.lens = ln;
+    }
+    for (const k of ['speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'dots', 'thresh', 'sym', 'seed', 'lensAmt']){
       if (p[k] != null){ s[k] = +p[k]; }
     }
   }
@@ -266,7 +281,7 @@ export class FluidMount {
     this.U = {};
     ['u_res', 'u_time', 'u_seed', 'u_scale', 'u_warp', 'u_sym', 'u_pixel', 'u_dots', 'u_dot', 'u_dither', 'u_grain',
      'u_pal', 'u_c0', 'u_c1', 'u_c2', 'u_c3', 'u_tex', 'u_hasTex', 'u_texAspect', 'u_liq', 'u_mix', 'u_split',
-     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_screen', 'u_material', 'u_glyph', 'u_pan', 'u_mouse',
+     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_screen', 'u_material', 'u_lens', 'u_lensAmt', 'u_glyph', 'u_pan', 'u_mouse',
      'u_mouseAmt', 'u_mouseMode', 'u_rec', 'u_mask', 'u_hasMask', 'u_maskBg', 'u_maskBg2', 'u_maskGrad'
     ].forEach((n) => { this.U[n] = gl.getUniformLocation(prog, n); });
 
@@ -324,6 +339,8 @@ export class FluidMount {
     gl.uniform1f(U.u_scale, s.zoom);
     gl.uniform1f(U.u_warp, s.warp);
     gl.uniform1f(U.u_sym, s.sym);
+    gl.uniform1i(U.u_lens, Math.round(s.lens || 0));
+    gl.uniform1f(U.u_lensAmt, s.lensAmt == null ? 1 : s.lensAmt);
     gl.uniform1f(U.u_pixel, s.pixel <= 1.5 ? 1.0 : s.pixel * k);
     gl.uniform1f(U.u_dots, s.dots);
     gl.uniform1f(U.u_dot, s.dot * k);

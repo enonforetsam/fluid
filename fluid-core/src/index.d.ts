@@ -24,6 +24,8 @@ export interface FluidParams {
   screen?: string | number;
   /** 'none' | 'glass' | 'metal' | 'sand' | 'liquid' | 'molten' or index 0..5 */
   material?: string | number;
+  lens?: string | number;
+  lensAmt?: number;
   speed?: number;
   zoom?: number;
   warp?: number;
@@ -69,5 +71,5 @@ export declare const PALETTES_RGB: number[][][];
 export declare const SCREENS: string[];
 export declare const MATERIALS: string[];
 export declare const BLENDS: string[];
-export declare const LOOKS: Array<{ label: string; field?: number; screen?: number; material?: number; thresh?: number; cols?: string[]; p: number[] }>;
+export declare const LOOKS: Array<{ label: string; field?: number; screen?: number; material?: number; lens?: number; lensAmt?: number; thresh?: number; cols?: string[]; p: number[] }>;
 export declare const VERSION: string;

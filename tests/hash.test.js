@@ -47,7 +47,7 @@ function makeCtx() {
   return sandbox;
 }
 
-const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, sym: 0, field2: 0, blend: 0, layerMix: 0, material: 0, panX: 0, panY: 0, thresh: 0.5, cols: null };
+const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, sym: 0, field2: 0, blend: 0, layerMix: 0, material: 0, lens: 0, lensAmt: 1, panX: 0, panY: 0, thresh: 0.5, cols: null };
 
 function roundtrip(overrides) {
   const enc = makeCtx();
@@ -99,6 +99,14 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     for (let m = 0; m <= 4; m++) assert.strictEqual(roundtrip({ material: m }).after.material, m, 'material ' + m);
     // no finish (material 0) is the default and must trim away — no hash bloat
     assert.ok(roundtrip({ material: 0 }).hash.split(',').length <= 16, 'material=0 must not pad the hash');
+  });
+
+  it('every math lens 0..12 round-trips via slots [29][30]', () => {
+    for (let l = 0; l <= 12; l++) assert.strictEqual(roundtrip({ lens: l }).after.lens, l, 'lens ' + l);
+    assert.strictEqual(roundtrip({ lens: 4, lensAmt: 0.65 }).after.lensAmt, 0.65, 'amount survives the ×100 encoding');
+    // no lens (or amount 0 = identity) is the default and must trim away — no hash bloat
+    assert.ok(roundtrip({ lens: 0 }).hash.split(',').length <= 16, 'lens=0 must not pad the hash');
+    assert.ok(roundtrip({ lens: 3, lensAmt: 0 }).hash.split(',').length <= 16, 'amount 0 is identity — writes nothing');
   });
 
   it('non-default dither threshold round-trips via the trailing slot', () => {

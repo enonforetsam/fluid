@@ -56,7 +56,7 @@ test('parseShareHash decodes custom colours, layer, material, thresh', async () 
   };
   const cols = ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'];
   const a = [0.38, 1.3, 3.0, 0.015, 1, 10, 0, 8, 30, 0, 0, 1, 0, 0, 10, 0, 0, 0, 4, 0,
-    pack(cols[0]), pack(cols[1]), pack(cols[2]), pack(cols[3]), -0.04, 11, 2, 40, 5];
+    pack(cols[0]), pack(cols[1]), pack(cols[2]), pack(cols[3]), -0.04, 11, 2, 40, 5, 4, 65];
   const p = parseShareHash('#p=' + a.join(','));
   assert.ok(p);
   assert.deepStrictEqual(p.colors, cols, 'packed stops round-trip to hex');
@@ -66,6 +66,8 @@ test('parseShareHash decodes custom colours, layer, material, thresh', async () 
   assert.ok(Math.abs(p.thresh - 0.46) < 1e-9, 'thresh = 0.5 + offset');
   assert.deepStrictEqual(p.layer, { field: 11, blend: 2, mix: 0.4 });
   assert.strictEqual(p.material, 5);
+  assert.strictEqual(p.lens, 4, 'math lens at slot [29]');
+  assert.strictEqual(p.lensAmt, 0.65, 'lens amount at slot [30], ×100 encoded');
 });
 
 test('parseShareHash clamps out-of-range values like the studio', async () => {

@@ -67,7 +67,10 @@ createFluid(el, {
   colors: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'],
   layer: { field: 'crystal', blend: 'screen', mix: 0.4 },
   screen: 'hex',            // square | hex | ascii | dither | glitch
-  material: 'molten'        // none | glass | metal | sand | liquid | molten
+  material: 'molten',       // none | glass | metal | sand | liquid | molten
+  lens: 'mobius',           // math lens: square | invert | mobius | droste | hyperbolic |
+                            //   julia | cube | exp | sine | joukowski | newton | modular
+  lensAmt: 0.8              // lens strength 0-1 (default 1)
 });
 ```
 
@@ -85,6 +88,6 @@ Instance API: `set(params)`, `play()`, `pause()`, `seed`, `toDataURL()`,
 
 ## Scope
 
-Pure field pieces: all 15 engines, layers, screens, materials, kaleidoscope
-symmetry, palettes + custom gradients. Studio-only features (image melt, text
+Pure field pieces: all 22 engines, layers, screens, materials, math lenses,
+kaleidoscope symmetry, palettes + custom gradients. Studio-only features (image melt, text
 masks, cursor effects, recording) intentionally stay in the studio.

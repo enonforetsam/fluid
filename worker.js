@@ -4,13 +4,14 @@
    share links, embed snippets, and parameter JSON; rendering always happens
    on the visitor's GPU. */
 
+/* Every registry the API answers with — engines, screens, finishes, lenses,
+   palettes, presets, looks — is GENERATED from index.html by fluid-core/build.mjs.
+   The worker keeps no copy of its own, so app and API cannot drift apart.
+   After changing the studio's pickers or LOOKS: node fluid-core/build.mjs */
+import { FIELDS, SCREENS, FINISHES, LENSES, PALETTES, PRESETS, LOOKS } from './worker-data.js';
+
 var BASE = 'https://fluid.krackeddevs.com';
 
-var PALETTES = ['aurora', 'sunset', 'ocean', 'dusk', 'ember', 'mint', 'iris', 'chrome'];
-var PRESETS = [];
-var FIELDS = ['noise', 'flow', 'cellular', 'gyroid', 'truchet', 'interfere', 'kaleido', 'lines', 'grid', 'golden', 'smoke', 'crystal', 'honeycomb', 'bloom', 'sweep', 'marble', 'plaid', 'curtain', 'stitch', 'pursuit', 'chladni', 'cassini'];
-var SCREENS = ['square', 'hex', 'ascii', 'dither', 'glitch'];
-var FINISHES = ['none', 'glass', 'metal', 'sand', 'liquid', 'molten'];   /* share-hash slot [28] */
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
 function aspectName(v){
   var best = '1:1', bd = 1e9, k;
@@ -18,52 +19,12 @@ function aspectName(v){
   return best;
 }
 
-/* mirrors the app's LOOKS array (share-hash value order); field/screen
-   default to 0 (noise/square) unless the look sets them */
-var LOOKS = {
-  borealis: { field: 0,             p: [0.40, 2.0, 3.5, 0.03, 1, 10, 0, 0, 30, 0, 0, 1] },
-  afterglow:{ field: 1,             p: [0.50, 1.6, 4.0, 0.03, 1, 10, 0, 1, 21, 0, 0, 1] },
-  tide:     { field: 1,             p: [0.50, 1.5, 5.0, 0.03, 1, 10, 0, 2, 48, 0, 0, 1] },
-  twilight: { field: 0,             p: [0.35, 2.3, 3.0, 0.03, 1, 10, 0, 3, 12, 0, 0, 1] },
-  magma:    { field: 0,             p: [0.45, 1.8, 4.5, 0.03, 1, 10, 0, 4, 52, 0, 0, 1] },
-  meridian: { field: 1,             p: [0.50, 1.6, 5.0, 0.03, 1, 10, 0, 5, 66, 0, 0, 1] },
-  nebula:   { field: 2,             p: [0.40, 1.9, 7.0, 0.03, 1,  8, 0, 6, 40, 0, 0, 1] },
-  plasma:   { field: 1,             p: [0.70, 1.2, 8.0, 0.04, 1, 10, 0, 0, 71, 0, 0, 1] },
-  velvet:   { field: 0,             p: [0.30, 2.6, 2.0, 0.02, 1, 10, 0, 3, 18, 0, 0, 1] },
-  coral:    { field: 2,             p: [0.45, 1.8, 7.0, 0.03, 1, 10, 0, 1, 33, 0, 0, 1] },
-  glacier:  { field: 0,             p: [0.40, 2.2, 3.0, 0.03, 1, 10, 0, 2, 25, 0, 0, 1] },
-  onyx:     { field: 2,             p: [0.40, 1.9, 8.0, 0.03, 1,  8, 0, 7, 60, 0, 0, 1] },
-  weave:    { field: 3,             p: [0.40, 1.6, 5.0, 0.03, 1, 10, 0, 5, 40, 0, 0, 1] },
-  circuit:  { field: 4,             p: [0.30, 2.0, 4.0, 0.02, 1, 10, 0, 7, 22, 0, 0, 1] },
-  ripple:   { field: 5,             p: [0.50, 1.4, 5.0, 0.03, 1, 10, 0, 2, 30, 0, 0, 1] },
-  mandala:  { field: 6,             p: [0.35, 1.5, 6.0, 0.03, 1, 10, 0, 6, 55, 0, 0, 1] },
-  strata:   { field: 7,             p: [0.30, 1.6, 3.0, 0.02, 1, 10, 0, 3, 28, 0, 0, 1] },
-  mesh:     { field: 8,             p: [0.30, 1.8, 4.0, 0.02, 1, 10, 0, 5, 33, 0, 0, 1] },
-  sunflower:{ field: 9,             p: [0.30, 1.4, 5.0, 0.02, 1, 10, 0, 4, 44, 0, 0, 1] },
-  ribbon:   { field: 3,             p: [0.30, 1.55, 4.8, 0.02, 4,  9, 1, 2, 28, 0, 0, 0.5625] },
-  vortex:   { field: 6,             p: [0.34, 1.18, 7.2, 0.02, 6, 10, 1, 5, 61, 0, 0, 0.5625] },
-  abyss:    { field: 0,             p: [0.22, 2.25, 7.6, 0.03, 5,  8, 1, 2, 87, 0, 0, 0.5625] },
-  nova:     { field: 5,             p: [0.32, 1.18, 6.4, 0.02, 4,  7, 1, 7, 52, 0, 0, 0.5625] },
-  pixelbeam:{ field: 1, screen: 3, thresh: 0.46, p: [0.45, 1.6, 4.0, 0.0, 7, 10, 0, 4, 40, 0, 0, 1] },
-  smoke:    { field: 10, cols: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'], p: [0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] },
-  gilded:   { field: 0, material: 5, cols: ['#0a0602', '#6b3a05', '#e8940f', '#ffdf8a'], p: [0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
-  mercury:  { field: 0, material: 5, cols: ['#020204', '#1c1a2e', '#5a5670', '#e8e0f2'], p: [0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
-  bloom:    { field: 13, cols: ['#c2b830', '#e04a12', '#e8489a', '#f2ead8'], p: [0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] },
-  horizon:  { field: 14, cols: ['#0d0b2e', '#552a8a', '#f27059', '#ffd9a0'], p: [0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] },
-  sumi:     { field: 15,            p: [0.30, 1.5, 5.0, 0.02, 1, 10, 0, 6, 41, 0, 0, 1] },
-  tartan:   { field: 16,            p: [0.35, 1.4, 3.5, 0.02, 1, 10, 0, 4, 26, 0, 0, 1] },
-  veil:     { field: 17,            p: [0.40, 1.4, 4.0, 0.03, 1, 10, 0, 5, 63, 0, 0, 1] },
-  filament: { field: 18, cols: ['#070512', '#4a1f7a', '#e05c10', '#ffe8b0'], p: [0.30, 0.95, 5.0, 0.02, 1, 10, 0, 0, 44, 0, 0, 1] },
-  gyre:     { field: 19, cols: ['#0a0714', '#3a2a7e', '#b0489a', '#ffe9b0'], p: [0.35, 1.15, 4.5, 0.02, 1, 10, 0, 0, 54, 0, 0, 1] },
-  cymatic:  { field: 20, cols: ['#0b0907', '#4a3418', '#c99b3f', '#fff4d8'], p: [0.85, 1.3, 4.2, 0.02, 1, 10, 0, 0, 57, 0, 0, 1] },
-  cassini:  { field: 21, cols: ['#0a0f2e', '#274690', '#e8a33d', '#fdf6e3'], p: [0.40, 1.2, 5.5, 0.02, 1, 10, 0, 0, 41, 0, 0, 1] }
-};
-
 var DEFAULTS = {
   speed: 0.6, zoom: 1.6, warp: 4.5, grain: 0.06,
   pixel: 6, dot: 10, halftone: true, palette: 'aurora',
   seed: null, liquify: 0.8, blend: 0.85, aspect: '1:1', preset: 'none',
-  field: 'noise', screen: 'square', threshold: 0.5, finish: 'none'
+  field: 'noise', screen: 'square', threshold: 0.5, finish: 'none',
+  lens: 'none', lensAmount: 1
 };
 
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
@@ -110,6 +71,8 @@ function buildPiece(input, base){
     p.screen = SCREENS[lk.screen || 0];
     p.threshold = lk.thresh != null ? lk.thresh : 0.5;
     p.finish = FINISHES[lk.material || 0];
+    p.lens = LENSES[lk.lens || 0];
+    p.lensAmount = lk.lensAmt != null ? lk.lensAmt : 1;
     if (lk.cols){ p.palette = 'custom'; p.lookCols = lk.cols; }
   } else if (lookName){
     throw new Error('unknown look "' + lookName + '" — valid: ' + Object.keys(LOOKS).join(', '));
@@ -148,6 +111,13 @@ function buildPiece(input, base){
     if (FINISHES.indexOf(fn) < 0){ throw new Error('unknown finish — valid: ' + FINISHES.join(', ')); }
     p.finish = fn;
   }
+  if (typeof input.lens === 'string'){
+    var ln = input.lens.toLowerCase();
+    if (LENSES.indexOf(ln) < 0){ throw new Error('unknown lens — valid: ' + LENSES.join(', ')); }
+    p.lens = ln;
+  }
+  if (typeof input.lensAmount === 'number' && isFinite(input.lensAmount)){ p.lensAmount = input.lensAmount; }
+  p.lensAmount = round2(clamp(p.lensAmount, 0, 1));
   /* custom palette: 2-4 hex colours (dark->light) override the named palette — 2 or 3
      expand to the 4 hash stops by blending, exactly like the app's colour picker.
      A look can ship its own gradient (p.lookCols); an explicit palette/colors wins. */
@@ -200,6 +170,12 @@ function buildPiece(input, base){
       while (a.length < 28){ a.push(0); }
       a.push(fIdx);
     }
+    /* [29][30] math lens + amount×100 — only when visibly on, like the app's buildHash */
+    var lnIdx = LENSES.indexOf(p.lens);
+    if (lnIdx > 0 && p.lensAmount > 0.001){
+      while (a.length < 29){ a.push(0); }
+      a.push(lnIdx, Math.round(p.lensAmount * 100));
+    }
     var minLen = customPacked ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
     return base + '/#p=' + a.join(',');
@@ -245,7 +221,9 @@ function decodeLink(url){
     field: FIELDS[clamp(n.length > 14 ? Math.round(n[14]) : 0, 0, FIELDS.length - 1)],
     screen: SCREENS[clamp(n.length > 15 ? Math.round(n[15]) : 0, 0, SCREENS.length - 1)],
     threshold: n.length > 24 ? clamp(0.5 + n[24], 0, 1) : 0.5,
-    finish: FINISHES[clamp(n.length > 28 ? Math.round(n[28]) : 0, 0, FINISHES.length - 1)]
+    finish: FINISHES[clamp(n.length > 28 ? Math.round(n[28]) : 0, 0, FINISHES.length - 1)],
+    lens: LENSES[clamp(n.length > 29 ? Math.round(n[29]) : 0, 0, LENSES.length - 1)],
+    lensAmount: n.length > 30 ? clamp(n[30] / 100, 0, 1) : 1
   };
 }
 
@@ -385,7 +363,7 @@ function llmsTxt(base){
     '[0] speed [1] zoom [2] warp [3] grain [4] pixel [5] dot [6] halftone [7] palette (8 = custom)',
     '[8] seed [9] liquify [10] blend [11] aspect [12] preset [13] embed flag (1 = chrome-less canvas)',
     '[14] field [15] screen [16-17] pan [18] symmetry [20-23] packed custom RGB stops',
-    '[24] dither-threshold offset [25-27] layer [28] material finish.',
+    '[24] dither-threshold offset [25-27] layer [28] material finish [29][30] math lens + amount×100.',
     'Values are numeric only; parsers must clamp and reject NaN.',
     ''
   ].join('\n');
@@ -413,6 +391,8 @@ var TOOLS = [
         field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
         finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
+        lens: { type: 'string', enum: LENSES, description: 'math lens — a named transform of the complex plane the engine is sampled through: square (conformal z^2), invert (circle inversion 1/z), mobius (disk automorphism, orbiting pole), droste (log-polar Escher spiral), hyperbolic (Poincare rim compression), julia (z^2+c orbit sampling), cube (conformal z^3), exp (e^z strip-to-fan), sine (sin z mirror lattice), joukowski (z + 1/z airfoil map), newton (Newton-fractal basins of z^3=1), modular (SL(2,Z) fundamental-domain fold)' },
+        lensAmount: { type: 'number', description: 'lens strength 0-1 (default 1): blends flat space toward the transformed domain' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },
         palette: { type: 'string', enum: PALETTES },
         colors: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 4, description: 'custom palette: 2-4 hex colours dark->light (2 or 3 blend into a full gradient), e.g. ["#0a0a1a","#ffe1f5"] or ["#0a0a1a","#3a1f7a","#c84fe0","#ffe1f5"] (overrides palette)' },
@@ -608,10 +588,10 @@ function api(req, url){
   if (url.pathname === '/api/piece'){
     var q = url.searchParams;
     var input = {};
-    ['look', 'preset', 'palette', 'aspect', 'field', 'screen', 'finish'].forEach(function(k){
+    ['look', 'preset', 'palette', 'aspect', 'field', 'screen', 'finish', 'lens'].forEach(function(k){
       if (q.has(k)){ input[k] = q.get(k); }
     });
-    ['seed', 'speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'threshold', 'liquify', 'blend'].forEach(function(k){
+    ['seed', 'speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'threshold', 'liquify', 'blend', 'lensAmount'].forEach(function(k){
       if (q.has(k)){ input[k] = parseFloat(q.get(k)); }
     });
     if (q.has('halftone')){ input.halftone = q.get('halftone') !== '0' && q.get('halftone') !== 'false'; }
@@ -622,7 +602,7 @@ function api(req, url){
   return json({
     name: 'fluid api',
     endpoints: {
-      'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish',
+      'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish, lens, lensAmount',
       'GET /api/looks': 'curated looks with links',
       'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp (or add as a claude.ai custom connector)',
       'GET /llms.txt': 'agent-readable site guide'

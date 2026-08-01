@@ -3,17 +3,16 @@
    Behavioral — loads worker.js and calls its fetch handler like worker.test.js does. */
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
-const fs = require('node:fs');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 
+/* file: URL, not a data: URI — worker.js imports ./worker-data.js (see worker.test.js) */
 const WORKER_PATH = path.resolve(__dirname, '..', 'worker.js');
-const workerSrc = fs.readFileSync(WORKER_PATH, 'utf8');
 
 let handlerPromise;
 function loadWorker() {
   if (!handlerPromise) {
-    const uri = 'data:text/javascript;base64,' + Buffer.from(workerSrc).toString('base64');
-    handlerPromise = import(uri).then((m) => m.default);
+    handlerPromise = import(pathToFileURL(WORKER_PATH).href).then((m) => m.default);
   }
   return handlerPromise;
 }
@@ -101,6 +100,20 @@ describe('get_embed_code', () => {
     const shareHash = piece.share_url.slice(piece.share_url.indexOf('#'));
     assert.ok(out.html.includes('hash="' + shareHash + '"'),
       'embed->share round-trip must preserve the 24-slot custom palette: ' + out.html);
+  });
+
+  /* escher is the widest hash the generated LOOKS can produce — 31 slots: custom colours
+     [20..23] AND math lens [29][30]. The embed-flag flip rewrites slot [13] in place, so
+     this proves nothing past the palette block is dropped on the way back to a share hash. */
+  it('round-trips a 31-slot look (custom stops + math lens) through the flag flip', async () => {
+    const piece = (await callTool('create_piece', { look: 'escher' })).json;
+    assert.strictEqual(piece.params.lens, 'droste');
+    const shareHash = piece.share_url.slice(piece.share_url.indexOf('#'));
+    assert.ok(shareHash.endsWith(',4,100'), 'share hash should end on lens slots [29][30]: ' + shareHash);
+    const out = (await callTool('get_embed_code', { url: piece.embed_url })).json;
+    assert.ok(out.html.includes('hash="' + shareHash + '"'),
+      'embed->share round-trip must preserve the lens slots: ' + out.html);
+    assert.ok(out.iframe_html.includes(piece.embed_url), 'iframe keeps the embed hash intact');
   });
 
   it('accepts a curated look and an element target', async () => {

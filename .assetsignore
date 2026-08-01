@@ -4,6 +4,7 @@
 .assetsignore
 .wrangler
 worker.js
+worker-data.js
 docs
 README.md
 CONTRIBUTING.md
