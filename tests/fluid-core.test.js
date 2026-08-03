@@ -25,7 +25,7 @@ test('fluid-core generated files match the studio (no drift)', async () => {
 
 test('fluid-core registry shape', async () => {
   const data = await import('../fluid-core/src/generated/data.js');
-  assert.strictEqual(data.FIELDS.length, 22, 'expected 22 field engines');
+  assert.strictEqual(data.FIELDS.length, 23, 'expected 23 field engines');
   assert.strictEqual(data.FIELDS[0], 'noise');
   assert.strictEqual(data.FIELDS[21], 'cassini');
   assert.strictEqual(data.FIELD_TUNE.length, data.FIELDS.length, 'FIELD_TUNE covers every engine');

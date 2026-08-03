@@ -1367,6 +1367,7 @@
       <button class="fieldBtn" data-field="19" title="Pursuit" aria-label="Pursuit" aria-pressed="false"><span>Pursuit</span></button>
       <button class="fieldBtn" data-field="20" title="Chladni" aria-label="Chladni" aria-pressed="false"><span>Chladni</span></button>
       <button class="fieldBtn" data-field="21" title="Cassini" aria-label="Cassini" aria-pressed="false"><span>Cassini</span></button>
+      <button class="fieldBtn" data-field="22" title="Topo" aria-label="Topo" aria-pressed="false"><span>Topo</span></button>
     </div>
     <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
     </div>
@@ -1713,7 +1714,8 @@ var LOOKS = [
      circle are both driven by u_seed, so changing it lands on a different fractal. */
   { label:'FILIGREE', field:11, lens:6,  cols:['#07030e','#22084a','#6a2a9c','#f5c34e'], p:[0.30, 1.45, 3.5, 0.02, 1, 10, 0, 0, 71, 0, 0, 1] },
   { label:'SHORELINE',field:1,  lens:11, cols:['#03121c','#0e4664','#4fb3a8','#f2e2b6'], p:[0.35, 2.2, 6.0, 0.02, 1, 10, 0, 0, 18, 0, 0, 1] },
-  { label:'ROSETTE',  field:12, lens:12, cols:['#0b0d14','#2f3648','#8a8f99','#efe6d0'], p:[0.30, 0.9, 4.0, 0.02, 1, 10, 0, 0, 63, 0, 0, 1] }
+  { label:'ROSETTE',  field:12, lens:12, cols:['#0b0d14','#2f3648','#8a8f99','#efe6d0'], p:[0.30, 0.9, 4.0, 0.02, 1, 10, 0, 0, 63, 0, 0, 1] },
+  { label:'RELIEF',   field:22, cols:['#0b0709','#3d1c2a','#c2557e','#f6d5e2'], p:[0.45, 1.6, 4.0, 0.02, 1, 10, 0, 0, 34, 0, 0, 1] }
 ];
 
 /* the 4 gradient stops (dark->light) for each preset palette, RGB 0-1. Indices
@@ -2229,6 +2231,31 @@ var FSRC = [
   '  float v = 0.5 + 0.5 * cos(phi * (0.6 + u_warp * 1.8) - t * 0.55);   /* shells radiate steadily outward */',
   '  return spreadF(v, 1.4);',
   '}',
+  '/* topo engine (22): topographic contour map — an fbm heightfield sliced into N',
+  '   elevation isolines, per-pixel (fract of the level index, fwidth-antialiased) so',
+  '   no marching squares is needed. Every 5th line is a major contour: thicker and',
+  '   brighter, like a survey map. Line brightness rides the elevation, so the palette',
+  '   light stops crown the peaks while the basin floor stays at stop 0. Warp = terrain',
+  '   ruggedness (domain warp); the landmass drifts slowly under the frame. */',
+  'float fieldTopo(vec2 p, float t){',
+  '  vec2 drift = vec2(t * 0.035, -t * 0.022);',
+  '  vec2 q = vec2(fbm(p * 0.8 + drift), fbm(p * 0.8 + vec2(4.7, 2.3) - drift));',
+  '  float h = fbm(p * 0.85 + (q - 0.5) * (u_warp * 0.55) + drift * 0.6);',
+  '  /* stretch fbm mid-pile into a full elevation range. NOT clamped: a clamp flattens the',
+  '     extremes onto exactly one level, and a plateau sitting on a contour fills solid. */',
+  '  float e = (h - 0.18) * 1.55;',
+  '  float lv = e * 14.0;',
+  '  float fr = fract(lv);',
+  '  float dist = min(fr, 1.0 - fr);                /* distance to the nearest contour, in level units */',
+  '  float w = max(fwidth(lv), 0.0008);',
+  '  float line = 1.0 - smoothstep(0.0, w * 1.4, dist);',
+  '  float major = step(mod(floor(lv + 0.5), 5.0), 0.5);   /* every 5th level: survey-map accent */',
+  '  line = max(line, (1.0 - smoothstep(0.0, w * 2.6, dist)) * (0.75 * major));',
+  '  /* cliffs pack more contours than a pixel can resolve — fade them out instead of',
+  '     letting the lines merge into a solid blob (a survey map thins out on scarps) */',
+  '  line *= 1.0 - smoothstep(0.22, 0.5, w);',
+  '  return clamp(line * (0.30 + 0.70 * clamp(e, 0.0, 1.0)), 0.0, 1.0);',
+  '}',
   '',
   /* ---------- glsl dispatch: the Bayer table, fieldOf by index, and the layer blend modes ---------- */
   '/* ordered (Bayer) dither thresholds, recursive 2x2 -> 4x4 -> 8x8, WebGL1-safe */',
@@ -2262,6 +2289,7 @@ var FSRC = [
   '  else if (eng == 19){ return fieldPursuit(p, t); }',
   '  else if (eng == 20){ return fieldChladni(p, t); }',
   '  else if (eng == 21){ return fieldCassini(p, t); }',
+  '  else if (eng == 22){ return fieldTopo(p, t); }',
   '  vec2 m1 = vec2(d1, d2);',
   '  vec2 m2 = vec2(d2, -d1);',
   '  vec2 q = vec2(fbm(p + m1 * 0.5), fbm(p + vec2(5.2, 1.3) + m2 * 0.5));',
@@ -3940,7 +3968,8 @@ var FIELD_STATUS = [
   'STITCH FIELD — times-table string art, epicycloid caustic',
   'PURSUIT FIELD — whirling polygons, a nested spiral chase',
   'CHLADNI FIELD — vibrating-plate nodal figures; warp sets mode order',
-  'CASSINI FIELD — lemniscate ovals, equipotential contours'
+  'CASSINI FIELD — lemniscate ovals, equipotential contours',
+  'TOPO FIELD — elevation contours of a drifting landmass; warp = ruggedness'
 ];
 function selectField(fv){
   if (state.field === fv){ return; }
@@ -4153,7 +4182,7 @@ var fieldBag = [];
 function nextFieldFromBag(){
   if (fieldBag.length === 0){
     var i, j, k, t;
-    for (i = 0; i < 22; i++){ fieldBag.push(i); }
+    for (i = 0; i < 23; i++){ fieldBag.push(i); }
     for (j = fieldBag.length - 1; j > 0; j--){                 /* Fisher–Yates shuffle */
       k = Math.floor(Math.random() * (j + 1));
       t = fieldBag[j]; fieldBag[j] = fieldBag[k]; fieldBag[k] = t;
@@ -4188,7 +4217,8 @@ var FIELD_TUNE = [
   [0.7, 1.6, 1.5, 8.0],  /* stitch — warp = chord multiplier k, low zoom keeps the ring framed */
   [0.7, 1.7, 1.5, 7.0],  /* pursuit */
   [0.8, 2.0, 1.5, 9.0],  /* chladni — warp = eigenmode order */
-  [0.8, 1.8, 2.5, 9.0]   /* cassini — warp = contour density */
+  [0.8, 1.8, 2.5, 9.0],  /* cassini — warp = contour density */
+  [0.9, 2.2, 2.0, 7.0]   /* topo — warp = domain-warp ruggedness */
 ];
 /* #3 procedural palette: a harmonious dark->light 4-stop ramp around a random hue (analogous
    or complementary), so the shuffle occasionally invents a colourway instead of a preset. */
@@ -4239,7 +4269,7 @@ function randomPattern(){
   state.dot = 6 + Math.floor(rnd() * 14);
   /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend, moderate mix */
   if (rnd() < 0.25){
-    do { state.field2 = Math.floor(rnd() * 22); } while (state.field2 === state.field);
+    do { state.field2 = Math.floor(rnd() * 23); } while (state.field2 === state.field);
     state.blend = 1 + Math.floor(rnd() * 5);          /* 1..5: skip Normal so the composite reads */
     state.layerMix = 0.3 + rnd() * 0.4;               /* 0.3 .. 0.7 */
   } else {
@@ -4817,7 +4847,7 @@ function parseHash(src){
   state.ar = (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1;
   pendingPreset = n.length > 12 ? Math.min(PRESETS.length, Math.max(0, Math.round(n[12]))) : 0;
   EMBED = n.length > 13 && Math.round(n[13]) === 1;
-  state.field = n.length > 14 ? Math.min(21, Math.max(0, Math.round(n[14]))) : 0;
+  state.field = n.length > 14 ? Math.min(22, Math.max(0, Math.round(n[14]))) : 0;
   state.screen = n.length > 15 ? Math.min(4, Math.max(0, Math.round(n[15]))) : 0;
   state.panX = n.length > 16 ? Math.max(-0.5, Math.min(0.5, n[16])) : 0;
   state.panY = n.length > 17 ? Math.max(-0.5, Math.min(0.5, n[17])) : 0;
@@ -4829,7 +4859,7 @@ function parseHash(src){
     state.cols = cloneStops(PALETTES_RGB[0]);
   }
   state.thresh = n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5;
-  state.field2 = n.length > 25 ? Math.min(21, Math.max(0, Math.round(n[25]))) : 0;
+  state.field2 = n.length > 25 ? Math.min(22, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;

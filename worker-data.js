@@ -1,7 +1,7 @@
 /* GENERATED from index.html by fluid-core/build.mjs — DO NOT EDIT.
    Regenerate with: node fluid-core/build.mjs */
 /* engine slugs by index — index = the #p= hash field id */
-export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini"];
+export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo"];
 export const SCREENS = ["square","hex","ascii","dither","glitch"];
 /* material finishes — share-hash slot [28] */
 export const FINISHES = ["none","glass","metal","sand","liquid","molten"];
@@ -53,5 +53,6 @@ export const LOOKS = {
   "escher": {"field":4,"lens":4,"cols":["#0c0a08","#4a3b23","#b98a3c","#f5ead2"],"p":[0.3,1.4,3,0.02,1,10,0,0,52,0,0,1]},
   "filigree": {"field":11,"lens":6,"cols":["#07030e","#22084a","#6a2a9c","#f5c34e"],"p":[0.3,1.45,3.5,0.02,1,10,0,0,71,0,0,1]},
   "shoreline": {"field":1,"lens":11,"cols":["#03121c","#0e4664","#4fb3a8","#f2e2b6"],"p":[0.35,2.2,6,0.02,1,10,0,0,18,0,0,1]},
-  "rosette": {"field":12,"lens":12,"cols":["#0b0d14","#2f3648","#8a8f99","#efe6d0"],"p":[0.3,0.9,4,0.02,1,10,0,0,63,0,0,1]}
+  "rosette": {"field":12,"lens":12,"cols":["#0b0d14","#2f3648","#8a8f99","#efe6d0"],"p":[0.3,0.9,4,0.02,1,10,0,0,63,0,0,1]},
+  "relief": {"field":22,"cols":["#0b0709","#3d1c2a","#c2557e","#f6d5e2"],"p":[0.45,1.6,4,0.02,1,10,0,0,34,0,0,1]}
 };
