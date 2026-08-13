@@ -103,6 +103,8 @@ const SECTIONS = [
   'field picker',
   'picker strips',
   'explore shelf',
+  'seed of the day tile',
+  'tray height feedback',
   'stage tray behaviour',
   'theme picker',
   'math lens UI',

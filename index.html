@@ -133,11 +133,13 @@
   .vbadge{font-size:9px;letter-spacing:.08em;vertical-align:middle;padding:2px 6px;margin-left:7px;border:1px solid var(--line);border-radius:6px;color:var(--soft);font-weight:700}
   .tag{font-size:10px;color:rgba(16,16,16,.68);margin-top:7px;letter-spacing:.08em;text-transform:none;line-height:1.35;overflow-wrap:anywhere}
   /* ---------- stage: the artboard card the canvas sits in, plus the ambient glow washing the wall behind it ---------- */
-  /* column wrapper: control bar above the image, card below; sized so the
-     bar + card together never exceed the stage height */
+  /* column wrapper: control bar above the image, card below, tray under that; sized so all
+     three together never exceed the stage height. --trayH is measured in JS because the
+     tray changes height with its tab and its collapse state — guessing a constant here is
+     what pushed the shelf off the bottom of the screen at square aspects. */
   .stageInner{
     display:flex;flex-direction:column;gap:8px;margin:0 auto;max-width:100%;
-    width:min(100%, calc((var(--stageH) - 40px) * var(--ar, 1)));
+    width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));
     position:relative;z-index:1;
   }
   .card{
@@ -360,6 +362,17 @@
   }
   .expTile:hover{background-image:none;box-shadow:0 3px 10px rgba(0,0,0,.5);border-color:rgba(255,255,255,.3)}
   .expTile:hover span{color:#e8e8e4}
+  /* the day's piece carries no thumbnail — it is generated fresh each day, and inventing a
+     picture for it would be a picture of the wrong thing. It gets a face of its own instead. */
+  .expTile.today{
+    display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;
+    height:76px;padding:0 10px;border-color:rgba(255,255,255,.28);
+    background:linear-gradient(140deg, rgba(255,255,255,.14), rgba(255,255,255,.03));
+  }
+  .expTile.today b{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#e8e8e4;font-weight:700}
+  .expTile.today span{padding:0;background:none;font-size:8px;letter-spacing:.08em;color:rgba(232,232,228,.6)}
+  .expTile.today:hover{border-color:rgba(255,255,255,.6)}
+  @media (max-width:900px){ .expTile.today{height:67px} }
   @media (max-width:900px){
     .expTile,.expTile img{width:88px}
     .expTile img{height:50px}
@@ -863,11 +876,11 @@
     /* the control bar matches the artwork (card) width and centres with it, so the
        shuffle (left) and record (right) buttons sit flush with the square's edges */
     .stageInner{width:100%}
-    #canvasChips{width:min(100%, calc((var(--stageH) - 40px) * var(--ar, 1)));min-width:min(100%, 264px);margin:0 auto}
+    #canvasChips{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));min-width:min(100%, 264px);margin:0 auto}
     #designDock{position:fixed;left:12px;right:12px;top:54px;width:auto;max-height:calc(50vh - 66px)}
     #cursorDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
     .designList{max-height:calc(50vh - 128px)}
-    .card{width:min(100%, calc((var(--stageH) - 40px) * var(--ar, 1)));margin:0 auto}
+    .card{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));margin:0 auto}
     /* drag bar at the top of the controls sheet — drag up/down to resize the artwork */
     #panelHandle{
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
@@ -4331,9 +4344,60 @@ function loadPiece(hash, name){
     })(EXPLORE[i]);
   }
 })();
+/* ---------- seed of the day tile: the one piece everyone sees today ----------
+   Fetched the first time Explore is opened, never at boot — a shelf nobody looked at should
+   not cost a request. If the fetch fails the shelf is simply the curated pieces, which is
+   what it was before; a daily extra is not worth an error message. */
+var todayLoaded = false;
+function loadTodayTile(){
+  if (todayLoaded){ return; }
+  todayLoaded = true;
+  var strip = document.getElementById('exploreStrip');
+  if (!strip || !window.fetch){ return; }
+  fetch('/api/today', { headers: { accept: 'application/json' } })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(piece){
+      if (!piece || !piece.share_url){ return; }
+      var hash = '#' + String(piece.share_url).split('#')[1];
+      /* our own origin, but the tile is only worth building if the hash is really a hash */
+      if (!/^#p=[\d.,-]+$/.test(hash)){ return; }
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'expTile today';
+      b.title = 'Seed of the day — a new piece every day, the same one for everyone';
+      b.setAttribute('aria-label', 'Load the seed of the day for ' + piece.date);
+      var t = document.createElement('b'); t.textContent = 'Seed of the day';
+      var d = document.createElement('span'); d.textContent = piece.date;
+      b.appendChild(t); b.appendChild(d);
+      b.addEventListener('click', function(){ loadPiece(hash, 'Seed of the day'); });
+      strip.insertBefore(b, strip.firstChild);
+    })
+    .catch(function(){});
+}
 initStrip('exploreStrip', 'expPrev', 'expNext');
 initStrip('recentStrip', 'recPrev', 'recNext');
 initStrip('savedStrip', 'savPrev', 'savNext');
+/* ---------- tray height feedback: the artwork leaves room for the shelf ----------
+   .stageInner budgets the card from the stage height, and the tray is a third row in that
+   column — its height has to come out of the same budget or a square piece pushes the shelf
+   off the bottom. Measured, not assumed: the tray is a different height per tab and when
+   collapsed. The last-value guard matters because writing the property resizes the card,
+   which can resize the tray, which would otherwise re-fire the observer forever. */
+(function trayHeightFeedback(){
+  var tray = document.getElementById('stageTray');
+  var stage = document.querySelector('.stage');
+  if (!tray || !stage){ return; }
+  var lastH = -1;
+  function sync(){
+    var h = tray.offsetHeight;
+    var v = h ? h + 8 : 0;                 /* + the column gap the tray sits behind */
+    if (v === lastH){ return; }
+    lastH = v;
+    stage.style.setProperty('--trayH', v + 'px');
+  }
+  if (window.ResizeObserver){ new ResizeObserver(sync).observe(tray); }
+  window.addEventListener('resize', sync);
+  sync();
+})();
 /* ---------- stage tray behaviour: tab switching and collapse ---------- */
 (function initTray(){
   var tray = document.getElementById('stageTray');
@@ -4357,6 +4421,7 @@ initStrip('savedStrip', 'savPrev', 'savNext');
     /* Saved is the one shelf another surface can change behind your back (the Save chip and
        the dock both write it), so it is rebuilt on open rather than trusted to be current */
     if (which === 'saved' && typeof renderSavedStrip === 'function'){ renderSavedStrip(); }
+    if (which === 'explore'){ loadTodayTile(); }
     /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
     if (which !== 'layers'){ window.dispatchEvent(new Event('resize')); }
     try { localStorage.setItem('fluid:tray', which); } catch(e){}

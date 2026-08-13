@@ -53,6 +53,59 @@ function expandColors(cols){
   return [cols[0], mixHex(cols[0], cols[1], 2 / 3), mixHex(cols[1], cols[2], 1 / 3), cols[2]];
 }
 
+/* ---------- seed of the day ----------
+   One piece per UTC day, the same piece for everyone, derived from the date alone — no
+   storage, no cron, no drift between edge locations. Two machines asking on the same day
+   get byte-identical hashes because nothing here reads a clock beyond the date string.
+
+   It varies a CURATED look rather than rolling parameters from scratch. The 41 looks exist
+   precisely because uniform-random parameters are usually ugly; starting from one and
+   moving seed, palette and lens keeps every day worth looking at while still giving
+   41 x 8 x 13 distinct days before anything repeats. */
+function dayKey(now){
+  return new Date(now).toISOString().slice(0, 10);      /* YYYY-MM-DD, always UTC */
+}
+/* FNV-1a over the date string: tiny, dependency-free, and stable across runtimes —
+   Math.random() and Date.now() would both break the "same piece for everyone" promise. */
+function dayHash(key){
+  var h = 2166136261;
+  for (var i = 0; i < key.length; i++){
+    h ^= key.charCodeAt(i);
+    h = (h + (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24)) >>> 0;
+  }
+  return h >>> 0;
+}
+/* successive independent draws from one 32-bit seed (xorshift32) */
+function dayRng(seed){
+  var s = seed || 1;
+  return function(n){
+    s ^= s << 13; s >>>= 0;
+    s ^= s >>> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s % n;
+  };
+}
+function todayPiece(base, key){
+  key = key || dayKey(Date.now());
+  var pick = dayRng(dayHash(key));
+  var names = Object.keys(LOOKS).sort();          /* sorted: key order must not decide the day */
+  var look = names[pick(names.length)];
+  /* 3..92 is buildPiece's own clamp range — drawing outside it would pile days onto the ends */
+  var input = { look: look, seed: 3 + pick(90) };
+  /* two thirds of days recolour, half apply a lens — some days stay close to the look so
+     the curated originals still surface */
+  if (pick(3) > 0){ input.palette = PALETTES[pick(PALETTES.length)]; }
+  if (pick(2) === 0){ input.lens = LENSES[1 + pick(LENSES.length - 1)]; input.lensAmount = (40 + pick(61)) / 100; }
+  var piece = buildPiece(input, base);
+  piece.date = key;
+  piece.look = look;
+  piece.title = 'Fluid — seed of the day, ' + key;
+  piece.permalink = base + '/today';
+  piece.notes = 'One piece per UTC day, identical for every visitor, derived from the date alone. ' +
+    'It changes at 00:00 UTC. share_url opens it in the studio, where it can be remixed like any other piece.';
+  return piece;
+}
+
 function buildPiece(input, base){
   input = input || {};
   base = base || BASE;
@@ -333,8 +386,10 @@ function llmsTxt(base){
     '  - claude.ai (web / desktop / mobile): Settings -> Connectors -> Add custom connector -> paste ' + base + '/mcp',
     '  - Tools: `create_piece` (design from params, a look, or 2-4 brand hex colours -> share_url + embed code),',
     '    `get_embed_code` (share_url -> copy-paste native <fluid-bg> / React / iframe snippets),',
-    '    `list_looks` (curated starting points), `decode_link` (share URL -> named params, for remixing).',
+    '    `list_looks` (curated starting points), `get_seed_of_the_day` (the day\'s piece),',
+    '    `decode_link` (share URL -> named params, for remixing).',
     '- REST, same generator as plain JSON: GET ' + base + '/api/piece?look=…&field=…&colors=… and GET ' + base + '/api/looks',
+    '- Seed of the day: ' + base + '/today opens one piece per UTC day, the same for everyone; GET ' + base + '/api/today returns it as JSON (?date=YYYY-MM-DD replays any day). Derived from the date alone — no storage, and yesterday stays reproducible.',
     '- Human docs: ' + base + '/dev (integration) and ' + base + '/manual (studio manual); gallery: ' + base + '/gallery',
     '',
     '## Embed on a site (fluid-bg)',
@@ -433,6 +488,14 @@ var TOOLS = [
     inputSchema: { type: 'object', properties: {} }
   },
   {
+    name: 'get_seed_of_the_day',
+    description: "Get Fluid's piece of the day: one design per UTC day, identical for every visitor, derived from the date alone. Returns share_url, embed code and the params, so it can be embedded or remixed like any other piece.",
+    inputSchema: {
+      type: 'object',
+      properties: { date: { type: 'string', description: 'YYYY-MM-DD to replay a past or future day; omit for today' } }
+    }
+  },
+  {
     name: 'decode_link',
     description: 'Decode a Fluid share/embed URL into named parameters (for remixing).',
     inputSchema: {
@@ -447,6 +510,11 @@ function callTool(name, args, base){
   if (name === 'create_piece'){ return buildPiece(args, base); }
   if (name === 'get_embed_code'){ return embedCode(args, base); }
   if (name === 'list_looks'){ return { looks: looksList(base) }; }
+  if (name === 'get_seed_of_the_day'){
+    var d = args && args.date;
+    if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)){ throw new Error('date must be YYYY-MM-DD'); }
+    return todayPiece(base, d || undefined);
+  }
   if (name === 'decode_link'){ return decodeLink(args && args.url); }
   throw new Error('unknown tool: ' + name);
 }
@@ -585,6 +653,13 @@ function api(req, url){
   var base = url.origin;
   if (req.method === 'OPTIONS'){ return new Response(null, { status: 204, headers: CORS }); }
   if (url.pathname === '/api/looks'){ return json({ looks: looksList(base) }); }
+  if (url.pathname === '/api/today'){
+    /* ?date=YYYY-MM-DD replays any day — the algorithm is pure, so yesterday is still
+       reproducible and a test can pin a fixed date instead of racing the clock */
+    var d = url.searchParams.get('date');
+    if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)){ return json({ error: 'date must be YYYY-MM-DD' }, 400); }
+    return json(todayPiece(base, d || undefined));
+  }
   if (url.pathname === '/api/piece'){
     var q = url.searchParams;
     var input = {};
@@ -604,6 +679,8 @@ function api(req, url){
     endpoints: {
       'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish, lens, lensAmount',
       'GET /api/looks': 'curated looks with links',
+      'GET /api/today': "the day's piece as JSON; ?date=YYYY-MM-DD replays any other day",
+      'GET /today': "permalink that opens the day's piece in the studio",
       'POST /mcp': 'MCP server — claude mcp add --transport http fluid ' + base + '/mcp (or add as a claude.ai custom connector)',
       'GET /llms.txt': 'agent-readable site guide'
     },
@@ -668,6 +745,23 @@ function fluidFavicon(){
   });
 }
 
+/* /today is a permalink, not a page: it sends you into the studio on the day's piece, where
+   every existing control already works on it. 302 rather than 301 — the target changes at
+   00:00 UTC and a permanent redirect would stick in browser caches for good. The response
+   is deliberately uncacheable past the current day for the same reason. */
+function todayRedirect(url){
+  var piece = todayPiece(url.origin);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: piece.share_url,
+      'cache-control': 'public, max-age=300',
+      'x-fluid-day': piece.date,
+      'x-fluid-look': piece.look
+    }
+  });
+}
+
 export default {
   async fetch(req, env){
     var url = new URL(req.url);
@@ -678,6 +772,7 @@ export default {
     else if (url.pathname === '/favicon.ico'){
       resp = fluidFavicon();
     }
+    else if (url.pathname === '/today' || url.pathname === '/today/'){ resp = todayRedirect(url); }
     else if (url.pathname === '/api' || url.pathname.indexOf('/api/') === 0){ resp = await api(req, url); }
     else { resp = await env.ASSETS.fetch(req); }
     resp = withSec(resp);

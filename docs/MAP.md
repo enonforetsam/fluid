@@ -101,6 +101,8 @@ Zones, in file order:
 | field picker | engine selection, its status copy and the per-engine tuning it applies | `---------- field picker:` |
 | picker strips | arrow nudges, edge fades, and keeping each strip's active tile in view | `---------- picker strips:` |
 | explore shelf | curated pieces from /gallery, one tap to load and remix | `---------- explore shelf:` |
+| seed of the day tile | the one piece everyone sees today | `---------- seed of the day tile:` |
+| tray height feedback | the artwork leaves room for the shelf | `---------- tray height feedback:` |
 | stage tray behaviour | tab switching and collapse | `---------- stage tray behaviour:` |
 | theme picker | metal (default) plus carbon, phosphor, paper and neon | `---------- theme picker:` |
 | math lens UI | the lens strip, its amount slider and the per-lens status copy | `---------- math lens UI:` |
@@ -164,5 +166,5 @@ Zones, in file order:
 
 ---
 
-116 sections. Anything unbannered is a gap in the map: add a banner in the
+118 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
