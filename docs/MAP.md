@@ -39,6 +39,7 @@ Zones, in file order:
 | canvas chips | the control bar over the artwork, shuffle through record | `---------- canvas chips:` |
 | before/after overlay | the draggable split that reveals the untouched source | `---------- before/after overlay:` |
 | docks | canvas-anchored popovers for saved designs, embed code and the cursor picker | `---------- docks:` |
+| stage tray styles | the tabbed shelf under the artwork | `---------- stage tray styles:` |
 | embed mode | the chrome-less iframe layout, canvas only, filling any aspect | `---------- embed mode:` |
 | panel sections | the numbered blocks, their collapse animation and the per-section info tip | `---------- panel sections:` |
 | controls | swatches, text fields, font chips, export rows and the raw range inputs | `---------- controls:` |
@@ -56,6 +57,7 @@ Zones, in file order:
 | Section | Purpose | Anchor |
 | --- | --- | --- |
 | stage markup | glow canvas, the chip bar with its docks, and the card the artwork sits in | `---------- stage markup:` |
+| stage tray markup | the tabbed shelf docked under the artwork | `---------- stage tray markup:` |
 | panel markup | header, status line, theme dots and the scrolling list of edit sections | `---------- panel markup:` |
 | Templates section | one-tap curated looks, collapsed until opened | `---------- Templates section:` |
 | Source section | an optional photo, camera frame or drop melted into the field | `---------- Source section:` |
@@ -88,6 +90,7 @@ Zones, in file order:
 | animation loop | accumulated time, never wall clock, plus on-demand repainting | `---------- animation loop:` |
 | sliders | bind a range input to a state key, with a live readout and persistence | `---------- sliders:` |
 | layers UI | pick the second engine, its blend mode and its strength | `---------- layers UI:` |
+| layer stack | the visible list of what's composited, with per-layer removal | `---------- layer stack:` |
 | text controls | the word field and its clear button | `---------- text controls:` |
 | logo upload | the image's silhouette becomes the mask, same path as text | `---------- logo upload:` |
 | mask background | a solid colour or a vertical gradient behind the masked text or logo | `---------- mask background:` |
@@ -97,6 +100,8 @@ Zones, in file order:
 | custom gradient | derive the 4 shader stops from 2 or 3 colours the user picked | `---------- custom gradient:` |
 | field picker | engine selection, its status copy and the per-engine tuning it applies | `---------- field picker:` |
 | picker strips | arrow nudges, edge fades, and keeping each strip's active tile in view | `---------- picker strips:` |
+| explore shelf | curated pieces from /gallery, one tap to load and remix | `---------- explore shelf:` |
+| stage tray behaviour | tab switching and collapse | `---------- stage tray behaviour:` |
 | theme picker | metal (default) plus carbon, phosphor, paper and neon | `---------- theme picker:` |
 | math lens UI | the lens strip, its amount slider and the per-lens status copy | `---------- math lens UI:` |
 | cursor impact | how hard the pointer pushes the field, remembered per mode | `---------- cursor impact:` |
@@ -154,5 +159,5 @@ Zones, in file order:
 
 ---
 
-106 sections. Anything unbannered is a gap in the map: add a banner in the
+111 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

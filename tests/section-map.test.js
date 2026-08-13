@@ -37,6 +37,7 @@ const SECTIONS = [
   'canvas chips',
   'before/after overlay',
   'docks',
+  'stage tray styles',
   'embed mode',
   'panel sections',
   'controls',
@@ -50,6 +51,7 @@ const SECTIONS = [
   'per-theme dial rings, pucks and the aspect slider',
   /* markup */
   'stage markup',
+  'stage tray markup',
   'panel markup',
   'Templates section',
   'Source section',
@@ -90,6 +92,7 @@ const SECTIONS = [
   /* js: control wiring */
   'sliders',
   'layers UI',
+  'layer stack',
   'text controls',
   'logo upload',
   'mask background',
@@ -99,6 +102,8 @@ const SECTIONS = [
   'custom gradient',
   'field picker',
   'picker strips',
+  'explore shelf',
+  'stage tray behaviour',
   'theme picker',
   'math lens UI',
   'cursor impact',

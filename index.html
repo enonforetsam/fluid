@@ -267,6 +267,69 @@
   #copyEmbed{margin-top:8px;width:100%}
   .embedTabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
   .layerSel{flex:1;min-width:0;font-family:inherit;font-size:11px;color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;cursor:pointer}
+  /* the layer stack: one chip per composited engine, base first (left to right) */
+  .layerStack{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .layerRow{display:inline-flex;align-items:center;gap:7px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04)}
+  .layerRow.base{opacity:.7}
+  .layerNum{flex:0 0 auto;font-size:8px;letter-spacing:.08em;color:var(--soft);border:1px solid var(--line);border-radius:4px;padding:2px 5px}
+  .layerName{flex:1;min-width:0;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .layerMeta{flex:0 0 auto;font-size:9px;letter-spacing:.05em;color:var(--soft)}
+  button.layerX{flex:0 0 auto;padding:3px 7px;font-size:12px;line-height:1;letter-spacing:0;background-image:none;box-shadow:none;border:1px solid var(--line);color:var(--soft);text-shadow:none}
+  button.layerX:hover{color:var(--ink);background-image:none;box-shadow:none}
+  button.layerAdd{flex:0 0 auto;padding:6px 10px;font-size:9px;letter-spacing:.1em}
+
+  /* ---------- stage tray styles: the tabbed shelf under the artwork ---------- */
+  #stageTray{
+    display:flex;flex-direction:column;
+    border:1px solid rgba(255,255,255,.09);border-radius:10px;
+    background:rgba(10,10,14,.55);overflow:hidden;
+  }
+  html.embed #stageTray{display:none !important}
+  .trayTabs{display:flex;align-items:center;gap:4px;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.07)}
+  #stageTray.collapsed .trayTabs{border-bottom:0}
+  #stageTray.collapsed .trayBody{display:none}
+  button.trayTab{
+    padding:5px 11px;font-size:9px;letter-spacing:.12em;
+    background-image:none;box-shadow:none;border:1px solid transparent;
+    background-color:transparent;color:rgba(232,232,228,.55);text-shadow:none;border-radius:6px;
+  }
+  button.trayTab:hover{background-image:none;box-shadow:none;color:#e8e8e4}
+  button.trayTab.on{background-color:rgba(255,255,255,.10);border-color:rgba(255,255,255,.14);color:#e8e8e4}
+  /* stays readable when the tray is collapsed or Explore is open — a shuffle that adds a
+     layer has to be visible without hunting for it */
+  .tabBadge{margin-left:6px;padding:1px 5px;border-radius:8px;font-size:8px;background:#e8e8e4;color:#101114}
+  .tabBadge[hidden]{display:none}
+  #trayToggle{
+    margin-left:auto;padding:3px 9px;font-size:12px;line-height:1;letter-spacing:0;
+    background-image:none;box-shadow:none;background-color:transparent;
+    border:1px solid rgba(255,255,255,.12);color:rgba(232,232,228,.6);text-shadow:none;
+  }
+  #trayToggle:hover{background-image:none;box-shadow:none;color:#e8e8e4}
+  .trayBody{padding:8px}
+  .trayPane[hidden]{display:none !important}   /* beats the pane's own display (.layerStack is flex) */
+  #trayLayers{--ink:#e8e8e4;--soft:rgba(232,232,228,.55);--line:rgba(232,232,228,.16);--ink-c:#101114}
+  #trayExplore{display:flex;align-items:center;gap:5px}
+  .expStrip{
+    display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+    scrollbar-width:none;-ms-overflow-style:none;flex:1;min-width:0;
+  }
+  .expStrip::-webkit-scrollbar{display:none}
+  .expTile{
+    flex:0 0 auto;width:104px;padding:0;border-radius:7px;overflow:hidden;position:relative;
+    border:1px solid rgba(255,255,255,.12);background:#06060a;cursor:pointer;
+    background-image:none;box-shadow:none;text-shadow:none;scroll-snap-align:start;
+  }
+  .expTile img{display:block;width:104px;height:59px;object-fit:cover}
+  .expTile span{
+    display:block;padding:3px 5px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;
+    color:rgba(232,232,228,.72);background:rgba(6,6,10,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .expTile:hover{background-image:none;box-shadow:0 3px 10px rgba(0,0,0,.5);border-color:rgba(255,255,255,.3)}
+  .expTile:hover span{color:#e8e8e4}
+  @media (max-width:900px){
+    .expTile,.expTile img{width:88px}
+    .expTile img{height:50px}
+  }
   .embedTab{
     flex:1;font-family:inherit;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
     color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:6px;
@@ -1198,6 +1261,23 @@
           </div>
         </div>
       </div>
+
+      <!-- ---------- stage tray markup: the tabbed shelf docked under the artwork ---------- -->
+      <div id="stageTray">
+        <div class="trayTabs" role="tablist" aria-label="Under the artwork">
+          <button class="trayTab on" type="button" data-tray="layers" role="tab" aria-selected="true">Layers<span id="layerCount" class="tabBadge" hidden>2</span></button>
+          <button class="trayTab" type="button" data-tray="explore" role="tab" aria-selected="false">Explore</button>
+          <button id="trayToggle" type="button" aria-label="Collapse tray" aria-expanded="true" title="Collapse">&minus;</button>
+        </div>
+        <div class="trayBody">
+          <div id="trayLayers" class="trayPane" role="tabpanel" aria-label="Layers"></div>
+          <div id="trayExplore" class="trayPane" role="tabpanel" aria-label="Explore" hidden>
+            <button id="expPrev" class="stripBtn" aria-label="Scroll gallery left">&#8249;</button>
+            <div class="expStrip" id="exploreStrip"></div>
+            <button id="expNext" class="stripBtn" aria-label="Scroll gallery right">&#8250;</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1437,31 +1517,11 @@
   <!-- ---------- Layers section: a second engine and the blend mode compositing it ---------- -->
   <section>
     <div class="sec-title">Layers — blend a 2nd engine</div>
+    <!-- the visible stack lives in the tray under the artwork (#trayLayers) -->
     <div class="row gap">
-      <select id="field2Sel" class="layerSel" aria-label="Second engine">
-        <option value="0">Noise</option>
-        <option value="1">Flow</option>
-        <option value="2">Cellular</option>
-        <option value="3">Gyroid</option>
-        <option value="4">Truchet</option>
-        <option value="5">Interfere</option>
-        <option value="6">Kaleido</option>
-        <option value="7">Lines</option>
-        <option value="8">Grid</option>
-        <option value="9">Golden</option>
-        <option value="10">Smoke</option>
-        <option value="11">Crystal</option>
-        <option value="12">Honeycomb</option>
-        <option value="13">Bloom</option>
-        <option value="14">Sweep</option>
-        <option value="15">Marble</option>
-        <option value="16">Plaid</option>
-        <option value="17">Curtain</option>
-        <option value="18">Stitch</option>
-        <option value="19">Pursuit</option>
-        <option value="20">Chladni</option>
-        <option value="21">Cassini</option>
-      </select>
+      <!-- options are generated from the field picker at boot — a new engine can never
+           go missing here the way Topo did -->
+      <select id="field2Sel" class="layerSel" aria-label="Second engine"></select>
       <select id="blendSel" class="layerSel" aria-label="Blend mode">
         <option value="0">Normal</option>
         <option value="1">Multiply</option>
@@ -1478,8 +1538,7 @@
         <input id="layerMix" type="range" min="0" max="1" step="0.02" value="0">
       </div>
     </div>
-    <button id="layerOffBtn" type="button" style="margin-top:6px;width:100%">Remove 2nd layer</button>
-    <p class="cnote" style="margin:8px 0 0">Mix 0 = single engine. Raise it to composite the 2nd engine over the 1st — try Multiply or Screen.</p>
+    <p class="cnote" style="margin:8px 0 0">Mix 0 = single engine. Raise it to composite the 2nd engine over the 1st — try Multiply or Screen. Remove a layer with the ✕ on its row.</p>
   </section>
 
   <!-- ---------- Surface section: screen geometry, material finish and the halftone/dither knobs ---------- -->
@@ -3446,6 +3505,8 @@ function bindSlider(id, key, fmt){
     out.value = fmt ? fmt(state[key]) : el.value;
     /* liquify/blend are source-domain — they don't drop the look */
     if (key !== 'liq' && key !== 'mix'){ markLook(null); }
+    /* the layer row appears/disappears as mix crosses zero, and shows the live % */
+    if (key === 'layerMix'){ renderLayerStack(); }
     requestRender();
   }
   /* native path — keyboard arrows (and a fallback if pointer events are unavailable) */
@@ -3497,10 +3558,82 @@ bindSlider('layerMix', 'layerMix');
 /* ---------- layers UI: pick the second engine, its blend mode and its strength ---------- */
 var field2Sel = document.getElementById('field2Sel');
 var blendSel = document.getElementById('blendSel');
-if (field2Sel){ field2Sel.addEventListener('change', function(){ state.field2 = parseInt(field2Sel.value, 10) || 0; markLook(null); requestRender(); persist(); }); }
-if (blendSel){ blendSel.addEventListener('change', function(){ state.blend = parseInt(blendSel.value, 10) || 0; markLook(null); requestRender(); persist(); }); }
-var layerOffBtn = document.getElementById('layerOffBtn');
-if (layerOffBtn){ layerOffBtn.addEventListener('click', function(){ state.field2 = 0; state.blend = 0; state.layerMix = 0; markLook(null); syncControls(); requestRender(); persist(); setStatus('LAYER REMOVED — back to a single engine'); }); }
+/* the 2nd-engine list mirrors the field picker exactly, so adding an engine can never
+   leave it missing here (Topo was, for one release) */
+if (field2Sel){
+  var fbtns = document.querySelectorAll('.fieldBtn[data-field]');
+  for (var fbi = 0; fbi < fbtns.length; fbi++){
+    var opt = document.createElement('option');
+    opt.value = fbtns[fbi].getAttribute('data-field');
+    opt.textContent = (fbtns[fbi].title || fbtns[fbi].textContent || '').trim();
+    field2Sel.appendChild(opt);
+  }
+}
+if (field2Sel){ field2Sel.addEventListener('change', function(){ state.field2 = parseInt(field2Sel.value, 10) || 0; markLook(null); syncControls(); requestRender(); persist(); }); }
+if (blendSel){ blendSel.addEventListener('change', function(){ state.blend = parseInt(blendSel.value, 10) || 0; markLook(null); syncControls(); requestRender(); persist(); }); }
+/* ---------- layer stack: the visible list of what's composited, with per-layer removal ---------- */
+var layerStack = document.getElementById('trayLayers');
+function engineLabel(i){
+  var b = document.querySelector('.fieldBtn[data-field="' + Math.round(i || 0) + '"]');
+  return b ? (b.title || b.textContent || '').trim() : 'Engine ' + i;
+}
+function blendLabel(i){
+  var o = blendSel ? blendSel.options[Math.round(i || 0)] : null;
+  return o ? o.textContent : 'Normal';
+}
+function removeSecondLayer(){
+  state.field2 = 0; state.blend = 0; state.layerMix = 0;
+  markLook(null); syncControls(); requestRender(); persist();
+  setStatus('LAYER REMOVED — back to a single engine');
+}
+/* start a 2nd layer with a readable default: a different engine, screen blend, mid mix */
+function addSecondLayer(){
+  /* draw from the generated <select>, never a hardcoded count — same reason the list itself
+     is generated: a new engine has to be reachable here the day it lands */
+  var opts = field2Sel ? field2Sel.options : null;
+  var n = state.field;
+  if (!opts || opts.length < 2){ return; }
+  do { n = parseInt(opts[Math.floor(Math.random() * opts.length)].value, 10) || 0; } while (n === state.field);
+  state.field2 = n; state.blend = 2; state.layerMix = 0.45;
+  markLook(null); syncControls(); requestRender(); persist();
+  setStatus('LAYER ADDED — ' + engineLabel(n).toUpperCase() + ' on screen blend; tune it in the panel');
+}
+function renderLayerStack(){
+  if (!layerStack){ return; }
+  layerStack.className = 'trayPane layerStack';   /* keep trayPane — the tab hide rule keys off it */
+  while (layerStack.firstChild){ layerStack.removeChild(layerStack.firstChild); }
+  var on = (state.layerMix || 0) > 0.001;
+  function addRow(num, name, meta, removable){
+    var r = document.createElement('div');
+    r.className = 'layerRow' + (removable ? '' : ' base');
+    var n = document.createElement('span'); n.className = 'layerNum'; n.textContent = num;
+    var nm = document.createElement('span'); nm.className = 'layerName'; nm.textContent = name;
+    r.appendChild(n); r.appendChild(nm);
+    if (meta){ var m = document.createElement('span'); m.className = 'layerMeta'; m.textContent = meta; r.appendChild(m); }
+    if (removable){
+      var x = document.createElement('button');
+      x.type = 'button'; x.className = 'layerX'; x.textContent = '×';
+      x.title = 'Remove this layer'; x.setAttribute('aria-label', 'Remove layer 2');
+      x.addEventListener('click', removeSecondLayer);
+      r.appendChild(x);
+    }
+    layerStack.appendChild(r);
+  }
+  /* the tab badge reports the stack even when the tray is collapsed or Explore is open */
+  var badge = document.getElementById('layerCount');
+  if (badge){ badge.hidden = !on; badge.textContent = '2'; }
+  /* base first, left to right — the tray reads like a filmstrip, not a sidebar */
+  addRow('1', engineLabel(state.field), 'base', false);
+  if (on){
+    addRow('2', engineLabel(state.field2), blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', true);
+  } else {
+    var add = document.createElement('button');
+    add.type = 'button'; add.className = 'layerAdd'; add.textContent = '+ Layer';
+    add.title = 'Blend a 2nd engine over this one';
+    add.addEventListener('click', addSecondLayer);
+    layerStack.appendChild(add);
+  }
+}
 bindSlider('pixel', 'pixel');
 bindSlider('dot', 'dot');
 bindSlider('thresh', 'thresh');
@@ -3736,6 +3869,7 @@ function syncControls(){
   if (typeof refreshKnobs === 'function'){ refreshKnobs(); }
   if (field2Sel){ field2Sel.value = String(state.field2 || 0); }
   if (blendSel){ blendSel.value = String(state.blend || 0); }
+  renderLayerStack();
   var dotsBtn = document.getElementById('dotsBtn');
   dotsBtn.className = 'fieldBtn' + (state.dots ? ' on' : '');
   dotsBtn.setAttribute('aria-pressed', state.dots ? 'true' : 'false');
@@ -4040,6 +4174,108 @@ initStrip('palStrip', 'palPrev', 'palNext');
 initStrip('cursorGrid', 'curPrev', 'curNext');
 initStrip('screenStrip', 'scrPrev', 'scrNext');
 initStrip('matStrip', 'matPrev', 'matNext');
+/* ---------- explore shelf: curated pieces from /gallery, one tap to load and remix.
+   [id, hash] only — the display name is derived from the id, and tests/gallery-sync
+   pins every entry against gallery.html so the two shelves can never drift. ---------- */
+var EXPLORE = [
+  ['polar-drift', '#p=0.4,2,4,0.03,1,10,0,0,30,0,0,1.7778'],
+  ['sundown', '#p=0.4,1.8,4.5,0.03,1,10,0,1,21,0,0,1.7778'],
+  ['deep-current', '#p=0.4,2.2,3.5,0.03,1,10,0,2,48,0,0,1.7778'],
+  ['nightfall', '#p=0.4,2.3,3,0.03,1,10,0,3,12,0,0,1.7778'],
+  ['smoke', '#p=0.5,1.4,5,0.03,1,10,0,7,66,0,0,1.7778,0,0,1'],
+  ['lagoon', '#p=0.5,1.5,5,0.03,1,10,0,2,40,0,0,1.7778,0,0,1'],
+  ['solar-wind', '#p=0.5,1.6,4.5,0.03,1,10,0,4,52,0,0,1.7778,0,0,1'],
+  ['aurora-flow', '#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778,0,0,1'],
+  ['crystal', '#p=0.4,1.9,7,0.03,1,10,0,6,40,0,0,1.7778,0,0,2'],
+  ['mosaic', '#p=0.4,1.8,6.5,0.03,1,10,0,5,33,0,0,1.7778,0,0,2'],
+  ['magma-cells', '#p=0.4,1.9,8,0.03,1,10,0,4,60,0,0,1.7778,0,0,2'],
+  ['onyx-cells', '#p=0.4,1.9,7.5,0.03,1,10,0,7,25,0,0,1.7778,0,0,2'],
+  ['lattice', '#p=0.4,1.6,5,0.03,1,10,0,5,40,0,0,1.7778,0,0,3'],
+  ['ribbon', '#p=0.4,1.6,4.5,0.03,1,10,0,0,28,0,0,1.7778,0,0,3'],
+  ['marble-vein', '#p=0.4,1.5,5.5,0.03,1,10,0,7,51,0,0,1.7778,0,0,3'],
+  ['dusk-weave', '#p=0.4,1.7,4,0.03,1,10,0,3,14,0,0,1.7778,0,0,3'],
+  ['maze', '#p=0.4,2,4,0.03,1,10,0,7,22,0,0,1.7778,0,0,4,0,0,0,1,6'],
+  ['labyrinth', '#p=0.4,2,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,4,0,0,0,1,6'],
+  ['wiring', '#p=0.4,1.8,3.5,0.03,1,10,0,4,44,0,0,1.7778,0,0,4'],
+  ['moire', '#p=0.5,1.4,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,5'],
+  ['sonar', '#p=0.5,1.4,4,0.03,1,10,0,5,18,0,0,1.7778,0,0,5'],
+  ['pulse', '#p=0.5,1.4,6,0.03,1,10,0,6,52,0,0,1.7778,0,0,5'],
+  ['rosette', '#p=0.4,1.5,6,0.03,1,10,0,6,55,0,0,1.7778,0,0,6'],
+  ['bloom', '#p=0.4,1.5,5,0.03,1,10,0,1,33,0,0,1.7778,0,0,6'],
+  ['stained-glass', '#p=0.4,1.6,7,0.03,1,10,0,0,40,0,0,1.7778,0,0,6'],
+  ['halo', '#p=0.4,1.5,4,0.03,1,10,0,5,61,0,0,1.7778,0,0,6'],
+  ['tide-tile', '#p=0.4,2,3,0.03,1,10,0,2,25,0,0,1.7778,0,0,0,0,0,0,1,6'],
+  ['frost-tile', '#p=0.4,1.9,6,0.03,1,10,0,5,40,0,0,1.7778,0,0,2,0,0,0,1,6']
+];
+function exploreName(id){
+  return id.replace(/-tile$/, '').split('-').map(function(w){
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+function loadPiece(hash, name){
+  if (!parseHash(hash)){ setStatus('ERR — that piece could not be loaded'); return; }
+  resetCustomMode();
+  applyAspect();
+  syncControls();
+  requestRender();
+  persist();
+  setStatus(name.toUpperCase() + ' LOADED — remix it, it is yours now');
+}
+(function buildExplore(){
+  var strip = document.getElementById('exploreStrip');
+  if (!strip){ return; }
+  for (var i = 0; i < EXPLORE.length; i++){
+    (function(entry){
+      var name = exploreName(entry[0]);
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'expTile'; b.title = name + ' — tap to load and remix';
+      var img = document.createElement('img');
+      img.src = 'assets/gallery/x-' + entry[0] + '.jpg';
+      img.alt = name; img.loading = 'lazy'; img.decoding = 'async';
+      var cap = document.createElement('span'); cap.textContent = name;
+      b.appendChild(img); b.appendChild(cap);
+      b.addEventListener('click', function(){ loadPiece(entry[1], name); });
+      strip.appendChild(b);
+    })(EXPLORE[i]);
+  }
+})();
+initStrip('exploreStrip', 'expPrev', 'expNext');
+/* ---------- stage tray behaviour: tab switching and collapse ---------- */
+(function initTray(){
+  var tray = document.getElementById('stageTray');
+  if (!tray){ return; }
+  var tabs = tray.querySelectorAll('.trayTab');
+  var panes = { layers: document.getElementById('trayLayers'), explore: document.getElementById('trayExplore') };
+  function showPane(which){
+    for (var i = 0; i < tabs.length; i++){
+      var on = tabs[i].getAttribute('data-tray') === which;
+      tabs[i].classList.toggle('on', on);
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    for (var k in panes){ if (panes[k]){ panes[k].hidden = (k !== which); } }
+    tray.classList.remove('collapsed');
+    /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
+    if (which === 'explore'){ window.dispatchEvent(new Event('resize')); }
+    try { localStorage.setItem('fluid:tray', which); } catch(e){}
+  }
+  for (var i = 0; i < tabs.length; i++){
+    (function(b){ b.addEventListener('click', function(){ showPane(b.getAttribute('data-tray')); }); })(tabs[i]);
+  }
+  var toggle = document.getElementById('trayToggle');
+  if (toggle){
+    toggle.addEventListener('click', function(){
+      var col = tray.classList.toggle('collapsed');
+      toggle.textContent = col ? '+' : '−';
+      toggle.setAttribute('aria-expanded', col ? 'false' : 'true');
+      toggle.setAttribute('aria-label', col ? 'Expand tray' : 'Collapse tray');
+      try { localStorage.setItem('fluid:trayOpen', col ? '0' : '1'); } catch(e){}
+    });
+  }
+  var saved = null, open = '1';
+  try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen') || '1'; } catch(e){}
+  showPane(saved === 'explore' ? 'explore' : 'layers');
+  if (open === '0' && toggle){ toggle.click(); }
+})();
 /* ---------- theme picker: metal (default) plus carbon, phosphor, paper and neon ----------
    Personal preference: localStorage only, never in the share hash; the head script pre-applies it. */
 var THEME_NAMES = ['metal', 'carbon', 'phosphor', 'paper', 'neon'];
