@@ -267,15 +267,29 @@
   #copyEmbed{margin-top:8px;width:100%}
   .embedTabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
   .layerSel{flex:1;min-width:0;font-family:inherit;font-size:11px;color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;cursor:pointer}
-  /* the layer stack: one chip per composited engine, base first (left to right) */
+  /* the layer stack: one chip per composited engine, base first (left to right).
+     A row is two controls in one shell — the body jumps to the panel section that owns
+     the layer, the x removes it — so the shell draws the border and they split it. */
   .layerStack{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-  .layerRow{display:inline-flex;align-items:center;gap:7px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04)}
-  .layerRow.base{opacity:.7}
+  .layerRow{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04);overflow:hidden}
+  .layerRow.base{opacity:.75}
+  .layerRow:hover{border-color:rgba(232,232,228,.34)}
+  .layerRow.base:hover{opacity:1}
+  button.layerGo{
+    flex:1;min-width:0;display:inline-flex;align-items:center;gap:7px;padding:6px 8px;
+    background-image:none;box-shadow:none;background-color:transparent;border:0;
+    color:var(--ink);text-shadow:none;letter-spacing:0;text-align:left;
+  }
+  button.layerGo:hover{background-image:none;box-shadow:none;background-color:rgba(255,255,255,.07)}
   .layerNum{flex:0 0 auto;font-size:8px;letter-spacing:.08em;color:var(--soft);border:1px solid var(--line);border-radius:4px;padding:2px 5px}
   .layerName{flex:1;min-width:0;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .layerMeta{flex:0 0 auto;font-size:9px;letter-spacing:.05em;color:var(--soft)}
-  button.layerX{flex:0 0 auto;padding:3px 7px;font-size:12px;line-height:1;letter-spacing:0;background-image:none;box-shadow:none;border:1px solid var(--line);color:var(--soft);text-shadow:none}
-  button.layerX:hover{color:var(--ink);background-image:none;box-shadow:none}
+  button.layerX{
+    flex:0 0 auto;padding:3px 8px;font-size:12px;line-height:1;letter-spacing:0;
+    background-image:none;box-shadow:none;background-color:transparent;
+    border:0;border-left:1px solid var(--line);color:var(--soft);text-shadow:none;
+  }
+  button.layerX:hover{color:var(--ink);background-image:none;box-shadow:none;background-color:rgba(255,255,255,.10)}
   button.layerAdd{flex:0 0 auto;padding:6px 10px;font-size:9px;letter-spacing:.1em}
 
   /* ---------- stage tray styles: the tabbed shelf under the artwork ---------- */
@@ -422,6 +436,11 @@
   .sec-title{transition:margin-bottom .32s ease}
   section.collapsed .sec-title{margin-bottom:0}
   @media(prefers-reduced-motion:reduce){.sec-body,.sec-inner,.sec-title{transition:none}}
+  /* a tray row jumps here — the flash says which section it landed on, since a scroll into
+     an already-open panel is otherwise silent */
+  @keyframes secFlash{from{background-color:rgba(120,120,120,.20)} to{background-color:transparent}}
+  section.sec-flash{animation:secFlash 1.2s ease-out}
+  @media(prefers-reduced-motion:reduce){section.sec-flash{animation:none}}
   .info{
     font-family:Georgia,"Times New Roman",serif;font-style:italic;font-size:11px;font-weight:700;line-height:1;
     width:15px;height:15px;border-radius:50%;border:1px solid var(--ink);
@@ -3581,10 +3600,36 @@ function blendLabel(i){
   var o = blendSel ? blendSel.options[Math.round(i || 0)] : null;
   return o ? o.textContent : 'Normal';
 }
+/* Open the panel section that owns `el` and scroll to it. The tray rows are shortcuts INTO
+   the panel, not a second set of controls, so this reuses the title's own toggle rather
+   than reaching into its collapse state — one source of truth for open/closed. */
+function revealSection(el){
+  var sec = el && el.closest ? el.closest('.panel section') : null;
+  if (!sec){ return; }
+  if (sec.classList.contains('collapsed')){
+    var title = sec.querySelector('.sec-title');
+    if (title){ title.click(); }
+  }
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  sec.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  /* restart the flash when the same row is clicked twice */
+  sec.classList.remove('sec-flash');
+  void sec.offsetWidth;
+  sec.classList.add('sec-flash');
+}
 function removeSecondLayer(){
   state.field2 = 0; state.blend = 0; state.layerMix = 0;
   markLook(null); syncControls(); requestRender(); persist();
   setStatus('LAYER REMOVED — back to a single engine');
+}
+/* Removing the base keeps what you can actually see: the 2nd engine becomes the only one,
+   carrying its own settings up. Offered only while a 2nd layer exists — the last engine
+   standing is the artwork, and there is nothing to fall back to. */
+function removeBaseLayer(){
+  var kept = state.field2;
+  state.field = kept; state.field2 = 0; state.blend = 0; state.layerMix = 0;
+  markLook(null); syncControls(); requestRender(); persist();
+  setStatus('BASE REMOVED — ' + engineLabel(kept).toUpperCase() + ' is the artwork now');
 }
 /* start a 2nd layer with a readable default: a different engine, screen blend, mid mix */
 function addSecondLayer(){
@@ -3603,18 +3648,27 @@ function renderLayerStack(){
   layerStack.className = 'trayPane layerStack';   /* keep trayPane — the tab hide rule keys off it */
   while (layerStack.firstChild){ layerStack.removeChild(layerStack.firstChild); }
   var on = (state.layerMix || 0) > 0.001;
-  function addRow(num, name, meta, removable){
+  /* `jumpTo` is any element inside the panel section that drives this layer — the row body
+     opens that section. `remove` is the handler for the x, or null when the row is the
+     only engine left. The two are separate buttons so one click can never mean both. */
+  function addRow(num, name, meta, jumpTo, remove, isBase){
     var r = document.createElement('div');
-    r.className = 'layerRow' + (removable ? '' : ' base');
+    r.className = 'layerRow' + (isBase ? ' base' : '');
+    var go = document.createElement('button');
+    go.type = 'button'; go.className = 'layerGo';
+    go.title = 'Open the ' + name + ' controls';
+    go.setAttribute('aria-label', 'Layer ' + num + ', ' + name + (meta ? ', ' + meta : '') + '. Open its controls');
     var n = document.createElement('span'); n.className = 'layerNum'; n.textContent = num;
     var nm = document.createElement('span'); nm.className = 'layerName'; nm.textContent = name;
-    r.appendChild(n); r.appendChild(nm);
-    if (meta){ var m = document.createElement('span'); m.className = 'layerMeta'; m.textContent = meta; r.appendChild(m); }
-    if (removable){
+    go.appendChild(n); go.appendChild(nm);
+    if (meta){ var m = document.createElement('span'); m.className = 'layerMeta'; m.textContent = meta; go.appendChild(m); }
+    go.addEventListener('click', function(){ revealSection(jumpTo); });
+    r.appendChild(go);
+    if (remove){
       var x = document.createElement('button');
       x.type = 'button'; x.className = 'layerX'; x.textContent = '×';
-      x.title = 'Remove this layer'; x.setAttribute('aria-label', 'Remove layer 2');
-      x.addEventListener('click', removeSecondLayer);
+      x.title = 'Remove this layer'; x.setAttribute('aria-label', 'Remove layer ' + num);
+      x.addEventListener('click', remove);
       r.appendChild(x);
     }
     layerStack.appendChild(r);
@@ -3622,10 +3676,12 @@ function renderLayerStack(){
   /* the tab badge reports the stack even when the tray is collapsed or Explore is open */
   var badge = document.getElementById('layerCount');
   if (badge){ badge.hidden = !on; badge.textContent = '2'; }
-  /* base first, left to right — the tray reads like a filmstrip, not a sidebar */
-  addRow('1', engineLabel(state.field), 'base', false);
+  /* base first, left to right — the tray reads like a filmstrip, not a sidebar.
+     Row 1 lands in Field (it IS the field), row 2 in Layers (engine, blend and mix). */
+  var fieldAnchor = document.getElementById('fieldStrip');
+  addRow('1', engineLabel(state.field), 'base', fieldAnchor, on ? removeBaseLayer : null, true);
   if (on){
-    addRow('2', engineLabel(state.field2), blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', true);
+    addRow('2', engineLabel(state.field2), blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', field2Sel, removeSecondLayer, false);
   } else {
     var add = document.createElement('button');
     add.type = 'button'; add.className = 'layerAdd'; add.textContent = '+ Layer';
