@@ -1356,6 +1356,8 @@
             <button id="expPrev" class="stripBtn" aria-label="Scroll gallery left">&#8249;</button>
             <div class="expStrip" id="exploreStrip"></div>
             <button id="expNext" class="stripBtn" aria-label="Scroll gallery right">&#8250;</button>
+            <!-- the shelf is generated, so it can always be generated again -->
+            <button id="expNew" class="stripBtn" title="A whole new shelf" aria-label="Generate a new shelf of pieces">&#8635;</button>
           </div>
         </div>
       </div>
@@ -4395,44 +4397,17 @@ initStrip('palStrip', 'palPrev', 'palNext');
 initStrip('cursorGrid', 'curPrev', 'curNext');
 initStrip('screenStrip', 'scrPrev', 'scrNext');
 initStrip('matStrip', 'matPrev', 'matNext');
-/* ---------- explore shelf: curated pieces from /gallery, one tap to load and remix.
-   [id, hash] only — the display name is derived from the id, and tests/gallery-sync
-   pins every entry against gallery.html so the two shelves can never drift. ---------- */
-var EXPLORE = [
-  ['polar-drift', '#p=0.4,2,4,0.03,1,10,0,0,30,0,0,1.7778'],
-  ['sundown', '#p=0.4,1.8,4.5,0.03,1,10,0,1,21,0,0,1.7778'],
-  ['deep-current', '#p=0.4,2.2,3.5,0.03,1,10,0,2,48,0,0,1.7778'],
-  ['nightfall', '#p=0.4,2.3,3,0.03,1,10,0,3,12,0,0,1.7778'],
-  ['smoke', '#p=0.5,1.4,5,0.03,1,10,0,7,66,0,0,1.7778,0,0,1'],
-  ['lagoon', '#p=0.5,1.5,5,0.03,1,10,0,2,40,0,0,1.7778,0,0,1'],
-  ['solar-wind', '#p=0.5,1.6,4.5,0.03,1,10,0,4,52,0,0,1.7778,0,0,1'],
-  ['aurora-flow', '#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778,0,0,1'],
-  ['crystal', '#p=0.4,1.9,7,0.03,1,10,0,6,40,0,0,1.7778,0,0,2'],
-  ['mosaic', '#p=0.4,1.8,6.5,0.03,1,10,0,5,33,0,0,1.7778,0,0,2'],
-  ['magma-cells', '#p=0.4,1.9,8,0.03,1,10,0,4,60,0,0,1.7778,0,0,2'],
-  ['onyx-cells', '#p=0.4,1.9,7.5,0.03,1,10,0,7,25,0,0,1.7778,0,0,2'],
-  ['lattice', '#p=0.4,1.6,5,0.03,1,10,0,5,40,0,0,1.7778,0,0,3'],
-  ['ribbon', '#p=0.4,1.6,4.5,0.03,1,10,0,0,28,0,0,1.7778,0,0,3'],
-  ['marble-vein', '#p=0.4,1.5,5.5,0.03,1,10,0,7,51,0,0,1.7778,0,0,3'],
-  ['dusk-weave', '#p=0.4,1.7,4,0.03,1,10,0,3,14,0,0,1.7778,0,0,3'],
-  ['maze', '#p=0.4,2,4,0.03,1,10,0,7,22,0,0,1.7778,0,0,4,0,0,0,1,6'],
-  ['labyrinth', '#p=0.4,2,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,4,0,0,0,1,6'],
-  ['wiring', '#p=0.4,1.8,3.5,0.03,1,10,0,4,44,0,0,1.7778,0,0,4'],
-  ['moire', '#p=0.5,1.4,5,0.03,1,10,0,2,30,0,0,1.7778,0,0,5'],
-  ['sonar', '#p=0.5,1.4,4,0.03,1,10,0,5,18,0,0,1.7778,0,0,5'],
-  ['pulse', '#p=0.5,1.4,6,0.03,1,10,0,6,52,0,0,1.7778,0,0,5'],
-  ['rosette', '#p=0.4,1.5,6,0.03,1,10,0,6,55,0,0,1.7778,0,0,6'],
-  ['bloom', '#p=0.4,1.5,5,0.03,1,10,0,1,33,0,0,1.7778,0,0,6'],
-  ['stained-glass', '#p=0.4,1.6,7,0.03,1,10,0,0,40,0,0,1.7778,0,0,6'],
-  ['halo', '#p=0.4,1.5,4,0.03,1,10,0,5,61,0,0,1.7778,0,0,6'],
-  ['tide-tile', '#p=0.4,2,3,0.03,1,10,0,2,25,0,0,1.7778,0,0,0,0,0,0,1,6'],
-  ['frost-tile', '#p=0.4,1.9,6,0.03,1,10,0,5,40,0,0,1.7778,0,0,2,0,0,0,1,6']
-];
-function exploreName(id){
-  return id.replace(/-tile$/, '').split('-').map(function(w){
-    return w.charAt(0).toUpperCase() + w.slice(1);
-  }).join(' ');
-}
+/* ---------- explore shelf: a fresh shelf of pieces nobody has seen, every time ----------
+   This was 28 hand-picked pieces with checked-in thumbnails, which meant the same 28 forever.
+   It generates now: every tile is a real shuffle, drawn through randomPattern — the app's own
+   tuned randomness (engine shuffle-bag, per-engine scale/warp bands, golden-ratio seeds) — so
+   the shelf is endless without being the uniform-random noise that makes most of it ugly.
+
+   The thumbnails are rendered on the spot in the offscreen FBO the control previews already
+   use, which is why there is nothing to check in and no gallery file to drift against.
+   The curated set still exists as a set: it lives at /gallery. */
+var EXPLORE_COUNT = 14;
+var exploreShelf = [];
 function loadPiece(hash, name){
   if (!parseHash(hash)){ setStatus('ERR — that piece could not be loaded'); return; }
   resetCustomMode();
@@ -4442,34 +4417,88 @@ function loadPiece(hash, name){
   persist();
   setStatus(name.toUpperCase() + ' LOADED — remix it, it is yours now');
 }
-(function buildExplore(){
+/* Generate N pieces without showing any of them. randomPattern writes into the live state,
+   so this borrows it and hands it back: the piece on screen is captured as a hash first and
+   restored from that hash at the end. Nothing repaints in between — the loop is synchronous
+   and the render is requested once, after the restore. */
+function generateExplorePieces(n){
+  var mine = buildHash(0);
+  var out = [], i, k;
+  for (i = 0; i < n; i++){
+    randomPattern();
+    var ov = {};
+    for (k = 0; k < THUMB_KEYS.length; k++){
+      var key = THUMB_KEYS[k];
+      /* cols is shared by reference — a copy, or every tile ends up the last palette */
+      ov[key] = key === 'cols' ? cloneStops(state.cols) : state[key];
+    }
+    ov.t = 1.35;                       /* one moment in the animation, so tiles are comparable */
+    out.push({ hash: buildHash(0), name: codename().replace(/-/g, ' '), ov: ov });
+  }
+  parseHash(mine);
+  resetCustomMode();
+  applyAspect();
+  syncControls();
+  requestRender();
+  return out;
+}
+function buildExploreShelf(){
   var strip = document.getElementById('exploreStrip');
   if (!strip){ return; }
-  for (var i = 0; i < EXPLORE.length; i++){
-    (function(entry){
-      var name = exploreName(entry[0]);
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'expTile'; b.title = name + ' — tap to load and remix';
-      var img = document.createElement('img');
-      img.src = 'assets/gallery/x-' + entry[0] + '.jpg';
-      img.alt = name; img.loading = 'lazy'; img.decoding = 'async';
-      var cap = document.createElement('span'); cap.textContent = name;
-      b.appendChild(img); b.appendChild(cap);
-      b.addEventListener('click', function(){ loadPiece(entry[1], name); });
-      strip.appendChild(b);
-    })(EXPLORE[i]);
-  }
-})();
-/* ---------- seed of the day tile: the one piece everyone sees today ----------
-   Fetched the first time Explore is opened, never at boot — a shelf nobody looked at should
-   not cost a request. If the fetch fails the shelf is simply the curated pieces, which is
-   what it was before; a daily extra is not worth an error message. */
-var todayLoaded = false;
+  exploreShelf = generateExplorePieces(EXPLORE_COUNT);
+  var jobs = [];
+  var tiles = exploreShelf.map(function(piece){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'expTile';
+    b.title = piece.name + ' — tap to load and remix';
+    b.setAttribute('aria-label', 'Load ' + piece.name);
+    var img = document.createElement('img');
+    img.alt = ''; img.decoding = 'async';
+    img.src = EMPTY_THUMB;             /* replaced in place as each render lands */
+    var cap = document.createElement('span'); cap.textContent = piece.name;
+    b.appendChild(img); b.appendChild(cap);
+    b.addEventListener('click', function(){ loadPiece(piece.hash, piece.name); });
+    jobs.push({ el: img, ov: piece.ov, raw: true });
+    return b;
+  });
+  fillStrip(strip, tiles, 'Nothing to explore — reload the page');
+  addTodayTile(strip);                 /* the day's piece stays pinned at the head */
+  runThumbJobs(jobs);
+}
+/* the shelf is only worth regenerating when it is on screen — a new one behind a closed tab
+   is renders nobody asked for */
+function refreshExploreShelf(){
+  var pane = document.getElementById('trayExplore');
+  if (!pane || pane.hidden){ return; }
+  buildExploreShelf();
+  setStatus('EXPLORE RESHUFFLED — ' + EXPLORE_COUNT + ' pieces nobody has seen');
+}
+/* ---------- seed of the day tile: the one fixed point on a shelf that is otherwise all new ----------
+   Fetched once, the first time Explore is opened — a shelf nobody looked at should not cost a
+   request. The result is kept, because the shelf around it is rebuilt on every reshuffle and
+   re-fetching the same unchanging piece each time would be pure waste. If the fetch fails the
+   shelf is simply the generated pieces; a daily extra is not worth an error message. */
+var todayPiece = null, todayFetched = false;
+function makeTodayTile(){
+  if (!todayPiece){ return null; }
+  var b = document.createElement('button');
+  b.type = 'button'; b.className = 'expTile today';
+  b.title = 'Seed of the day — a new piece every day, the same one for everyone';
+  b.setAttribute('aria-label', 'Load the seed of the day for ' + todayPiece.date);
+  var t = document.createElement('b'); t.textContent = 'Seed of the day';
+  var d = document.createElement('span'); d.textContent = todayPiece.date;
+  b.appendChild(t); b.appendChild(d);
+  b.addEventListener('click', function(){ loadPiece(todayPiece.hash, 'Seed of the day'); });
+  return b;
+}
+function addTodayTile(strip){
+  var tile = makeTodayTile();
+  if (tile && strip){ strip.insertBefore(tile, strip.firstChild); }
+}
 function loadTodayTile(){
-  if (todayLoaded){ return; }
-  todayLoaded = true;
-  var strip = document.getElementById('exploreStrip');
-  if (!strip || !window.fetch){ return; }
+  if (todayFetched){ return; }
+  todayFetched = true;
+  if (!window.fetch){ return; }
   fetch('/api/today', { headers: { accept: 'application/json' } })
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(piece){
@@ -4477,19 +4506,16 @@ function loadTodayTile(){
       var hash = '#' + String(piece.share_url).split('#')[1];
       /* our own origin, but the tile is only worth building if the hash is really a hash */
       if (!/^#p=[\d.,-]+$/.test(hash)){ return; }
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'expTile today';
-      b.title = 'Seed of the day — a new piece every day, the same one for everyone';
-      b.setAttribute('aria-label', 'Load the seed of the day for ' + piece.date);
-      var t = document.createElement('b'); t.textContent = 'Seed of the day';
-      var d = document.createElement('span'); d.textContent = piece.date;
-      b.appendChild(t); b.appendChild(d);
-      b.addEventListener('click', function(){ loadPiece(hash, 'Seed of the day'); });
-      strip.insertBefore(b, strip.firstChild);
+      todayPiece = { hash: hash, date: piece.date };
+      addTodayTile(document.getElementById('exploreStrip'));
     })
     .catch(function(){});
 }
 initStrip('exploreStrip', 'expPrev', 'expNext');
+(function(){
+  var nu = document.getElementById('expNew');
+  if (nu){ nu.addEventListener('click', refreshExploreShelf); }
+})();
 initStrip('recentStrip', 'recPrev', 'recNext');
 initStrip('savedStrip', 'savPrev', 'savNext');
 /* ---------- tray height feedback: the artwork leaves room for the shelf ----------
@@ -4514,7 +4540,25 @@ initStrip('savedStrip', 'savPrev', 'savNext');
   window.addEventListener('resize', sync);
   sync();
 })();
-/* ---------- stage tray behaviour: tab switching and collapse ---------- */
+/* ---------- stage tray behaviour: tab switching and collapse ----------
+   Filling a pane is split from showing one. The tray restores its saved tab while this file
+   is still being read top-to-bottom, and the Explore shelf runs randomPattern, whose engine
+   shuffle-bag is declared several hundred lines further down — so a restored Explore tab
+   called it before it existed. Nothing fills until trayReady, which boot sets once the whole
+   script has run; then the open pane is filled exactly once. */
+var trayReady = false, trayPaneOpen = 'layers';
+function fillTrayPane(which){
+  if (!trayReady){ return; }
+  /* Saved is the one shelf another surface can change behind your back (the Save chip and
+     the dock both write it), so it is rebuilt on open rather than trusted to be current */
+  if (which === 'saved'){ renderSavedStrip(); }
+  /* a fresh shelf every time it is opened — that is the point of a generated one */
+  if (which === 'explore'){ loadTodayTile(); buildExploreShelf(); }
+}
+function trayPostBoot(){
+  trayReady = true;
+  fillTrayPane(trayPaneOpen);
+}
 (function initTray(){
   var tray = document.getElementById('stageTray');
   if (!tray){ return; }
@@ -4534,10 +4578,8 @@ initStrip('savedStrip', 'savPrev', 'savNext');
     }
     for (var k in panes){ if (panes[k]){ panes[k].hidden = (k !== which); } }
     tray.classList.remove('collapsed');
-    /* Saved is the one shelf another surface can change behind your back (the Save chip and
-       the dock both write it), so it is rebuilt on open rather than trusted to be current */
-    if (which === 'saved' && typeof renderSavedStrip === 'function'){ renderSavedStrip(); }
-    if (which === 'explore'){ loadTodayTile(); }
+    trayPaneOpen = which;
+    fillTrayPane(which);
     /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
     if (which !== 'layers'){ window.dispatchEvent(new Event('resize')); }
     try { localStorage.setItem('fluid:tray', which); } catch(e){}
@@ -4787,13 +4829,23 @@ function randomPattern(){
   state.grain = 0.01 + rnd() * 0.06;
   state.speed = 0.6 + rnd() * 0.5;                  /* 0.6 .. 1.1 — always lively: clearly moving, not frantic */
   state.dot = 6 + Math.floor(rnd() * 14);
-  /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend, moderate mix */
+  /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend,
+     moderate mix — and 1 in 4 of those goes on to a 3rd. Stacking three at full strength
+     turns to mud, so the 3rd sits lower in the mix than the 2nd. */
   if (rnd() < 0.25){
-    do { state.field2 = Math.floor(rnd() * 23); } while (state.field2 === state.field);
+    do { state.field2 = Math.floor(rnd() * (FIELD_MAX + 1)); } while (state.field2 === state.field);
     state.blend = 1 + Math.floor(rnd() * 5);          /* 1..5: skip Normal so the composite reads */
     state.layerMix = 0.3 + rnd() * 0.4;               /* 0.3 .. 0.7 */
+    if (rnd() < 0.25){
+      do { state.field3 = Math.floor(rnd() * (FIELD_MAX + 1)); } while (state.field3 === state.field || state.field3 === state.field2);
+      state.blend2 = 1 + Math.floor(rnd() * 5);
+      state.layerMix2 = 0.2 + rnd() * 0.3;            /* 0.2 .. 0.5 */
+    } else {
+      state.layerMix2 = 0;
+    }
   } else {
     state.layerMix = 0;                               /* single engine */
+    state.layerMix2 = 0;
   }
   /* ~1 in 5 shuffles bends space through a math lens — full or near-full strength so it reads */
   if (rnd() < 0.20){
@@ -7255,7 +7307,10 @@ var thumbJobs = null, thumbSave = null, thumbSavedAmt = 0, thumbGen = 0;
 var thumbTimer = null, lastThumbPal = null, presetThumbsDone = false;
 var THUMB_RES = 144, THUMB_K = 1;
 var thumbFB = null, thumbTex = null, thumbPixels = null, thumbCv = null, thumbCtx = null, thumbImg = null;
-var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','lens','lensAmt','hasTex','t','cols','dot'];
+/* The layer keys belong here too: without them a preview rendered with whatever layers the
+   user had live, so every engine tile showed that composite instead of the engine. */
+var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','lens','lensAmt','hasTex','t','cols','dot',
+  'field2','blend','layerMix','field3','blend2','layerMix2'];
 function palSig(){ return state.pal===8 ? '8:'+state.cols.join(',') : String(state.pal); }
 function ensureThumbGL(){
   if (thumbFB || !gl){ return !!thumbFB; }
@@ -7318,9 +7373,16 @@ function thumbSpecs(){
 function applyThumbState(src){ for (var i = 0; i < THUMB_KEYS.length; i++){ state[THUMB_KEYS[i]] = src[THUMB_KEYS[i]]; } }
 function renderOneThumb(job){
   for (var k in job.ov){ state[k] = job.ov[k]; }
-  state.material = 0; state.dots = 0; state.pixel = 1; state.screen = 0;   /* clean engine previews — no finish / halftone / pixelate / glitch */
-  if (job.ov.lens == null){ state.lens = 0; state.lensAmt = 1; }           /* only the math tiles preview through a lens */
-  if (job.pal === 8){ state.cols = cloneStops(thumbSave.cols); }
+  /* `raw` jobs are previews of a whole piece (the Explore shelf) and must render exactly
+     what a click would load. Everything else is a control preview, which shows one thing
+     only — its engine, its lens, its screen — so the rest is forced off. */
+  if (!job.raw){
+    state.material = 0; state.dots = 0; state.pixel = 1; state.screen = 0; /* clean engine previews — no finish / halftone / pixelate / glitch */
+    state.field2 = 0; state.blend = 0; state.layerMix = 0;                 /* and no layers of the user's on top of it */
+    state.field3 = 0; state.blend2 = 0; state.layerMix2 = 0;
+    if (job.ov.lens == null){ state.lens = 0; state.lensAmt = 1; }         /* only the math tiles preview through a lens */
+    if (job.pal === 8){ state.cols = cloneStops(thumbSave.cols); }
+  }
   try {
     render(THUMB_K, { fb: thumbFB, w: THUMB_RES, h: THUMB_RES });
     gl.readPixels(0, 0, THUMB_RES, THUMB_RES, gl.RGBA, gl.UNSIGNED_BYTE, thumbPixels);
@@ -7331,8 +7393,37 @@ function renderOneThumb(job){
       thumbImg.data.set(thumbPixels.subarray(s, s + rb), y * rb);
     }
     thumbCtx.putImageData(thumbImg, 0, 0);
-    job.el.style.backgroundImage = 'url(' + thumbCv.toDataURL('image/png') + ')';
+    var url = thumbCv.toDataURL('image/png');
+    /* control tiles are buttons that carry their preview as a background; shelf tiles are
+       real <img> so they keep the strip's object-fit cropping and alt text */
+    if (job.el.tagName === 'IMG'){ job.el.src = url; } else { job.el.style.backgroundImage = 'url(' + url + ')'; }
   } catch(e){}
+}
+/* Render a one-off batch of jobs without disturbing the control previews or the live piece.
+   regenThumbs() owns the full pass over every control; this is for jobs that appear on
+   demand (the Explore shelf), so it saves and restores around its own queue. */
+function runThumbJobs(jobs, done){
+  if (!jobs || !jobs.length || !canvas.width || !ensureThumbGL()){ if (done){ done(); } return; }
+  var save = {}, i;
+  for (i = 0; i < THUMB_KEYS.length; i++){ save[THUMB_KEYS[i]] = state[THUMB_KEYS[i]]; }
+  var savedAmt = mouse.amt;
+  mouse.amt = 0;                       /* the cursor ripple must not smear a preview */
+  var queue = jobs.slice();
+  (function step(){
+    var budget = 3;
+    while (budget-- > 0 && queue.length){ renderOneThumb(queue.shift()); }
+    applyThumbState(save);             /* restore between batches so the main loop stays correct */
+    if (queue.length){
+      /* rAF does not fire in a background tab, and a shelf frozen half-drawn is worse than a
+         few frames of work nobody is watching — the FBO read-back does not need the
+         compositor, so a timer finishes the job and the tiles are all there on return */
+      if (document.hidden){ setTimeout(step, 16); } else { requestAnimationFrame(step); }
+      return;
+    }
+    mouse.amt = savedAmt;
+    requestRender();
+    if (done){ done(); }
+  })();
 }
 function thumbStep(gen){
   if (gen !== thumbGen || !thumbJobs){ return; }
@@ -7365,6 +7456,8 @@ function regenThumbs(){
 function scheduleThumbs(){ if(thumbTimer){clearTimeout(thumbTimer);} thumbTimer=setTimeout(regenThumbs, 110); }
 function maybeRethumb(){ if(lastThumbPal!==null && palSig()!==lastThumbPal){ scheduleThumbs(); } }
 regenThumbs();
+/* every function the tray's panes reach for now exists — fill whichever one is open */
+trayPostBoot();
 
 requestAnimationFrame(function(now){ last = now; frame(now); });
 /* two frames to guarantee the shader compiled + a still painted, then a short
