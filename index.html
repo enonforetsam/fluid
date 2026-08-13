@@ -292,7 +292,10 @@
   /* the layer stack: one chip per composited engine, base first (left to right).
      A row is two controls in one shell — the body jumps to the panel section that owns
      the layer, the x removes it — so the shell draws the border and they split it. */
-  .layerStack{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  /* scrolls sideways rather than wrapping: a wrapped 3rd row would grow the tray and, through
+     --trayH, shrink the artwork — the same resize the fixed body height exists to prevent */
+  .layerStack{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none}
+  .layerStack::-webkit-scrollbar{display:none}
   .layerRow{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04);overflow:hidden}
   .layerRow.base{opacity:.75}
   .layerRow:hover{border-color:rgba(232,232,228,.34)}
@@ -341,10 +344,13 @@
     border:1px solid rgba(255,255,255,.12);color:rgba(232,232,228,.6);text-shadow:none;
   }
   #trayToggle:hover{background-image:none;box-shadow:none;color:#e8e8e4}
-  .trayBody{padding:8px}
+  /* One height for every pane. The tray's height is subtracted from the artwork's budget, so
+     a pane that measured shorter than its neighbour would resize the canvas on every tab
+     click — the piece must not change shape because you looked at a different shelf. */
+  .trayBody{padding:8px;height:92px;box-sizing:border-box}
   .trayPane[hidden]{display:none !important}   /* beats the pane's own display (.layerStack is flex) */
   #trayLayers{--ink:#e8e8e4;--soft:rgba(232,232,228,.55);--line:rgba(232,232,228,.16);--ink-c:#101114}
-  #trayExplore,#trayRecent,#traySaved{display:flex;align-items:center;gap:5px}
+  #trayExplore,#trayRecent,#traySaved{display:flex;align-items:center;gap:5px;height:100%}
   /* the tile you are looking at right now, so the strip reads as a position not just a list */
   .expTile.here{border-color:rgba(255,255,255,.75)}
   .expTile.here span{color:#fff;background:rgba(6,6,10,.9)}
@@ -383,6 +389,8 @@
   @media (max-width:900px){
     .expTile,.expTile img{width:88px}
     .expTile img{height:50px}
+    /* shorter tiles, so the fixed body follows them down rather than padding dead space */
+    .trayBody{height:83px}
   }
   .embedTab{
     flex:1;font-family:inherit;font-size:9px;letter-spacing:.12em;text-transform:uppercase;
