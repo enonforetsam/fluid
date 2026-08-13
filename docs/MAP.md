@@ -108,7 +108,7 @@ Zones, in file order:
 | math lens UI | the lens strip, its amount slider and the per-lens status copy | `---------- math lens UI:` |
 | cursor impact | how hard the pointer pushes the field, remembered per mode | `---------- cursor impact:` |
 | aspect ratio | the ordered AR list and the horizontal fader that walks it | `---------- aspect ratio:` |
-| shuffle | golden-ratio seeds, an engine shuffle-bag, per-engine ranges and a random palette | `---------- shuffle:` |
+| shuffle | a quasi-random walk of the whole space, an engine shuffle-bag, per-engine ranges and a random palette | `---------- shuffle:` |
 | shuffle buttons | one action, two buttons, one name | `---------- shuffle buttons:` |
 | canvas pointer | hover ripples the field, drag pans a loaded image, a tap reseeds | `---------- canvas pointer:` |
 | preset shelf | the built-in source thumbnails, inert while PRESETS is empty | `---------- preset shelf:` |

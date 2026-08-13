@@ -4731,11 +4731,36 @@ document.getElementById('liveBtn').addEventListener('click', function(){
 document.getElementById('stillBtn').addEventListener('click', function(){
   setPlaying(false);
 });
-/* ---------- shuffle: golden-ratio seeds, an engine shuffle-bag, per-engine ranges and a random palette ---------- */
-/* seed walks by the golden ratio — a low-discrepancy sequence, so successive
-   shuffles never land near (or repeat) the last seed: maximal originality */
-var GOLDEN = 0.6180339887498949;
-var seedPhase = Math.random();
+/* ---------- shuffle: a quasi-random walk of the whole space, an engine shuffle-bag, per-engine ranges and a random palette ---------- */
+/* THE SAMPLING. Independent Math.random() draws cluster: nothing stops two shuffles in a row
+   from landing close in scale AND warp AND grain AND speed at once, and when they do the
+   second one reads as the first one again. Only the seed used to avoid this, by walking the
+   golden ratio — a 1-D low-discrepancy sequence.
+
+   The whole continuous space walks one now. The Roberts sequence generalises the golden
+   ratio to d dimensions: phi_d is the root of x^(d+1) = x + 1, the per-axis increments are
+   1/phi_d^k, and every new point lands in the largest gap left by all the points before it,
+   in every dimension simultaneously. So consecutive shuffles are not merely unlikely to be
+   similar — they are pushed as far apart as the space allows.
+   Positions come from this. BRANCHES (which surface, whether to layer) stay on Math.random:
+   a low-discrepancy sequence through a probability threshold turns a 1-in-4 chance into a
+   visibly regular every-4th-time, which reads as a pattern rather than as chance. */
+var R_DIM = 8;
+var R_ALPHA = (function(){
+  var g = 2, i, d, a = [];
+  /* fixed-point iteration on x = (1+x)^(1/(d+1)) — converges in a handful of steps */
+  for (i = 0; i < 48; i++){ g = Math.pow(1 + g, 1 / (R_DIM + 1)); }
+  for (d = 0; d < R_DIM; d++){ a.push(1 / Math.pow(g, d + 1)); }
+  return a;
+})();
+/* a random offset into the sequence, so two people shuffling are not walking in step */
+var rIndex = Math.floor(Math.random() * 100000);
+var rPoint = new Array(R_DIM);
+function nextQuasi(){
+  rIndex++;
+  for (var d = 0; d < R_DIM; d++){ rPoint[d] = (0.5 + R_ALPHA[d] * rIndex) % 1; }
+  return rPoint;
+}
 var recentKeys = [];           /* rolling hash of recent looks — the next shuffle avoids them all */
 var lastField = -1;
 /* #1 shuffle-bag: deal engines from a reshuffling deck, so coverage is provably even
@@ -4744,7 +4769,9 @@ var fieldBag = [];
 function nextFieldFromBag(){
   if (fieldBag.length === 0){
     var i, j, k, t;
-    for (i = 0; i < 23; i++){ fieldBag.push(i); }
+    /* FIELD_MAX, not a literal: a hardcoded engine count here would quietly make the newest
+       engine undealable, which is exactly how Topo went missing elsewhere */
+    for (i = 0; i <= FIELD_MAX; i++){ fieldBag.push(i); }
     for (j = fieldBag.length - 1; j > 0; j--){                 /* Fisher–Yates shuffle */
       k = Math.floor(Math.random() * (j + 1));
       t = fieldBag[j]; fieldBag[j] = fieldBag[k]; fieldBag[k] = t;
@@ -4822,24 +4849,37 @@ function randomPattern(){
   } while (recentKeys.indexOf(key) !== -1 && tries < 24);
   recentKeys.push(key); if (recentKeys.length > 14){ recentKeys.shift(); }
   lastField = state.field;
-  /* #2 scale/warp from this engine's sweet spot */
+  /* #2 every continuous parameter reads one axis of the quasi-random point, so they move
+     together as a single well-spread sample of the space rather than 6 independent dice */
+  var q = nextQuasi();
+  /* #2a per-engine sweet spot — each engine reads warp/scale differently, so one global
+     range made duds. Roughly 1 shuffle in 5 takes an EXCURSION and ignores the band for the
+     full legal range: the sweet spot is where the good pieces are, the excursions are where
+     the surprising ones are, and a generator that only ever plays safe stops surprising. */
   var T = FIELD_TUNE[state.field] || [1.0, 3.0, 1.5, 8.0];
-  state.scale = T[0] + rnd() * (T[1] - T[0]);
-  state.warp = T[2] + rnd() * (T[3] - T[2]);
-  state.grain = 0.01 + rnd() * 0.06;
-  state.speed = 0.6 + rnd() * 0.5;                  /* 0.6 .. 1.1 — always lively: clearly moving, not frantic */
-  state.dot = 6 + Math.floor(rnd() * 14);
+  var wild = rnd() < 0.2;
+  state.scale = wild ? 0.5 + q[0] * 3.5 : T[0] + q[0] * (T[1] - T[0]);
+  state.warp  = wild ? q[1] * 9 : T[2] + q[1] * (T[3] - T[2]);
+  /* widened from 0.01..0.07 and 0.6..1.1 — the old bands were narrow enough that grain and
+     speed were effectively constants you could not tell apart between two shuffles */
+  state.grain = wild ? q[2] * 0.22 : 0.005 + q[2] * 0.085;
+  state.speed = wild ? 0.05 + q[3] * 2.1 : 0.35 + q[3] * 1.05;
+  state.dot = 5 + Math.floor(q[7] * 17);
+  /* #2b two dimensions the shuffle never touched at all, so every shuffled piece came out
+     with no finish and no fold no matter how many times you pressed it */
+  state.material = rnd() < 0.28 ? 1 + Math.floor(rnd() * 5) : 0;
+  state.sym = rnd() < 0.18 ? 2 * (1 + Math.floor(rnd() * 6)) : 0;   /* even folds read as symmetry, odd ones as damage */
   /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend,
      moderate mix — and 1 in 4 of those goes on to a 3rd. Stacking three at full strength
      turns to mud, so the 3rd sits lower in the mix than the 2nd. */
-  if (rnd() < 0.25){
+  if (rnd() < 0.34){
     do { state.field2 = Math.floor(rnd() * (FIELD_MAX + 1)); } while (state.field2 === state.field);
     state.blend = 1 + Math.floor(rnd() * 5);          /* 1..5: skip Normal so the composite reads */
-    state.layerMix = 0.3 + rnd() * 0.4;               /* 0.3 .. 0.7 */
-    if (rnd() < 0.25){
+    state.layerMix = 0.22 + q[5] * 0.56;              /* 0.22 .. 0.78 */
+    if (rnd() < 0.3){
       do { state.field3 = Math.floor(rnd() * (FIELD_MAX + 1)); } while (state.field3 === state.field || state.field3 === state.field2);
       state.blend2 = 1 + Math.floor(rnd() * 5);
-      state.layerMix2 = 0.2 + rnd() * 0.3;            /* 0.2 .. 0.5 */
+      state.layerMix2 = 0.18 + (1 - q[5]) * 0.34;     /* the far side of the same axis, so a heavy 2nd layer gets a light 3rd */
     } else {
       state.layerMix2 = 0;
     }
@@ -4847,17 +4887,18 @@ function randomPattern(){
     state.layerMix = 0;                               /* single engine */
     state.layerMix2 = 0;
   }
-  /* ~1 in 5 shuffles bends space through a math lens — full or near-full strength so it reads */
-  if (rnd() < 0.20){
+  /* ~1 in 3 shuffles bends space through a math lens, and the strength is a real range now
+     rather than always-nearly-full — a half-strength lens is a different piece, not a
+     weaker one */
+  if (rnd() < 0.32){
     state.lens = 1 + Math.floor(rnd() * 12);
-    state.lensAmt = 0.7 + rnd() * 0.3;
+    state.lensAmt = 0.35 + q[6] * 0.65;
   } else {
     state.lens = 0; state.lensAmt = 1;
   }
-  /* advance the golden sequence and map to the 3..92 seed band — a low-discrepancy
-     hop, so successive seeds never cluster or repeat (maximally distinct each time) */
-  seedPhase = (seedPhase + GOLDEN) % 1;
-  state.seed = 3 + seedPhase * 89;
+  /* the seed rides the same walk as everything else now — it was already low-discrepancy on
+     its own, but on a separate sequence, so it could repeat a pairing with the rest */
+  state.seed = 3 + q[4] * 89;
   state.hasTex = 0; state.userSource = false; fallbackSource = null;
   canvas.style.touchAction = '';   /* photo gone → allow page scroll past the canvas */
   markPreset(null); markLook(null);
