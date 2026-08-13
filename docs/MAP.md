@@ -65,7 +65,7 @@ Zones, in file order:
 | Colours section | the palette strip plus the custom two, three or four stop swatches | `---------- Colours section:` |
 | Field section | the engine strip, the speed/zoom/warp/grain knobs and symmetry | `---------- Field section:` |
 | Math section | the complex-plane lens strip and how far it bends | `---------- Math section:` |
-| Layers section | a second engine and the blend mode compositing it | `---------- Layers section:` |
+| Layers section | two more engines and the blend modes compositing them | `---------- Layers section:` |
 | Surface section | screen geometry, material finish and the halftone/dither knobs | `---------- Surface section:` |
 | Frame section | drop a screenshot onto the live art | `---------- Frame section:` |
 | Output section | share, embed, export target, format and clip length | `---------- Output section:` |

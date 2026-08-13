@@ -30,7 +30,7 @@ function slugIndex(list, v){
 
 /* studio defaults (state block in index.html) minus studio-only concerns */
 const DEFAULTS = {
-  field: 0, field2: 0, blend: 0, layerMix: 0,
+  field: 0, field2: 0, blend: 0, layerMix: 0, field3: 0, blend2: 0, layerMix2: 0,
   screen: 0, material: 0, sym: 0, lens: 0, lensAmt: 1,
   pal: 0, cols: null,
   speed: 0.6, zoom: 1.6, warp: 4.5, grain: 0.06,
@@ -148,6 +148,8 @@ export class FluidMount {
       while (a.length < 25){ a.push(0); }
       a.push(s.field2 || 0, s.blend || 0, Math.round(s.layerMix * 100));
     }
+    /* layer 3 lives at [31..33], past the lens block, and only when layer 2 is on */
+    const wantLayer3 = (s.layerMix || 0) > 0.001 && (s.layerMix2 || 0) > 0.001;
     if ((s.material || 0) > 0){
       while (a.length < 28){ a.push(0); }
       a.push(Math.round(s.material));
@@ -156,6 +158,10 @@ export class FluidMount {
     if ((s.lens || 0) > 0 && Math.round((s.lensAmt == null ? 1 : s.lensAmt) * 100) >= 1){
       while (a.length < 29){ a.push(0); }
       a.push(Math.round(s.lens), Math.round((s.lensAmt == null ? 1 : s.lensAmt) * 100));
+    }
+    if (wantLayer3){
+      while (a.length < 31){ a.push(0); }
+      a.push(s.field3 || 0, s.blend2 || 0, Math.round(s.layerMix2 * 100));
     }
     const minLen = s.pal === 8 ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
@@ -204,17 +210,19 @@ export class FluidMount {
       if (f < 0){ throw new Error('fluid-core: unknown field "' + p.field + '" — valid: ' + FIELDS.join(', ')); }
       s.field = f;
     }
-    if (p.layer != null){
-      if (p.layer === false || p.layer.mix === 0){ s.field2 = 0; s.blend = 0; s.layerMix = 0; }
-      else {
-        const f2 = slugIndex(FIELDS, p.layer.field != null ? p.layer.field : 0);
-        const bl = slugIndex(BLENDS, p.layer.blend != null ? p.layer.blend : 'screen');
-        if (f2 < 0){ throw new Error('fluid-core: unknown layer.field'); }
-        if (bl < 0){ throw new Error('fluid-core: unknown layer.blend — valid: ' + BLENDS.join(', ')); }
-        s.field2 = f2; s.blend = bl;
-        s.layerMix = p.layer.mix != null ? Math.max(0, Math.min(1, p.layer.mix)) : 0.5;
-      }
+    /* `layer` is the 2nd engine, `layer2` the 3rd. One reader for both — two hand-written
+       copies of this validation is how the two would end up disagreeing. */
+    function applyLayer(spec, name, fieldKey, blendKey, mixKey){
+      if (spec === false || (spec && spec.mix === 0)){ s[fieldKey] = 0; s[blendKey] = 0; s[mixKey] = 0; return; }
+      const f = slugIndex(FIELDS, spec.field != null ? spec.field : 0);
+      const bl = slugIndex(BLENDS, spec.blend != null ? spec.blend : 'screen');
+      if (f < 0){ throw new Error('fluid-core: unknown ' + name + '.field — valid: ' + FIELDS.join(', ')); }
+      if (bl < 0){ throw new Error('fluid-core: unknown ' + name + '.blend — valid: ' + BLENDS.join(', ')); }
+      s[fieldKey] = f; s[blendKey] = bl;
+      s[mixKey] = spec.mix != null ? Math.max(0, Math.min(1, spec.mix)) : 0.5;
     }
+    if (p.layer != null){ applyLayer(p.layer, 'layer', 'field2', 'blend', 'layerMix'); }
+    if (p.layer2 != null){ applyLayer(p.layer2, 'layer2', 'field3', 'blend2', 'layerMix2'); }
     if (p.colors != null){
       if (!Array.isArray(p.colors) || p.colors.length !== 4){
         throw new Error('fluid-core: colors must be 4 hex stops, dark -> light');
@@ -281,7 +289,7 @@ export class FluidMount {
     this.U = {};
     ['u_res', 'u_time', 'u_seed', 'u_scale', 'u_warp', 'u_sym', 'u_pixel', 'u_dots', 'u_dot', 'u_dither', 'u_grain',
      'u_pal', 'u_c0', 'u_c1', 'u_c2', 'u_c3', 'u_tex', 'u_hasTex', 'u_texAspect', 'u_liq', 'u_mix', 'u_split',
-     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_screen', 'u_material', 'u_lens', 'u_lensAmt', 'u_glyph', 'u_pan', 'u_mouse',
+     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_field3', 'u_blend2', 'u_layerMix2', 'u_screen', 'u_material', 'u_lens', 'u_lensAmt', 'u_glyph', 'u_pan', 'u_mouse',
      'u_mouseAmt', 'u_mouseMode', 'u_rec', 'u_mask', 'u_hasMask', 'u_maskBg', 'u_maskBg2', 'u_maskGrad'
     ].forEach((n) => { this.U[n] = gl.getUniformLocation(prog, n); });
 
@@ -361,6 +369,10 @@ export class FluidMount {
     gl.uniform1i(U.u_field2, s.field2 || 0);
     gl.uniform1i(U.u_blend, s.blend || 0);
     gl.uniform1f(U.u_layerMix, s.layerMix || 0);
+    gl.uniform1i(U.u_field3, s.field3 || 0);
+    gl.uniform1i(U.u_blend2, s.blend2 || 0);
+    /* mirrors the studio: layer 3 composites only once layer 2 does */
+    gl.uniform1f(U.u_layerMix2, (s.layerMix || 0) > 0.001 ? (s.layerMix2 || 0) : 0);
     gl.uniform1i(U.u_screen, s.screen);
     gl.uniform1i(U.u_material, s.material || 0);
     gl.uniform2f(U.u_pan, 0, 0);

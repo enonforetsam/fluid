@@ -282,6 +282,13 @@
   #copyEmbed{margin-top:8px;width:100%}
   .embedTabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
   .layerSel{flex:1;min-width:0;font-family:inherit;font-size:11px;color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;cursor:pointer}
+  /* one block per stacked engine. Layer 3 blends onto layer 2's result, so with no layer 2
+     there is nothing under it — the block says so by going quiet rather than by vanishing,
+     which would make the panel jump every time a layer is added or dropped. */
+  .layerBlock + .layerBlock{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .layerHead{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-bottom:8px}
+  .layerBlock.inert{opacity:.4}
+  .layerBlock.inert .layerSel,.layerBlock.inert input,.layerBlock.inert .knob{pointer-events:none}
   /* the layer stack: one chip per composited engine, base first (left to right).
      A row is two controls in one shell — the body jumps to the panel section that owns
      the layer, the x removes it — so the shell draws the border and they split it. */
@@ -1582,31 +1589,57 @@
     </div>
   </section>
 
-  <!-- ---------- Layers section: a second engine and the blend mode compositing it ---------- -->
+  <!-- ---------- Layers section: two more engines and the blend modes compositing them ---------- -->
   <section>
-    <div class="sec-title">Layers — blend a 2nd engine</div>
+    <div class="sec-title">Layers — stack up to 3 engines</div>
     <!-- the visible stack lives in the tray under the artwork (#trayLayers) -->
-    <div class="row gap">
-      <!-- options are generated from the field picker at boot — a new engine can never
-           go missing here the way Topo did -->
-      <select id="field2Sel" class="layerSel" aria-label="Second engine"></select>
-      <select id="blendSel" class="layerSel" aria-label="Blend mode">
-        <option value="0">Normal</option>
-        <option value="1">Multiply</option>
-        <option value="2">Screen</option>
-        <option value="3">Add</option>
-        <option value="4">Difference</option>
-        <option value="5">Overlay</option>
-      </select>
-    </div>
-    <div class="knobgrid" style="grid-template-columns:1fr;justify-items:center">
-      <div class="knobctl">
-        <div class="knob" data-for="layerMix" role="slider" aria-label="Layer mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
-        <div class="knoblabel">Mix <output id="layerMixOut">0</output></div>
-        <input id="layerMix" type="range" min="0" max="1" step="0.02" value="0">
+    <div class="layerBlock" id="layer2Block">
+      <div class="layerHead">Layer 2 — over the base</div>
+      <div class="row gap">
+        <!-- options are generated from the field picker at boot — a new engine can never
+             go missing here the way Topo did -->
+        <select id="field2Sel" class="layerSel" aria-label="Second engine"></select>
+        <select id="blendSel" class="layerSel" aria-label="Second engine blend mode">
+          <option value="0">Normal</option>
+          <option value="1">Multiply</option>
+          <option value="2">Screen</option>
+          <option value="3">Add</option>
+          <option value="4">Difference</option>
+          <option value="5">Overlay</option>
+        </select>
+      </div>
+      <div class="knobgrid" style="grid-template-columns:1fr;justify-items:center">
+        <div class="knobctl">
+          <div class="knob" data-for="layerMix" role="slider" aria-label="Layer 2 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+          <div class="knoblabel">Mix <output id="layerMixOut">0</output></div>
+          <input id="layerMix" type="range" min="0" max="1" step="0.02" value="0">
+        </div>
       </div>
     </div>
-    <p class="cnote" style="margin:8px 0 0">Mix 0 = single engine. Raise it to composite the 2nd engine over the 1st — try Multiply or Screen. Remove a layer with the ✕ on its row.</p>
+    <!-- layer 3 blends onto the result of layer 2, not onto the base, so it is dimmed and
+         inert until there is something under it to blend with -->
+    <div class="layerBlock" id="layer3Block">
+      <div class="layerHead">Layer 3 — over that</div>
+      <div class="row gap">
+        <select id="field3Sel" class="layerSel" aria-label="Third engine"></select>
+        <select id="blend2Sel" class="layerSel" aria-label="Third engine blend mode">
+          <option value="0">Normal</option>
+          <option value="1">Multiply</option>
+          <option value="2">Screen</option>
+          <option value="3">Add</option>
+          <option value="4">Difference</option>
+          <option value="5">Overlay</option>
+        </select>
+      </div>
+      <div class="knobgrid" style="grid-template-columns:1fr;justify-items:center">
+        <div class="knobctl">
+          <div class="knob" data-for="layerMix2" role="slider" aria-label="Layer 3 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+          <div class="knoblabel">Mix <output id="layerMix2Out">0</output></div>
+          <input id="layerMix2" type="range" min="0" max="1" step="0.02" value="0">
+        </div>
+      </div>
+    </div>
+    <p class="cnote" style="margin:8px 0 0">Mix 0 = the layer is off. Each layer blends onto everything under it, so Layer 3 needs Layer 2 — try Multiply or Screen. Remove a layer with the ✕ on its row.</p>
   </section>
 
   <!-- ---------- Surface section: screen geometry, material finish and the halftone/dither knobs ---------- -->
@@ -1886,6 +1919,7 @@ var state = {
   field:0, screen:0, sym:0, material:0,
   lens:0, lensAmt:1,
   field2:0, blend:0, layerMix:0,
+  field3:0, blend2:0, layerMix2:0,
   hasTex:0, texAspect:1,
   split:0,
   panX:0, panY:0,
@@ -1935,6 +1969,9 @@ var FSRC = [
   'uniform int   u_field2;',
   'uniform int   u_blend;',
   'uniform float u_layerMix;',
+  'uniform int   u_field3;',
+  'uniform int   u_blend2;',
+  'uniform float u_layerMix2;',
   'uniform int   u_screen;',
   'uniform int   u_material;',
   'uniform sampler2D u_glyph;',
@@ -2646,11 +2683,17 @@ var FSRC = [
   '    }',
   '    p = mix(p, lw * lsc, u_lensAmt);',
   '  }',
-  '  /* base layer, then optionally composite a 2nd engine on the same domain (Layers) */',
+  '  /* base layer, then optionally composite a 2nd and 3rd engine on the same domain',
+  '     (Layers). Each blends onto the accumulated result, not onto the base, so the stack',
+  '     reads top-down exactly as the tray draws it. */',
   '  f = fieldOf(u_field, p, u_time, disp);',
   '  if (u_layerMix > 0.001){',
   '    vec2 disp2;',
   '    f = blendField(f, fieldOf(u_field2, p, u_time, disp2), u_blend, u_layerMix);',
+  '  }',
+  '  if (u_layerMix2 > 0.001){',
+  '    vec2 disp3;',
+  '    f = blendField(f, fieldOf(u_field3, p, u_time, disp3), u_blend2, u_layerMix2);',
   '  }',
   '  if (u_hasTex > 0.5 && u_field != 0){',
   '    float d1 = 1.8 * sin(u_time * 0.12) + 1.2 * cos(u_time * 0.067);',
@@ -2812,7 +2855,7 @@ if (gl){
 
   ['u_res','u_time','u_seed','u_scale','u_warp','u_lens','u_lensAmt','u_sym','u_pixel','u_dots','u_dot','u_dither','u_grain',
    'u_pal','u_c0','u_c1','u_c2','u_c3','u_tex','u_hasTex','u_texAspect','u_liq','u_mix','u_split',
-   'u_field','u_field2','u_blend','u_layerMix','u_screen','u_material','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg','u_maskBg2','u_maskGrad'].forEach(function(n){
+   'u_field','u_field2','u_blend','u_layerMix','u_field3','u_blend2','u_layerMix2','u_screen','u_material','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg','u_maskBg2','u_maskGrad'].forEach(function(n){
     U[n] = gl.getUniformLocation(prog, n);
   });
 
@@ -3420,6 +3463,11 @@ function render(k, tgt){
   gl.uniform1i(U.u_field2, state.field2 || 0);
   gl.uniform1i(U.u_blend, state.blend || 0);
   gl.uniform1f(U.u_layerMix, state.layerMix || 0);
+  gl.uniform1i(U.u_field3, state.field3 || 0);
+  gl.uniform1i(U.u_blend2, state.blend2 || 0);
+  /* layer 3 only composites once layer 2 is on — a gap in the stack would render as a
+     2-layer piece while the tray drew three rows */
+  gl.uniform1f(U.u_layerMix2, (state.layerMix || 0) > 0.001 ? (state.layerMix2 || 0) : 0);
   gl.uniform1i(U.u_screen, state.screen);
   gl.uniform1i(U.u_material, state.material || 0);
   gl.uniform2f(U.u_pan, tex ? state.panX : 0, tex ? state.panY : 0);
@@ -3574,7 +3622,7 @@ function bindSlider(id, key, fmt){
     /* liquify/blend are source-domain — they don't drop the look */
     if (key !== 'liq' && key !== 'mix'){ markLook(null); }
     /* the layer row appears/disappears as mix crosses zero, and shows the live % */
-    if (key === 'layerMix'){ renderLayerStack(); }
+    if (key === 'layerMix' || key === 'layerMix2'){ renderLayerStack(); syncLayerBlocks(); }
     requestRender();
   }
   /* native path — keyboard arrows (and a fallback if pointer events are unavailable) */
@@ -3623,22 +3671,48 @@ bindSlider('grain', 'grain');
 bindSlider('sym', 'sym');
 bindSlider('lensAmt', 'lensAmt');
 bindSlider('layerMix', 'layerMix');
+bindSlider('layerMix2', 'layerMix2');
 /* ---------- layers UI: pick the second engine, its blend mode and its strength ---------- */
 var field2Sel = document.getElementById('field2Sel');
 var blendSel = document.getElementById('blendSel');
-/* the 2nd-engine list mirrors the field picker exactly, so adding an engine can never
-   leave it missing here (Topo was, for one release) */
-if (field2Sel){
-  var fbtns = document.querySelectorAll('.fieldBtn[data-field]');
-  for (var fbi = 0; fbi < fbtns.length; fbi++){
+var field3Sel = document.getElementById('field3Sel');
+var blend2Sel = document.getElementById('blend2Sel');
+/* Highest engine id. parseHash clamps against it and has to stay pure — it is extracted and
+   run in a sandbox by tests/hash, with no DOM — so this is a literal rather than a count of
+   the picker. tests/hash pins it to the markup, so adding a 24th engine fails loudly here
+   instead of silently clamping the new engine out of every share link. */
+var FIELD_MAX = 22;
+/* The engine dropdowns are built from the picker, so adding an engine needs no edit here.
+   Topo shipped missing from the layer dropdown for a release when this was hand-maintained. */
+var FIELD_BTNS = document.querySelectorAll('.fieldBtn[data-field]');
+function fillEngineSelect(sel){
+  if (!sel){ return; }
+  for (var i = 0; i < FIELD_BTNS.length; i++){
     var opt = document.createElement('option');
-    opt.value = fbtns[fbi].getAttribute('data-field');
-    opt.textContent = (fbtns[fbi].title || fbtns[fbi].textContent || '').trim();
-    field2Sel.appendChild(opt);
+    opt.value = FIELD_BTNS[i].getAttribute('data-field');
+    opt.textContent = (FIELD_BTNS[i].title || FIELD_BTNS[i].textContent || '').trim();
+    sel.appendChild(opt);
   }
 }
-if (field2Sel){ field2Sel.addEventListener('change', function(){ state.field2 = parseInt(field2Sel.value, 10) || 0; markLook(null); syncControls(); requestRender(); persist(); }); }
-if (blendSel){ blendSel.addEventListener('change', function(){ state.blend = parseInt(blendSel.value, 10) || 0; markLook(null); syncControls(); requestRender(); persist(); }); }
+fillEngineSelect(field2Sel);
+fillEngineSelect(field3Sel);
+/* one binder for both layers — two hand-written pairs is how they drift apart */
+function bindLayerSelect(sel, key){
+  if (!sel){ return; }
+  sel.addEventListener('change', function(){
+    state[key] = parseInt(sel.value, 10) || 0;
+    markLook(null); syncControls(); requestRender(); persist();
+  });
+}
+bindLayerSelect(field2Sel, 'field2');
+bindLayerSelect(blendSel, 'blend');
+bindLayerSelect(field3Sel, 'field3');
+bindLayerSelect(blend2Sel, 'blend2');
+/* layer 3 has nothing to blend onto until layer 2 is on, so its block goes quiet */
+function syncLayerBlocks(){
+  var b3 = document.getElementById('layer3Block');
+  if (b3){ b3.classList.toggle('inert', !((state.layerMix || 0) > 0.001)); }
+}
 /* ---------- layer stack: the visible list of what's composited, with per-layer removal ---------- */
 var layerStack = document.getElementById('trayLayers');
 function engineLabel(i){
@@ -3666,29 +3740,53 @@ function revealSection(el){
   void sec.offsetWidth;
   sec.classList.add('sec-flash');
 }
-function removeSecondLayer(){
-  state.field2 = 0; state.blend = 0; state.layerMix = 0;
-  markLook(null); syncControls(); requestRender(); persist();
-  setStatus('LAYER REMOVED — back to a single engine');
+/* How many engines are actually compositing right now. Layer 3 is only real when layer 2
+   is: each layer blends onto everything under it, so a gap is not a state that exists. */
+function layerDepth(){
+  if (!((state.layerMix || 0) > 0.001)){ return 1; }
+  return ((state.layerMix2 || 0) > 0.001) ? 3 : 2;
 }
-/* Removing the base keeps what you can actually see: the 2nd engine becomes the only one,
-   carrying its own settings up. Offered only while a 2nd layer exists — the last engine
-   standing is the artwork, and there is nothing to fall back to. */
-function removeBaseLayer(){
-  var kept = state.field2;
-  state.field = kept; state.field2 = 0; state.blend = 0; state.layerMix = 0;
+/* Dropping a layer closes the gap it leaves rather than leaving a hole: removing 1 or 2 with
+   a third present slides the stack down, so what you could see stays visible and the base is
+   always a real engine. */
+function removeLayer(idx){
+  var depth = layerDepth();
+  if (depth < 2 || idx < 1 || idx > depth){ return; }
+  var stack = [
+    { field: state.field, blend: 0, mix: 1 },
+    { field: state.field2, blend: state.blend, mix: state.layerMix },
+    { field: state.field3, blend: state.blend2, mix: state.layerMix2 }
+  ].slice(0, depth);
+  var gone = engineLabel(stack[idx - 1].field);
+  stack.splice(idx - 1, 1);
+  state.field = stack[0].field;
+  /* the new base keeps no blend of its own — it is the thing others blend onto */
+  state.field2 = stack.length > 1 ? stack[1].field : 0;
+  state.blend  = stack.length > 1 ? stack[1].blend : 0;
+  state.layerMix = stack.length > 1 ? stack[1].mix : 0;
+  state.field3 = stack.length > 2 ? stack[2].field : 0;
+  state.blend2 = stack.length > 2 ? stack[2].blend : 0;
+  state.layerMix2 = stack.length > 2 ? stack[2].mix : 0;
   markLook(null); syncControls(); requestRender(); persist();
-  setStatus('BASE REMOVED — ' + engineLabel(kept).toUpperCase() + ' is the artwork now');
+  setStatus('LAYER REMOVED — ' + gone.toUpperCase() + ' dropped; ' +
+    (stack.length > 1 ? stack.length + ' engines left' : engineLabel(state.field).toUpperCase() + ' is the artwork now'));
 }
-/* start a 2nd layer with a readable default: a different engine, screen blend, mid mix */
-function addSecondLayer(){
-  /* draw from the generated <select>, never a hardcoded count — same reason the list itself
-     is generated: a new engine has to be reachable here the day it lands */
+/* start the next layer with a readable default: an engine not already in the stack, screen
+   blend, mid mix. Drawn from the generated <select>, never a hardcoded count — same reason
+   the list itself is generated: a new engine has to be reachable the day it lands. */
+function addLayer(){
+  var depth = layerDepth();
+  if (depth >= 3){ return; }
   var opts = field2Sel ? field2Sel.options : null;
-  var n = state.field;
   if (!opts || opts.length < 2){ return; }
-  do { n = parseInt(opts[Math.floor(Math.random() * opts.length)].value, 10) || 0; } while (n === state.field);
-  state.field2 = n; state.blend = 2; state.layerMix = 0.45;
+  var used = depth === 1 ? [state.field] : [state.field, state.field2];
+  var n = state.field, tries = 0;
+  do {
+    n = parseInt(opts[Math.floor(Math.random() * opts.length)].value, 10) || 0;
+    tries++;
+  } while (used.indexOf(n) !== -1 && tries < 40);
+  if (depth === 1){ state.field2 = n; state.blend = 2; state.layerMix = 0.45; }
+  else { state.field3 = n; state.blend2 = 2; state.layerMix2 = 0.4; }
   markLook(null); syncControls(); requestRender(); persist();
   setStatus('LAYER ADDED — ' + engineLabel(n).toUpperCase() + ' on screen blend; tune it in the panel');
 }
@@ -3696,7 +3794,7 @@ function renderLayerStack(){
   if (!layerStack){ return; }
   layerStack.className = 'trayPane layerStack';   /* keep trayPane — the tab hide rule keys off it */
   while (layerStack.firstChild){ layerStack.removeChild(layerStack.firstChild); }
-  var on = (state.layerMix || 0) > 0.001;
+  var depth = layerDepth();
   /* `jumpTo` is any element inside the panel section that drives this layer — the row body
      opens that section. `remove` is the handler for the x, or null when the row is the
      only engine left. The two are separate buttons so one click can never mean both. */
@@ -3724,18 +3822,25 @@ function renderLayerStack(){
   }
   /* the tab badge reports the stack even when the tray is collapsed or Explore is open */
   var badge = document.getElementById('layerCount');
-  if (badge){ badge.hidden = !on; badge.textContent = '2'; }
-  /* base first, left to right — the tray reads like a filmstrip, not a sidebar.
-     Row 1 lands in Field (it IS the field), row 2 in Layers (engine, blend and mix). */
-  var fieldAnchor = document.getElementById('fieldStrip');
-  addRow('1', engineLabel(state.field), 'base', fieldAnchor, on ? removeBaseLayer : null, true);
-  if (on){
-    addRow('2', engineLabel(state.field2), blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', field2Sel, removeSecondLayer, false);
-  } else {
+  if (badge){ badge.hidden = depth < 2; badge.textContent = String(depth); }
+  /* base first, left to right — the tray reads like a filmstrip, not a sidebar. Row 1 lands
+     in Field (it IS the field), rows 2 and 3 in Layers (engine, blend and mix). */
+  var rows = [
+    { name: engineLabel(state.field), meta: 'base', jump: document.getElementById('fieldStrip') },
+    { name: engineLabel(state.field2), meta: blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', jump: field2Sel },
+    { name: engineLabel(state.field3), meta: blendLabel(state.blend2) + ' · ' + Math.round((state.layerMix2 || 0) * 100) + '%', jump: field3Sel }
+  ].slice(0, depth);
+  rows.forEach(function(row, i){
+    /* every row is removable once there are two — with one engine there is nothing to fall
+       back to, and the last one standing IS the artwork */
+    var remove = depth > 1 ? function(){ removeLayer(i + 1); } : null;
+    addRow(String(i + 1), row.name, row.meta, row.jump, remove, i === 0);
+  });
+  if (depth < 3){
     var add = document.createElement('button');
     add.type = 'button'; add.className = 'layerAdd'; add.textContent = '+ Layer';
-    add.title = 'Blend a 2nd engine over this one';
-    add.addEventListener('click', addSecondLayer);
+    add.title = depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these';
+    add.addEventListener('click', addLayer);
     layerStack.appendChild(add);
   }
 }
@@ -3974,7 +4079,10 @@ function syncControls(){
   if (typeof refreshKnobs === 'function'){ refreshKnobs(); }
   if (field2Sel){ field2Sel.value = String(state.field2 || 0); }
   if (blendSel){ blendSel.value = String(state.blend || 0); }
+  if (field3Sel){ field3Sel.value = String(state.field3 || 0); }
+  if (blend2Sel){ blend2Sel.value = String(state.blend2 || 0); }
   renderLayerStack();
+  syncLayerBlocks();
   var dotsBtn = document.getElementById('dotsBtn');
   dotsBtn.className = 'fieldBtn' + (state.dots ? ' on' : '');
   dotsBtn.setAttribute('aria-pressed', state.dots ? 'true' : 'false');
@@ -5230,12 +5338,21 @@ function buildHash(embedFlag){
     while (a.length < 28){ a.push(0); }
     a.push(Math.round(state.material));
   }
+  /* [31][32][33] = Layer 3 engine / blend mode / mix×100. Written after the lens block so
+     older links keep decoding identically, and gated on layer 2 being on as well: a stack
+     with a hole in it is not a state the app can be in. */
+  var wantLayer3 = (state.layerMix || 0) > 0.001 && (state.layerMix2 || 0) > 0.001;
   /* [29][30] = math lens (1 square .. 12 modular, the picker order) + amount×100 — only
      when visibly on. Gate on the ENCODED amount: an amount that rounds to slot value 0
-     would be trimmed away and then decode as the default 1.0 (full strength). */
+     would be trimmed away and then decode as the default 1.0 (full strength).
+     Layer 3 lives past these, so its presence forces the lens slots to be written too. */
   if ((state.lens || 0) > 0 && Math.round((state.lensAmt == null ? 1 : state.lensAmt) * 100) >= 1){
     while (a.length < 29){ a.push(0); }
     a.push(Math.round(state.lens), Math.round((state.lensAmt == null ? 1 : state.lensAmt) * 100));
+  }
+  if (wantLayer3){
+    while (a.length < 31){ a.push(0); }
+    a.push(state.field3 || 0, state.blend2 || 0, Math.round((state.layerMix2 || 0) * 100));
   }
   var minLen = state.pal === 8 ? 24 : 12;
   while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
@@ -5267,7 +5384,7 @@ function parseHash(src){
   state.ar = (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1;
   pendingPreset = n.length > 12 ? Math.min(PRESETS.length, Math.max(0, Math.round(n[12]))) : 0;
   EMBED = n.length > 13 && Math.round(n[13]) === 1;
-  state.field = n.length > 14 ? Math.min(22, Math.max(0, Math.round(n[14]))) : 0;
+  state.field = n.length > 14 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[14]))) : 0;
   state.screen = n.length > 15 ? Math.min(4, Math.max(0, Math.round(n[15]))) : 0;
   state.panX = n.length > 16 ? Math.max(-0.5, Math.min(0.5, n[16])) : 0;
   state.panY = n.length > 17 ? Math.max(-0.5, Math.min(0.5, n[17])) : 0;
@@ -5279,12 +5396,17 @@ function parseHash(src){
     state.cols = cloneStops(PALETTES_RGB[0]);
   }
   state.thresh = n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5;
-  state.field2 = n.length > 25 ? Math.min(22, Math.max(0, Math.round(n[25]))) : 0;
+  state.field2 = n.length > 25 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;
   state.lens = n.length > 29 ? Math.min(12, Math.max(0, Math.round(n[29]))) : 0;
   state.lensAmt = n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1;
+  state.field3 = n.length > 31 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[31]))) : 0;
+  state.blend2 = n.length > 32 ? Math.min(5, Math.max(0, Math.round(n[32]))) : 0;
+  /* a 3rd layer without a 2nd is a hole in the stack — a hand-edited or truncated link
+     gets the 2-layer piece it can actually describe, not a silently reordered one */
+  state.layerMix2 = (n.length > 33 && state.layerMix > 0.001) ? Math.max(0, Math.min(1, n[33] / 100)) : 0;
   return true;
 }
 function copyText(txt, okMsg, failMsg){
@@ -5693,7 +5815,11 @@ function buildStandaloneHTML(){
     dot:Math.round(state.dot), thresh:+state.thresh.toFixed(3), grain:+state.grain.toFixed(3),
     pal:state.pal, cols:[r4(cc[0]), r4(cc[1]), r4(cc[2]), r4(cc[3])],
     field:state.field, field2:state.field2 || 0, blend:state.blend || 0,
-    layerMix:+(state.layerMix || 0).toFixed(3), screen:state.screen, material:state.material || 0, seed:+state.seed.toFixed(2),
+    layerMix:+(state.layerMix || 0).toFixed(3),
+    field3:state.field3 || 0, blend2:state.blend2 || 0,
+    /* mirrors the render path: layer 3 only composites when layer 2 does */
+    layerMix2:+((state.layerMix || 0) > 0.001 ? (state.layerMix2 || 0) : 0).toFixed(3),
+    screen:state.screen, material:state.material || 0, seed:+state.seed.toFixed(2),
     lens:Math.round(state.lens || 0), lensAmt:+(state.lensAmt == null ? 1 : state.lensAmt).toFixed(2)
   };
   var boot =
@@ -5702,14 +5828,14 @@ function buildStandaloneHTML(){
     "gl.getExtension('OES_standard_derivatives');var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);" +
     "var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);" +
     "var al=gl.getAttribLocation(pr,'a_pos');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);var U={};" +
-    "'u_res u_time u_seed u_scale u_warp u_lens u_lensAmt u_sym u_pixel u_dots u_dot u_dither u_grain u_pal u_c0 u_c1 u_c2 u_c3 u_hasTex u_texAspect u_liq u_mix u_split u_field u_field2 u_blend u_layerMix u_screen u_material u_glyph u_pan u_mouse u_mouseAmt u_rec u_mask u_hasMask u_maskBg'.split(' ').forEach(function(n){U[n]=gl.getUniformLocation(pr,n);});" +
+    "'u_res u_time u_seed u_scale u_warp u_lens u_lensAmt u_sym u_pixel u_dots u_dot u_dither u_grain u_pal u_c0 u_c1 u_c2 u_c3 u_hasTex u_texAspect u_liq u_mix u_split u_field u_field2 u_blend u_layerMix u_field3 u_blend2 u_layerMix2 u_screen u_material u_glyph u_pan u_mouse u_mouseAmt u_rec u_mask u_hasMask u_maskBg'.split(' ').forEach(function(n){U[n]=gl.getUniformLocation(pr,n);});" +
     "function dt(u){var t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+u);gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);}dt(0);dt(2);" +
     "(function(){var ch=' .:-=+*#%@',ce=28;var c=document.createElement('canvas');c.width=ce*ch.length;c.height=ce;var x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.fillStyle='#fff';x.font='bold '+Math.round(ce*0.82)+'px monospace';x.textAlign='center';x.textBaseline='middle';for(var i=0;i<ch.length;i++)x.fillText(ch.charAt(i),i*ce+ce/2,ce/2+1);var t=gl.createTexture();gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);})();" +
     "gl.activeTexture(gl.TEXTURE0);gl.uniform1i(U.u_glyph,1);gl.uniform1i(U.u_mask,2);" +
     "gl.uniform1f(U.u_seed,P.seed);gl.uniform1f(U.u_scale,P.scale);gl.uniform1f(U.u_warp,P.warp);gl.uniform1f(U.u_sym,P.sym);gl.uniform1f(U.u_dots,P.dots);gl.uniform1f(U.u_dither,P.thresh);gl.uniform1f(U.u_grain,P.grain);gl.uniform1i(U.u_pal,P.pal);" +
     "gl.uniform3f(U.u_c0,P.cols[0][0],P.cols[0][1],P.cols[0][2]);gl.uniform3f(U.u_c1,P.cols[1][0],P.cols[1][1],P.cols[1][2]);gl.uniform3f(U.u_c2,P.cols[2][0],P.cols[2][1],P.cols[2][2]);gl.uniform3f(U.u_c3,P.cols[3][0],P.cols[3][1],P.cols[3][2]);" +
     "gl.uniform1f(U.u_hasTex,0);gl.uniform1f(U.u_texAspect,1);gl.uniform1f(U.u_liq,0);gl.uniform1f(U.u_mix,0);gl.uniform1f(U.u_split,0);" +
-    "gl.uniform1i(U.u_field,P.field);gl.uniform1i(U.u_field2,P.field2);gl.uniform1i(U.u_blend,P.blend);gl.uniform1f(U.u_layerMix,P.layerMix);gl.uniform1i(U.u_screen,P.screen);gl.uniform1i(U.u_material,P.material);gl.uniform1i(U.u_lens,P.lens||0);gl.uniform1f(U.u_lensAmt,P.lensAmt==null?1:P.lensAmt);" +
+    "gl.uniform1i(U.u_field,P.field);gl.uniform1i(U.u_field2,P.field2);gl.uniform1i(U.u_blend,P.blend);gl.uniform1f(U.u_layerMix,P.layerMix);gl.uniform1i(U.u_field3,P.field3);gl.uniform1i(U.u_blend2,P.blend2);gl.uniform1f(U.u_layerMix2,P.layerMix2);gl.uniform1i(U.u_screen,P.screen);gl.uniform1i(U.u_material,P.material);gl.uniform1i(U.u_lens,P.lens||0);gl.uniform1f(U.u_lensAmt,P.lensAmt==null?1:P.lensAmt);" +
     "gl.uniform2f(U.u_pan,0,0);gl.uniform2f(U.u_mouse,0.5,0.5);gl.uniform1f(U.u_mouseAmt,0);gl.uniform1f(U.u_rec,0);gl.uniform1f(U.u_hasMask,0);gl.uniform3f(U.u_maskBg,0.05,0.05,0.06);" +
     "var dpr=Math.min(window.devicePixelRatio||1,2);function rs(){var w=Math.round(cv.clientWidth*dpr),h=Math.round(cv.clientHeight*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(U.u_res,cv.width,cv.height);gl.uniform1f(U.u_pixel,P.pixel<=1.5?1.0:P.pixel*dpr);gl.uniform1f(U.u_dot,P.dot*dpr);}window.addEventListener('resize',rs);rs();" +
     "var st=null;function fr(now){if(st===null)st=now;gl.uniform1f(U.u_time,(now-st)*0.001*P.speed);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(fr);}requestAnimationFrame(fr);";

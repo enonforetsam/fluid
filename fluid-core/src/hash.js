@@ -7,7 +7,7 @@
  * [9,10], aspect [11]) don't affect a mounted piece and are not returned,
  * except `ar`, which callers may use to size their container.
  */
-import { PALETTES_RGB } from './generated/data.js';
+import { PALETTES_RGB, FIELDS } from './generated/data.js';
 
 function unpackCol(v){
   v = Math.max(0, Math.round(v));
@@ -21,6 +21,10 @@ function rgb01ToHex(c){
   return '#' + p(c[0]) + p(c[1]) + p(c[2]);
 }
 const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(v)));
+/* Engine ids clamp against the real engine list, never a number typed in once. This was a
+   hardcoded 21 while the studio shipped 23 engines, so Topo (22) decoded as Cassini (21) in
+   every embed and every parseShareHash caller. */
+const FIELD_MAX = FIELDS.length - 1;
 
 /**
  * Parse a Fluid share hash (or a full share URL) into createFluid() params.
@@ -41,7 +45,7 @@ export function parseShareHash(hash){
     dots: Math.round(n[6]) ? 1 : 0,
     seed: n[8],
     ar: (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1,
-    field: n.length > 14 ? clampInt(n[14], 0, 21) : 0,
+    field: n.length > 14 ? clampInt(n[14], 0, FIELD_MAX) : 0,
     screen: n.length > 15 ? clampInt(n[15], 0, 4) : 0,
     sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
     thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
@@ -63,10 +67,19 @@ export function parseShareHash(hash){
   const layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   if (layerMix > 0.001){
     params.layer = {
-      field: n.length > 25 ? clampInt(n[25], 0, 21) : 0,
+      field: n.length > 25 ? clampInt(n[25], 0, FIELD_MAX) : 0,
       blend: n.length > 26 ? clampInt(n[26], 0, 5) : 0,
       mix: layerMix
     };
+    /* [31..33] — a 3rd layer blends onto the 2nd's result, so it only exists if the 2nd does */
+    const layerMix2 = n.length > 33 ? Math.max(0, Math.min(1, n[33] / 100)) : 0;
+    if (layerMix2 > 0.001){
+      params.layer2 = {
+        field: n.length > 31 ? clampInt(n[31], 0, FIELD_MAX) : 0,
+        blend: n.length > 32 ? clampInt(n[32], 0, 5) : 0,
+        mix: layerMix2
+      };
+    }
   }
   return params;
 }

@@ -276,8 +276,31 @@ function decodeLink(url){
     threshold: n.length > 24 ? clamp(0.5 + n[24], 0, 1) : 0.5,
     finish: FINISHES[clamp(n.length > 28 ? Math.round(n[28]) : 0, 0, FINISHES.length - 1)],
     lens: LENSES[clamp(n.length > 29 ? Math.round(n[29]) : 0, 0, LENSES.length - 1)],
-    lensAmount: n.length > 30 ? clamp(n[30] / 100, 0, 1) : 1
+    lensAmount: n.length > 30 ? clamp(n[30] / 100, 0, 1) : 1,
+    /* the stacked engines, if any: [25..27] is layer 2, [31..33] layer 3. Each blends onto
+       everything below it, so a 3rd without a 2nd is not a state and is reported as absent. */
+    layers: decodeLayers(n)
   };
+}
+var BLENDS = ['normal', 'multiply', 'screen', 'add', 'difference', 'overlay'];
+function decodeLayers(n){
+  var out = [];
+  var mix2 = n.length > 27 ? clamp(n[27] / 100, 0, 1) : 0;
+  if (mix2 <= 0.001){ return out; }
+  out.push({
+    field: FIELDS[clamp(n.length > 25 ? Math.round(n[25]) : 0, 0, FIELDS.length - 1)],
+    blend: BLENDS[clamp(n.length > 26 ? Math.round(n[26]) : 0, 0, BLENDS.length - 1)],
+    mix: round2(mix2)
+  });
+  var mix3 = n.length > 33 ? clamp(n[33] / 100, 0, 1) : 0;
+  if (mix3 > 0.001){
+    out.push({
+      field: FIELDS[clamp(n.length > 31 ? Math.round(n[31]) : 0, 0, FIELDS.length - 1)],
+      blend: BLENDS[clamp(n.length > 32 ? Math.round(n[32]) : 0, 0, BLENDS.length - 1)],
+      mix: round2(mix3)
+    });
+  }
+  return out;
 }
 
 function looksList(base){

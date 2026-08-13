@@ -34,9 +34,19 @@ function extractArrayLiteral(name) {
   throw new Error('unbalanced brackets: ' + name);
 }
 
+/* `var NAME = <number>;` — parseHash clamps engine ids against FIELD_MAX, and it has to be a
+   literal because this sandbox has no DOM to count the picker with. */
+function extractNumber(name) {
+  const m = new RegExp('var\\s+' + name + '\\s*=\\s*(-?\\d+(?:\\.\\d+)?)\\s*;').exec(src);
+  if (!m) throw new Error('numeric var not found: ' + name);
+  return Number(m[1]);
+}
+const FIELD_MAX = extractNumber('FIELD_MAX');
+
 function makeCtx() {
   const sandbox = {
     PRESETS: [], activePresetId: null, pendingPreset: 0, EMBED: false,
+    FIELD_MAX,
     Math, parseFloat, parseInt, isNaN, String, Number,
     window: { location: { hash: '' } },
     state: {}
@@ -47,7 +57,7 @@ function makeCtx() {
   return sandbox;
 }
 
-const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, sym: 0, field2: 0, blend: 0, layerMix: 0, material: 0, lens: 0, lensAmt: 1, panX: 0, panY: 0, thresh: 0.5, cols: null };
+const BASE = { speed: 0.75, scale: 1.8, warp: 3.9, grain: 0.3, pixel: 15, dot: 13, dots: 1, pal: 4, seed: 37.14, liq: 0.8, mix: 0.85, ar: 1.7778, field: 0, screen: 0, sym: 0, field2: 0, blend: 0, layerMix: 0, field3: 0, blend2: 0, layerMix2: 0, material: 0, lens: 0, lensAmt: 1, panX: 0, panY: 0, thresh: 0.5, cols: null };
 
 function roundtrip(overrides) {
   const enc = makeCtx();
@@ -89,6 +99,49 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     assert.ok(Math.abs(after.layerMix - 0.5) < 0.011, 'layerMix drifted: ' + after.layerMix);
     // no layer (mix 0) must trim away — no hash bloat for the common single-engine case
     assert.ok(roundtrip({ layerMix: 0 }).hash.split(',').length <= 16, 'mix=0 must not pad the hash');
+  });
+
+  it('Layer 3 (3rd engine / blend / mix) round-trips via slots [31-33]', () => {
+    const { after } = roundtrip({ field2: 7, blend: 2, layerMix: 0.5, field3: 11, blend2: 4, layerMix2: 0.3 });
+    assert.strictEqual(after.field3, 11, 'field3 (3rd engine)');
+    assert.strictEqual(after.blend2, 4, '3rd engine blend mode');
+    assert.ok(Math.abs(after.layerMix2 - 0.3) < 0.011, 'layerMix2 drifted: ' + after.layerMix2);
+    /* layer 2 must survive being written before the lens block that layer 3 sits past */
+    assert.strictEqual(after.field2, 7, 'layer 2 engine was lost when layer 3 was written');
+    assert.ok(Math.abs(after.layerMix - 0.5) < 0.011, 'layer 2 mix drifted');
+  });
+
+  it('Layer 3 survives a lens, which lives in the slots between them', () => {
+    const { after } = roundtrip({
+      field2: 3, blend: 1, layerMix: 0.6, field3: 9, blend2: 5, layerMix2: 0.8, lens: 6, lensAmt: 0.42
+    });
+    assert.strictEqual(after.lens, 6, 'lens');
+    assert.ok(Math.abs(after.lensAmt - 0.42) < 0.011, 'lens amount drifted');
+    assert.strictEqual(after.field3, 9, 'layer 3 engine');
+    assert.ok(Math.abs(after.layerMix2 - 0.8) < 0.011, 'layer 3 mix drifted');
+  });
+
+  it('a 3rd layer without a 2nd decodes as no 3rd layer, not a reordered stack', () => {
+    /* the shader blends each layer onto everything under it, so a gap is not a real state.
+       A hand-edited or truncated link must degrade to the piece it can actually describe. */
+    const { after, hash } = roundtrip({ field3: 9, blend2: 3, layerMix2: 0.7, layerMix: 0 });
+    assert.strictEqual(after.layerMix2, 0, 'layer 3 rode along without a layer 2');
+    assert.ok(hash.split(',').length <= 16, 'an inactive stack must not pad the hash');
+  });
+
+  it('a single-engine piece still trims to a short hash', () => {
+    assert.ok(roundtrip({ layerMix: 0, layerMix2: 0 }).hash.split(',').length <= 16,
+      'the common no-layers case must not carry empty layer slots');
+  });
+
+  it('FIELD_MAX matches the highest engine in the picker', () => {
+    /* parseHash clamps engine ids to FIELD_MAX. If a new engine is added to the markup and
+       this literal is not bumped, every share link carrying it silently decodes as the wrong
+       engine — exactly how Topo went missing from the layer dropdown. */
+    const ids = [...src.matchAll(/data-field="(\d+)"/g)].map((m) => Number(m[1]));
+    const highest = Math.max(...ids);
+    assert.strictEqual(FIELD_MAX, highest,
+      `FIELD_MAX is ${FIELD_MAX} but the picker's highest engine is ${highest} — bump the literal in index.html`);
   });
 
   it('every screen 0..3 round-trips', () => {

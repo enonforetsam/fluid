@@ -74,9 +74,34 @@ test('parseShareHash clamps out-of-range values like the studio', async () => {
   const { parseShareHash } = await import('../fluid-core/src/hash.js');
   const p = parseShareHash('#p=0.5,1.5,5,0.03,1,10,0,99,18,0,0,9,0,0,99,99,0,0,99');
   assert.ok(p);
-  assert.strictEqual(p.field, 21, 'field clamped to 21');
+  /* clamped to the real engine count, not a literal — a hardcoded 21 here is what made
+     Topo (22) decode as Cassini in every embed */
+  const { FIELDS } = await import('../fluid-core/src/generated/data.js');
+  assert.strictEqual(p.field, FIELDS.length - 1, 'field clamped to the highest real engine');
   assert.strictEqual(p.screen, 4, 'screen clamped to 4');
   assert.strictEqual(p.sym, 12, 'sym clamped to 12');
   assert.strictEqual(p.ar, 1, 'silly aspect falls back to 1');
   assert.ok(p.colors, 'pal clamped to 8 -> custom (aurora fallback stops)');
+});
+
+test('parseShareHash decodes a 3-engine stack from slots [31..33]', async () => {
+  const { parseShareHash } = await import('../fluid-core/src/hash.js');
+  /* layer 2 crystal/screen/40 at [25..27]; molten [28]; droste 65 at [29][30];
+     layer 3 topo/difference/70 at [31..33] */
+  const p = parseShareHash('#p=0.5,1.5,5,0.03,1,10,0,8,18,0,0,1.7778,0,0,10,0,0,0,4,0,' +
+    '263172,2302818,5606196,16249324,-0.04,11,2,40,5,4,65,22,4,70');
+  assert.ok(p, 'a 34-slot hash must still parse');
+  assert.deepStrictEqual(p.layer, { field: 11, blend: 2, mix: 0.4 }, 'layer 2 survived');
+  assert.deepStrictEqual(p.layer2, { field: 22, blend: 4, mix: 0.7 }, 'layer 3 decoded');
+  assert.strictEqual(p.lens, 4, 'the lens between the two layer blocks is intact');
+});
+
+test('a 3rd layer without a 2nd is dropped, not promoted', async () => {
+  const { parseShareHash } = await import('../fluid-core/src/hash.js');
+  /* mix at [27] is 0, so [31..33] describe a layer with nothing under it */
+  const p = parseShareHash('#p=0.5,1.5,5,0.03,1,10,0,0,18,0,0,1.7778,0,0,10,0,0,0,0,0,' +
+    '0,0,0,0,0,11,2,0,0,0,0,22,4,70');
+  assert.ok(p);
+  assert.strictEqual(p.layer, undefined, 'no layer 2');
+  assert.strictEqual(p.layer2, undefined, 'layer 3 must not stand in for the layer below it');
 });
