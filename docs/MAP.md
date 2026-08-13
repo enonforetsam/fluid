@@ -107,6 +107,7 @@ Zones, in file order:
 | cursor impact | how hard the pointer pushes the field, remembered per mode | `---------- cursor impact:` |
 | aspect ratio | the ordered AR list and the horizontal fader that walks it | `---------- aspect ratio:` |
 | shuffle | golden-ratio seeds, an engine shuffle-bag, per-engine ranges and a random palette | `---------- shuffle:` |
+| shuffle buttons | one action, two buttons, one name | `---------- shuffle buttons:` |
 | canvas pointer | hover ripples the field, drag pans a loaded image, a tap reseeds | `---------- canvas pointer:` |
 | preset shelf | the built-in source thumbnails, inert while PRESETS is empty | `---------- preset shelf:` |
 | user sources | uploaded photos / frozen frames become thumbnails | `---------- user sources:` |
@@ -120,6 +121,10 @@ Zones, in file order:
 | share links | #p= is comma-joined numbers in an EXACT, append-only order | `---------- share links:` |
 | persistence | the URL hash and localStorage are rewritten on every change | `---------- persistence:` |
 | local saved designs | private saves that stay in this browser, hash plus thumbnail | `---------- local saved designs:` |
+| strip tiles | one tile shape shared by Recent, Saved and Explore | `---------- strip tiles:` |
+| history | every state you have been in, and the way back | `---------- history:` |
+| saved shelf | your own keeps, in the same strip as the curated ones | `---------- saved shelf:` |
+| undo keys | the shortcut people try before they look for a button | `---------- undo keys:` |
 | embed popover | the Use-on-your-site sheet, offering a snippet, standalone HTML, SwiftUI and a Claude prompt | `---------- embed popover:` |
 | cursor-effect dock | the cursor picker lives on the canvas bar, next to Save | `---------- cursor-effect dock:` |
 | claude payload | a self-describing block Claude can read, with or without the MCP | `---------- claude payload:` |
@@ -159,5 +164,5 @@ Zones, in file order:
 
 ---
 
-111 sections. Anything unbannered is a gap in the map: add a banner in the
+116 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

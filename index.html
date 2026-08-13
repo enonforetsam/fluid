@@ -161,13 +161,26 @@
   #canvasChips button{touch-action:manipulation}   /* rapid taps never trigger double-tap zoom */
   #refreshChip{
     margin-right:auto;                       /* sits at the left edge of the bar */
+    display:inline-flex;align-items:center;gap:6px;
     font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
     color:var(--ink-c);background:var(--ink);border:1px solid var(--ink);
     border-radius:8px;padding:6px 12px;cursor:pointer;
   }
   #refreshChip:hover{opacity:.85}
-  #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block}
+  #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #refreshChip:active .ricon{transform:rotate(180deg)}
+  /* The chip is the one control that makes something happen with no decisions first, so it
+     asks for the first click — then stops for good. A button that pulses forever is noise,
+     not an affordance: the class is dropped the first time it is used, per browser. */
+  @keyframes shufflePulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}
+    50%{box-shadow:0 0 0 5px rgba(255,255,255,.16)}
+  }
+  #refreshChip.asking{animation:shufflePulse 2.4s ease-in-out infinite}
+  @media(prefers-reduced-motion:reduce){
+    #refreshChip.asking{animation:none}
+    #refreshChip .ricon{transition:none}
+  }
   .chipIcon{
     font-family:inherit;font-size:13px;letter-spacing:0;line-height:1;
     width:32px;height:28px;padding:0;flex:none;
@@ -322,7 +335,14 @@
   .trayBody{padding:8px}
   .trayPane[hidden]{display:none !important}   /* beats the pane's own display (.layerStack is flex) */
   #trayLayers{--ink:#e8e8e4;--soft:rgba(232,232,228,.55);--line:rgba(232,232,228,.16);--ink-c:#101114}
-  #trayExplore{display:flex;align-items:center;gap:5px}
+  #trayExplore,#trayRecent,#traySaved{display:flex;align-items:center;gap:5px}
+  /* the tile you are looking at right now, so the strip reads as a position not just a list */
+  .expTile.here{border-color:rgba(255,255,255,.75)}
+  .expTile.here span{color:#fff;background:rgba(6,6,10,.9)}
+  .stripEmpty{
+    flex:1;min-width:0;padding:18px 4px;text-align:center;
+    font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,232,228,.42);
+  }
   .expStrip{
     display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
     scrollbar-width:none;-ms-overflow-style:none;flex:1;min-width:0;
@@ -1185,7 +1205,7 @@
     <canvas id="glowCanvas" aria-hidden="true"></canvas>
     <div class="stageInner">
       <div id="canvasChips">
-        <button id="refreshChip" aria-label="Shuffle a new random design" title="Shuffle"><span class="ricon">&#8635;</span></button>
+        <button id="refreshChip" aria-label="Shuffle a new random design" title="Shuffle a new random design"><span class="ricon">&#8635;</span><span>Shuffle</span></button>
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
         </button>
@@ -1283,13 +1303,27 @@
 
       <!-- ---------- stage tray markup: the tabbed shelf docked under the artwork ---------- -->
       <div id="stageTray">
+        <!-- yours, then yours, then ours: what you are building, where you have been,
+             what you kept, and only last what we curated -->
         <div class="trayTabs" role="tablist" aria-label="Under the artwork">
           <button class="trayTab on" type="button" data-tray="layers" role="tab" aria-selected="true">Layers<span id="layerCount" class="tabBadge" hidden>2</span></button>
+          <button class="trayTab" type="button" data-tray="recent" role="tab" aria-selected="false">Recent<span id="recentCount" class="tabBadge" hidden>0</span></button>
+          <button class="trayTab" type="button" data-tray="saved" role="tab" aria-selected="false">Saved<span id="savedCount" class="tabBadge" hidden>0</span></button>
           <button class="trayTab" type="button" data-tray="explore" role="tab" aria-selected="false">Explore</button>
           <button id="trayToggle" type="button" aria-label="Collapse tray" aria-expanded="true" title="Collapse">&minus;</button>
         </div>
         <div class="trayBody">
           <div id="trayLayers" class="trayPane" role="tabpanel" aria-label="Layers"></div>
+          <div id="trayRecent" class="trayPane" role="tabpanel" aria-label="Recent" hidden>
+            <button id="recPrev" class="stripBtn" aria-label="Scroll recent left">&#8249;</button>
+            <div class="expStrip" id="recentStrip"></div>
+            <button id="recNext" class="stripBtn" aria-label="Scroll recent right">&#8250;</button>
+          </div>
+          <div id="traySaved" class="trayPane" role="tabpanel" aria-label="Saved" hidden>
+            <button id="savPrev" class="stripBtn" aria-label="Scroll saved left">&#8249;</button>
+            <div class="expStrip" id="savedStrip"></div>
+            <button id="savNext" class="stripBtn" aria-label="Scroll saved right">&#8250;</button>
+          </div>
           <div id="trayExplore" class="trayPane" role="tabpanel" aria-label="Explore" hidden>
             <button id="expPrev" class="stripBtn" aria-label="Scroll gallery left">&#8249;</button>
             <div class="expStrip" id="exploreStrip"></div>
@@ -1498,7 +1532,9 @@
       </div>
     </div>
     <div class="row gap">
-      <button id="randBtn">Randomize</button>
+      <!-- same action as the canvas chip, so it carries the same word — it used to say
+           "Randomize" and read like a second, different thing -->
+      <button id="randBtn">Shuffle</button>
     </div>
   </section>
 
@@ -4296,12 +4332,20 @@ function loadPiece(hash, name){
   }
 })();
 initStrip('exploreStrip', 'expPrev', 'expNext');
+initStrip('recentStrip', 'recPrev', 'recNext');
+initStrip('savedStrip', 'savPrev', 'savNext');
 /* ---------- stage tray behaviour: tab switching and collapse ---------- */
 (function initTray(){
   var tray = document.getElementById('stageTray');
   if (!tray){ return; }
   var tabs = tray.querySelectorAll('.trayTab');
-  var panes = { layers: document.getElementById('trayLayers'), explore: document.getElementById('trayExplore') };
+  var panes = {
+    layers: document.getElementById('trayLayers'),
+    recent: document.getElementById('trayRecent'),
+    saved: document.getElementById('traySaved'),
+    explore: document.getElementById('trayExplore')
+  };
+  var TRAY_TABS = ['layers', 'recent', 'saved', 'explore'];
   function showPane(which){
     for (var i = 0; i < tabs.length; i++){
       var on = tabs[i].getAttribute('data-tray') === which;
@@ -4310,8 +4354,11 @@ initStrip('exploreStrip', 'expPrev', 'expNext');
     }
     for (var k in panes){ if (panes[k]){ panes[k].hidden = (k !== which); } }
     tray.classList.remove('collapsed');
+    /* Saved is the one shelf another surface can change behind your back (the Save chip and
+       the dock both write it), so it is rebuilt on open rather than trusted to be current */
+    if (which === 'saved' && typeof renderSavedStrip === 'function'){ renderSavedStrip(); }
     /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
-    if (which === 'explore'){ window.dispatchEvent(new Event('resize')); }
+    if (which !== 'layers'){ window.dispatchEvent(new Event('resize')); }
     try { localStorage.setItem('fluid:tray', which); } catch(e){}
   }
   for (var i = 0; i < tabs.length; i++){
@@ -4329,7 +4376,7 @@ initStrip('exploreStrip', 'expPrev', 'expNext');
   }
   var saved = null, open = '1';
   try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen') || '1'; } catch(e){}
-  showPane(saved === 'explore' ? 'explore' : 'layers');
+  showPane(TRAY_TABS.indexOf(saved) >= 0 ? saved : 'layers');
   if (open === '0' && toggle){ toggle.click(); }
 })();
 /* ---------- theme picker: metal (default) plus carbon, phosphor, paper and neon ----------
@@ -4584,16 +4631,29 @@ function randomPattern(){
   syncControls();
   syncSplit();                      /* hide the before/after overlay now there's no photo */
 }
-document.getElementById('randBtn').addEventListener('click', function(){
+/* ---------- shuffle buttons: one action, two buttons, one name ----------
+   The panel button and the canvas chip have always run the same randomPattern(); they just
+   called themselves different things ("Randomize" / "Shuffle") and reported different
+   status lines, which read as two features. They are one. */
+var refreshChip = document.getElementById('refreshChip');
+var SHUFFLE_USED_LS = 'fluid:shuffled';
+function shuffleDesign(){
   randomPattern();
   setPlaying(true);                 /* a shuffle comes alive — see it move */
-  setStatus('RANDOM PATTERN — live; randomize again, or pick a look');
-});
-document.getElementById('refreshChip').addEventListener('click', function(){
-  randomPattern();
-  setPlaying(true);                 /* a shuffle comes alive — see it move */
-  setStatus('NEW DESIGN — live; shuffle again, or pick a template');
-});
+  setStatus('SHUFFLED — live; shuffle again, or pick a template');
+  /* the chip asks for its first click and then never again, on this browser */
+  if (refreshChip){ refreshChip.classList.remove('asking'); }
+  try { localStorage.setItem(SHUFFLE_USED_LS, '1'); } catch(e){}
+}
+document.getElementById('randBtn').addEventListener('click', shuffleDesign);
+if (refreshChip){
+  refreshChip.addEventListener('click', shuffleDesign);
+  var shuffled = '1';
+  try { shuffled = localStorage.getItem(SHUFFLE_USED_LS) || ''; } catch(e){}
+  /* no EMBED check: it is resolved further down the file and would still be undefined
+     here. Embed mode hides #canvasChips outright, so there is nothing to pulse. */
+  if (!shuffled){ refreshChip.classList.add('asking'); }
+}
 /* ---------- canvas pointer: hover ripples the field, drag pans a loaded image, a tap reseeds ---------- */
 var panning = false, panMoved = false, panSX = 0, panSY = 0, panBX = 0, panBY = 0, ptrDown = false;
 canvas.addEventListener('pointerdown', function(e){
@@ -5125,6 +5185,9 @@ function persist(){
      a reload (incl. the WebGL context-loss reload) restores from here; the
      shareable #p= link is built on demand by Copy share link. */
   try { localStorage.setItem('fluid:last', buildHash(0)); } catch(e){}
+  /* persist() is the one funnel every settled change already passes through, so the undo
+     ring hangs off it rather than off a dozen call sites that would drift apart */
+  noteHistory();
 }
 function parseHash(src){
   var h = src || window.location.hash;
@@ -5251,6 +5314,10 @@ function currentHashSaved(){
 function syncSaveChip(){
   if (!saveChip){ return; }
   saveChip.className = 'chipIcon' + (currentHashSaved() ? ' saved' : '');
+  /* the shelf marks which tile is on screen, so it restains as the design moves — but only
+     while it is actually being looked at */
+  var pane = document.getElementById('traySaved');
+  if (pane && !pane.hidden && typeof renderSavedStrip === 'function'){ renderSavedStrip(); }
 }
 function updateDesignCount(){
   var n = readDesigns().length;
@@ -5258,6 +5325,8 @@ function updateDesignCount(){
     designCount.textContent = String(n);
     designCount.className = 'chipCount' + (n ? ' on' : '');
   }
+  /* the dock and the tray shelf are two views of one list — a save or a delete moves both */
+  if (typeof renderSavedStrip === 'function'){ renderSavedStrip(); }
 }
 function setDesignDock(open){
   if (!designDock){ return; }
@@ -5378,6 +5447,161 @@ document.addEventListener('pointerdown', function(e){
   if (designDock.contains(e.target) || designsChip.contains(e.target) || saveChip.contains(e.target)){ return; }
   setDesignDock(false);
 });
+/* ---------- strip tiles: one tile shape shared by Recent, Saved and Explore ----------
+   Three strips, one builder — a tile that looks different depending on which shelf it sits
+   on is three things to maintain and three ways to drift. */
+function stripTile(opt){
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'expTile' + (opt.here ? ' here' : '');
+  b.title = opt.title || opt.name;
+  b.setAttribute('aria-label', opt.aria || opt.name);
+  var img = document.createElement('img');
+  img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+  /* thumbs are produced locally as data: URLs; anything else (a poisoned localStorage,
+     a hand-edited save) falls back to the blank placeholder rather than reaching the net */
+  img.src = (opt.thumb && /^data:image\//.test(opt.thumb)) ? opt.thumb : EMPTY_THUMB;
+  var cap = document.createElement('span');
+  cap.textContent = opt.name;
+  b.appendChild(img); b.appendChild(cap);
+  b.addEventListener('click', opt.onClick);
+  return b;
+}
+function fillStrip(strip, tiles, emptyCopy){
+  if (!strip){ return; }
+  while (strip.firstChild){ strip.removeChild(strip.firstChild); }
+  if (!tiles.length){
+    var e = document.createElement('div');
+    e.className = 'stripEmpty';
+    e.textContent = emptyCopy;
+    strip.appendChild(e);
+    return;
+  }
+  for (var i = 0; i < tiles.length; i++){ strip.appendChild(tiles[i]); }
+}
+function setTabBadge(id, n){
+  var el = document.getElementById(id);
+  if (!el){ return; }
+  el.hidden = !n;
+  el.textContent = String(n);
+}
+
+/* ---------- history: every state you have been in, and the way back ----------
+   The studio had no undo, which in an instrument whose primary verb is Shuffle means one
+   click can destroy a piece you liked with no way back. A state is fully described by its
+   share hash, so history is a ring of hashes plus a thumbnail — no deep copies, and a
+   restore is the same parseHash the share links already use.
+
+   Snapshots hang off persist(), which is the single funnel every settled change already
+   runs through (sliders persist on `change`, not `input`, so a drag lands as ONE entry).
+   Memory only: thumbnails are far too big for localStorage, and a session is the useful
+   life of an undo stack anyway. */
+var HISTORY_MAX = 20;
+var hist = [];                 /* newest first */
+var histAt = 0;                /* index of the state on screen */
+var histTimer = 0;
+var histRestoring = false;
+function histLabel(){
+  var f = engineLabel(state.field);
+  return (state.layerMix || 0) > 0.001 ? f + ' + ' + engineLabel(state.field2) : f;
+}
+function histSnapshot(){
+  histTimer = 0;
+  if (EMBED || histRestoring){ return; }
+  var h;
+  try { h = buildHash(0); } catch(e){ return; }
+  if (hist.length && hist[histAt] && hist[histAt].hash === h){ return; }
+  hist.splice(0, histAt);      /* moving after an undo drops the branch you moved off */
+  hist.unshift({ hash:h, thumb:designThumb(), name:histLabel() });
+  if (hist.length > HISTORY_MAX){ hist.length = HISTORY_MAX; }
+  histAt = 0;
+  renderRecentStrip();
+}
+/* coalesce bursts (a template applies several settings in a row) into one entry */
+function noteHistory(){
+  if (EMBED || histRestoring){ return; }
+  if (histTimer){ clearTimeout(histTimer); }
+  histTimer = setTimeout(histSnapshot, 400);
+}
+function histRestore(i, why){
+  if (i < 0 || i >= hist.length || !hist[i]){ return; }
+  histRestoring = true;
+  try {
+    if (!parseHash(hist[i].hash)){ setStatus('ERR — that state could not be restored'); return; }
+    resetCustomMode();
+    applyAspect();
+    markLook(null);
+    syncControls();
+    requestRender();
+    persist();                 /* histRestoring keeps this from recording the jump back */
+    histAt = i;
+    renderRecentStrip();
+    setStatus(why + ' — ' + hist[i].name.toUpperCase());
+  } finally {
+    histRestoring = false;
+  }
+}
+function histUndo(){
+  if (histAt + 1 >= hist.length){ setStatus('NOTHING TO UNDO — this is as far back as it goes'); return; }
+  histRestore(histAt + 1, 'UNDO');
+}
+function histRedo(){
+  if (histAt <= 0){ setStatus('NOTHING TO REDO — you are on the newest state'); return; }
+  histRestore(histAt - 1, 'REDO');
+}
+function renderRecentStrip(){
+  var strip = document.getElementById('recentStrip');
+  if (!strip){ return; }
+  var tiles = hist.map(function(entry, i){
+    return stripTile({
+      thumb: entry.thumb,
+      name: entry.name,
+      title: i === histAt ? entry.name + ' — on screen now' : 'Go back to ' + entry.name,
+      aria: (i === histAt ? 'Current state, ' : 'Restore ') + entry.name,
+      here: i === histAt,
+      onClick: function(){ histRestore(i, 'RESTORED'); }
+    });
+  });
+  fillStrip(strip, tiles, 'Nothing yet — shuffle, and every state you pass through lands here');
+  /* the badge counts the way back, not the list: 20 entries with 0 behind you is not "20" */
+  setTabBadge('recentCount', Math.max(0, hist.length - 1 - histAt));
+}
+
+/* ---------- saved shelf: your own keeps, in the same strip as the curated ones ----------
+   Reuses the saved-designs store the Save chip already writes to — the dock and this strip
+   are two views of one list, never two lists. */
+function renderSavedStrip(){
+  var strip = document.getElementById('savedStrip');
+  if (!strip){ return; }
+  var here = '';
+  try { here = buildHash(0); } catch(e){}
+  var list = readDesigns();
+  var tiles = list.map(function(item){
+    return stripTile({
+      thumb: item.thumb,
+      name: item.title || 'Untitled',
+      title: (item.title || 'Untitled') + ' — saved ' + designDate(item.createdAt),
+      aria: 'Open saved design ' + (item.title || 'Untitled'),
+      here: item.hash === here,
+      onClick: function(){ openSavedDesign(item.id); }
+    });
+  });
+  fillStrip(strip, tiles, 'Nothing saved yet — tap the save icon to keep a piece');
+  setTabBadge('savedCount', list.length);
+}
+
+/* ---------- undo keys: the shortcut people try before they look for a button ---------- */
+document.addEventListener('keydown', function(e){
+  var k = (e.key || '').toLowerCase();
+  if (k !== 'z' && k !== 'y'){ return; }
+  if (!(e.metaKey || e.ctrlKey) || e.altKey){ return; }
+  var t = e.target;
+  /* never steal undo from a field the user is typing in */
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)){ return; }
+  e.preventDefault();
+  if (k === 'y' || e.shiftKey){ histRedo(); } else { histUndo(); }
+});
+
 /* ---------- embed popover: the Use-on-your-site sheet, offering a snippet, standalone HTML, SwiftUI and a Claude prompt ---------- */
 var embedChip = document.getElementById('embedChip');
 var embedDock = document.getElementById('embedDock');

@@ -109,6 +109,7 @@ const SECTIONS = [
   'cursor impact',
   'aspect ratio',
   'shuffle',
+  'shuffle buttons',
   'canvas pointer',
   /* js: sources */
   'preset shelf',
@@ -124,6 +125,10 @@ const SECTIONS = [
   'share links',
   'persistence',
   'local saved designs',
+  'strip tiles',
+  'history',
+  'saved shelf',
+  'undo keys',
   'embed popover',
   'cursor-effect dock',
   'claude payload',
