@@ -531,7 +531,35 @@
   .rampMore{flex:0 0 auto;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
   #rampLine[aria-expanded="true"] .rampMore::after{content:' ▲'}
   #rampLine[aria-expanded="false"] .rampMore::after{content:' ▼'}
-  #colourMore{margin-top:12px}
+  /* a floating, draggable, NON-modal panel: the whole point of editing colour is watching the
+     artwork change, so it must never cover it against your will and must never block it */
+  #colourMore{
+    position:fixed;z-index:40;left:24px;top:96px;
+    width:min(340px, calc(100vw - 24px));
+    max-height:min(78vh, 760px);display:flex;flex-direction:column;
+    color:var(--ink);background:var(--panel-metal);
+    border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 22px 54px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #colourMore[hidden]{display:none}
+  .cmHead{
+    display:flex;align-items:center;gap:8px;flex:0 0 auto;
+    padding:9px 10px;border-bottom:1px solid var(--line);
+    cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;
+  }
+  .cmHead:active{cursor:grabbing}
+  .cmGrip{width:22px;height:4px;border-radius:3px;background:var(--line);flex:0 0 auto}
+  .cmTitle{flex:1;min-width:0;font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:700}
+  #cmClose{
+    flex:0 0 auto;padding:2px 8px;font-size:15px;line-height:1;letter-spacing:0;
+    background-image:none;box-shadow:none;background-color:transparent;border:1px solid var(--line);color:var(--soft);
+  }
+  #cmClose:hover{color:var(--ink);background-image:none;box-shadow:none}
+  .cmBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 14px}
+  @media(max-width:700px){
+    /* no room to float beside the art — sit it at the bottom, still draggable */
+    #colourMore{left:8px;right:8px;width:auto;max-height:min(70vh,620px)}
+  }
   .stopTabs{display:flex;gap:6px;margin-bottom:9px}
   button.stopTab{
     flex:1;height:30px;padding:0;border-radius:7px;border:1px solid var(--line);
@@ -549,10 +577,12 @@
   .hueWrap{position:relative;line-height:0;margin-top:9px}
   #huePad{width:100%;height:14px;border-radius:7px;border:1px solid var(--line);cursor:pointer;touch-action:none;display:block}
   .hueDot{top:7px}
-  .chanGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:11px}
-  .chanGrid label{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.1em;color:var(--soft)}
-  .chanGrid input{flex:1;min-width:0}
-  .chanGrid output{flex:0 0 30px;text-align:right;font-size:9px;color:var(--ink)}
+  /* one channel per row. Two columns fitted the height but squeezed each slider to a stub in
+     a 340px panel, and a slider you cannot aim is not a control. */
+  .chanGrid{display:grid;grid-template-columns:1fr;gap:7px;margin-top:11px}
+  .chanGrid label{display:grid;grid-template-columns:12px 1fr 34px;align-items:center;gap:8px;font-size:9px;letter-spacing:.1em;color:var(--soft)}
+  .chanGrid input{width:100%;min-width:0}
+  .chanGrid output{text-align:right;font-size:9px;color:var(--ink)}
   .hexIn{
     flex:1;min-width:0;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;
@@ -1511,7 +1541,16 @@
       <span class="rampName" id="rampName">Aurora</span>
       <span class="rampMore" aria-hidden="true">More</span>
     </button>
-    <div id="colourMore" hidden>
+    <!-- It stays inside the section in the DOM even though it floats: position:fixed does not
+         change inheritance, so the editor keeps the panel's theme variables and restyles
+         itself with the rest of the panel for free. -->
+    <div id="colourMore" hidden role="dialog" aria-label="Colour editor">
+      <div class="cmHead" id="cmHead">
+        <span class="cmGrip" aria-hidden="true"></span>
+        <span class="cmTitle">Colours</span>
+        <button type="button" id="cmClose" aria-label="Close colour editor">&times;</button>
+      </div>
+      <div class="cmBody">
     <div class="exGroupLabel">Palette</div>
     <div class="striprow">
     <button id="palPrev" class="stripBtn" aria-label="Scroll palettes left">&#8249;</button>
@@ -1577,6 +1616,7 @@
     </div>
     <div class="exGroupLabel" style="margin-top:12px">Recent</div>
     <div class="histRow" id="histRow"></div>
+      </div>
     </div>
   </section>
 
@@ -4554,13 +4594,70 @@ function syncColourEditor(){
 /* ---------- colour editor wiring: pad drags, channel sliders, hex, harmony ---------- */
 (function initColourEditor(){
   var line = document.getElementById('rampLine'), more = document.getElementById('colourMore');
-  if (line && more){
-    line.addEventListener('click', function(){
-      var open = more.hidden;
-      more.hidden = !open;
-      line.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open){ renderColourHistory(); syncColourEditor(); }
+  var head = document.getElementById('cmHead'), close = document.getElementById('cmClose');
+  var CM_POS_LS = 'fluid:colourPos';
+  /* Keep the panel fully on screen. Called on open and on resize, because a window that
+     shrinks below a remembered position would otherwise strand the editor off the edge with
+     no way to drag it back — its own drag handle would be outside the viewport. */
+  function clampPos(){
+    if (!more || more.hidden){ return; }
+    var r = more.getBoundingClientRect();
+    var maxL = Math.max(8, window.innerWidth - r.width - 8);
+    var maxT = Math.max(8, window.innerHeight - r.height - 8);
+    var l = Math.min(Math.max(8, parseFloat(more.style.left) || r.left), maxL);
+    var t = Math.min(Math.max(8, parseFloat(more.style.top) || r.top), maxT);
+    more.style.left = l + 'px';
+    more.style.top = t + 'px';
+    more.style.right = 'auto';
+  }
+  function openEditor(open){
+    if (!more || !line){ return; }
+    more.hidden = !open;
+    line.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open){ return; }
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(CM_POS_LS) || 'null'); } catch(e){}
+    if (saved && isFinite(saved.x) && isFinite(saved.y)){
+      more.style.left = saved.x + 'px';
+      more.style.top = saved.y + 'px';
+      more.style.right = 'auto';
+    }
+    renderColourHistory();
+    syncColourEditor();
+    clampPos();                       /* after the content is laid out, so height is real */
+  }
+  if (line){ line.addEventListener('click', function(){ openEditor(more.hidden); }); }
+  if (close){ close.addEventListener('click', function(){ openEditor(false); }); }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && more && !more.hidden){ openEditor(false); }
+  });
+  window.addEventListener('resize', clampPos);
+  /* drag by the header. Pointer capture means a fast drag that outruns the cursor still
+     tracks, and the offset is taken once at grab so the panel never jumps under the hand. */
+  if (head && more){
+    var dragging = false, offX = 0, offY = 0;
+    head.addEventListener('pointerdown', function(e){
+      if (e.target.closest('#cmClose')){ return; }
+      var r = more.getBoundingClientRect();
+      offX = e.clientX - r.left; offY = e.clientY - r.top;
+      dragging = true;
+      try { head.setPointerCapture(e.pointerId); } catch(err){}
+      e.preventDefault();
     });
+    head.addEventListener('pointermove', function(e){
+      if (!dragging){ return; }
+      var r = more.getBoundingClientRect();
+      more.style.left = Math.min(Math.max(8, e.clientX - offX), Math.max(8, window.innerWidth - r.width - 8)) + 'px';
+      more.style.top = Math.min(Math.max(8, e.clientY - offY), Math.max(8, window.innerHeight - r.height - 8)) + 'px';
+      more.style.right = 'auto';
+    });
+    function endDrag(){
+      if (!dragging){ return; }
+      dragging = false;
+      try { localStorage.setItem(CM_POS_LS, JSON.stringify({ x: parseFloat(more.style.left), y: parseFloat(more.style.top) })); } catch(e){}
+    }
+    head.addEventListener('pointerup', endDrag);
+    head.addEventListener('pointercancel', endDrag);
   }
   /* drag anywhere on a pad and keep the pointer, so a drag off the edge still tracks */
   function dragPad(id, onAt){
