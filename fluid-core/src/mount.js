@@ -160,7 +160,10 @@ export class FluidMount {
       a.push(Math.round(s.lens), Math.round((s.lensAmt == null ? 1 : s.lensAmt) * 100));
     }
     if (wantLayer3){
-      while (a.length < 31){ a.push(0); }
+      /* slot [30] defaults to 1 when absent, not 0 — zero-filling past it encodes lensAmt 0
+         on every lens-less 3-layer piece, so the lens pair is written explicitly */
+      while (a.length < 29){ a.push(0); }
+      if (a.length === 29){ a.push(0, 100); }
       a.push(s.field3 || 0, s.blend2 || 0, Math.round(s.layerMix2 * 100));
     }
     const minLen = s.pal === 8 ? 24 : 12;

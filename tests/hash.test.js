@@ -134,6 +134,18 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
       'the common no-layers case must not carry empty layer slots');
   });
 
+  it('a 3-layer piece with no lens keeps lensAmt at full, not 0', () => {
+    /* Slot [30] is the only slot whose absent-default is 1. Layer 3 lives past it at [31-33],
+       so writing layer 3 forces [29][30] to exist — and zero-filling them encoded lensAmt 0
+       on every lens-less 3-layer piece. Nothing renders wrong (the shader gates on lens > 0),
+       which is exactly why this needs a test rather than an eyeball. */
+    const { after, hash } = roundtrip({ field2: 5, blend: 2, layerMix: 0.5, field3: 9, blend2: 3, layerMix2: 0.4, lens: 0 });
+    assert.strictEqual(after.lens, 0, 'no lens');
+    assert.strictEqual(after.lensAmt, 1, `lensAmt decoded as ${after.lensAmt} — slot [30] was zero-filled: ${hash}`);
+    assert.strictEqual(after.field3, 9, 'layer 3 still round-trips');
+    assert.ok(Math.abs(after.layerMix2 - 0.4) < 0.011, 'layer 3 mix still round-trips');
+  });
+
   it('FIELD_MAX matches the highest engine in the picker', () => {
     /* parseHash clamps engine ids to FIELD_MAX. If a new engine is added to the markup and
        this literal is not bumped, every share link carrying it silently decodes as the wrong

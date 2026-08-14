@@ -4421,7 +4421,11 @@ Array.prototype.forEach.call(document.querySelectorAll('.knob[data-for]'), makeK
 
 /* ---------- control sync: push the whole state back into every widget after a load, look or shuffle ---------- */
 function syncControls(){
-  ['speed','scale','warp','grain','sym','lensAmt','layerMix','pixel','dot','thresh','liq','mix'].forEach(function(k){
+  /* layerMix2 belongs here for the same reason layerMix does: without it the Layer 3 slider,
+     its readout, its knob dial and its aria-valuenow all read 0 while the shader composites
+     at whatever the hash actually says — and one arrow key on the focused slider then writes
+     that visible 0 back over the real value. */
+  ['speed','scale','warp','grain','sym','lensAmt','layerMix','layerMix2','pixel','dot','thresh','liq','mix'].forEach(function(k){
     var el = document.getElementById(k);
     el.value = state[k];
     document.getElementById(k + 'Out').value = el.value;
@@ -5079,12 +5083,23 @@ function loadPiece(hash, name){
   persist();
   setStatus(name.toUpperCase() + ' LOADED — remix it, it is yours now');
 }
-/* Generate N pieces without showing any of them. randomPattern writes into the live state,
-   so this borrows it and hands it back: the piece on screen is captured as a hash first and
-   restored from that hash at the end. Nothing repaints in between — the loop is synchronous
-   and the render is requested once, after the restore. */
+/* Generate N pieces without showing any of them. randomPattern writes into the live state, so
+   this borrows it and hands it back.
+
+   The hash is NOT a complete snapshot, which is the trap here. It carries the numeric slots
+   and nothing else, while randomPattern also clears the loaded photo (hasTex / userSource /
+   fallbackSource), drops any built-in source, and calls resetCustomMode — which deletes
+   fluid:customMode from storage. Restoring with parseHash alone therefore silently threw away
+   a visitor's photo and their 2- or 3-colour palette on a single click of the Explore tab, and
+   left the Source panel still showing the image it had just discarded. Everything the hash
+   cannot carry is saved and put back by hand. */
 function generateExplorePieces(n){
   var mine = buildHash(0);
+  var keep = {
+    hasTex: state.hasTex, texAspect: state.texAspect, userSource: state.userSource,
+    split: state.split, fallback: fallbackSource, preset: activePresetId,
+    customN: customN, customBase: customBase ? customBase.map(function(c){ return c.slice(); }) : null
+  };
   var out = [], i, k;
   for (i = 0; i < n; i++){
     randomPattern();
@@ -5095,11 +5110,18 @@ function generateExplorePieces(n){
       ov[key] = key === 'cols' ? cloneStops(state.cols) : state[key];
     }
     ov.t = 1.35;                       /* one moment in the animation, so tiles are comparable */
+    ov.hasTex = 0;                     /* a shelf tile is the field alone, never the visitor's photo */
     out.push({ hash: buildHash(0), name: codename().replace(/-/g, ' '), ov: ov });
   }
   parseHash(mine);
-  resetCustomMode();
+  state.hasTex = keep.hasTex; state.texAspect = keep.texAspect;
+  state.userSource = keep.userSource; state.split = keep.split;
+  fallbackSource = keep.fallback; activePresetId = keep.preset;
+  customN = keep.customN; customBase = keep.customBase;
+  persistCustomMode();                 /* resetCustomMode deleted the key; write it back */
   applyAspect();
+  syncSplit();                         /* the before/after grip belongs to the photo that survived */
+  updateSourceUI();                    /* or the panel keeps describing a source that is gone */
   syncControls();
   requestRender();
   return out;
@@ -5211,6 +5233,13 @@ initStrip('savedStrip', 'savPrev', 'savNext');
 var trayReady = false, trayPaneOpen = 'layers';
 function fillTrayPane(which){
   if (!trayReady){ return; }
+  /* An embed is a canvas on somebody's page, not the studio: the tray is hidden there, and
+     filling a hidden shelf is work nobody asked for. It is also destructive. /gallery loads
+     nine same-origin iframes, each of which restores the visitor's saved tray tab — if that
+     tab is Explore, buildExploreShelf runs, and its parseHash restore clears the embed flag
+     and un-gates persist(), so every tile overwrites fluid:last and the visitor loses the
+     design they left in the studio. Zero clicks. */
+  if (EMBED){ return; }
   /* Saved is the one shelf another surface can change behind your back (the Save chip and
      the dock both write it), so it is rebuilt on open rather than trusted to be current */
   if (which === 'saved'){ renderSavedStrip(); }
@@ -6134,7 +6163,13 @@ function buildHash(embedFlag){
     a.push(Math.round(state.lens), Math.round((state.lensAmt == null ? 1 : state.lensAmt) * 100));
   }
   if (wantLayer3){
-    while (a.length < 31){ a.push(0); }
+    /* Pad to 29, then write the lens pair EXPLICITLY. Slot [30] is the one slot whose
+       absent-default is 1, not 0 — parseHash reads a missing [30] as full lens strength — so
+       zero-filling up to 31 silently encoded lensAmt 0 on every 3-layer piece that had no
+       lens. Nothing rendered wrong, because the shader gates on lens > 0, but the hash was
+       lying and any consumer reading lensAmt got 0. */
+    while (a.length < 29){ a.push(0); }
+    if (a.length === 29){ a.push(0, 100); }
     a.push(state.field3 || 0, state.blend2 || 0, Math.round((state.layerMix2 || 0) * 100));
   }
   var minLen = state.pal === 8 ? 24 : 12;
