@@ -71,7 +71,7 @@ Two npm packages ship from this repo. [`fluid-bg`](https://www.npmjs.com/package
 is the drop-in background — it renders natively on a canvas in your page (~15 KB gz, no iframe):
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/fluid-bg@0.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/fluid-bg@0.3"></script>
 <fluid-bg fixed hash="#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778"></fluid-bg>
 ```
 

@@ -335,12 +335,12 @@ function withEmbedFlag(nums, on){
   return a;
 }
 
-/* Pinned to 0.2, which is what npm actually serves. Bump this to @0.3 IN THE SAME CHANGE as
-   `npm publish` of fluid-bg 0.3.0 and not before — @0.3 resolves to nothing until the version
-   exists, which would 404 every embed snippet this string appears in. Until then the CDN
-   embeds render with 15 engines, no math lens and no third layer, while iframe embeds and the
-   standalone export are exact. Mirrored in README.md. */
-var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.2';
+/* Pinned to a MINOR range, so patches arrive but a breaking major never does on its own.
+   Bump this only in the same change as the matching `npm publish` — a range that resolves to
+   nothing 404s every embed snippet this string appears in. Mirrored in README.md.
+   0.3 is the first release with all 23 engines, the math lenses and the third layer; 0.2
+   silently rendered Topo as Cassini. */
+var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.3';
 
 function embedCode(input, base){
   input = input || {};
