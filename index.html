@@ -1379,6 +1379,15 @@
   html .panel .knob::after, html[data-ptheme] .panel .knob::after{
     filter:none;mix-blend-mode:normal;
   }
+  /* The pointer puck was the last turned-metal part: a knurled disc with a specular
+     highlight, re-cut per theme. Its whole job is to say which way the knob is pointing,
+     and a solid dot does that. Sized down too — the knurling needed 18px to read as metal,
+     a marker does not. */
+  html .panel .knob-dial::after, html[data-ptheme] .panel .knob-dial::after{
+    background:var(--ink);
+    box-shadow:none;
+    width:10px;height:10px;margin-left:-5px;top:5px;
+  }
   /* Range inputs are drawn entirely in pseudo-elements, which a wildcard cannot reach — so
      the track and thumb need naming, and naming per theme too, or a restored theme brings
      its own metal back. The aspect slider was the last ribbed groove and knurled grip in
