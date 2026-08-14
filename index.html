@@ -768,6 +768,8 @@
     position:static;width:100%;height:18px;opacity:1;pointer-events:auto;margin:0;
   }
   @media (pointer:coarse){ .sliderGrid .knobctl input[type=range]{height:40px} }
+  /* a focus the pointer caused draws no ring; a focus the keyboard caused still does */
+  input[type=range].ptrFocus:focus{outline:none}
   .sliderGrid .knoblabel{
     min-width:0;max-width:none;padding:0;background:none;border:0;box-shadow:none;
     display:flex;justify-content:space-between;align-items:baseline;gap:8px;
@@ -3921,6 +3923,9 @@ function bindSlider(id, key, fmt){
   /* native path — keyboard arrows (and a fallback if pointer events are unavailable) */
   el.addEventListener('input', apply);
   el.addEventListener('change', persist);
+  /* the moment a key is used the focus is no longer pointer-driven, so the ring comes back */
+  el.addEventListener('keydown', function(){ el.classList.remove('ptrFocus'); });
+  el.addEventListener('blur', function(){ el.classList.remove('ptrFocus'); });
   /* app-feel drag: grab anywhere on the row and slide. The input owns the gesture
      (touch-action:none in CSS) + pointer capture, so the page never scrolls mid-adjust.
      Modeled on the before/after grip. */
@@ -3939,7 +3944,13 @@ function bindSlider(id, key, fmt){
   el.addEventListener('pointerdown', function(e){
     dragging = true;
     try { el.setPointerCapture(e.pointerId); } catch(err){}
-    try { el.focus(); } catch(err){}   /* keep it keyboard-focusable after a tap */
+    /* The drag preventDefaults, which cancels the browser's own focus, so focus is moved by
+       hand to keep the control keyboard-reachable after a tap. Whether that scripted focus
+       trips :focus-visible differs between engines, and when it does the slider wears a
+       black ring for the whole drag. Marking the focus as pointer-driven decides it here
+       instead of leaving it to the heuristic; a key press or a re-focus clears the mark, so
+       keyboard users still get their ring. */
+    try { el.focus(); el.classList.add('ptrFocus'); } catch(err){}
     setFromX(e.clientX);
     e.preventDefault();                /* suppress the native thumb-drag so we don't double-drive */
   });
