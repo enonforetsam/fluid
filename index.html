@@ -4014,15 +4014,19 @@ function syncLayerBlocks(){
     note.textContent = 'One engine. Add a layer from the Field section.';
     tabs.appendChild(note);
   }
-  /* The add control lives in Field, next to Shuffle — it reports the stack from here.
-     aria-disabled, NOT the disabled property: a disabled button fires no click, so the only
-     thing a press could do was nothing at all. Marked-off it still answers, and says why. */
+  /* The add control lives in Field, next to Shuffle. It is never dimmed and never disabled.
+     Three engines is the shader's ceiling, and the stack sits there often — a shuffle can
+     deal three by itself — so a button that greys out at the cap spends much of its life
+     looking broken, which is exactly how it read. It stays live and every press does
+     something: below the cap it adds, at the cap it takes you to the top layer, which is
+     the thing you actually wanted to change. */
   var addBtn = document.getElementById('addLayerBtn');
   if (addBtn){
     var full = depth >= 3;
-    addBtn.classList.toggle('isOff', full);
-    addBtn.setAttribute('aria-disabled', full ? 'true' : 'false');
-    addBtn.title = full ? 'Three engines is the maximum — remove one first'
+    addBtn.classList.remove('isOff');
+    addBtn.removeAttribute('aria-disabled');
+    addBtn.textContent = full ? 'Edit top layer' : '+ Add layer';
+    addBtn.title = full ? 'Three engines is the maximum — this opens the top one'
       : (depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these');
   }
 }
@@ -5553,13 +5557,14 @@ document.getElementById('randBtn').addEventListener('click', shuffleDesign);
   var b = document.getElementById('addLayerBtn');
   if (!b){ return; }
   b.addEventListener('click', function(){
-    if (layerDepth() >= 3){
-      setStatus('THREE ENGINES IS THE MAXIMUM — remove one with the ✕ in the tray first');
-      return;                       /* a press that cannot act still has to answer */
-    }
-    addLayer();
-    layerTab = layerDepth();        /* the new layer's tab is the one you want to be on */
+    var full = layerDepth() >= 3;
+    if (!full){ addLayer(); }
+    layerTab = layerDepth();        /* the new layer's tab — or the top one, at the cap */
     syncLayerBlocks();
+    /* either way the press lands you in the Layers section on the layer in question, so it
+       is never a click that appears to do nothing */
+    revealSection(document.getElementById('layerTabs'));
+    if (full){ setStatus('THREE ENGINES IS THE MAXIMUM — here is the top one; remove a layer with the ✕ in the tray'); }
   });
 })();
 if (refreshChip){
