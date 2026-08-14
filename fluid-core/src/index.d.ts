@@ -1,7 +1,7 @@
 /* Hand-written types for fluid-core (the implementation is plain ES modules). */
 
 export interface FluidLayerParams {
-  /** engine slug (e.g. 'crystal') or index 0..14 */
+  /** engine slug (e.g. 'crystal') or index 0..22 */
   field?: string | number;
   /** 'normal' | 'multiply' | 'screen' | 'add' | 'difference' | 'overlay' or index 0..5 */
   blend?: string | number;
@@ -10,7 +10,7 @@ export interface FluidLayerParams {
 }
 
 export interface FluidParams {
-  /** engine slug (e.g. 'flow') or index 0..14 */
+  /** engine slug (e.g. 'flow') or index 0..22 */
   field?: string | number;
   /** preset palette slug (e.g. 'sunset') or index 0..7 */
   palette?: string | number;
@@ -20,6 +20,9 @@ export interface FluidParams {
   look?: string;
   /** composite a second engine over the first */
   layer?: FluidLayerParams | false;
+  /** composite a third engine over the second — blends onto layer 2's result, so it does
+   *  nothing without `layer`. Share-hash slots [31][32][33]. */
+  layer2?: FluidLayerParams | false;
   /** 'square' | 'hex' | 'ascii' | 'dither' | 'glitch' or index 0..4; 'none' = square-at-rest */
   screen?: string | number;
   /** 'none' | 'glass' | 'metal' | 'sand' | 'liquid' | 'molten' or index 0..5 */

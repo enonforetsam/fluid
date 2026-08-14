@@ -7,6 +7,8 @@ export const SCREENS = ["square","hex","ascii","dither","glitch"];
 export const FINISHES = ["none","glass","metal","sand","liquid","molten"];
 /* math lenses — share-hash slots [29][30] */
 export const LENSES = ["none","square","invert","mobius","droste","hyperbolic","julia","cube","exp","sine","joukowski","newton","modular"];
+/* layer blend modes — share-hash slots [26] and [32] */
+export const BLENDS = ["normal","multiply","screen","add","difference","overlay"];
 /* named palettes; hash index 8 is the custom-stops slot, not a name */
 export const PALETTES = ["aurora","sunset","ocean","dusk","ember","mint","iris","chrome"];
 /* built-in source images to melt (hash slot [12], 1-based) */

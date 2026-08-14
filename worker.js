@@ -8,7 +8,7 @@
    palettes, presets, looks — is GENERATED from index.html by fluid-core/build.mjs.
    The worker keeps no copy of its own, so app and API cannot drift apart.
    After changing the studio's pickers or LOOKS: node fluid-core/build.mjs */
-import { FIELDS, SCREENS, FINISHES, LENSES, PALETTES, PRESETS, LOOKS } from './worker-data.js';
+import { FIELDS, SCREENS, FINISHES, LENSES, BLENDS, PALETTES, PRESETS, LOOKS } from './worker-data.js';
 
 var BASE = 'https://fluid.krackeddevs.com';
 
@@ -61,9 +61,21 @@ function expandColors(cols){
    It varies a CURATED look rather than rolling parameters from scratch. The 41 looks exist
    precisely because uniform-random parameters are usually ugly; starting from one and
    moving seed, palette and lens keeps every day worth looking at while still giving
-   41 x 8 x 13 distinct days before anything repeats. */
+   a large space of combinations rather than a short cycle — days are independent samples of
+   it, not a rotation through it, so two distant days can coincide and that is expected. */
 function dayKey(now){
   return new Date(now).toISOString().slice(0, 10);      /* YYYY-MM-DD, always UTC */
+}
+/* A calendar day, or null. The shape alone is not enough: /^\d{4}-\d{2}-\d{2}$/ accepts
+   2026-02-31, 2026-13-01 and 2026-03-00, all of which Date rolls over into some other real
+   day — so the API answered 200 with a confident piece for a date that does not exist. The
+   typeof guard matters too, because a JSON array reaches String() through the regex and then
+   throws on charCodeAt, surfacing an internal TypeError to an MCP caller. */
+function parseDayKey(d){
+  if (typeof d !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(d)){ return null; }
+  var t = Date.parse(d + 'T00:00:00Z');
+  if (isNaN(t) || dayKey(t) !== d){ return null; }       /* round-trip rejects the rollovers */
+  return d;
 }
 /* FNV-1a over the date string: tiny, dependency-free, and stable across runtimes —
    Math.random() and Date.now() would both break the "same piece for everyone" promise. */
@@ -282,7 +294,6 @@ function decodeLink(url){
     layers: decodeLayers(n)
   };
 }
-var BLENDS = ['normal', 'multiply', 'screen', 'add', 'difference', 'overlay'];
 function decodeLayers(n){
   var out = [];
   var mix2 = n.length > 27 ? clamp(n[27] / 100, 0, 1) : 0;
@@ -324,6 +335,11 @@ function withEmbedFlag(nums, on){
   return a;
 }
 
+/* Pinned to 0.2, which is what npm actually serves. Bump this to @0.3 IN THE SAME CHANGE as
+   `npm publish` of fluid-bg 0.3.0 and not before — @0.3 resolves to nothing until the version
+   exists, which would 404 every embed snippet this string appears in. Until then the CDN
+   embeds render with 15 engines, no math lens and no third layer, while iframe embeds and the
+   standalone export are exact. Mirrored in README.md. */
 var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.2';
 
 function embedCode(input, base){
@@ -535,7 +551,7 @@ function callTool(name, args, base){
   if (name === 'list_looks'){ return { looks: looksList(base) }; }
   if (name === 'get_seed_of_the_day'){
     var d = args && args.date;
-    if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)){ throw new Error('date must be YYYY-MM-DD'); }
+    if (d != null && !parseDayKey(d)){ throw new Error('date must be a real calendar day as YYYY-MM-DD'); }
     return todayPiece(base, d || undefined);
   }
   if (name === 'decode_link'){ return decodeLink(args && args.url); }
@@ -680,7 +696,7 @@ function api(req, url){
     /* ?date=YYYY-MM-DD replays any day — the algorithm is pure, so yesterday is still
        reproducible and a test can pin a fixed date instead of racing the clock */
     var d = url.searchParams.get('date');
-    if (d && !/^\d{4}-\d{2}-\d{2}$/.test(d)){ return json({ error: 'date must be YYYY-MM-DD' }, 400); }
+    if (d && !parseDayKey(d)){ return json({ error: 'date must be a real calendar day as YYYY-MM-DD' }, 400); }
     return json(todayPiece(base, d || undefined));
   }
   if (url.pathname === '/api/piece'){

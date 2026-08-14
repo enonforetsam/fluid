@@ -188,6 +188,8 @@ export function emitWorkerData(){
     'export const FINISHES = ' + j(MATERIALS) + ';\n' +
     '/* math lenses — share-hash slots [29][30] */\n' +
     'export const LENSES = ' + j(LENSES) + ';\n' +
+    '/* layer blend modes — share-hash slots [26] and [32] */\n' +
+    'export const BLENDS = ' + j(BLENDS) + ';\n' +
     '/* named palettes; hash index 8 is the custom-stops slot, not a name */\n' +
     'export const PALETTES = ' + j(PALETTES) + ';\n' +
     '/* built-in source images to melt (hash slot [12], 1-based) */\n' +

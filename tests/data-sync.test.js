@@ -54,7 +54,7 @@ describe('app <-> worker data sync', () => {
   });
 
   it('worker.js hand-declares no registry of its own', () => {
-    for (const name of ['FIELDS', 'SCREENS', 'FINISHES', 'LENSES', 'PALETTES', 'PRESETS', 'LOOKS']) {
+    for (const name of ['FIELDS', 'SCREENS', 'FINISHES', 'LENSES', 'BLENDS', 'PALETTES', 'PRESETS', 'LOOKS']) {
       assert.ok(!new RegExp('var\\s+' + name + '\\s*=').test(workerSrc),
         name + ' is declared in worker.js — it must be imported from worker-data.js');
       assert.ok(new RegExp('\\b' + name + '\\b').test(workerSrc), name + ' is not used by worker.js');

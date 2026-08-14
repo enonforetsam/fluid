@@ -256,6 +256,10 @@ export class FluidMount {
     for (const k of ['speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'dots', 'thresh', 'sym', 'seed', 'lensAmt']){
       if (p[k] != null){ s[k] = +p[k]; }
     }
+    /* Turning a lens on without naming a strength means full strength, the same rule the
+       studio applies. Without it, spreading a decoded hash that carried lensAmt 0 and then
+       setting a lens renders nothing, which reads as the lens being broken. */
+    if ((s.lens || 0) > 0 && !(s.lensAmt > 0)){ s.lensAmt = 1; }
   }
 
   /* ---------- GL ---------- */

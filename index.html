@@ -363,7 +363,8 @@
   .expTile.here span{color:#fff;background:rgba(6,6,10,.9)}
   .stripEmpty{
     flex:1;min-width:0;padding:18px 4px;text-align:center;
-    font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,232,228,.42);
+    /* .42 measured 3.54:1 on 9px text — under AA. .55 is the token the tray already uses */
+    font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(232,232,228,.55);
   }
   .expStrip{
     display:flex;gap:7px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
@@ -567,8 +568,15 @@
   #cmClose:hover{color:var(--ink);background-image:none;box-shadow:none}
   .cmBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 14px}
   @media(max-width:700px){
-    /* no room to float beside the art — sit it at the bottom, still draggable */
-    #colourMore{left:8px;right:8px;width:auto;max-height:min(70vh,620px)}
+    /* No room to float beside the art, so it sits at the BOTTOM — which needs saying, not
+       just commenting: without a top/bottom the base top:96px still won and the editor
+       covered the artwork it exists to let you watch. Width is stated outright rather than
+       inferred from left+right, because clampPos writes right:auto and a width:auto box then
+       collapses to shrink-to-fit. */
+    #colourMore{
+      left:8px;right:auto;top:auto;bottom:8px;
+      width:calc(100vw - 16px);max-height:min(62vh,560px);
+    }
   }
   .stopTabs{display:flex;gap:6px;margin-bottom:9px}
   button.stopTab{
@@ -1352,22 +1360,62 @@
     background-image:none;
     border-right:1px solid var(--line);   /* the column edge, as a line rather than a gradient */
   }
+  /* The exemption this block claims for the floating editor has to be written, not just
+     stated: #colourMore is a DOM descendant of .panel, so the wildcard above reached it and
+     took the very shadow the comment says is load-bearing. Both shadows here are separation,
+     not decoration — the dialog from whatever it floats over, and the picker dot from the
+     pad. Without the dot's keyline it is a white ring on white, invisible across the entire
+     light-and-desaturated quadrant, which is the one place you most need to see it. */
+  html .panel #colourMore, html[data-ptheme] .panel #colourMore{
+    box-shadow:0 22px 54px rgba(0,0,0,.5) !important;
+  }
+  html .panel .svDot, html .panel .hueDot,
+  html[data-ptheme] .panel .svDot, html[data-ptheme] .panel .hueDot{
+    box-shadow:0 0 0 1px rgba(0,0,0,.55) !important;
+  }
   html .panel #panelHandle, html[data-ptheme] .panel #panelHandle{
     background-image:none;background-color:var(--p-btn, rgba(0,0,0,.05));
   }
   /* the raised/pressed states were shadow changes, so they need something else to say
-     "on" — a fill and a border, which read the same flat */
-  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed),
-  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed){
+     "on" — a fill and a border, which read the same flat.
+     .primary is excluded, not restyled: it carries its own dark fill AND its own light text,
+     and taking only the fill left white-on-near-white — the Export button rendered blank. */
+  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary),
+  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary),
+  html .panel .filebtn, html[data-ptheme] .panel .filebtn{
     background-image:none;
     background-color:var(--p-btn, rgba(0,0,0,.05));
     border:1px solid var(--line);
   }
-  html .panel button:not(.themeDot):not(.armed):active,
-  html[data-ptheme] .panel button:not(.themeDot):not(.armed):active{
-    transform:none;                       /* the 1px nudge was part of the same 3D illusion */
+  /* the one control in the panel that is a <label>, not a <button>, so every button selector
+     in this block misses it and "Load photo" kept its brushed gradient */
+  html .panel .filebtn:hover, html[data-ptheme] .panel .filebtn:hover{
+    background-image:none;background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+  }
+  /* primary keeps its pair: flatten the gradient, keep fill and text together */
+  html .panel button.primary, html[data-ptheme] .panel button.primary{
+    background-image:none;background-color:var(--ink);color:var(--ink-c);border:1px solid var(--ink);
+  }
+  html .panel button.primary:hover, html[data-ptheme] .panel button.primary:hover{ opacity:.88 }
+  /* Hover and press must out-specify the base rule, not tie with it or fall short. The press
+     rule was a shorter :not() chain than the base and there was no hover rule at all, so
+     idle, hover and pressed were pixel-identical everywhere in the sidebar — cursor:pointer
+     was the only remaining affordance. Both carry the base chain plus their pseudo-class. */
+  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover,
+  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover{
     background-color:var(--p-btn-hi, rgba(0,0,0,.10));
   }
+  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):active,
+  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):active{
+    transform:none;                       /* the 1px nudge was part of the same 3D illusion */
+    background-color:rgba(0,0,0,.18);
+  }
+  /* picker tiles are excluded from the base rule, so they need their own pair — the wildcard
+     took their hover shadow and the flat block took their lift, leaving them inert too */
+  html .panel .fieldBtn:hover, html[data-ptheme] .panel .fieldBtn:hover{
+    transform:none;border-color:var(--ink);
+  }
+  html .panel .fieldBtn:active, html[data-ptheme] .panel .fieldBtn:active{ transform:none;opacity:.7 }
   /* Unavailable has to LOOK unavailable. Flattening removed the pressed/raised difference
      that used to carry this implicitly, and nothing replaced it — a disabled button was
      pixel-identical to a live one, down to the pointer cursor, so pressing it read as the
@@ -1389,7 +1437,6 @@
      tile, the active gradient stop — comes back as an outline. Same information, and it
      reads flat instead of raised. Without this the wildcard above deletes the only cue
      saying which one is on. */
-  html .panel .fieldBtn:hover, html[data-ptheme] .panel .fieldBtn:hover{transform:none}
   html .panel .fieldBtn.on, html[data-ptheme] .panel .fieldBtn.on{
     border-color:var(--ink);outline:2px solid var(--ink);outline-offset:-2px;
   }
@@ -4641,6 +4688,15 @@ function setCustomN(n){
    field or a history chip. In 2/3-colour mode the visible stops ARE the base colours and the
    rest derive; in 4 they are the stops themselves. */
 function setStopColour(idx, rgb){
+  /* Chrome is procedural — it has no editable stops, and no PALETTES_RGB entry either, so
+     falling through would clone index 0 and silently swap a procedural metal for a static
+     aurora gradient. The swatch rows enforce this by going pointer-events:none; the editor's
+     pads, sliders, hex field and harmony buttons are not inside those rows, so the rule has
+     to live at the one place every one of them writes through. */
+  if (state.pal === 7){
+    setStatus('CHROME IS PROCEDURAL — pick another palette to edit its colours');
+    return;
+  }
   if (customN < 4 && customBase && idx < customN){
     customBase[idx] = rgb;
     state.pal = 8;
@@ -4823,8 +4879,11 @@ function syncColourEditor(){
   /* Keep the panel fully on screen. Called on open and on resize, because a window that
      shrinks below a remembered position would otherwise strand the editor off the edge with
      no way to drag it back — its own drag handle would be outside the viewport. */
+  /* narrow viewports pin the editor to the bottom in CSS — there is nowhere to float it to,
+     and writing left/top here would fight that layout and undo it */
+  function isPinned(){ return window.matchMedia && window.matchMedia('(max-width:700px)').matches; }
   function clampPos(){
-    if (!more || more.hidden){ return; }
+    if (!more || more.hidden || isPinned()){ return; }
     var r = more.getBoundingClientRect();
     var maxL = Math.max(8, window.innerWidth - r.width - 8);
     var maxT = Math.max(8, window.innerHeight - r.height - 8);
@@ -4841,14 +4900,17 @@ function syncColourEditor(){
     if (!open){ return; }
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem(CM_POS_LS) || 'null'); } catch(e){}
-    if (saved && isFinite(saved.x) && isFinite(saved.y)){
+    if (saved && !isPinned() && isFinite(saved.x) && isFinite(saved.y)){
       more.style.left = saved.x + 'px';
       more.style.top = saved.y + 'px';
       more.style.right = 'auto';
     }
     renderColourHistory();
+    /* Position first, THEN place the indicators. Both dots are laid out from the pad's
+       clientWidth, so running the sync before the box had settled its final width left them
+       pointing at coordinates from the previous size on every first open. */
+    clampPos();
     syncColourEditor();
-    clampPos();                       /* after the content is laid out, so height is real */
   }
   if (line){ line.addEventListener('click', function(){ openEditor(more.hidden); }); }
   if (close){ close.addEventListener('click', function(){ openEditor(false); }); }
@@ -8162,11 +8224,16 @@ function renderOneThumb(job){
 function runThumbJobs(jobs, done){
   if (!jobs || !jobs.length || !canvas.width || !ensureThumbGL()){ if (done){ done(); } return; }
   var save = {}, i;
-  for (i = 0; i < THUMB_KEYS.length; i++){ save[THUMB_KEYS[i]] = state[THUMB_KEYS[i]]; }
   var savedAmt = mouse.amt;
   mouse.amt = 0;                       /* the cursor ripple must not smear a preview */
   var queue = jobs.slice();
   (function step(){
+    /* Snapshot the LIVE state at each batch, not once before the queue starts — the same
+       correction thumbStep carries. A pass is ~5 frames (longer on a slow GPU, and a timer
+       loop in a background tab), and a pre-pass snapshot restored after every batch silently
+       reverted an engine or palette the user picked during that window while the status line
+       still named their choice. */
+    for (i = 0; i < THUMB_KEYS.length; i++){ save[THUMB_KEYS[i]] = state[THUMB_KEYS[i]]; }
     var budget = 3;
     while (budget-- > 0 && queue.length){ renderOneThumb(queue.shift()); }
     applyThumbState(save);             /* restore between batches so the main loop stays correct */

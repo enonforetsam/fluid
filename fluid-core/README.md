@@ -60,12 +60,14 @@ Or start from a curated studio look and override:
 createFluid(el, { look: 'BOREALIS', speed: 0.3 });
 ```
 
-Custom 4-stop gradient (dark → light), a second layer, screens, materials:
+Custom 4-stop gradient (dark → light), stacked layers, screens, materials:
 
 ```js
 createFluid(el, {
   colors: ['#040414', '#0a3a7a', '#0484fc', '#c2dbdc'],
-  layer: { field: 'crystal', blend: 'screen', mix: 0.4 },
+  layer:  { field: 'crystal', blend: 'screen', mix: 0.4 },
+  // a third engine, blended onto layer 2's result — it needs `layer` to do anything
+  layer2: { field: 'topo', blend: 'multiply', mix: 0.3 },
   screen: 'hex',            // square | hex | ascii | dither | glitch
   material: 'molten',       // none | glass | metal | sand | liquid | molten
   lens: 'mobius',           // math lens: square | invert | mobius | droste | hyperbolic |
@@ -88,6 +90,6 @@ Instance API: `set(params)`, `play()`, `pause()`, `seed`, `toDataURL()`,
 
 ## Scope
 
-Pure field pieces: all 22 engines, layers, screens, materials, math lenses,
+Pure field pieces: all 23 engines, up to three stacked layers, screens, materials, math lenses,
 kaleidoscope symmetry, palettes + custom gradients. Studio-only features (image melt, text
 masks, cursor effects, recording) intentionally stay in the studio.
