@@ -44,6 +44,7 @@ const SECTIONS = [
   'colour editor styles',
   'buttons',
   'knobs',
+  'slider grid',
   'pickers',
   'shelves and footer',
   'mobile layout',

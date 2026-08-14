@@ -753,6 +753,28 @@
     text-align:center;line-height:1.25;text-shadow:none;
   }
   .knoblabel output{display:block;color:#fff;letter-spacing:.04em;font-size:9px;font-weight:700;margin-top:1px}
+  /* ---------- slider grid: the same controls as sliders, two to a row ----------
+     A row of 72px dials plus their caption plates is tall, and the panel is a column — the
+     height is the expensive dimension. This shows the range input the knob was already
+     driving, so nothing is rebound and nothing new is bound: the knob is simply hidden and
+     its input stops being visually-hidden. Label and value share a line above the track. */
+  .knobgrid.sliderGrid{grid-template-columns:1fr 1fr;gap:13px 16px}
+  .sliderGrid .knobctl{align-items:stretch;gap:5px}
+  .sliderGrid .knob{display:none}
+  /* height must be restated, not left to auto: the hidden-input rule this overrides sets 1px,
+     and auto collapses the control to its 2px track — a slider you cannot grab. These are the
+     base values, including the bigger touch target coarse pointers get. */
+  .sliderGrid .knobctl input[type=range]{
+    position:static;width:100%;height:18px;opacity:1;pointer-events:auto;margin:0;
+  }
+  @media (pointer:coarse){ .sliderGrid .knobctl input[type=range]{height:40px} }
+  .sliderGrid .knoblabel{
+    min-width:0;max-width:none;padding:0;background:none;border:0;box-shadow:none;
+    display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+    color:var(--soft);text-align:left;
+  }
+  .sliderGrid .knoblabel output{display:inline;color:var(--ink);margin:0;font-size:9px}
+  @media(max-width:520px){ .knobgrid.sliderGrid{grid-template-columns:1fr} }
   /* dark instrument-meter dial: black outer arc, chrome rim, glass face, amber sweep */
   .knob{
     width:72px;height:72px;position:relative;cursor:pointer;touch-action:none;
@@ -1786,7 +1808,7 @@
     </div>
     <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
     </div>
-    <div class="knobgrid">
+    <div class="knobgrid sliderGrid">
       <div class="knobctl">
         <div class="knob" data-for="speed" role="slider" aria-label="Speed"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
         <div class="knoblabel">Speed <output id="speedOut">0.6</output></div>

@@ -46,6 +46,7 @@ Zones, in file order:
 | colour editor styles | the one-line ramp and the picker that opens under it | `---------- colour editor styles:` |
 | buttons | the raised key look every control in the panel shares | `---------- buttons:` |
 | knobs | rotary dials layered over hidden range inputs, arc plus ticks plus puck | `---------- knobs:` |
+| slider grid | the same controls as sliders, two to a row | `---------- slider grid:` |
 | pickers | the thumbnail tiles, the swipeable strips they live in, and the aspect fader | `---------- pickers:` |
 | shelves and footer | the look shelf, status line, signature and credits | `---------- shelves and footer:` |
 | mobile layout | artwork pinned to the top, controls scrolling below, drag-to-resize grip | `---------- mobile layout:` |
@@ -172,5 +173,5 @@ Zones, in file order:
 
 ---
 
-124 sections. Anything unbannered is a gap in the map: add a banner in the
+125 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
