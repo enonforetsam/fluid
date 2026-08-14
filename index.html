@@ -1344,6 +1344,15 @@
     transform:none;                       /* the 1px nudge was part of the same 3D illusion */
     background-color:var(--p-btn-hi, rgba(0,0,0,.10));
   }
+  /* Unavailable has to LOOK unavailable. Flattening removed the pressed/raised difference
+     that used to carry this implicitly, and nothing replaced it — a disabled button was
+     pixel-identical to a live one, down to the pointer cursor, so pressing it read as the
+     app being broken rather than the control being off. */
+  html .panel button:disabled, html .panel button[aria-disabled="true"],
+  html[data-ptheme] .panel button:disabled, html[data-ptheme] .panel button[aria-disabled="true"],
+  html .panel button.isOff, html[data-ptheme] .panel button.isOff{
+    opacity:.38;cursor:not-allowed;
+  }
   /* The :not() chain has to match the base rule above, not be shorter than it. Written as
      `button.on:not(.themeDot)` this lost the background to that rule on specificity while
      still winning the colour — light text on a light fill, which is how the active layer
@@ -4005,11 +4014,15 @@ function syncLayerBlocks(){
     note.textContent = 'One engine. Add a layer from the Field section.';
     tabs.appendChild(note);
   }
-  /* the add control lives in Field, next to Shuffle — it reports the stack from here */
+  /* The add control lives in Field, next to Shuffle — it reports the stack from here.
+     aria-disabled, NOT the disabled property: a disabled button fires no click, so the only
+     thing a press could do was nothing at all. Marked-off it still answers, and says why. */
   var addBtn = document.getElementById('addLayerBtn');
   if (addBtn){
-    addBtn.disabled = depth >= 3;
-    addBtn.title = depth >= 3 ? 'Three engines is the maximum'
+    var full = depth >= 3;
+    addBtn.classList.toggle('isOff', full);
+    addBtn.setAttribute('aria-disabled', full ? 'true' : 'false');
+    addBtn.title = full ? 'Three engines is the maximum — remove one first'
       : (depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these');
   }
 }
@@ -5540,6 +5553,10 @@ document.getElementById('randBtn').addEventListener('click', shuffleDesign);
   var b = document.getElementById('addLayerBtn');
   if (!b){ return; }
   b.addEventListener('click', function(){
+    if (layerDepth() >= 3){
+      setStatus('THREE ENGINES IS THE MAXIMUM — remove one with the ✕ in the tray first');
+      return;                       /* a press that cannot act still has to answer */
+    }
     addLayer();
     layerTab = layerDepth();        /* the new layer's tab is the one you want to be on */
     syncLayerBlocks();
