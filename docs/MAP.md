@@ -43,6 +43,7 @@ Zones, in file order:
 | embed mode | the chrome-less iframe layout, canvas only, filling any aspect | `---------- embed mode:` |
 | panel sections | the numbered blocks, their collapse animation and the per-section info tip | `---------- panel sections:` |
 | controls | swatches, text fields, font chips, export rows and the raw range inputs | `---------- controls:` |
+| colour editor styles | the one-line ramp and the picker that opens under it | `---------- colour editor styles:` |
 | buttons | the raised key look every control in the panel shares | `---------- buttons:` |
 | knobs | rotary dials layered over hidden range inputs, arc plus ticks plus puck | `---------- knobs:` |
 | pickers | the thumbnail tiles, the swipeable strips they live in, and the aspect fader | `---------- pickers:` |
@@ -62,6 +63,7 @@ Zones, in file order:
 | Source section | an optional photo, camera frame or drop melted into the field | `---------- Source section:` |
 | Size section | the aspect fader, portrait through landscape | `---------- Size section:` |
 | Colours section | the palette strip plus the custom two, three or four stop swatches | `---------- Colours section:` |
+| colour editor markup | pick one stop and work it in HSB, RGB or hex | `---------- colour editor markup:` |
 | Field section | the engine strip, the speed/zoom/warp/grain knobs and symmetry | `---------- Field section:` |
 | Math section | the complex-plane lens strip and how far it bends | `---------- Math section:` |
 | Layers section | two more engines and the blend modes compositing them | `---------- Layers section:` |
@@ -97,6 +99,9 @@ Zones, in file order:
 | control sync | push the whole state back into every widget after a load, look or shuffle | `---------- control sync:` |
 | toggles / palettes / aspect | the plain on-off buttons and the palette swatches | `---------- toggles / palettes / aspect:` |
 | custom gradient | derive the 4 shader stops from 2 or 3 colours the user picked | `---------- custom gradient:` |
+| colour editor | one stop at a time, in HSB, RGB or hex | `---------- colour editor:` |
+| colour editor sync | every control shows the same stop, whichever one moved | `---------- colour editor sync:` |
+| colour editor wiring | pad drags, channel sliders, hex, harmony | `---------- colour editor wiring:` |
 | field picker | engine selection, its status copy and the per-engine tuning it applies | `---------- field picker:` |
 | picker strips | arrow nudges, edge fades, and keeping each strip's active tile in view | `---------- picker strips:` |
 | explore shelf | a fresh shelf of pieces nobody has seen, every time | `---------- explore shelf:` |
@@ -165,5 +170,5 @@ Zones, in file order:
 
 ---
 
-117 sections. Anything unbannered is a gap in the map: add a banner in the
+122 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

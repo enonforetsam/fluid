@@ -521,6 +521,46 @@
   .swatch::-webkit-color-swatch-wrapper{padding:2px}
   .swatch::-webkit-color-swatch{border:none;border-radius:5px}
   .swatch::-moz-color-swatch{border:none;border-radius:5px}
+  /* ---------- colour editor styles: the one-line ramp and the picker that opens under it ---------- */
+  #rampLine{
+    display:flex;align-items:center;gap:9px;width:100%;padding:7px 9px;text-align:left;
+    background-image:none;box-shadow:none;letter-spacing:0;
+  }
+  .rampBar{flex:1;min-width:0;height:20px;border-radius:5px;border:1px solid var(--line);background:var(--ramp, #222)}
+  .rampName{flex:0 0 auto;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+  .rampMore{flex:0 0 auto;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+  #rampLine[aria-expanded="true"] .rampMore::after{content:' ▲'}
+  #rampLine[aria-expanded="false"] .rampMore::after{content:' ▼'}
+  #colourMore{margin-top:12px}
+  .stopTabs{display:flex;gap:6px;margin-bottom:9px}
+  button.stopTab{
+    flex:1;height:30px;padding:0;border-radius:7px;border:1px solid var(--line);
+    background-image:none;box-shadow:none;position:relative;overflow:hidden;
+  }
+  button.stopTab.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+  /* the tab IS the colour — a label would say less than the thing itself */
+  .stopTab i{position:absolute;inset:3px;border-radius:4px;display:block}
+  .pickWrap{position:relative;line-height:0}
+  #svPad{width:100%;height:150px;border-radius:8px;border:1px solid var(--line);cursor:crosshair;touch-action:none;display:block}
+  .svDot,.hueDot{
+    position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;
+    border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.55);pointer-events:none;
+  }
+  .hueWrap{position:relative;line-height:0;margin-top:9px}
+  #huePad{width:100%;height:14px;border-radius:7px;border:1px solid var(--line);cursor:pointer;touch-action:none;display:block}
+  .hueDot{top:7px}
+  .chanGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin-top:11px}
+  .chanGrid label{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.1em;color:var(--soft)}
+  .chanGrid input{flex:1;min-width:0}
+  .chanGrid output{flex:0 0 30px;text-align:right;font-size:9px;color:var(--ink)}
+  .hexIn{
+    flex:1;min-width:0;font-family:inherit;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;
+  }
+  .harmonyRow button.harmBtn{flex:1;padding:7px 4px;font-size:8px;letter-spacing:.08em}
+  .histRow{display:flex;flex-wrap:wrap;gap:5px}
+  button.histSw{width:26px;height:26px;padding:0;border-radius:6px;border:1px solid var(--line);background-image:none;box-shadow:none;flex:0 0 auto}
+  .histRow .cnote{width:100%;margin:0}
   .swatchRow.disabled{opacity:.32;pointer-events:none}
   .cnote{font-size:9px;letter-spacing:.10em;color:var(--soft);margin-top:8px;min-height:11px}
   .textfield{
@@ -1463,6 +1503,15 @@
   <!-- ---------- Colours section: the palette strip plus the custom two, three or four stop swatches ---------- -->
   <section>
     <div class="sec-title">02 — Colours</div>
+    <!-- the basic line: the ramp itself. Most colour decisions are "is this right?", which
+         you answer by looking at it, not by opening anything. Everything that edits it lives
+         behind More, so the section costs one row until you actually want to change it. -->
+    <button type="button" id="rampLine" aria-expanded="false" aria-controls="colourMore" title="Open the colour editor">
+      <span class="rampBar" id="rampBar" aria-hidden="true"></span>
+      <span class="rampName" id="rampName">Aurora</span>
+      <span class="rampMore" aria-hidden="true">More</span>
+    </button>
+    <div id="colourMore" hidden>
     <div class="exGroupLabel">Palette</div>
     <div class="striprow">
     <button id="palPrev" class="stripBtn" aria-label="Scroll palettes left">&#8249;</button>
@@ -1493,6 +1542,42 @@
       <input class="swatch" id="c3" type="color" aria-label="Gradient stop 4 (lightest)">
     </div>
     <div class="cnote" id="cnote"></div>
+
+    <!-- ---------- colour editor markup: pick one stop and work it in HSB, RGB or hex ---------- -->
+    <div class="exGroupLabel" style="margin-top:14px">Editor — pick a stop</div>
+    <div class="stopTabs" id="stopTabs" role="tablist" aria-label="Gradient stop"></div>
+    <div class="pickWrap">
+      <canvas id="svPad" width="240" height="150" aria-label="Saturation and brightness"></canvas>
+      <span class="svDot" id="svDot"></span>
+    </div>
+    <div class="hueWrap">
+      <canvas id="huePad" width="240" height="14" aria-label="Hue"></canvas>
+      <span class="hueDot" id="hueDot"></span>
+    </div>
+    <div class="chanGrid">
+      <label>H<input id="chH" type="range" min="0" max="360" step="1"><output id="chHo">0</output></label>
+      <label>S<input id="chS" type="range" min="0" max="100" step="1"><output id="chSo">0</output></label>
+      <label>B<input id="chB" type="range" min="0" max="100" step="1"><output id="chBo">0</output></label>
+      <label>R<input id="chR" type="range" min="0" max="255" step="1"><output id="chRo">0</output></label>
+      <label>G<input id="chG" type="range" min="0" max="255" step="1"><output id="chGo">0</output></label>
+      <label>B<input id="chBl" type="range" min="0" max="255" step="1"><output id="chBlo">0</output></label>
+    </div>
+    <div class="row gap" style="margin-top:8px;align-items:center">
+      <span class="exGroupLabel" style="margin:0 2px 0 0">Hex</span>
+      <input id="hexIn" class="hexIn" type="text" spellcheck="false" autocomplete="off" maxlength="7" aria-label="Hex colour">
+    </div>
+    <!-- harmony rebuilds the WHOLE ramp from the selected stop's hue, which is the thing a
+         wheel is actually for: not one colour, a set that agrees -->
+    <div class="exGroupLabel" style="margin-top:12px">Harmony — rebuild the ramp from this hue</div>
+    <div class="row gap harmonyRow">
+      <button type="button" class="harmBtn" data-harm="analogous">Analogous</button>
+      <button type="button" class="harmBtn" data-harm="complement">Complement</button>
+      <button type="button" class="harmBtn" data-harm="triad">Triad</button>
+      <button type="button" class="harmBtn" data-harm="mono">Mono</button>
+    </div>
+    <div class="exGroupLabel" style="margin-top:12px">Recent</div>
+    <div class="histRow" id="histRow"></div>
+    </div>
   </section>
 
   <!-- ---------- Field section: the engine strip, the speed/zoom/warp/grain knobs and symmetry ---------- -->
@@ -4129,6 +4214,14 @@ function syncControls(){
   var swRow = document.getElementById('swatchRow'), stRow = document.getElementById('stopsRow');
   if (swRow){ swRow.className = 'row gap swatchRow' + (state.pal === 7 ? ' disabled' : ''); }
   if (stRow){ stRow.className = 'row gap swatchRow' + (state.pal === 7 ? ' disabled' : ''); }
+  /* the one-line ramp is the whole section when it is closed, so it carries the real stops */
+  var rampBar = document.getElementById('rampBar'), rampName = document.getElementById('rampName');
+  if (rampBar){
+    rampBar.style.background = 'linear-gradient(90deg,' + rgb01ToHex(cc[0]) + ',' + rgb01ToHex(cc[1]) +
+      ',' + rgb01ToHex(cc[2]) + ',' + rgb01ToHex(cc[3]) + ')';
+  }
+  if (rampName){ rampName.textContent = paletteName ? paletteName() : ''; }
+  if (typeof syncColourEditor === 'function'){ syncColourEditor(); }
   var cnote = document.getElementById('cnote');
   if (cnote){
     cnote.textContent = state.pal === 7 ? 'Chrome is a procedural metal — no editable stops.'
@@ -4280,23 +4373,280 @@ function setCustomN(n){
 });
 /* swatch pickers: editing one drops into Custom mode (seeded from the current look).
    In 2/3-colour mode the visible swatches edit the BASE colours; the stops derive. */
+/* One write path for a stop, whatever moved it — a native swatch, the pad, a slider, the hex
+   field or a history chip. In 2/3-colour mode the visible stops ARE the base colours and the
+   rest derive; in 4 they are the stops themselves. */
+function setStopColour(idx, rgb){
+  if (customN < 4 && customBase && idx < customN){
+    customBase[idx] = rgb;
+    state.pal = 8;
+    state.cols = deriveStops(customBase);
+    persistCustomMode();
+  } else {
+    if (state.pal !== 8){ state.cols = cloneStops(effectiveCols()); state.pal = 8; }
+    state.cols[idx] = rgb;
+  }
+  markLook(null);
+  syncControls();
+}
+/* how many stops are editable right now: the bases in 2/3-colour mode, all four otherwise */
+function editableStops(){ return (customN < 4 && customBase) ? customN : 4; }
+function stopColour(idx){
+  var cc = effectiveCols();
+  return (customN < 4 && customBase && idx < customN) ? customBase[idx] : cc[idx];
+}
 ['c0', 'c1', 'c2', 'c3'].forEach(function(id, idx){
   var el = document.getElementById(id);
   if (!el){ return; }
   el.addEventListener('input', function(){
-    if (customN < 4 && customBase && idx < customN){
-      customBase[idx] = hexToRgb01(el.value);
-      state.pal = 8;
-      state.cols = deriveStops(customBase);
-      persistCustomMode();
-    } else {
-      if (state.pal !== 8){ state.cols = cloneStops(effectiveCols()); state.pal = 8; }
-      state.cols[idx] = hexToRgb01(el.value);
-    }
-    markLook(null);
-    syncControls();
+    setStopColour(idx, hexToRgb01(el.value));
+    pushColourHistory(el.value);
   });
 });
+/* ---------- colour editor: one stop at a time, in HSB, RGB or hex ----------
+   The section shows a single line — the ramp — because most colour decisions are answered by
+   looking at it, not by opening anything. This is what opens underneath when they are not.
+
+   HSB, not HSL: brightness is what people reach for when a colour is "too dark", and the
+   app's own gradients are built dark-to-light, so B is the axis that matters here. */
+function rgb2hsv(c){
+  var r = c[0], g = c[1], b = c[2];
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  var h = 0;
+  if (d > 1e-6){
+    if (mx === r){ h = ((g - b) / d + (g < b ? 6 : 0)); }
+    else if (mx === g){ h = (b - r) / d + 2; }
+    else { h = (r - g) / d + 4; }
+    h *= 60;
+  }
+  return [h, mx > 1e-6 ? d / mx : 0, mx];
+}
+function hsv2rgb(h, s, v){
+  h = ((h % 360) + 360) % 360;
+  var i = Math.floor(h / 60), f = h / 60 - i;
+  var p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+  var m = [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i % 6];
+  return [m[0], m[1], m[2]];
+}
+var editStop = 0;                          /* which gradient stop the editor is working on */
+var editH = 0, editS = 0, editV = 0;       /* held separately: at S=0 or V=0 the hue is not
+                                              recoverable from RGB, and round-tripping would
+                                              snap the pad's dot to red every time */
+var COL_HIST_LS = 'fluid:colhist';
+function readColourHistory(){
+  try { var a = JSON.parse(localStorage.getItem(COL_HIST_LS) || '[]'); return Array.isArray(a) ? a.filter(function(h){ return /^#[0-9a-f]{6}$/i.test(h); }) : []; }
+  catch(e){ return []; }
+}
+function pushColourHistory(hex){
+  hex = String(hex).toLowerCase();
+  if (!/^#[0-9a-f]{6}$/.test(hex)){ return; }
+  var list = readColourHistory().filter(function(h){ return h !== hex; });
+  list.unshift(hex);
+  list = list.slice(0, 14);
+  try { localStorage.setItem(COL_HIST_LS, JSON.stringify(list)); } catch(e){}
+  renderColourHistory();
+}
+function renderColourHistory(){
+  var row = document.getElementById('histRow');
+  if (!row){ return; }
+  while (row.firstChild){ row.removeChild(row.firstChild); }
+  var list = readColourHistory();
+  if (!list.length){
+    var n = document.createElement('div');
+    n.className = 'cnote'; n.textContent = 'Colours you pick land here.';
+    row.appendChild(n);
+    return;
+  }
+  list.forEach(function(hex){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'histSw';
+    b.style.background = hex; b.title = hex.toUpperCase();
+    b.setAttribute('aria-label', 'Use ' + hex.toUpperCase());
+    b.addEventListener('click', function(){ applyEditorColour(hexToRgb01(hex), true); });
+    row.appendChild(b);
+  });
+}
+/* write the editor's colour into the stop, and pull HSB back out for the pad */
+function applyEditorColour(rgb, reseat){
+  if (reseat){ var h = rgb2hsv(rgb); editH = h[0]; editS = h[1]; editV = h[2]; }
+  setStopColour(editStop, rgb);
+}
+function paintSV(){
+  var pad = document.getElementById('svPad');
+  if (!pad){ return; }
+  var ctx = pad.getContext('2d'), w = pad.width, h = pad.height;
+  var base = hsv2rgb(editH, 1, 1);
+  ctx.fillStyle = rgb01ToHex(base);
+  ctx.fillRect(0, 0, w, h);
+  var gw = ctx.createLinearGradient(0, 0, w, 0);      /* saturation left to right */
+  gw.addColorStop(0, 'rgba(255,255,255,1)'); gw.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gw; ctx.fillRect(0, 0, w, h);
+  var gb = ctx.createLinearGradient(0, 0, 0, h);      /* brightness top to bottom */
+  gb.addColorStop(0, 'rgba(0,0,0,0)'); gb.addColorStop(1, 'rgba(0,0,0,1)');
+  ctx.fillStyle = gb; ctx.fillRect(0, 0, w, h);
+}
+function paintHue(){
+  var pad = document.getElementById('huePad');
+  if (!pad){ return; }
+  var ctx = pad.getContext('2d'), w = pad.width, h = pad.height;
+  var g = ctx.createLinearGradient(0, 0, w, 0);
+  for (var i = 0; i <= 6; i++){ g.addColorStop(i / 6, rgb01ToHex(hsv2rgb(i * 60, 1, 1))); }
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+}
+/* ---------- colour editor sync: every control shows the same stop, whichever one moved ---------- */
+function syncColourEditor(){
+  var more = document.getElementById('colourMore');
+  if (!more || more.hidden){ return; }            /* closed: nothing to keep in step */
+  var n = editableStops();
+  if (editStop >= n){ editStop = n - 1; }
+  var rgb = stopColour(editStop);
+  /* only reseat hue/sat from RGB when the colour actually differs from what the pad holds —
+     otherwise dragging into a corner (S=0) would lose the hue the user was working in */
+  var cur = hsv2rgb(editH, editS, editV);
+  if (Math.abs(cur[0]-rgb[0]) > 0.004 || Math.abs(cur[1]-rgb[1]) > 0.004 || Math.abs(cur[2]-rgb[2]) > 0.004){
+    var h = rgb2hsv(rgb); editH = h[0]; editS = h[1]; editV = h[2];
+  }
+  var tabs = document.getElementById('stopTabs');
+  if (tabs){
+    while (tabs.firstChild){ tabs.removeChild(tabs.firstChild); }
+    for (var i = 0; i < n; i++){
+      (function(idx){
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'stopTab' + (idx === editStop ? ' on' : '');
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', idx === editStop ? 'true' : 'false');
+        b.setAttribute('aria-label', 'Stop ' + (idx + 1) + (idx === 0 ? ', darkest' : (idx === n - 1 ? ', lightest' : '')));
+        b.title = 'Stop ' + (idx + 1);
+        var sw = document.createElement('i');
+        sw.style.background = rgb01ToHex(stopColour(idx));
+        b.appendChild(sw);
+        b.addEventListener('click', function(){ editStop = idx; syncColourEditor(); });
+        tabs.appendChild(b);
+      })(i);
+    }
+  }
+  paintSV(); paintHue();
+  var pad = document.getElementById('svPad'), dot = document.getElementById('svDot');
+  if (pad && dot){
+    dot.style.left = (editS * pad.clientWidth) + 'px';
+    dot.style.top = ((1 - editV) * pad.clientHeight) + 'px';
+    dot.style.background = rgb01ToHex(rgb);
+  }
+  var hp = document.getElementById('huePad'), hd = document.getElementById('hueDot');
+  if (hp && hd){
+    hd.style.left = ((editH / 360) * hp.clientWidth) + 'px';
+    hd.style.background = rgb01ToHex(hsv2rgb(editH, 1, 1));
+  }
+  function put(id, oid, v){
+    var el = document.getElementById(id), o = document.getElementById(oid);
+    if (el && document.activeElement !== el){ el.value = String(v); }
+    if (o){ o.textContent = String(v); }
+  }
+  put('chH', 'chHo', Math.round(editH));
+  put('chS', 'chSo', Math.round(editS * 100));
+  put('chB', 'chBo', Math.round(editV * 100));
+  put('chR', 'chRo', Math.round(rgb[0] * 255));
+  put('chG', 'chGo', Math.round(rgb[1] * 255));
+  put('chBl', 'chBlo', Math.round(rgb[2] * 255));
+  var hx = document.getElementById('hexIn');
+  if (hx && document.activeElement !== hx){ hx.value = rgb01ToHex(rgb).toUpperCase(); }
+}
+/* ---------- colour editor wiring: pad drags, channel sliders, hex, harmony ---------- */
+(function initColourEditor(){
+  var line = document.getElementById('rampLine'), more = document.getElementById('colourMore');
+  if (line && more){
+    line.addEventListener('click', function(){
+      var open = more.hidden;
+      more.hidden = !open;
+      line.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open){ renderColourHistory(); syncColourEditor(); }
+    });
+  }
+  /* drag anywhere on a pad and keep the pointer, so a drag off the edge still tracks */
+  function dragPad(id, onAt){
+    var pad = document.getElementById(id);
+    if (!pad){ return; }
+    var down = false;
+    function at(e){
+      var r = pad.getBoundingClientRect();
+      onAt(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)),
+           Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)));
+    }
+    pad.addEventListener('pointerdown', function(e){
+      down = true;
+      try { pad.setPointerCapture(e.pointerId); } catch(err){}
+      at(e); e.preventDefault();
+    });
+    pad.addEventListener('pointermove', function(e){ if (down){ at(e); } });
+    function end(){
+      if (!down){ return; }
+      down = false;
+      pushColourHistory(rgb01ToHex(stopColour(editStop)));
+    }
+    pad.addEventListener('pointerup', end);
+    pad.addEventListener('pointercancel', end);
+  }
+  dragPad('svPad', function(x, y){
+    editS = x; editV = 1 - y;
+    applyEditorColour(hsv2rgb(editH, editS, editV), false);
+  });
+  dragPad('huePad', function(x){
+    editH = x * 360;
+    applyEditorColour(hsv2rgb(editH, editS, editV), false);
+  });
+  function chan(id, fn){
+    var el = document.getElementById(id);
+    if (!el){ return; }
+    el.addEventListener('input', function(){ fn(parseFloat(el.value)); });
+    el.addEventListener('change', function(){ pushColourHistory(rgb01ToHex(stopColour(editStop))); });
+  }
+  chan('chH', function(v){ editH = v; applyEditorColour(hsv2rgb(editH, editS, editV), false); });
+  chan('chS', function(v){ editS = v / 100; applyEditorColour(hsv2rgb(editH, editS, editV), false); });
+  chan('chB', function(v){ editV = v / 100; applyEditorColour(hsv2rgb(editH, editS, editV), false); });
+  function rgbChan(id, i){
+    chan(id, function(v){
+      var c = stopColour(editStop).slice();
+      c[i] = Math.max(0, Math.min(1, v / 255));
+      applyEditorColour(c, true);
+    });
+  }
+  rgbChan('chR', 0); rgbChan('chG', 1); rgbChan('chBl', 2);
+  var hx = document.getElementById('hexIn');
+  if (hx){
+    hx.addEventListener('input', function(){
+      var v = hx.value.trim();
+      if (v.charAt(0) !== '#'){ v = '#' + v; }
+      if (!/^#[0-9a-fA-F]{6}$/.test(v)){ return; }   /* half-typed hex is not an edit yet */
+      applyEditorColour(hexToRgb01(v), true);
+    });
+    hx.addEventListener('change', function(){ pushColourHistory(rgb01ToHex(stopColour(editStop))); syncColourEditor(); });
+  }
+  /* Harmony rebuilds the whole ramp from the selected stop's hue. Fluid's gradients run
+     dark to light, so every scheme also climbs in brightness — a set of four colours at one
+     brightness is a palette, but it is not a gradient this app can use. */
+  var HARMONY = {
+    analogous: [-24, -8, 8, 24],
+    complement: [0, 12, 168, 180],
+    triad: [0, 8, 120, 240],
+    mono: [0, 0, 0, 0]
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.harmBtn'), function(b){
+    b.addEventListener('click', function(){
+      var offs = HARMONY[b.getAttribute('data-harm')] || HARMONY.analogous;
+      var sat = [0.55, 0.72, 0.85, 0.45];
+      var val = [0.14, 0.38, 0.68, 0.94];              /* dark -> light, always */
+      var stops = offs.map(function(o, i){ return hsv2rgb(editH + o, sat[i], val[i]); });
+      customN = 4; customBase = null;                  /* a harmony designs all four */
+      state.pal = 8;
+      state.cols = stops;
+      persistCustomMode();
+      markLook(null);
+      syncControls();
+      pushColourHistory(rgb01ToHex(stops[2]));
+      setStatus('HARMONY — ramp rebuilt from this hue; every stop is still yours to edit');
+    });
+  });
+})();
 /* ---------- field picker: engine selection, its status copy and the per-engine tuning it applies ---------- */
 var FIELD_STATUS = [
   'NOISE FIELD — domain-warped',
