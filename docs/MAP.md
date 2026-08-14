@@ -52,6 +52,7 @@ Zones, in file order:
 | panel themes | METAL (default, above) + carbon/phosphor/paper/neon | `---------- panel themes:` |
 | per-theme materials | each theme builds its own keys and knobs on top of the shared flat base above | `---------- per-theme materials:` |
 | per-theme dial rings, pucks and the aspect slider | the two remaining chrome parts | `---------- per-theme dial rings, pucks and the aspect slider:` |
+| flat sidebar | one override that ends the chrome, for every theme | `---------- flat sidebar:` |
 
 ## Markup
 
@@ -170,5 +171,5 @@ Zones, in file order:
 
 ---
 
-122 sections. Anything unbannered is a gap in the map: add a banner in the
+123 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

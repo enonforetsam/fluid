@@ -1297,6 +1297,81 @@
     background:linear-gradient(180deg, #2c1542, #170a24);
     box-shadow:inset 0 1px 0 rgba(255,61,129,.5), 0 0 0 1px rgba(255,61,129,.55), 0 0 10px rgba(255,61,129,.45);
   }
+
+  /* ---------- flat sidebar: one override that ends the chrome, for every theme ----------
+     The panel was built as a metal instrument: brushed texture, embossed keys, inset
+     highlights, drop shadows under everything. Ninety-one shadow declarations across the
+     base and five themes. Editing them one by one would leave the next theme to reintroduce
+     them, so this is a single terminal block instead — last in the stylesheet, matching or
+     beating the theme selectors, and stating the rule once: inside the sidebar, nothing
+     casts. Depth is carried by borders and fills alone.
+
+     Deliberately NOT flattened: the floating colour editor, which sits over the artwork
+     rather than in the sidebar. Its shadow is what separates it from a busy canvas
+     underneath — that is load-bearing, not decoration. */
+  /* One wildcard, with !important, rather than editing 91 scattered declarations across a
+     base and five themes: each would have to be found, and the next theme added would
+     reintroduce them. This says the rule once and it cannot be undone by accident. */
+  html .panel, html .panel *,
+  html[data-ptheme] .panel, html[data-ptheme] .panel *{
+    box-shadow:none !important;
+    text-shadow:none !important;
+  }
+  html .panel, html[data-ptheme] .panel{
+    background-image:none;
+    border-right:1px solid var(--line);   /* the column edge, as a line rather than a gradient */
+  }
+  html .panel #panelHandle, html[data-ptheme] .panel #panelHandle{
+    background-image:none;background-color:var(--p-btn, rgba(0,0,0,.05));
+  }
+  /* the raised/pressed states were shadow changes, so they need something else to say
+     "on" — a fill and a border, which read the same flat */
+  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed),
+  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed){
+    background-image:none;
+    background-color:var(--p-btn, rgba(0,0,0,.05));
+    border:1px solid var(--line);
+  }
+  html .panel button:not(.themeDot):not(.armed):active,
+  html[data-ptheme] .panel button:not(.themeDot):not(.armed):active{
+    transform:none;                       /* the 1px nudge was part of the same 3D illusion */
+    background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+  }
+  html .panel button.on:not(.themeDot),
+  html[data-ptheme] .panel button.on:not(.themeDot){
+    background-color:var(--ink);color:var(--ink-c);border-color:var(--ink);
+  }
+  /* State that used to be drawn WITH a shadow — the selected theme dot, the active picker
+     tile, the active gradient stop — comes back as an outline. Same information, and it
+     reads flat instead of raised. Without this the wildcard above deletes the only cue
+     saying which one is on. */
+  html .panel .fieldBtn:hover, html[data-ptheme] .panel .fieldBtn:hover{transform:none}
+  html .panel .fieldBtn.on, html[data-ptheme] .panel .fieldBtn.on{
+    border-color:var(--ink);outline:2px solid var(--ink);outline-offset:-2px;
+  }
+  html .panel .themeDot.on, html[data-ptheme] .panel .themeDot.on{
+    outline:2px solid var(--ink);outline-offset:2px;
+  }
+  html .panel button.stopTab.on, html[data-ptheme] .panel button.stopTab.on{
+    outline:2px solid var(--ink);outline-offset:-1px;
+  }
+  /* The knob is four stacked layers: a bezel ring, a moulded cap (::before), a face, and the
+     value arc (::after). Only the arc and the pointer say anything — the rest was the metal.
+     Pseudo-elements are not matched by the wildcard above, so the cap needs naming here.
+     The arc keeps its colour but loses the blur and screen-blend that made it glow. */
+  html .panel .knob, html[data-ptheme] .panel .knob{
+    background:none;
+  }
+  html .panel .knob::before, html[data-ptheme] .panel .knob::before{
+    background:var(--p-btn, rgba(0,0,0,.06));
+    border:1px solid var(--line);
+  }
+  html .panel .knob-body, html[data-ptheme] .panel .knob-body{
+    background-image:none;background-color:transparent;border:0;
+  }
+  html .panel .knob::after, html[data-ptheme] .panel .knob::after{
+    filter:none;mix-blend-mode:normal;
+  }
 </style>
 </head>
 <body>

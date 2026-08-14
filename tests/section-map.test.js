@@ -50,6 +50,7 @@ const SECTIONS = [
   'panel themes',
   'per-theme materials',
   'per-theme dial rings, pucks and the aspect slider',
+  'flat sidebar',
   /* markup */
   'stage markup',
   'stage tray markup',
