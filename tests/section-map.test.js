@@ -94,6 +94,7 @@ const SECTIONS = [
   /* js: control wiring */
   'sliders',
   'layers UI',
+  'layer tabs',
   'layer stack',
   'text controls',
   'logo upload',

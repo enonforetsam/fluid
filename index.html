@@ -289,13 +289,13 @@
   #copyEmbed{margin-top:8px;width:100%}
   .embedTabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
   .layerSel{flex:1;min-width:0;font-family:inherit;font-size:11px;color:var(--ink);background:var(--panel-metal);border:1px solid var(--line);border-radius:6px;padding:7px 8px;cursor:pointer}
-  /* one block per stacked engine. Layer 3 blends onto layer 2's result, so with no layer 2
-     there is nothing under it — the block says so by going quiet rather than by vanishing,
-     which would make the panel jump every time a layer is added or dropped. */
-  .layerBlock + .layerBlock{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  /* one tab per stacked engine, one card. Only the selected block is in the flow, so the
+     section is the same height running one engine or three. */
+  .layerTabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:11px}
+  button.layerTab{flex:0 0 auto;padding:7px 12px;font-size:9px;letter-spacing:.1em}
+  .layerTabNote{font-size:9px;letter-spacing:.04em;color:var(--soft)}
   .layerHead{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-bottom:8px}
-  .layerBlock.inert{opacity:.4}
-  .layerBlock.inert .layerSel,.layerBlock.inert input,.layerBlock.inert .knob{pointer-events:none}
+  .layerBlock[hidden]{display:none}
   /* the layer stack: one chip per composited engine, base first (left to right).
      A row is two controls in one shell — the body jumps to the panel section that owns
      the layer, the x removes it — so the shell draws the border and they split it. */
@@ -1344,8 +1344,12 @@
     transform:none;                       /* the 1px nudge was part of the same 3D illusion */
     background-color:var(--p-btn-hi, rgba(0,0,0,.10));
   }
-  html .panel button.on:not(.themeDot),
-  html[data-ptheme] .panel button.on:not(.themeDot){
+  /* The :not() chain has to match the base rule above, not be shorter than it. Written as
+     `button.on:not(.themeDot)` this lost the background to that rule on specificity while
+     still winning the colour — light text on a light fill, which is how the active layer
+     tab came out invisible. Same length, plus .on, so it wins outright. */
+  html .panel button.on:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed),
+  html[data-ptheme] .panel button.on:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed){
     background-color:var(--ink);color:var(--ink-c);border-color:var(--ink);
   }
   /* State that used to be drawn WITH a shadow — the selected theme dot, the active picker
@@ -1842,8 +1846,14 @@
   <section>
     <div class="sec-title">Layers — stack up to 3 engines</div>
     <!-- the visible stack lives in the tray under the artwork (#trayLayers) -->
+    <!-- One card, one set of fields, a tab per layer. Stacking the layers vertically made
+         the section grow every time you added one and pushed everything below it down the
+         panel; tabs keep it the same height whether you are running one engine or three.
+         Both control sets stay in the DOM and only the selected one shows, so each keeps
+         its own bound knob and slider rather than being rebound on every tab click. -->
+    <div class="layerTabs" id="layerTabs" role="tablist" aria-label="Layers"></div>
     <div class="layerBlock" id="layer2Block">
-      <div class="layerHead">Layer 2 — over the base</div>
+      <div class="layerHead">Blends onto the base</div>
       <div class="row gap">
         <!-- options are generated from the field picker at boot — a new engine can never
              go missing here the way Topo did -->
@@ -1865,10 +1875,8 @@
         </div>
       </div>
     </div>
-    <!-- layer 3 blends onto the result of layer 2, not onto the base, so it is dimmed and
-         inert until there is something under it to blend with -->
     <div class="layerBlock" id="layer3Block">
-      <div class="layerHead">Layer 3 — over that</div>
+      <div class="layerHead">Blends onto Layer 2, not the base</div>
       <div class="row gap">
         <select id="field3Sel" class="layerSel" aria-label="Third engine"></select>
         <select id="blend2Sel" class="layerSel" aria-label="Third engine blend mode">
@@ -1888,7 +1896,7 @@
         </div>
       </div>
     </div>
-    <p class="cnote" style="margin:8px 0 0">Mix 0 = the layer is off. Each layer blends onto everything under it, so Layer 3 needs Layer 2 — try Multiply or Screen. Remove a layer with the ✕ on its row.</p>
+    <p class="cnote" style="margin:8px 0 0">Each layer blends onto everything under it — try Multiply or Screen. Remove one with the ✕ on its row in the tray under the artwork.</p>
   </section>
 
   <!-- ---------- Surface section: screen geometry, material finish and the halftone/dither knobs ---------- -->
@@ -3959,10 +3967,55 @@ bindLayerSelect(field2Sel, 'field2');
 bindLayerSelect(blendSel, 'blend');
 bindLayerSelect(field3Sel, 'field3');
 bindLayerSelect(blend2Sel, 'blend2');
-/* layer 3 has nothing to blend onto until layer 2 is on, so its block goes quiet */
+/* ---------- layer tabs: one card, a tab per layer, fields for the selected one ----------
+   There is no tab for a layer that does not exist, so the section never shows controls for
+   something that is not compositing — which is what the old dimmed-and-inert Layer 3 block
+   was working around. Adding a layer opens its tab and lands you on it. */
+var layerTab = 2;
 function syncLayerBlocks(){
-  var b3 = document.getElementById('layer3Block');
-  if (b3){ b3.classList.toggle('inert', !((state.layerMix || 0) > 0.001)); }
+  var depth = layerDepth();
+  var b2 = document.getElementById('layer2Block'), b3 = document.getElementById('layer3Block');
+  /* a layer removed from under you cannot stay selected */
+  if (layerTab > depth){ layerTab = depth; }
+  if (layerTab < 2){ layerTab = 2; }
+  if (b2){ b2.hidden = !(depth >= 2 && layerTab === 2); }
+  if (b3){ b3.hidden = !(depth >= 3 && layerTab === 3); }
+  var tabs = document.getElementById('layerTabs');
+  if (!tabs){ return; }
+  while (tabs.firstChild){ tabs.removeChild(tabs.firstChild); }
+  for (var i = 2; i <= depth; i++){
+    (function(n){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'layerTab' + (n === layerTab ? ' on' : '');
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', n === layerTab ? 'true' : 'false');
+      b.textContent = 'Layer ' + n;
+      b.title = engineLabel(n === 2 ? state.field2 : state.field3);
+      b.addEventListener('click', function(){ layerTab = n; syncLayerBlocks(); });
+      tabs.appendChild(b);
+    })(i);
+  }
+  if (depth < 3){
+    var add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'layerTab layerAddTab';
+    add.textContent = depth === 1 ? '+ Add layer' : '+';
+    add.title = depth === 1 ? 'Blend a 2nd engine over the base' : 'Blend a 3rd engine over these';
+    add.setAttribute('aria-label', add.title);
+    add.addEventListener('click', function(){
+      addLayer();
+      layerTab = layerDepth();      /* land on the tab that just appeared */
+      syncLayerBlocks();
+    });
+    tabs.appendChild(add);
+  }
+  if (depth === 1){
+    var note = document.createElement('span');
+    note.className = 'layerTabNote';
+    note.textContent = 'One engine so far.';
+    tabs.appendChild(note);
+  }
 }
 /* ---------- layer stack: the visible list of what's composited, with per-layer removal ---------- */
 var layerStack = document.getElementById('trayLayers');

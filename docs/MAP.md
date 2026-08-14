@@ -92,6 +92,7 @@ Zones, in file order:
 | animation loop | accumulated time, never wall clock, plus on-demand repainting | `---------- animation loop:` |
 | sliders | bind a range input to a state key, with a live readout and persistence | `---------- sliders:` |
 | layers UI | pick the second engine, its blend mode and its strength | `---------- layers UI:` |
+| layer tabs | one card, a tab per layer, fields for the selected one | `---------- layer tabs:` |
 | layer stack | the visible list of what's composited, with per-layer removal | `---------- layer stack:` |
 | text controls | the word field and its clear button | `---------- text controls:` |
 | logo upload | the image's silhouette becomes the mask, same path as text | `---------- logo upload:` |
@@ -171,5 +172,5 @@ Zones, in file order:
 
 ---
 
-123 sections. Anything unbannered is a gap in the map: add a banner in the
+124 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
