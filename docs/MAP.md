@@ -59,7 +59,6 @@ Zones, in file order:
 | stage markup | glow canvas, the chip bar with its docks, and the card the artwork sits in | `---------- stage markup:` |
 | stage tray markup | the tabbed shelf docked under the artwork | `---------- stage tray markup:` |
 | panel markup | header, status line, theme dots and the scrolling list of edit sections | `---------- panel markup:` |
-| Templates section | one-tap curated looks, collapsed until opened | `---------- Templates section:` |
 | Source section | an optional photo, camera frame or drop melted into the field | `---------- Source section:` |
 | Size section | the aspect fader, portrait through landscape | `---------- Size section:` |
 | Colours section | the palette strip plus the custom two, three or four stop swatches | `---------- Colours section:` |
@@ -78,7 +77,7 @@ Zones, in file order:
 | studio script | one IIFE, in order: data tables, state, shader, GL, UI wiring, boot | `---------- studio script:` |
 | export targets | explicit pixel sizes grouped by use; ar = w/h | `---------- export targets:` |
 | built-in source library | local assets only, never a CDN | `---------- built-in source library:` |
-| looks and palettes | the curated one-tap templates and the four-stop colour ramps they draw on | `---------- looks and palettes:` |
+| looks and palettes | the curated looks the public API serves, and the four-stop colour ramps they draw on | `---------- looks and palettes:` |
 | state | every tunable value in one object; the numeric share hash is its serialization | `---------- state:` |
 | shader | the vertex and fragment sources as line arrays, which fluid-core extracts verbatim | `---------- shader:` |
 | gl setup | context, program, uniform locations and the source texture | `---------- gl setup:` |
@@ -113,7 +112,7 @@ Zones, in file order:
 | canvas pointer | hover ripples the field, drag pans a loaded image, a tap reseeds | `---------- canvas pointer:` |
 | preset shelf | the built-in source thumbnails, inert while PRESETS is empty | `---------- preset shelf:` |
 | user sources | uploaded photos / frozen frames become thumbnails | `---------- user sources:` |
-| looks shelf | one tap to a finished piece | `---------- looks shelf:` |
+| looks shelf | the looks outlived their shelf | `---------- looks shelf:` |
 | own photo | file picker, paste, drag-and-drop | `---------- own photo:` |
 | camera | selfie-first, flip facing, freeze a frame | `---------- camera:` |
 | before/after split | clamped so the effect never fully hides | `---------- before/after split:` |
@@ -166,5 +165,5 @@ Zones, in file order:
 
 ---
 
-118 sections. Anything unbannered is a gap in the map: add a banner in the
+117 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

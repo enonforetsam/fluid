@@ -53,7 +53,6 @@ const SECTIONS = [
   'stage markup',
   'stage tray markup',
   'panel markup',
-  'Templates section',
   'Source section',
   'Size section',
   'Colours section',
@@ -161,7 +160,7 @@ const SECTIONS = [
    grow a large unbannered region that MAP.md quietly stops describing */
 const REQUIRED_ZONES = [
   'pre-paint boot', 'root tokens', 'panel chrome', 'stage', 'docks', 'panel themes',
-  'Templates section', 'Output section',
+  'Source section', 'Output section',
   'glsl helpers', 'glsl engines 0-12', 'glsl lenses', 'glsl materials', 'glsl screens',
   'state', 'looks and palettes', 'render', 'share links', 'persistence', 'picker strips',
   'theme picker', 'export', 'clip recording', 'thumbnails', 'claude payload',

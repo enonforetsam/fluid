@@ -1412,13 +1412,6 @@
   </section>
   -->
 
-  <!-- ---------- Templates section: one-tap curated looks, collapsed until opened ---------- -->
-  <!-- quick-start templates at the top — collapsed by default, expand to pick one -->
-  <section data-collapsed>
-    <div class="sec-title">Templates</div>
-    <div class="row" id="looks"></div>
-  </section>
-
   <!-- ---------- Source section: an optional photo, camera frame or drop melted into the field ---------- -->
   <!-- optional image source: collapsed by default; melts a photo/built-in into the field -->
   <section>
@@ -1838,8 +1831,10 @@ var exporting = false;
 var PRESETS = [
 ];
 
-/* ---------- looks and palettes: the curated one-tap templates and the four-stop colour ramps they draw on ---------- */
-/* curated templates (pure field, no image; designer gradient palettes).
+/* ---------- looks and palettes: the curated looks the public API serves, and the four-stop colour ramps they draw on ---------- */
+/* Curated looks (pure field, no image; designer gradient palettes). They no longer have a
+   panel shelf — this is the data fluid-core/build.mjs extracts into worker-data.js, which
+   is what /api/piece?look=, /api/looks, seed of the day and the MCP tools serve.
    value order = share hash: speed,scale,warp,grain,pixel,dot,dots,pal,seed,liq,mix,ar.
    pal: 0 Aurora 1 Sunset 2 Ocean 3 Dusk 4 Ember 5 Mint 6 Iris 7 Chrome */
 var LOOKS = [
@@ -4914,7 +4909,7 @@ var SHUFFLE_USED_LS = 'fluid:shuffled';
 function shuffleDesign(){
   randomPattern();
   setPlaying(true);                 /* a shuffle comes alive — see it move */
-  setStatus('SHUFFLED — live; shuffle again, or pick a template');
+  setStatus('SHUFFLED — live; shuffle again, or browse Explore under the artwork');
   /* the chip asks for its first click and then never again, on this browser */
   if (refreshChip){ refreshChip.classList.remove('asking'); }
   try { localStorage.setItem(SHUFFLE_USED_LS, '1'); } catch(e){}
@@ -5060,21 +5055,23 @@ function addUserSource(srcObj, bgUrl, aspect){
   selectUserSource(entry, b);
 }
 
-/* ---------- looks shelf: one tap to a finished piece ---------- */
-var looksRow = document.getElementById('looks');
+/* ---------- looks shelf: the looks outlived their shelf ----------
+   The Templates section is gone from the panel — Explore generates a fresh shelf and Shuffle
+   reaches the whole space, so a fixed list of 41 starting points was the least interesting
+   way into the app. The LOOKS data stays exactly where it is: fluid-core/build.mjs extracts
+   it into worker-data.js, which is what /api/piece?look=, /api/looks, seed of the day and
+   the MCP tools all serve. Removing the data would empty the public API.
+
+   markLook still runs from twenty call sites — it clears the active-look highlight whenever
+   an edit makes the piece no longer that look. With no shelf there is no button to clear,
+   so it keeps the bookkeeping and does nothing visible. */
 var activeLookBtn = null;
 function markLook(b){
   if (activeLookBtn){ activeLookBtn.classList.remove('on'); activeLookBtn.setAttribute('aria-pressed', 'false'); }
   activeLookBtn = b || null;
   if (b){ b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
 }
-LOOKS.forEach(function(lk){
-  var b = document.createElement('button');
-  b.textContent = lk.label;
-  b.setAttribute('aria-pressed', 'false');
-  b.addEventListener('click', function(){ applyLook(lk, b); });
-  looksRow.appendChild(b);
-});
+/* still reachable: a look arrives as a share link or from the API, never as a panel button */
 function applyLook(lk, btn){
   var p = lk.p;
   state.speed = p[0]; state.scale = p[1]; state.warp = p[2]; state.grain = p[3];
@@ -7093,7 +7090,6 @@ var SECTION_TIPS = {
   'your words in living colour': 'Type a word or brand name and the living field fills the letters. Pick a font and a background colour; clear (✕) to go back to full art. Kept on this device, and shared links carry it.',
   'Source': 'Optional. Melt a photo, the camera, or a built-in image into the field — its light shapes the pattern, the palette colours it. Liquify sets the melt, Photo blend the mix. Everything stays on your GPU; nothing uploads. Leave it closed for pure generative patterns.',
   'Size': 'The frame shape. Pick an aspect ratio for the export.',
-  'Templates': 'One-tap beautiful starting points. A template sets the field, palette and shape; tweak anything afterwards, or Randomize for a fresh one.',
   'Field': 'The generative engine: Noise, Flow (fluid swirl), Cellular (Voronoi), Gyroid (woven bands), Truchet (maze/circuit), Interfere (moire rings), Kaleido (mandala), Lines (rotated bands), Grid (lattice) or Golden (phyllotaxis spiral) — with speed, zoom, warp, grain and Randomize.',
   'Surface': 'How the field is screened: Square / Hex / ASCII / Dither pixel geometry, plus optional halftone dots. Dither is a Bayer 2-tone — use Threshold to set its dot density.',
   'Colours': 'Eight designer palettes, Chrome (a procedural metal), or Custom — pick your own four gradient stops (dark to light). Custom colours travel in the share link and embeds.',
