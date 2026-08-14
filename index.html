@@ -1808,6 +1808,9 @@
       <!-- same action as the canvas chip, so it carries the same word — it used to say
            "Randomize" and read like a second, different thing -->
       <button id="randBtn">Shuffle</button>
+      <!-- adding a layer is adding an engine, so it lives with the engine picker rather
+           than in Layers, which is for tuning the ones you already have -->
+      <button id="addLayerBtn" type="button">+ Add layer</button>
     </div>
   </section>
 
@@ -3996,25 +3999,18 @@ function syncLayerBlocks(){
       tabs.appendChild(b);
     })(i);
   }
-  if (depth < 3){
-    var add = document.createElement('button');
-    add.type = 'button';
-    add.className = 'layerTab layerAddTab';
-    add.textContent = depth === 1 ? '+ Add layer' : '+';
-    add.title = depth === 1 ? 'Blend a 2nd engine over the base' : 'Blend a 3rd engine over these';
-    add.setAttribute('aria-label', add.title);
-    add.addEventListener('click', function(){
-      addLayer();
-      layerTab = layerDepth();      /* land on the tab that just appeared */
-      syncLayerBlocks();
-    });
-    tabs.appendChild(add);
-  }
   if (depth === 1){
     var note = document.createElement('span');
     note.className = 'layerTabNote';
-    note.textContent = 'One engine so far.';
+    note.textContent = 'One engine. Add a layer from the Field section.';
     tabs.appendChild(note);
+  }
+  /* the add control lives in Field, next to Shuffle — it reports the stack from here */
+  var addBtn = document.getElementById('addLayerBtn');
+  if (addBtn){
+    addBtn.disabled = depth >= 3;
+    addBtn.title = depth >= 3 ? 'Three engines is the maximum'
+      : (depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these');
   }
 }
 /* ---------- layer stack: the visible list of what's composited, with per-layer removal ---------- */
@@ -5540,6 +5536,15 @@ function shuffleDesign(){
   try { localStorage.setItem(SHUFFLE_USED_LS, '1'); } catch(e){}
 }
 document.getElementById('randBtn').addEventListener('click', shuffleDesign);
+(function(){
+  var b = document.getElementById('addLayerBtn');
+  if (!b){ return; }
+  b.addEventListener('click', function(){
+    addLayer();
+    layerTab = layerDepth();        /* the new layer's tab is the one you want to be on */
+    syncLayerBlocks();
+  });
+})();
 if (refreshChip){
   refreshChip.addEventListener('click', shuffleDesign);
   var shuffled = '1';
