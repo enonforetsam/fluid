@@ -512,7 +512,10 @@
   .info:hover::after,.info:focus-visible::after,.info:focus::after{opacity:1;visibility:visible}
   /* ---------- controls: swatches, text fields, font chips, export rows and the raw range inputs ---------- */
   .exGroupLabel{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin:10px 0 6px}
-  .palettegrid{grid-template-columns:repeat(3,1fr)}
+  /* nine palettes, all visible: a grid rather than a scrolling strip, so none of them sits
+     behind an arrow. The tiles keep .fieldBtn's 1/1 aspect and just fill their cell. */
+  .palettegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .palettegrid .fieldBtn{width:100%}
   .swatchRow{gap:8px}
   .swatch{
     -webkit-appearance:none;appearance:none;width:46px;height:34px;padding:0;cursor:pointer;
@@ -916,7 +919,7 @@
   .signature a{color:#101010;text-decoration:none;border-bottom:1px solid rgba(16,16,16,.22);font-weight:700}
   .signature a:hover{border-bottom-color:#101010}
   footer a{color:inherit}
-  .palettegrid .fieldBtn span{opacity:1}
+  .palettegrid .fieldBtn span{opacity:1;font-size:9px;padding:4px 0}
   /* source panel slides open instead of snapping */
   #sourcePanel{overflow:hidden;max-height:0;opacity:0;transition:max-height .28s ease,opacity .22s ease}
   #sourcePanel.open{max-height:700px;opacity:1}
@@ -1552,9 +1555,10 @@
       </div>
       <div class="cmBody">
     <div class="exGroupLabel">Palette</div>
-    <div class="striprow">
-    <button id="palPrev" class="stripBtn" aria-label="Scroll palettes left">&#8249;</button>
-    <div class="fieldstrip palettegrid" id="palStrip">
+    <!-- All nine at once. A scrolling strip made sense on the canvas-side pickers, where the
+         lists are long; nine palettes fit a grid, and a grid means no palette is hidden
+         behind an arrow you have to discover. -->
+    <div class="palettegrid" id="palStrip">
       <button class="fieldBtn palBtn on" data-pal="0" aria-label="Aurora" aria-pressed="true"><span>Aurora</span></button>
       <button class="fieldBtn palBtn" data-pal="1" aria-label="Sunset" aria-pressed="false"><span>Sunset</span></button>
       <button class="fieldBtn palBtn" data-pal="2" aria-label="Ocean" aria-pressed="false"><span>Ocean</span></button>
@@ -1564,8 +1568,6 @@
       <button class="fieldBtn palBtn" data-pal="6" aria-label="Iris" aria-pressed="false"><span>Iris</span></button>
       <button class="fieldBtn palBtn" data-pal="7" aria-label="Chrome" aria-pressed="false"><span>Chrome</span></button>
       <button class="fieldBtn palBtn" data-pal="8" aria-label="Custom" aria-pressed="false"><span>Custom</span></button>
-    </div>
-    <button id="palNext" class="stripBtn" aria-label="Scroll palettes right">&#8250;</button>
     </div>
     <div class="exGroupLabel">Custom gradient — dark to light</div>
     <div class="row gap swatchRow" id="stopsRow" style="margin-bottom:8px">
@@ -4835,7 +4837,7 @@ function initStrip(id, prevId, nextId){
 }
 initStrip('fieldStrip', 'fieldPrev', 'fieldNext');
 initStrip('mathStrip', 'mathPrev', 'mathNext');
-initStrip('palStrip', 'palPrev', 'palNext');
+/* no initStrip for the palettes — they are a grid now, with nothing to scroll */
 initStrip('cursorGrid', 'curPrev', 'curNext');
 initStrip('screenStrip', 'scrPrev', 'scrNext');
 initStrip('matStrip', 'matPrev', 'matNext');
