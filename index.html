@@ -294,7 +294,6 @@
   .layerTabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:11px}
   button.layerTab{flex:0 0 auto;padding:7px 12px;font-size:9px;letter-spacing:.1em}
   .layerTabNote{font-size:9px;letter-spacing:.04em;color:var(--soft)}
-  .layerHead{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-bottom:8px}
   .layerBlock[hidden]{display:none}
   /* the layer stack: one chip per composited engine, base first (left to right).
      A row is two controls in one shell — the body jumps to the panel section that owns
@@ -766,6 +765,9 @@
      height is the expensive dimension. This shows the range input the knob was already
      driving, so nothing is rebound and nothing new is bound: the knob is simply hidden and
      its input stops being visually-hidden. Label and value share a line above the track. */
+  /* [hidden] is only display:none at UA-stylesheet strength, so any rule that sets display
+     beats it — .knobctl sets flex, which left both layers' Mix sliders on screen at once */
+  .knobctl[hidden],.layerSel[hidden]{display:none !important}
   .knobgrid.sliderGrid{grid-template-columns:1fr 1fr;gap:13px 16px}
   .sliderGrid .knobctl{align-items:stretch;gap:5px}
   .sliderGrid .knob{display:none}
@@ -1828,6 +1830,10 @@
   <!-- ---------- Field section: the engine strip, the speed/zoom/warp/grain knobs and symmetry ---------- -->
   <section>
     <div class="sec-title">03 — Field</div>
+    <!-- One card for the whole stack. The tabs pick which layer the engine strip below is
+         editing, so adding a layer opens a tab here rather than sending you to a separate
+         section to do half the job. -->
+    <div class="layerTabs" id="layerTabs" role="tablist" aria-label="Layers"></div>
     <div class="striprow">
     <button id="fieldPrev" class="stripBtn" aria-label="Scroll fields left">&#8249;</button>
     <div class="fieldstrip" id="fieldStrip">
@@ -1856,6 +1862,40 @@
       <button class="fieldBtn" data-field="22" title="Topo" aria-label="Topo" aria-pressed="false"><span>Topo</span></button>
     </div>
     <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
+    </div>
+    <!-- how the selected layer composites onto everything under it. Hidden on Layer 1: the
+         base has nothing beneath it to blend with. -->
+    <div id="layerMixRow" hidden>
+      <div class="row gap" style="margin-top:2px">
+        <select id="blendSel" class="layerSel" aria-label="Blend mode">
+          <option value="0">Normal</option>
+          <option value="1">Multiply</option>
+          <option value="2">Screen</option>
+          <option value="3">Add</option>
+          <option value="4">Difference</option>
+          <option value="5">Overlay</option>
+        </select>
+        <select id="blend2Sel" class="layerSel" aria-label="Blend mode" hidden>
+          <option value="0">Normal</option>
+          <option value="1">Multiply</option>
+          <option value="2">Screen</option>
+          <option value="3">Add</option>
+          <option value="4">Difference</option>
+          <option value="5">Overlay</option>
+        </select>
+      </div>
+      <div class="knobgrid sliderGrid" style="grid-template-columns:1fr">
+        <div class="knobctl" id="layerMixCtl">
+          <div class="knob" data-for="layerMix" role="slider" aria-label="Layer 2 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+          <div class="knoblabel">Mix <output id="layerMixOut">0</output></div>
+          <input id="layerMix" type="range" min="0" max="1" step="0.02" value="0">
+        </div>
+        <div class="knobctl" id="layerMix2Ctl" hidden>
+          <div class="knob" data-for="layerMix2" role="slider" aria-label="Layer 3 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+          <div class="knoblabel">Mix <output id="layerMix2Out">0</output></div>
+          <input id="layerMix2" type="range" min="0" max="1" step="0.02" value="0">
+        </div>
+      </div>
     </div>
     <div class="knobgrid sliderGrid">
       <div class="knobctl">
@@ -1923,63 +1963,6 @@
         <input id="lensAmt" type="range" min="0" max="1" step="0.01" value="1">
       </div>
     </div>
-  </section>
-
-  <!-- ---------- Layers section: two more engines and the blend modes compositing them ---------- -->
-  <section>
-    <div class="sec-title">Layers — stack up to 3 engines</div>
-    <!-- the visible stack lives in the tray under the artwork (#trayLayers) -->
-    <!-- One card, one set of fields, a tab per layer. Stacking the layers vertically made
-         the section grow every time you added one and pushed everything below it down the
-         panel; tabs keep it the same height whether you are running one engine or three.
-         Both control sets stay in the DOM and only the selected one shows, so each keeps
-         its own bound knob and slider rather than being rebound on every tab click. -->
-    <div class="layerTabs" id="layerTabs" role="tablist" aria-label="Layers"></div>
-    <div class="layerBlock" id="layer2Block">
-      <div class="layerHead">Blends onto the base</div>
-      <div class="row gap">
-        <!-- options are generated from the field picker at boot — a new engine can never
-             go missing here the way Topo did -->
-        <select id="field2Sel" class="layerSel" aria-label="Second engine"></select>
-        <select id="blendSel" class="layerSel" aria-label="Second engine blend mode">
-          <option value="0">Normal</option>
-          <option value="1">Multiply</option>
-          <option value="2">Screen</option>
-          <option value="3">Add</option>
-          <option value="4">Difference</option>
-          <option value="5">Overlay</option>
-        </select>
-      </div>
-      <div class="knobgrid" style="grid-template-columns:1fr;justify-items:center">
-        <div class="knobctl">
-          <div class="knob" data-for="layerMix" role="slider" aria-label="Layer 2 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
-          <div class="knoblabel">Mix <output id="layerMixOut">0</output></div>
-          <input id="layerMix" type="range" min="0" max="1" step="0.02" value="0">
-        </div>
-      </div>
-    </div>
-    <div class="layerBlock" id="layer3Block">
-      <div class="layerHead">Blends onto Layer 2, not the base</div>
-      <div class="row gap">
-        <select id="field3Sel" class="layerSel" aria-label="Third engine"></select>
-        <select id="blend2Sel" class="layerSel" aria-label="Third engine blend mode">
-          <option value="0">Normal</option>
-          <option value="1">Multiply</option>
-          <option value="2">Screen</option>
-          <option value="3">Add</option>
-          <option value="4">Difference</option>
-          <option value="5">Overlay</option>
-        </select>
-      </div>
-      <div class="knobgrid" style="grid-template-columns:1fr;justify-items:center">
-        <div class="knobctl">
-          <div class="knob" data-for="layerMix2" role="slider" aria-label="Layer 3 mix"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
-          <div class="knoblabel">Mix <output id="layerMix2Out">0</output></div>
-          <input id="layerMix2" type="range" min="0" max="1" step="0.02" value="0">
-        </div>
-      </div>
-    </div>
-    <p class="cnote" style="margin:8px 0 0">Each layer blends onto everything under it — try Multiply or Screen. Remove one with the ✕ on its row in the tray under the artwork.</p>
   </section>
 
   <!-- ---------- Surface section: screen geometry, material finish and the halftone/dither knobs ---------- -->
@@ -4023,30 +4006,18 @@ bindSlider('sym', 'sym');
 bindSlider('lensAmt', 'lensAmt');
 bindSlider('layerMix', 'layerMix');
 bindSlider('layerMix2', 'layerMix2');
-/* ---------- layers UI: pick the second engine, its blend mode and its strength ---------- */
-var field2Sel = document.getElementById('field2Sel');
+/* ---------- layers UI: the blend mode and strength for whichever layer's tab is open ----------
+   The engine itself is picked from the shared strip above (see selectField) — there are no
+   per-layer engine dropdowns any more, because one strip that edits the selected tab shows
+   the thumbnails at full size and cannot leave a new engine out of a second list. */
 var blendSel = document.getElementById('blendSel');
-var field3Sel = document.getElementById('field3Sel');
 var blend2Sel = document.getElementById('blend2Sel');
 /* Highest engine id. parseHash clamps against it and has to stay pure — it is extracted and
    run in a sandbox by tests/hash, with no DOM — so this is a literal rather than a count of
    the picker. tests/hash pins it to the markup, so adding a 24th engine fails loudly here
    instead of silently clamping the new engine out of every share link. */
 var FIELD_MAX = 22;
-/* The engine dropdowns are built from the picker, so adding an engine needs no edit here.
-   Topo shipped missing from the layer dropdown for a release when this was hand-maintained. */
 var FIELD_BTNS = document.querySelectorAll('.fieldBtn[data-field]');
-function fillEngineSelect(sel){
-  if (!sel){ return; }
-  for (var i = 0; i < FIELD_BTNS.length; i++){
-    var opt = document.createElement('option');
-    opt.value = FIELD_BTNS[i].getAttribute('data-field');
-    opt.textContent = (FIELD_BTNS[i].title || FIELD_BTNS[i].textContent || '').trim();
-    sel.appendChild(opt);
-  }
-}
-fillEngineSelect(field2Sel);
-fillEngineSelect(field3Sel);
 /* one binder for both layers — two hand-written pairs is how they drift apart */
 function bindLayerSelect(sel, key){
   if (!sel){ return; }
@@ -4055,27 +4026,34 @@ function bindLayerSelect(sel, key){
     markLook(null); syncControls(); requestRender(); persist();
   });
 }
-bindLayerSelect(field2Sel, 'field2');
 bindLayerSelect(blendSel, 'blend');
-bindLayerSelect(field3Sel, 'field3');
 bindLayerSelect(blend2Sel, 'blend2');
 /* ---------- layer tabs: one card, a tab per layer, fields for the selected one ----------
    There is no tab for a layer that does not exist, so the section never shows controls for
    something that is not compositing — which is what the old dimmed-and-inert Layer 3 block
    was working around. Adding a layer opens its tab and lands you on it. */
-var layerTab = 2;
+var layerTab = 1;                      /* 1 = the base; the strip edits whichever is open */
 function syncLayerBlocks(){
   var depth = layerDepth();
-  var b2 = document.getElementById('layer2Block'), b3 = document.getElementById('layer3Block');
   /* a layer removed from under you cannot stay selected */
   if (layerTab > depth){ layerTab = depth; }
-  if (layerTab < 2){ layerTab = 2; }
-  if (b2){ b2.hidden = !(depth >= 2 && layerTab === 2); }
-  if (b3){ b3.hidden = !(depth >= 3 && layerTab === 3); }
+  if (layerTab < 1){ layerTab = 1; }
+  /* the blend/mix row belongs to the selected layer, and the base has nothing under it */
+  var mixRow = document.getElementById('layerMixRow');
+  if (mixRow){ mixRow.hidden = layerTab < 2; }
+  var showL2 = layerTab === 2;
+  var pairs = [['blendSel', showL2], ['blend2Sel', layerTab === 3],
+               ['layerMixCtl', showL2], ['layerMix2Ctl', layerTab === 3]];
+  for (var p = 0; p < pairs.length; p++){
+    var el = document.getElementById(pairs[p][0]);
+    if (el){ el.hidden = !pairs[p][1]; }
+  }
   var tabs = document.getElementById('layerTabs');
   if (!tabs){ return; }
   while (tabs.firstChild){ tabs.removeChild(tabs.firstChild); }
-  for (var i = 2; i <= depth; i++){
+  /* Layer 1 always has a tab: with one engine it is the only thing there, and it is what the
+     strip is editing, so leaving it implicit made the strip's target invisible. */
+  for (var i = 1; i <= depth; i++){
     (function(n){
       var b = document.createElement('button');
       b.type = 'button';
@@ -4083,16 +4061,15 @@ function syncLayerBlocks(){
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', n === layerTab ? 'true' : 'false');
       b.textContent = 'Layer ' + n;
-      b.title = engineLabel(n === 2 ? state.field2 : state.field3);
-      b.addEventListener('click', function(){ layerTab = n; syncLayerBlocks(); });
+      b.title = engineLabel(n === 1 ? state.field : (n === 2 ? state.field2 : state.field3));
+      b.addEventListener('click', function(){
+        layerTab = n;
+        syncLayerBlocks();
+        syncFieldButtons();          /* the strip now highlights this layer's engine */
+        setStatus('LAYER ' + n + ' — ' + engineLabel(n === 1 ? state.field : (n === 2 ? state.field2 : state.field3)).toUpperCase());
+      });
       tabs.appendChild(b);
     })(i);
-  }
-  if (depth === 1){
-    var note = document.createElement('span');
-    note.className = 'layerTabNote';
-    note.textContent = 'One engine. Add a layer from the Field section.';
-    tabs.appendChild(note);
   }
   /* The add control lives in Field, next to Shuffle. It is never dimmed and never disabled.
      Three engines is the shader's ceiling, and the stack sits there often — a shuffle can
@@ -4109,6 +4086,10 @@ function syncLayerBlocks(){
     addBtn.title = full ? 'Three engines is the maximum — this opens the top one'
       : (depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these');
   }
+  /* layerTab is settled here and nowhere else, so the strip's highlight is refreshed from
+     here too. syncControls calls syncFieldButtons before this runs, which meant adding or
+     removing a layer left the strip marking the engine of whichever tab used to be open. */
+  if (typeof syncFieldButtons === 'function'){ syncFieldButtons(); }
 }
 /* ---------- layer stack: the visible list of what's composited, with per-layer removal ---------- */
 var layerStack = document.getElementById('trayLayers');
@@ -4169,17 +4150,16 @@ function removeLayer(idx){
     (stack.length > 1 ? stack.length + ' engines left' : engineLabel(state.field).toUpperCase() + ' is the artwork now'));
 }
 /* start the next layer with a readable default: an engine not already in the stack, screen
-   blend, mid mix. Drawn from the generated <select>, never a hardcoded count — same reason
-   the list itself is generated: a new engine has to be reachable the day it lands. */
+   blend, mid mix. Drawn from the picker itself, never a hardcoded count — a new engine has to
+   be reachable the day it lands, which is how Topo went missing when this was a second list. */
 function addLayer(){
   var depth = layerDepth();
   if (depth >= 3){ return; }
-  var opts = field2Sel ? field2Sel.options : null;
-  if (!opts || opts.length < 2){ return; }
+  if (!FIELD_BTNS || FIELD_BTNS.length < 2){ return; }
   var used = depth === 1 ? [state.field] : [state.field, state.field2];
   var n = state.field, tries = 0;
   do {
-    n = parseInt(opts[Math.floor(Math.random() * opts.length)].value, 10) || 0;
+    n = parseInt(FIELD_BTNS[Math.floor(Math.random() * FIELD_BTNS.length)].getAttribute('data-field'), 10) || 0;
     tries++;
   } while (used.indexOf(n) !== -1 && tries < 40);
   if (depth === 1){ state.field2 = n; state.blend = 2; state.layerMix = 0.45; }
@@ -4224,8 +4204,8 @@ function renderLayerStack(){
      in Field (it IS the field), rows 2 and 3 in Layers (engine, blend and mix). */
   var rows = [
     { name: engineLabel(state.field), meta: 'base', jump: document.getElementById('fieldStrip') },
-    { name: engineLabel(state.field2), meta: blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', jump: field2Sel },
-    { name: engineLabel(state.field3), meta: blendLabel(state.blend2) + ' · ' + Math.round((state.layerMix2 || 0) * 100) + '%', jump: field3Sel }
+    { name: engineLabel(state.field2), meta: blendLabel(state.blend) + ' · ' + Math.round((state.layerMix || 0) * 100) + '%', jump: document.getElementById('layerTabs') },
+    { name: engineLabel(state.field3), meta: blendLabel(state.blend2) + ' · ' + Math.round((state.layerMix2 || 0) * 100) + '%', jump: document.getElementById('layerTabs') }
   ].slice(0, depth);
   rows.forEach(function(row, i){
     /* every row is removable once there are two — with one engine there is nothing to fall
@@ -4478,9 +4458,7 @@ function syncControls(){
     document.getElementById(k + 'Out').value = el.value;
   });
   if (typeof refreshKnobs === 'function'){ refreshKnobs(); }
-  if (field2Sel){ field2Sel.value = String(state.field2 || 0); }
   if (blendSel){ blendSel.value = String(state.blend || 0); }
-  if (field3Sel){ field3Sel.value = String(state.field3 || 0); }
   if (blend2Sel){ blend2Sel.value = String(state.blend2 || 0); }
   renderLayerStack();
   syncLayerBlocks();
@@ -4580,10 +4558,14 @@ function syncControls(){
   if (typeof maybeRethumb === 'function'){ maybeRethumb(); }   /* recolour field previews on palette change */
 }
 function syncFieldButtons(){
+  /* the highlighted tile is the SELECTED layer's engine, so the strip always shows what the
+     open tab is currently set to rather than always the base */
+  var key = typeof fieldKeyForTab === 'function' ? fieldKeyForTab() : 'field';
+  var cur = state[key] || 0;
   var fields = document.querySelectorAll('.fieldBtn[data-field]');
   for (var fi = 0; fi < fields.length; fi++){
     var fdv = parseInt(fields[fi].getAttribute('data-field'), 10);
-    var fon = fdv === state.field;
+    var fon = fdv === cur;
     fields[fi].className = 'fieldBtn' + (fon ? ' on' : '');
     fields[fi].setAttribute('aria-pressed', fon ? 'true' : 'false');
     fields[fi].style.opacity = '';
@@ -5056,16 +5038,23 @@ var FIELD_STATUS = [
   'CASSINI FIELD — lemniscate ovals, equipotential contours',
   'TOPO FIELD — elevation contours of a drifting landmass; warp = ruggedness'
 ];
+/* The picker edits whichever layer's tab is open, not always the base — one engine strip
+   serving all three, because three copies of 23 tiles would be three sets of thumbnails to
+   render and three places for a new engine to go missing. */
+function fieldKeyForTab(){ return layerTab === 3 ? 'field3' : (layerTab === 2 ? 'field2' : 'field'); }
 function selectField(fv){
-  if (state.field === fv){ return; }
-  state.field = fv;
+  var key = fieldKeyForTab();
+  if (state[key] === fv){ return; }
+  state[key] = fv;
   markLook(null);
   syncFieldButtons();
+  renderLayerStack();
   persist();
   if (typeof syncSaveChip === 'function'){ syncSaveChip(); }
   glowForce = true;
   paintNow();
-  setStatus(FIELD_STATUS[state.field]);
+  setStatus(key === 'field' ? FIELD_STATUS[state.field]
+    : 'LAYER ' + layerTab + ' — ' + engineLabel(fv).toUpperCase());
 }
 Array.prototype.forEach.call(document.querySelectorAll('.fieldBtn[data-field]'), function(b){
   var skipClick = false;

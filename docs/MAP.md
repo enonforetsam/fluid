@@ -68,7 +68,6 @@ Zones, in file order:
 | colour editor markup | pick one stop and work it in HSB, RGB or hex | `---------- colour editor markup:` |
 | Field section | the engine strip, the speed/zoom/warp/grain knobs and symmetry | `---------- Field section:` |
 | Math section | the complex-plane lens strip and how far it bends | `---------- Math section:` |
-| Layers section | two more engines and the blend modes compositing them | `---------- Layers section:` |
 | Surface section | screen geometry, material finish and the halftone/dither knobs | `---------- Surface section:` |
 | Frame section | drop a screenshot onto the live art | `---------- Frame section:` |
 | Output section | share, embed, export target, format and clip length | `---------- Output section:` |
@@ -92,7 +91,7 @@ Zones, in file order:
 | cursor ripple state | pointer position, per-mode impact and the decay the loop reads | `---------- cursor ripple state:` |
 | animation loop | accumulated time, never wall clock, plus on-demand repainting | `---------- animation loop:` |
 | sliders | bind a range input to a state key, with a live readout and persistence | `---------- sliders:` |
-| layers UI | pick the second engine, its blend mode and its strength | `---------- layers UI:` |
+| layers UI | the blend mode and strength for whichever layer's tab is open | `---------- layers UI:` |
 | layer tabs | one card, a tab per layer, fields for the selected one | `---------- layer tabs:` |
 | layer stack | the visible list of what's composited, with per-layer removal | `---------- layer stack:` |
 | text controls | the word field and its clear button | `---------- text controls:` |
@@ -173,5 +172,5 @@ Zones, in file order:
 
 ---
 
-125 sections. Anything unbannered is a gap in the map: add a banner in the
+124 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

@@ -62,7 +62,6 @@ const SECTIONS = [
   'colour editor markup',
   'Field section',
   'Math section',
-  'Layers section',
   'Surface section',
   'Frame section',
   'Output section',
