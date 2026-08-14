@@ -24,17 +24,20 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 
 ## Features
 
-- WebGL1 fragment-shader renderer with 22 field engines, including a quasicrystal, paper marbling, string-art caustics, whirling pursuit polygons, Chladni plate figures, and Cassini ovals.
+- WebGL1 fragment-shader renderer with 23 field engines, including a quasicrystal, paper marbling, string-art caustics, whirling pursuit polygons, Chladni plate figures, Cassini ovals, and topographic contours.
 - Kaleidoscope symmetry modifier: fold any field into an N-fold radial mandala.
-- Layers: composite a second engine over the first with multiply / screen / add / difference / overlay blends.
+- Layers: stack up to three engines, each blending onto everything under it with multiply / screen / add / difference / overlay.
+- Math lenses: bend the plane through 12 conformal maps — z², 1/z, Möbius, Droste, hyperbolic, Julia, z³, e^z, sin z, Joukowski, Newton basins, and the SL(2,ℤ) modular fold.
 - Material finishes: glass, metal, sand, liquid, and molten relighting.
 - Square, hex, ASCII, halftone, ordered-dither, and glitch surface modes.
-- Preset palettes plus shareable custom four-stop gradients.
+- Preset palettes plus shareable custom four-stop gradients, with a draggable colour editor: saturation/brightness pad, hue strip, HSB and RGB sliders, hex, and harmony schemes that rebuild the whole ramp from one hue.
 - Optional image melt: uploaded image luminance drives the field.
 - Text in living colour: fill a word or brand name with the field, with a 9-font picker and a background-colour choice; persists locally and travels in share links.
 - Exact-size export as PNG, JPG, or WebP.
 - Self-contained HTML export: copy the piece as a complete, dependency-free file with the shaders inlined — no iframe, no server.
 - Clip recording through `MediaRecorder`.
+- Undo across the session, with a Recent shelf of every state you passed through as thumbnails.
+- Explore: a fresh shelf of generated pieces on every open, rendered on the spot — plus a seed of the day, one piece per UTC day, the same for everyone.
 - URL hash format that round-trips every piece without server storage.
 - Cloudflare Worker API and Streamable HTTP MCP endpoint.
 
@@ -102,7 +105,11 @@ curl "https://fluid.krackeddevs.com/api/piece?look=borealis"
 curl "https://fluid.krackeddevs.com/api/piece?field=flow&palette=sunset&warp=4"
 curl "https://fluid.krackeddevs.com/api/piece?field=cellular&colors=0a0a1a,3a1f7a,c84fe0,ffe1f5"
 curl "https://fluid.krackeddevs.com/api/looks"
+curl "https://fluid.krackeddevs.com/api/today"            # the day's piece
+curl "https://fluid.krackeddevs.com/api/today?date=2026-01-01"   # replay any day
 ```
+
+`/today` is a permalink that opens the day's piece in the studio.
 
 MCP clients that support Streamable HTTP can connect to:
 
@@ -118,7 +125,7 @@ claude mcp add --transport http fluid https://fluid.krackeddevs.com/mcp
 
 On claude.ai (web, desktop, or mobile): Settings → Connectors → Add custom
 connector → paste the `/mcp` URL. No auth. Tools: `create_piece`,
-`get_embed_code`, `list_looks`, `decode_link`.
+`get_embed_code`, `list_looks`, `get_seed_of_the_day`, `decode_link`.
 
 AI agents without MCP can read the whole integration surface from
 [`/llms.txt`](https://fluid.krackeddevs.com/llms.txt).
