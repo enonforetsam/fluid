@@ -1379,6 +1379,38 @@
   html .panel .knob::after, html[data-ptheme] .panel .knob::after{
     filter:none;mix-blend-mode:normal;
   }
+  /* Range inputs are drawn entirely in pseudo-elements, which a wildcard cannot reach — so
+     the track and thumb need naming, and naming per theme too, or a restored theme brings
+     its own metal back. The aspect slider was the last ribbed groove and knurled grip in
+     the panel: a flat track and a flat rectangular thumb say the same thing. */
+  html .panel input[type=range]::-webkit-slider-runnable-track,
+  html[data-ptheme] .panel input[type=range]::-webkit-slider-runnable-track,
+  html .panel #arSlider::-webkit-slider-runnable-track,
+  html[data-ptheme] .panel #arSlider::-webkit-slider-runnable-track{
+    background:rgba(0,0,0,.16);box-shadow:none;border:0;
+  }
+  html .panel input[type=range]::-moz-range-track,
+  html[data-ptheme] .panel input[type=range]::-moz-range-track,
+  html .panel #arSlider::-moz-range-track,
+  html[data-ptheme] .panel #arSlider::-moz-range-track{
+    background:rgba(0,0,0,.16);box-shadow:none;border:0;
+  }
+  html .panel #arSlider::-webkit-slider-thumb,
+  html[data-ptheme] .panel #arSlider::-webkit-slider-thumb{
+    background:var(--ink);box-shadow:none;border:0;border-radius:5px;
+  }
+  html .panel #arSlider::-moz-range-thumb,
+  html[data-ptheme] .panel #arSlider::-moz-range-thumb{
+    background:var(--ink);box-shadow:none;border:0;border-radius:5px;
+  }
+  html .panel input[type=range]::-webkit-slider-thumb,
+  html[data-ptheme] .panel input[type=range]::-webkit-slider-thumb{
+    box-shadow:none;border:0;
+  }
+  html .panel input[type=range]::-moz-range-thumb,
+  html[data-ptheme] .panel input[type=range]::-moz-range-thumb{
+    box-shadow:none;border:0;
+  }
 </style>
 </head>
 <body>
