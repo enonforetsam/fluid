@@ -3975,7 +3975,9 @@ function frame(now){
   if (camStream && video.readyState >= 2){
     uploadTexture(camFrameSource(), video.videoWidth / video.videoHeight);
   }
-  /* keep the ripple animating even when the field drift is paused */
+  /* A decaying ripple still needs its own frames to settle, but only while one is actually
+     in flight — and setPlaying(false) drops it to zero, so hitting Still stops the piece dead
+     rather than letting the pointer keep the clock running. */
   if (!state.playing && mouse.amt > 0 && !warming && !recHiRes){ state.t += dt; }
   /* the offline clip export owns the clock and the canvas while it runs — the live
      loop must not draw over its frames or advance state.t under it */
@@ -4692,6 +4694,9 @@ function syncFieldButtons(){
 }
 function setPlaying(on){
   if (!on && (recorder || wcEncoder)){ stopRecording(); }
+  /* drop any ripple in flight, or switching to Still would keep advancing the clock while it
+     decayed — the frame would carry on moving for a moment after being told to stop */
+  if (!on){ mouse.target = 0; mouse.amt = 0; }
   state.playing = on;
   syncControls();
   setStatus(on ? 'LIVE — animating' : 'STILL — frozen frame, export it clean');
@@ -5852,8 +5857,13 @@ canvas.addEventListener('pointermove', function(e){
       state.panY = Math.max(-0.5, Math.min(0.5, panBY + dy));  /* +dy: texture is FLIP_Y, so drag follows the finger */
     }
   }
-  if (!panning && mouse.mode > 0){ mouse.target = 1.0; mouse.over = true; }   /* cursor effect only when NOT dragging a photo — no double effect */
-  requestRender();                 /* ripple kick + image pan both need a redraw */
+  /* Still means still. The cursor effect is a live interaction — in Still the frame is
+     frozen for export, and letting the pointer pump it made merely moving the mouse across
+     the artwork animate a piece the user had deliberately stopped. */
+  if (!panning && mouse.mode > 0 && state.playing){ mouse.target = 1.0; mouse.over = true; }
+  /* only redraw when something can actually change: a pan, live drift, or a ripple still
+     decaying. In Still with no photo loaded, moving the pointer now costs nothing. */
+  if (panning || state.playing || mouse.amt > 0){ requestRender(); }
 });
 canvas.addEventListener('pointerup', function(e){
   if (panning){
