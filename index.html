@@ -109,6 +109,14 @@
     display:flex;flex-direction:column;
   }
   .panelScroll{
+    /* The section highlight bleeds by the panel's padding, and overflow clips at the PADDING
+       box — so with the padding on .panel and none here, the bleed was laid out full width
+       and then clipped straight back off. getBoundingClientRect still reported 0->full,
+       which is why this looked correct in measurements and wrong on screen; elementFromPoint
+       at the edge was what gave it away. Carrying the padding here instead puts the clip
+       boundary at the panel's edge, where the highlight is trying to reach. */
+    margin-left:calc(var(--panel-pad) * -1);margin-right:calc(var(--panel-pad) * -1);
+    padding-left:var(--panel-pad);padding-right:var(--panel-pad);
     flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
     scrollbar-width:none;-ms-overflow-style:none;
     position:relative;z-index:1;
