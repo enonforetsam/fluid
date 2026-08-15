@@ -134,6 +134,7 @@ const SECTIONS = [
   'strip tiles',
   'history',
   'saved shelf',
+  'undo chips',
   'undo keys',
   'embed popover',
   'text dock',

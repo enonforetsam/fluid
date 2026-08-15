@@ -1441,6 +1441,12 @@
     text-shadow:none !important;
     background-image:none !important;
   }
+  /* unavailable has to look unavailable here too — the panel learned this when a disabled
+     Add layer button sat pixel-identical to a live one and read as the app being broken */
+  #canvasChips button.isOff, #canvasChips button[aria-disabled="true"]{ opacity:.32;cursor:not-allowed }
+  #canvasChips button.isOff:hover, #canvasChips button[aria-disabled="true"]:hover{
+    background:transparent;color:var(--ink);border-color:var(--line);
+  }
   #canvasChips button:active, #designDock button:active, #cursorDock button:active,
   #embedDock button:active, #frameDock button:active, #textDock button:active{
     transform:none;                       /* the nudge was part of the same 3D illusion */
@@ -1598,6 +1604,16 @@
     <div class="stageInner">
       <div id="canvasChips">
         <button id="refreshChip" aria-label="Shuffle a new random design" title="Shuffle a new random design"><span class="ricon">&#8635;</span><span>Shuffle</span></button>
+        <!-- Undo has existed since the Recent shelf landed, but only as a keyboard shortcut
+             and a row of thumbnails — neither of which announces itself. These say it out
+             loud, and sit with Shuffle because that is the control that most often makes you
+             want one. -->
+        <button id="undoChip" class="chipIcon" title="Undo" aria-label="Undo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"></path><path d="M4 9h10a6 6 0 0 1 0 12h-3"></path></svg>
+        </button>
+        <button id="redoChip" class="chipIcon" title="Redo" aria-label="Redo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5"></path><path d="M20 9H10a6 6 0 0 0 0 12h3"></path></svg>
+        </button>
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
         </button>
@@ -6753,7 +6769,26 @@ function histRedo(){
   if (histAt <= 0){ setStatus('NOTHING TO REDO — you are on the newest state'); return; }
   histRestore(histAt - 1, 'REDO');
 }
+/* The chips report the ring they act on. aria-disabled rather than the disabled property, so
+   a press at either end still answers with the reason instead of doing nothing at all —
+   the same call the Add layer button already learned. */
+function syncHistoryChips(){
+  var u = document.getElementById('undoChip'), r = document.getElementById('redoChip');
+  if (u){
+    var canUndo = histAt + 1 < hist.length;
+    u.classList.toggle('isOff', !canUndo);
+    u.setAttribute('aria-disabled', canUndo ? 'false' : 'true');
+    u.title = canUndo ? 'Undo — back to ' + hist[histAt + 1].name : 'Nothing to undo';
+  }
+  if (r){
+    var canRedo = histAt > 0;
+    r.classList.toggle('isOff', !canRedo);
+    r.setAttribute('aria-disabled', canRedo ? 'false' : 'true');
+    r.title = canRedo ? 'Redo — forward to ' + hist[histAt - 1].name : 'Nothing to redo';
+  }
+}
 function renderRecentStrip(){
+  syncHistoryChips();
   var strip = document.getElementById('recentStrip');
   if (!strip){ return; }
   var tiles = hist.map(function(entry, i){
@@ -6794,6 +6829,13 @@ function renderSavedStrip(){
   setTabBadge('savedCount', list.length);
 }
 
+/* ---------- undo chips: the same two moves as the keys, said out loud on the canvas bar ---------- */
+(function(){
+  var u = document.getElementById('undoChip'), r = document.getElementById('redoChip');
+  if (u){ u.addEventListener('click', histUndo); }
+  if (r){ r.addEventListener('click', histRedo); }
+  syncHistoryChips();
+})();
 /* ---------- undo keys: the shortcut people try before they look for a button ---------- */
 document.addEventListener('keydown', function(e){
   var k = (e.key || '').toLowerCase();

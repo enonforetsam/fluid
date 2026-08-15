@@ -130,6 +130,7 @@ Zones, in file order:
 | strip tiles | one tile shape shared by Recent, Saved and Explore | `---------- strip tiles:` |
 | history | every state you have been in, and the way back | `---------- history:` |
 | saved shelf | your own keeps, in the same strip as the curated ones | `---------- saved shelf:` |
+| undo chips | the same two moves as the keys, said out loud on the canvas bar | `---------- undo chips:` |
 | undo keys | the shortcut people try before they look for a button | `---------- undo keys:` |
 | embed popover | the Use-on-your-site sheet, offering a snippet, standalone HTML, SwiftUI and a Claude prompt | `---------- embed popover:` |
 | text dock | the word/logo mark, on the canvas bar with the other garnishes | `---------- text dock:` |
@@ -172,5 +173,5 @@ Zones, in file order:
 
 ---
 
-124 sections. Anything unbannered is a gap in the map: add a banner in the
+125 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
