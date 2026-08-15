@@ -8628,7 +8628,17 @@ function thumbStep(gen){
   var budget = 4;                       /* offscreen + cheap -> batch several, no flicker */
   while (budget-- > 0 && thumbJobs.length){ renderOneThumb(thumbJobs.shift()); }
   applyThumbState(thumbSave);            /* restore live state each step so the main loop renders correctly */
-  if (thumbJobs.length){ requestAnimationFrame(function(){ thumbStep(gen); }); return; }
+  /* Same reasoning as runThumbJobs, which already does this: rAF does not fire in a background
+     tab, so a pass that starts hidden stops partway and the picker keeps whatever tiles it got
+     through — the LAST engines, always, since the queue is in order. Opening the studio in a
+     background tab (cmd-click, session restore) was enough to leave the newest four engines
+     blank until something re-triggered a pass. The read-back is off-screen and needs no
+     compositor, so a timer finishes the job nobody is watching. */
+  if (thumbJobs.length){
+    if (document.hidden){ setTimeout(function(){ thumbStep(gen); }, 16); }
+    else { requestAnimationFrame(function(){ thumbStep(gen); }); }
+    return;
+  }
   mouse.amt = thumbSavedAmt; thumbJobs = null; thumbSave = null;
   presetThumbsDone = true;
   lastThumbPal = palSig();
@@ -8643,7 +8653,8 @@ function regenThumbs(){
   thumbSavedAmt = mouse.amt; mouse.amt = 0;
   thumbJobs = thumbSpecs();
   var gen = ++thumbGen;
-  requestAnimationFrame(function(){ thumbStep(gen); });
+  if (document.hidden){ setTimeout(function(){ thumbStep(gen); }, 16); }   /* see thumbStep */
+  else { requestAnimationFrame(function(){ thumbStep(gen); }); }
 }
 /* recolour the previews when the palette/colours change — syncControls (the funnel for
    every change) calls maybeRethumb, which only regenerates when the scheme actually moved. */
