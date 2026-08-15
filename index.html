@@ -81,7 +81,9 @@
   .wrap{
     display:grid;grid-template-columns:minmax(320px,1fr) 2fr;
     height:100vh;height:100dvh;overflow:hidden;
-    transition:grid-template-columns .24s ease;
+    /* one duration for the track and the slide — they must stay in lockstep, see below */
+    --panel-slide:.28s;
+    transition:grid-template-columns var(--panel-slide) ease;
   }
   /* ---------- collapsed panel: hand the whole window to the artwork ----------
      The column closes to zero rather than the panel being pulled out of the layout. It holds
@@ -92,16 +94,38 @@
      `inert` takes it out of tab order and off the a11y tree, so a collapsed panel cannot be
      reached by keyboard; the pointer-events rule is the fallback where inert is not supported. */
   .wrap.panelOff{ grid-template-columns:0 1fr }
+  /* It SLIDES, which takes more than a transform. The panel lives in a grid track, so as the
+     track closes the panel closes with it — translateX(-100%) of a zero-width box moves
+     nothing, and what you get is a squash, not a slide. So JS pins the panel to its open width
+     for the duration and the transform carries it out of frame.
+     The two motions have to agree exactly or the panel overlaps the artwork on the way out:
+     at the halfway point the track is half-width and the panel is translated by half its
+     width, which puts its right edge precisely on the stage's left edge. Same duration, same
+     easing, one variable — that is what keeps them touching and never crossing. */
+  .panel{ transition:transform var(--panel-slide) ease }
   .wrap.panelOff .panel{
-    padding-left:0;padding-right:0;
+    transform:translateX(-100%);
     border-right:0;pointer-events:none;
   }
+  /* the minimise button lives in the panel, so the chip on the canvas bar is only the way
+     BACK — showing both at once is two controls for one job */
+  .wrap:not(.panelOff) #panelChip{ display:none }
   /* No stage-padding rule here, though it is the obvious next thing to reach for: the artwork's
      height comes from --stageH (a dvh formula) minus the chip bar and the tray, not from the
      stage's real padding, so shrinking that padding changes nothing. Measured at 16:9 collapsed,
      1383x778 at both 12px and 32px. What the closed column buys is width, which is worth a lot
      to a wide piece and nothing to a tall one — see the note on the chip. */
-  @media (prefers-reduced-motion: reduce){ .wrap{ transition:none } }
+  @media (prefers-reduced-motion: reduce){ .wrap, .panel{ transition:none } }
+  /* top-right of the panel, on the title line */
+  .panel header{ position:relative }
+  .panelMinBtn{
+    position:absolute;top:2px;right:0;width:26px;height:26px;padding:0;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .panelMinBtn svg{
+    width:15px;height:15px;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  }
   .panel{
     --ink:#101010;
     --line:rgba(16,16,16,.16);
@@ -1853,6 +1877,10 @@
   <header>
     <h1>Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
+    <!-- a chevron pointing the way it goes -->
+    <button type="button" id="panelMin" class="panelMinBtn" title="Minimise the controls" aria-label="Minimise the controls" aria-expanded="true" aria-controls="panel">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+    </button>
     <!-- theme dots removed for now. The themes themselves are untouched: the CSS, applyTheme
          and the pre-paint boot script all still work, so restoring this row is the only edit
          needed to bring them back. -->
@@ -3967,7 +3995,14 @@ function uploadTexture(source, aspect){
 }
 
 /* ---------- sizing: the canvas backing store, device pixel ratio and the aspect lock ---------- */
+/* Held true while the panel slides. resize() runs every frame off clientWidth, so an animating
+   grid track would reallocate a multi-megabyte backing store on each of the ~17 frames of the
+   transition — the one moment the GPU is least free. Frozen, the existing buffer is simply
+   scaled by the compositor for a quarter of a second, then one real resize lands at the end.
+   Cheaper AND smoother, which is rare enough to say out loud. */
+var panelSliding = false;
 function resize(){
+  if (panelSliding){ return; }
   if (recHiRes){   /* while recording, render the canvas at full clip resolution */
     if (canvas.width !== recHiRes.w || canvas.height !== recHiRes.h){ canvas.width = recHiRes.w; canvas.height = recHiRes.h; requestRender(); }
     return;
@@ -5644,10 +5679,26 @@ function trayPostBoot(){
 /* ---------- panel collapse: give the whole window to the artwork, and remember the choice ---------- */
 (function(){
   var chip = document.getElementById('panelChip');
+  var minBtn = document.getElementById('panelMin');
   var wrap = document.querySelector('.wrap');
   var panel = document.getElementById('panel');
   if (!chip || !wrap || !panel){ return; }
   var PANEL_LS = 'fluid:panelOpen';
+  var openW = 0, slideTimer = null;
+  /* Read from the stylesheet rather than restated here: the track and the slide have to run
+     for the same time or the panel crosses the artwork, and two numbers in two files is how
+     that stops being true. */
+  function slideMs(){
+    var d = (getComputedStyle(panel).transitionDuration || '0s').split(',')[0].trim();
+    var n = parseFloat(d) || 0;
+    return /ms$/.test(d) ? n : n * 1000;
+  }
+  /* The panel is a grid item, so it closes WITH its track — and translating a box that is
+     already zero wide moves nothing. Pinning the open width is what turns the squash into a
+     slide. Measured while open, because once it is closed there is nothing left to measure. */
+  function remember(){ if (!wrap.classList.contains('panelOff')){ openW = panel.offsetWidth || openW; } }
+  remember();
+  window.addEventListener('resize', remember);
   function setPanel(open){
     /* The colour editor is a DOM child of the panel but position:fixed, so it does not travel
        with the column when it closes — it would sit over the artwork, visibly, while inert made
@@ -5658,21 +5709,43 @@ function trayPostBoot(){
       var more = document.getElementById('colourMore'), cmClose = document.getElementById('cmClose');
       if (more && !more.hidden && cmClose){ cmClose.click(); }
     }
+    if (!open){ remember(); }
+    if (openW){ panel.style.width = openW + 'px'; }   /* pin, so the transform has something to move */
     wrap.classList.toggle('panelOff', !open);
-    chip.classList.toggle('on', !open);
     chip.setAttribute('aria-expanded', open ? 'true' : 'false');
     chip.setAttribute('aria-label', open ? 'Hide the controls' : 'Show the controls');
-    chip.title = open ? 'Hide the controls — full-width artwork' : 'Show the controls';
+    chip.title = 'Show the controls';
+    if (minBtn){ minBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
     if (open){ panel.removeAttribute('inert'); } else { panel.setAttribute('inert', ''); }
     try { localStorage.setItem(PANEL_LS, open ? '1' : '0'); } catch(e){}
-    /* resize() reads clientWidth every frame and redraws when it moves, so the canvas follows
-       the column on its own — this only covers the case where nothing else asks for a frame */
+    /* hold the backing store still for the length of the slide, then let it settle once */
+    panelSliding = true;
+    if (slideTimer){ clearTimeout(slideTimer); }
+    slideTimer = setTimeout(function(){
+      panelSliding = false;
+      if (open){ panel.style.width = ''; }   /* back to filling its track, so it tracks the window again */
+      resize();
+      requestRender();
+    }, slideMs() + 60);
     requestRender();
   }
-  chip.addEventListener('click', function(){ setPanel(wrap.classList.contains('panelOff')); });
+  chip.addEventListener('click', function(){ setPanel(true); });
+  if (minBtn){ minBtn.addEventListener('click', function(){ setPanel(false); }); }
   var saved = '1';
   try { saved = localStorage.getItem(PANEL_LS) || '1'; } catch(e){}
-  if (saved === '0'){ setPanel(false); }
+  if (saved === '0'){
+    /* Restoring a closed panel must not play the closing animation. It was already shut when
+       you left; sliding it shut again on arrival is a transition nobody asked for, and the
+       freeze that comes with it would hold the canvas at its default size through the first
+       third of a second of the page. Suppressed, applied, reflowed, restored. */
+    wrap.style.transition = 'none';
+    panel.style.transition = 'none';
+    setPanel(false);
+    panelSliding = false;
+    void panel.offsetWidth;                 /* flush, so the class lands without the transition */
+    wrap.style.transition = '';
+    panel.style.transition = '';
+  }
 })();
 /* ---------- theme picker: metal (default) plus carbon, phosphor, paper and neon ----------
    Personal preference: localStorage only, never in the share hash; the head script pre-applies it. */
