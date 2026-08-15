@@ -91,7 +91,8 @@
     grid-column:1;grid-row:1;min-width:0;height:100%;overflow:hidden;
     /* the edit menu only ever scrolls vertically — never drifts left/right on touch */
     touch-action:pan-y;
-    padding:28px 28px 28px;border-right:0;
+    --panel-pad:28px;                    /* the section highlight bleeds by exactly this */
+    padding:28px var(--panel-pad) 28px;border-right:0;
     color:var(--ink);
     background-color:var(--panel-metal);
     background-image:
@@ -480,7 +481,11 @@
      so it reads as a band, not a box drawn around the controls. A translucent white works on
      both the light default and the dark themes without a per-theme token. */
   .panel section{
-    margin:0 -12px;padding-left:12px;padding-right:12px;
+    /* bleed by exactly the panel's own side padding, so the highlight runs edge to edge
+       instead of floating in a gutter. Reads the same token the padding does, so the two
+       cannot drift — the mobile sheet uses 16px where the sidebar uses 28px. */
+    margin:0 calc(var(--panel-pad) * -1);
+    padding-left:var(--panel-pad);padding-right:var(--panel-pad);
     transition:background-color .18s ease;
   }
   /* Hover, so it follows the pointer and leaves with it. Tracking clicks instead meant the
@@ -1013,7 +1018,8 @@
     }
     .panel{
       flex:1;min-height:0;height:auto;overflow:hidden;
-      padding:0 16px 28px;border-top:1px solid var(--line);border-right:0;
+      --panel-pad:16px;
+      padding:0 var(--panel-pad) 28px;border-top:1px solid var(--line);border-right:0;
       transition:none;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.10),
