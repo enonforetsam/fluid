@@ -34,6 +34,7 @@ Zones, in file order:
 | --- | --- | --- |
 | root tokens | the ink, line and accent custom properties every zone reads; .panel re-scopes them for its light chrome | `---------- root tokens:` |
 | layout | the desktop split, controls panel left and artwork stage right; .panelScroll owns the only vertical scroll | `---------- layout:` |
+| collapsed panel | hand the whole window to the artwork | `---------- collapsed panel:` |
 | panel chrome | the sidebar header, title, tagline and theme dots | `---------- panel chrome:` |
 | stage | the artboard card the canvas sits in, plus the ambient glow washing the wall behind it | `---------- stage:` |
 | canvas chips | the control bar over the artwork, shuffle through record | `---------- canvas chips:` |
@@ -108,6 +109,7 @@ Zones, in file order:
 | seed of the day tile | the one fixed point on a shelf that is otherwise all new | `---------- seed of the day tile:` |
 | tray height feedback | the artwork leaves room for the shelf | `---------- tray height feedback:` |
 | stage tray behaviour | tab switching and collapse | `---------- stage tray behaviour:` |
+| panel collapse | give the whole window to the artwork, and remember the choice | `---------- panel collapse:` |
 | theme picker | metal (default) plus carbon, phosphor, paper and neon | `---------- theme picker:` |
 | math lens UI | the lens strip, its amount slider and the per-lens status copy | `---------- math lens UI:` |
 | cursor impact | how hard the pointer pushes the field, remembered per mode | `---------- cursor impact:` |
@@ -173,5 +175,5 @@ Zones, in file order:
 
 ---
 
-125 sections. Anything unbannered is a gap in the map: add a banner in the
+127 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

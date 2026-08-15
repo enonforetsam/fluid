@@ -32,6 +32,7 @@ const SECTIONS = [
   /* css */
   'root tokens',
   'layout',
+  'collapsed panel',
   'panel chrome',
   'stage',
   'canvas chips',
@@ -110,6 +111,7 @@ const SECTIONS = [
   'seed of the day tile',
   'tray height feedback',
   'stage tray behaviour',
+  'panel collapse',
   'theme picker',
   'math lens UI',
   'cursor impact',

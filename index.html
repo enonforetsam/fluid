@@ -81,7 +81,27 @@
   .wrap{
     display:grid;grid-template-columns:minmax(320px,1fr) 2fr;
     height:100vh;height:100dvh;overflow:hidden;
+    transition:grid-template-columns .24s ease;
   }
+  /* ---------- collapsed panel: hand the whole window to the artwork ----------
+     The column closes to zero rather than the panel being pulled out of the layout. It holds
+     every control, the live engine previews and its own scroll position, and display:none
+     would rebuild and re-measure all of it on each toggle — visibly, and for nothing. Zeroing
+     the column keeps it alive, just with nowhere to be. Its padding has to go too, or 56px of
+     it survives the zero-width column and leaves a stripe down the edge.
+     `inert` takes it out of tab order and off the a11y tree, so a collapsed panel cannot be
+     reached by keyboard; the pointer-events rule is the fallback where inert is not supported. */
+  .wrap.panelOff{ grid-template-columns:0 1fr }
+  .wrap.panelOff .panel{
+    padding-left:0;padding-right:0;
+    border-right:0;pointer-events:none;
+  }
+  /* No stage-padding rule here, though it is the obvious next thing to reach for: the artwork's
+     height comes from --stageH (a dvh formula) minus the chip bar and the tray, not from the
+     stage's real padding, so shrinking that padding changes nothing. Measured at 16:9 collapsed,
+     1383x778 at both 12px and 32px. What the closed column buys is width, which is worth a lot
+     to a wide piece and nothing to a tall one — see the note on the chip. */
+  @media (prefers-reduced-motion: reduce){ .wrap{ transition:none } }
   .panel{
     --ink:#101010;
     --line:rgba(16,16,16,.16);
@@ -1044,6 +1064,9 @@
         inset 0 18px 30px rgba(0,0,0,.22);
     }
     .panelScroll{display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
+    /* the column the chip closes does not exist here — the layout is stacked, and the drag
+       grip below already does this job by pulling the artwork to full height */
+    #panelChip{display:none}
     .panelMobileMeta{display:contents}
     .panelMobileMeta .tag{order:-30}
     .panelMobileMeta .status{order:-29}
@@ -1616,6 +1639,12 @@
     <canvas id="glowCanvas" aria-hidden="true"></canvas>
     <div class="stageInner">
       <div id="canvasChips">
+        <!-- Sits at the far left, apart from the art controls, because it changes the room
+             rather than the piece — and because it has to stay put: once the panel is gone
+             this button is the only way back to it. -->
+        <button id="panelChip" class="chipIcon" title="Hide the controls — full-width artwork" aria-label="Hide the controls" aria-expanded="true" aria-controls="panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg>
+        </button>
         <button id="refreshChip" aria-label="Shuffle a new random design" title="Shuffle a new random design"><span class="ricon">&#8635;</span><span>Shuffle</span></button>
         <!-- Undo has existed since the Recent shelf landed, but only as a keyboard shortcut
              and a row of thumbnails — neither of which announces itself. These say it out
@@ -1819,7 +1848,7 @@
   </div>
 
   <!-- ---------- panel markup: header, status line, theme dots and the scrolling list of edit sections ---------- -->
-  <div class="panel">
+  <div class="panel" id="panel">
   <div id="panelHandle" role="separator" aria-orientation="horizontal" aria-label="Drag up or down to resize the artwork"><span class="grip"></span><span class="phlabel">↕ Drag to resize</span></div>
   <header>
     <h1>Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
@@ -5580,6 +5609,39 @@ function trayPostBoot(){
   try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen') || '1'; } catch(e){}
   showPane(TRAY_TABS.indexOf(saved) >= 0 ? saved : 'layers');
   if (open === '0' && toggle){ toggle.click(); }
+})();
+/* ---------- panel collapse: give the whole window to the artwork, and remember the choice ---------- */
+(function(){
+  var chip = document.getElementById('panelChip');
+  var wrap = document.querySelector('.wrap');
+  var panel = document.getElementById('panel');
+  if (!chip || !wrap || !panel){ return; }
+  var PANEL_LS = 'fluid:panelOpen';
+  function setPanel(open){
+    /* The colour editor is a DOM child of the panel but position:fixed, so it does not travel
+       with the column when it closes — it would sit over the artwork, visibly, while inert made
+       it dead to the pointer. Closing it is the honest outcome: it belongs to the controls that
+       are being put away. Clicking its own button rather than hiding it here keeps the ramp
+       line's aria-expanded in step, which is owned by the editor's own closure. */
+    if (!open){
+      var more = document.getElementById('colourMore'), cmClose = document.getElementById('cmClose');
+      if (more && !more.hidden && cmClose){ cmClose.click(); }
+    }
+    wrap.classList.toggle('panelOff', !open);
+    chip.classList.toggle('on', !open);
+    chip.setAttribute('aria-expanded', open ? 'true' : 'false');
+    chip.setAttribute('aria-label', open ? 'Hide the controls' : 'Show the controls');
+    chip.title = open ? 'Hide the controls — full-width artwork' : 'Show the controls';
+    if (open){ panel.removeAttribute('inert'); } else { panel.setAttribute('inert', ''); }
+    try { localStorage.setItem(PANEL_LS, open ? '1' : '0'); } catch(e){}
+    /* resize() reads clientWidth every frame and redraws when it moves, so the canvas follows
+       the column on its own — this only covers the case where nothing else asks for a frame */
+    requestRender();
+  }
+  chip.addEventListener('click', function(){ setPanel(wrap.classList.contains('panelOff')); });
+  var saved = '1';
+  try { saved = localStorage.getItem(PANEL_LS) || '1'; } catch(e){}
+  if (saved === '0'){ setPanel(false); }
 })();
 /* ---------- theme picker: metal (default) plus carbon, phosphor, paper and neon ----------
    Personal preference: localStorage only, never in the share hash; the head script pre-applies it. */
