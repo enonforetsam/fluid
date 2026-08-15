@@ -169,6 +169,17 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
       `LENS_MAX is ${LENS_MAX} but the picker's highest lens is ${highest} — bump the literal in index.html`);
   });
 
+  it('every lens has a status line', () => {
+    /* LENS_STATUS is indexed by lens id, so a lens added without one hands setStatus
+       undefined — the readout goes blank or literally says "undefined", and that line is the
+       only place a lens explains what it does. Ground shipped that way. */
+    const m = /var LENS_STATUS = \[([\s\S]*?)\n\];/.exec(src);
+    assert.ok(m, 'LENS_STATUS has moved or been renamed');
+    const entries = m[1].split('\n').filter((l) => /^\s*'/.test(l)).length;
+    assert.strictEqual(entries, LENS_MAX + 1,
+      `LENS_STATUS has ${entries} lines for ${LENS_MAX + 1} lenses (ids 0..${LENS_MAX})`);
+  });
+
   it('every screen 0..3 round-trips', () => {
     for (let s = 0; s <= 4; s++) assert.strictEqual(roundtrip({ screen: s }).after.screen, s, 'screen ' + s);
   });

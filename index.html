@@ -1088,9 +1088,14 @@
         inset 0 18px 30px rgba(0,0,0,.22);
     }
     .panelScroll{display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
-    /* the column the chip closes does not exist here — the layout is stacked, and the drag
-       grip below already does this job by pulling the artwork to full height */
-    #panelChip{display:none}
+    /* The column the chip closes does not exist here — the layout is stacked, and the drag grip
+       below already does this job by pulling the artwork to full height. BOTH controls have to
+       go: hiding only the one that reopens left the one that closes, which shut the panel, took
+       it off screen, and removed every route back — including the drag grip, which lives inside
+       the panel and goes inert with it. The state persists, so a reload restored the same dead
+       screen. The JS below also forces the panel open at this width, because CSS cannot undo
+       the inert attribute and the state can arrive from a wider window. */
+    #panelChip, #panelMin{display:none}
     .panelMobileMeta{display:contents}
     .panelMobileMeta .tag{order:-30}
     .panelMobileMeta .status{order:-29}
@@ -4427,6 +4432,15 @@ function blendLabel(i){
 function revealSection(el){
   var sec = el && el.closest ? el.closest('.panel section') : null;
   if (!sec){ return; }
+  /* The panel can be closed now, and everything below happens inside it — expanding a section,
+     scrolling to it, flashing it. All of that ran perfectly well in a zero-width, inert,
+     off-screen column, so a tray row that says "Open the Eddy controls" did nothing at all.
+     Open the panel first; the controls are the whole point of the click. */
+  var wrapEl = document.querySelector('.wrap');
+  if (wrapEl && wrapEl.classList.contains('panelOff')){
+    var showChip = document.getElementById('panelChip');
+    if (showChip){ showChip.click(); }
+  }
   if (sec.classList.contains('collapsed')){
     var title = sec.querySelector('.sec-title');
     if (title){ title.click(); }
@@ -5644,6 +5658,19 @@ function trayPostBoot(){
     explore: document.getElementById('trayExplore')
   };
   var TRAY_TABS = ['layers', 'recent', 'saved', 'explore'];
+  /* One place that owns "is the tray open": the class, the button's glyph, what it announces,
+     and what is remembered. Two of those used to be written by the toggle handler alone, which
+     is why opening a shelf from its tab left the button describing the opposite state. */
+  function markTray(collapsed){
+    tray.classList.toggle('collapsed', collapsed);
+    var t = document.getElementById('trayToggle');
+    if (t){
+      t.textContent = collapsed ? '+' : '−';
+      t.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      t.setAttribute('aria-label', collapsed ? 'Expand tray' : 'Collapse tray');
+    }
+    try { localStorage.setItem('fluid:trayOpen', collapsed ? '0' : '1'); } catch(e){}
+  }
   function showPane(which){
     for (var i = 0; i < tabs.length; i++){
       var on = tabs[i].getAttribute('data-tray') === which;
@@ -5651,7 +5678,11 @@ function trayPostBoot(){
       tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
     }
     for (var k in panes){ if (panes[k]){ panes[k].hidden = (k !== which); } }
-    tray.classList.remove('collapsed');
+    /* Opening a shelf by its tab is opening the tray, and the toggle has to hear about it.
+       It did not: the tray opened while the button still read "+" and announced itself as
+       collapsed, so the next press closed the shelf the user had just opened, and the
+       remembered state stayed "shut" for the next visit. */
+    markTray(false);
     trayPaneOpen = which;
     fillTrayPane(which);
     /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
@@ -5663,18 +5694,14 @@ function trayPostBoot(){
   }
   var toggle = document.getElementById('trayToggle');
   if (toggle){
-    toggle.addEventListener('click', function(){
-      var col = tray.classList.toggle('collapsed');
-      toggle.textContent = col ? '+' : '−';
-      toggle.setAttribute('aria-expanded', col ? 'false' : 'true');
-      toggle.setAttribute('aria-label', col ? 'Expand tray' : 'Collapse tray');
-      try { localStorage.setItem('fluid:trayOpen', col ? '0' : '1'); } catch(e){}
-    });
+    toggle.addEventListener('click', function(){ markTray(!tray.classList.contains('collapsed')); });
   }
   var saved = null, open = '1';
   try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen') || '1'; } catch(e){}
   showPane(TRAY_TABS.indexOf(saved) >= 0 ? saved : 'layers');
-  if (open === '0' && toggle){ toggle.click(); }
+  /* showPane always opens the tray, so a remembered "closed" is re-applied after it. Stated
+     directly rather than by synthesising a click on the button. */
+  if (open === '0'){ markTray(true); }
 })();
 /* ---------- panel collapse: give the whole window to the artwork, and remember the choice ---------- */
 (function(){
@@ -5685,6 +5712,10 @@ function trayPostBoot(){
   if (!chip || !wrap || !panel){ return; }
   var PANEL_LS = 'fluid:panelOpen';
   var openW = 0, slideTimer = null;
+  /* Below this the layout is stacked, not columned, and there is nothing to slide out of the
+     way — matches the breakpoint the stylesheet uses. */
+  var narrow = window.matchMedia ? window.matchMedia('(max-width:879px)') : null;
+  function isNarrow(){ return !!(narrow && narrow.matches); }
   /* Read from the stylesheet rather than restated here: the track and the slide have to run
      for the same time or the panel crosses the artwork, and two numbers in two files is how
      that stops being true. */
@@ -5699,7 +5730,14 @@ function trayPostBoot(){
   function remember(){ if (!wrap.classList.contains('panelOff')){ openW = panel.offsetWidth || openW; } }
   remember();
   window.addEventListener('resize', remember);
-  function setPanel(open){
+  function setPanel(open, persist){
+    if (persist === undefined){ persist = true; }
+    /* A stacked layout has no closed state — there is no column to close, the panel IS the
+       bottom half of the screen. Forcing it open here is what makes a preference carried in
+       from a wide window (or from localStorage) survive the trip: inert is a DOM attribute,
+       so the media query alone cannot lift it. Not persisted, so rotating a tablet does not
+       quietly discard the choice made on the desktop. */
+    if (isNarrow() && !open){ open = true; persist = false; }
     /* The colour editor is a DOM child of the panel but position:fixed, so it does not travel
        with the column when it closes — it would sit over the artwork, visibly, while inert made
        it dead to the pointer. Closing it is the honest outcome: it belongs to the controls that
@@ -5717,7 +5755,7 @@ function trayPostBoot(){
     chip.title = 'Show the controls';
     if (minBtn){ minBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
     if (open){ panel.removeAttribute('inert'); } else { panel.setAttribute('inert', ''); }
-    try { localStorage.setItem(PANEL_LS, open ? '1' : '0'); } catch(e){}
+    if (persist){ try { localStorage.setItem(PANEL_LS, open ? '1' : '0'); } catch(e){} }
     /* hold the backing store still for the length of the slide, then let it settle once */
     panelSliding = true;
     if (slideTimer){ clearTimeout(slideTimer); }
@@ -5731,6 +5769,14 @@ function trayPostBoot(){
   }
   chip.addEventListener('click', function(){ setPanel(true); });
   if (minBtn){ minBtn.addEventListener('click', function(){ setPanel(false); }); }
+  /* Narrowing the window is the other way into the trap: collapse at desktop width, then
+     rotate the tablet or drag the window in, and the controls are on screen but dead. Re-open
+     on the way down, without touching the stored preference so the desktop keeps it. */
+  if (narrow){
+    var onNarrow = function(){ if (narrow.matches && wrap.classList.contains('panelOff')){ setPanel(true, false); } };
+    if (narrow.addEventListener){ narrow.addEventListener('change', onNarrow); }
+    else if (narrow.addListener){ narrow.addListener(onNarrow); }   /* Safari < 14 */
+  }
   var saved = '1';
   try { saved = localStorage.getItem(PANEL_LS) || '1'; } catch(e){}
   if (saved === '0'){
@@ -5790,7 +5836,8 @@ var LENS_STATUS = [
   'SINE LENS — sin z: the plane folds periodically into mirror lattices',
   'JOUKOWSKI LENS — z + 1/z: the airfoil map of aerodynamics',
   'NEWTON LENS — fractal basins of z³ = 1: three attractors, infinitely tangled shores',
-  'MODULAR LENS — SL(2,ℤ) fold: the hyperbolic tessellation behind number theory'
+  'MODULAR LENS — SL(2,ℤ) fold: the hyperbolic tessellation behind number theory',
+  'GROUND LENS — the plane tipped away: the piece recedes to a horizon'
 ];
 Array.prototype.forEach.call(document.querySelectorAll('.lensBtn'), function(b){
   b.addEventListener('click', function(){
@@ -8602,8 +8649,13 @@ var THUMB_RES = 144, THUMB_K = 1;
 var thumbFB = null, thumbTex = null, thumbPixels = null, thumbCv = null, thumbCtx = null, thumbImg = null;
 /* The layer keys belong here too: without them a preview rendered with whatever layers the
    user had live, so every engine tile showed that composite instead of the engine. */
+/* Every piece of state a preview depends on. The Explore shelf builds each tile's overrides by
+   copying exactly this list, so anything missing is not captured from the piece being
+   previewed — it leaks in from whatever the user is currently looking at, and the tile stops
+   matching the hash it loads. sym and thresh were missing: set a kaleidoscope fold and every
+   Explore tile rendered folded, while the pieces behind them mostly had no fold at all. */
 var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','lens','lensAmt','hasTex','t','cols','dot',
-  'field2','blend','layerMix','field3','blend2','layerMix2'];
+  'field2','blend','layerMix','field3','blend2','layerMix2','sym','thresh'];
 function palSig(){ return state.pal===8 ? '8:'+state.cols.join(',') : String(state.pal); }
 function ensureThumbGL(){
   if (thumbFB || !gl){ return !!thumbFB; }
@@ -8645,10 +8697,16 @@ function thumbSpecs(){
       field: 8, pixel:1, dots:0, screen:0, hasTex:0, scale:1.5, warp:2.0, grain:0.02, seed:28, t:1.35 } });
   }
   var sb = document.querySelectorAll('.screenBtn'), dots = document.getElementById('dotsBtn');
+  /* One entry per screen, in picker order. It stopped at three while the picker had five, and
+     `cfg[i] || cfg[0]` quietly handed Dither and Glitch the SQUARE spec — so three of the five
+     tiles were the same picture. The fallback is kept for safety but must never be the reason
+     a tile renders: a screen added without a line here would repeat square again. */
   var cfg = [
     { field:8, screen:0, pixel:10, dots:0, scale:1.8, warp:0.0, seed:33 },
     { field:2, screen:1, pixel:10, dots:0, scale:1.7, warp:7.0, seed:44 },
-    { field:7, screen:2, pixel:9,  dots:0, scale:1.5, warp:3.0, seed:28 }
+    { field:7, screen:2, pixel:9,  dots:0, scale:1.5, warp:3.0, seed:28 },
+    { field:0, screen:3, pixel:5,  dots:0, scale:1.6, warp:4.5, seed:19 },   /* dither — ordered threshold reads best on soft noise */
+    { field:5, screen:4, pixel:1,  dots:0, scale:1.4, warp:5.0, seed:52 }    /* glitch — needs hard edges to tear */
   ];
   for (i = 0; i < sb.length; i++){
     c = cfg[i] || cfg[0];
@@ -8670,7 +8728,20 @@ function renderOneThumb(job){
      what a click would load. Everything else is a control preview, which shows one thing
      only — its engine, its lens, its screen — so the rest is forced off. */
   if (!job.raw){
-    state.material = 0; state.dots = 0; state.pixel = 1; state.screen = 0; /* clean engine previews — no finish / halftone / pixelate / glitch */
+    /* "the rest is forced off" has to mean the rest. Screen and halftone were forced off
+       unconditionally, including on the very tiles whose job is to preview a screen or the
+       halftone dots — so Hex, ASCII, Dither and Glitch all rendered as plain smooth fields,
+       each showing the opposite of what clicking it does. Anything the job states for itself
+       now stands; only what it leaves unsaid is cleared. */
+    state.material = 0;
+    if (job.ov.dots == null){ state.dots = 0; }
+    if (job.ov.pixel == null){ state.pixel = 1; }
+    if (job.ov.screen == null){ state.screen = 0; }
+    /* same rule for the two that now travel with a preview: an engine tile should show its
+       engine, not the fold the user happens to have on — but the dither tile sets its own
+       threshold and must keep it */
+    if (job.ov.sym == null){ state.sym = 0; }
+    if (job.ov.thresh == null){ state.thresh = 0.5; }
     state.field2 = 0; state.blend = 0; state.layerMix = 0;                 /* and no layers of the user's on top of it */
     state.field3 = 0; state.blend2 = 0; state.layerMix2 = 0;
     if (job.ov.lens == null){ state.lens = 0; state.lensAmt = 1; }         /* only the math tiles preview through a lens */

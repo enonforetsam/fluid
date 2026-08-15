@@ -132,8 +132,12 @@ if (FIELDS.length !== FIELD_TUNE.length){
 for (const name of ['fieldOf', 'blendField', 'ramp4']){
   if (FSRC.indexOf(name) < 0) throw new Error('FSRC missing ' + name + ' — extraction is stale or index.html changed shape');
 }
+/* A substring search made this guard nearly useless for single digits: 'eng == 2' is happily
+   found inside 'eng == 20', so deleting the Cellular branch passed the build, passed all the
+   tests, and quietly rendered every field=2 piece — CORAL, NEBULA, any share link — as Noise.
+   The digit has to end where the number ends. */
 for (let i = 0; i < FIELDS.length; i++){
-  if (i > 0 && FSRC.indexOf('eng == ' + i) < 0){
+  if (i > 0 && !new RegExp('eng == ' + i + '(?![0-9])').test(FSRC)){
     throw new Error('FSRC has no dispatch branch for field ' + i + ' (' + FIELDS[i] + ')');
   }
 }

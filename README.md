@@ -24,10 +24,10 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 
 ## Features
 
-- WebGL1 fragment-shader renderer with 23 field engines, including a quasicrystal, paper marbling, string-art caustics, whirling pursuit polygons, Chladni plate figures, Cassini ovals, and topographic contours.
+- WebGL1 fragment-shader renderer with 24 field engines, including a quasicrystal, paper marbling, string-art caustics, whirling pursuit polygons, Chladni plate figures, Cassini ovals, topographic contours, and a von Karman vortex street.
 - Kaleidoscope symmetry modifier: fold any field into an N-fold radial mandala.
 - Layers: stack up to three engines, each blending onto everything under it with multiply / screen / add / difference / overlay.
-- Math lenses: bend the plane through 12 conformal maps — z², 1/z, Möbius, Droste, hyperbolic, Julia, z³, e^z, sin z, Joukowski, Newton basins, and the SL(2,ℤ) modular fold.
+- Math lenses: bend the plane through 12 conformal maps — z², 1/z, Möbius, Droste, hyperbolic, Julia, z³, e^z, sin z, Joukowski, Newton basins, and the SL(2,ℤ) modular fold — plus Ground, which is a camera rather than a map: it tips the plane away so any engine recedes to a horizon.
 - Material finishes: glass, metal, sand, liquid, and molten relighting.
 - Square, hex, ASCII, halftone, ordered-dither, and glitch surface modes.
 - Preset palettes plus shareable custom four-stop gradients, with a draggable colour editor: saturation/brightness pad, hue strip, HSB and RGB sliders, hex, and harmony schemes that rebuild the whole ramp from one hue.

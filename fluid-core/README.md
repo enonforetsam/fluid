@@ -29,7 +29,7 @@ npm install fluid-core
 …or import it with no npm at all — the module is pure ESM with zero dependencies:
 
 ```js
-import { createFluid } from 'https://cdn.jsdelivr.net/npm/fluid-core@0.2/src/index.js';
+import { createFluid } from 'https://cdn.jsdelivr.net/npm/fluid-core@0.3/src/index.js';
 // or straight from the studio's own deployment:
 import { createFluid } from 'https://fluid.krackeddevs.com/fluid-core/src/index.js';
 ```

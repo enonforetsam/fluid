@@ -6,7 +6,7 @@
 
 A `<fluid-bg>` web component, a React wrapper, and a CDN one-liner — one tag, zero setup, GPU-rendered.
 
-**0.2.0: renders natively on a canvas in your page — no iframe.** All 15 engines are bundled
+**Renders natively on a canvas in your page — no iframe.** Every engine is bundled
 (~15 KB gzipped), generated straight from the studio with a CI drift guard. Zero animation
 frames when static, pauses offscreen and in hidden tabs, respects `prefers-reduced-motion`,
 works offline. The 0.1.x iframe embed remains as an automatic fallback when WebGL is
