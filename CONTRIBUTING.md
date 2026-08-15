@@ -96,7 +96,7 @@ Both are plain HTML — edit directly.
 
 ```sh
 open index.html          # app only — no MCP/API
-npx wrangler dev         # full stack including worker
+npm run dev              # full stack including worker, on :8787
 ```
 
 No install step needed for the app. `wrangler` is the only dev dependency.

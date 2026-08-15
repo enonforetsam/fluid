@@ -65,8 +65,13 @@ open index.html
 For the Worker routes, security headers, JSON API, and MCP endpoint:
 
 ```sh
-npx wrangler dev
+npm run dev            # http://localhost:8787
 ```
+
+Use the script rather than a bare `npx wrangler dev`. The assets directory is the repo root,
+so wrangler's own `.wrangler/state` writes land inside the tree it is watching — it sees them,
+reloads, writes again, and reloads about once every four seconds forever, which makes requests
+hang mid-reload. The script keeps that state outside the repo with `--persist-to`.
 
 ## Embed
 
