@@ -266,6 +266,15 @@
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
   #embedDock.open{display:block}
+  #frameDock{
+    position:absolute;right:0;top:34px;z-index:8;
+    width:min(340px,100%);display:none;
+    color:var(--ink);background:var(--panel-metal);
+    border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #frameDock.open{display:block}
+  .frameBody{padding:12px}
   #cursorDock{
     position:absolute;right:0;top:34px;z-index:8;
     width:min(560px,100%);display:none;
@@ -1007,7 +1016,7 @@
     .stageInner{width:100%}
     #canvasChips{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));min-width:min(100%, 264px);margin:0 auto}
     #designDock{position:fixed;left:12px;right:12px;top:54px;width:auto;max-height:calc(50vh - 66px)}
-    #cursorDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
+    #cursorDock,#frameDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
     .designList{max-height:calc(50vh - 128px)}
     .card{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));margin:0 auto}
     /* drag bar at the top of the controls sheet — drag up/down to resize the artwork */
@@ -1519,6 +1528,33 @@
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
         </button>
+        <!-- Frame lives on the chip bar, not in the panel: it is a garnish for a screenshot
+             post, not part of designing the piece, and a 332px section for it sat between
+             the controls people actually reach for. -->
+        <button id="frameChip" class="chipIcon" title="Frame — a post on your art" aria-label="Frame a screenshot" aria-expanded="false" aria-controls="frameDock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 15l5-4 4 3 3-2 6 5"></path></svg>
+        </button>
+        <div id="frameDock" role="dialog" aria-label="Frame a screenshot">
+          <div class="designDockHead">
+            <div class="designDockTitle">Frame &mdash; a post on your art</div>
+            <button id="closeFrame" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div class="frameBody">
+    <button id="frameUpload" type="button" class="primary" style="width:100%">Upload a screenshot</button>
+    <input id="frameFile" type="file" accept="image/*">
+    <div style="margin-top:10px">
+      <div class="knoblabel">Size <output id="frameSizeOut">66</output>%</div>
+      <input id="frameSize" type="range" min="0.35" max="0.95" step="0.01" value="0.66">
+    </div>
+    <div style="margin-top:8px">
+      <div class="knoblabel">Corners <output id="frameRadOut">18</output></div>
+      <input id="frameRad" type="range" min="0" max="45" step="1" value="18">
+    </div>
+    <label class="cnote" style="display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer"><input id="frameShadow" type="checkbox" checked> Drop shadow</label>
+    <button id="frameClear" type="button" style="width:100%;margin-top:10px">Clear screenshot</button>
+    <p class="cnote" style="margin:8px 0 0">Your post floats on the live art. Now hit <b>Export image</b> or the <b>&#9679; Record</b> button — they capture the framed post (MP4, ready for X). 100% on your device.</p>
+          </div>
+        </div>
         <button id="cursorChip" class="chipIcon" title="Cursor effect" aria-label="Cursor effect" aria-expanded="false" aria-controls="cursorDock">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="12" r="5.5"></circle><circle cx="12" cy="12" r="9.5"></circle></svg>
         </button>
@@ -1904,6 +1940,10 @@
       <!-- adding a layer is adding an engine, so it lives with the engine picker rather
            than in Layers, which is for tuning the ones you already have -->
       <button id="addLayerBtn" type="button">+ Add layer</button>
+      <!-- Removal named its target: "Remove layer" beside a tab strip does not say WHICH,
+           and the answer (the open tab) is exactly the thing worth being sure about before
+           destroying something. Absent at one engine — the last one standing is the piece. -->
+      <button id="removeLayerBtn" type="button" hidden>Remove Layer 2</button>
     </div>
   </section>
 
@@ -2019,23 +2059,6 @@
 
 
 
-  <!-- ---------- Frame section: drop a screenshot onto the live art ---------- -->
-  <section data-collapsed>
-    <div class="sec-title">Frame — a post on your art</div>
-    <button id="frameUpload" type="button" class="primary" style="width:100%">Upload a screenshot</button>
-    <input id="frameFile" type="file" accept="image/*">
-    <div style="margin-top:10px">
-      <div class="knoblabel">Size <output id="frameSizeOut">66</output>%</div>
-      <input id="frameSize" type="range" min="0.35" max="0.95" step="0.01" value="0.66">
-    </div>
-    <div style="margin-top:8px">
-      <div class="knoblabel">Corners <output id="frameRadOut">18</output></div>
-      <input id="frameRad" type="range" min="0" max="45" step="1" value="18">
-    </div>
-    <label class="cnote" style="display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer"><input id="frameShadow" type="checkbox" checked> Drop shadow</label>
-    <button id="frameClear" type="button" style="width:100%;margin-top:10px">Clear screenshot</button>
-    <p class="cnote" style="margin:8px 0 0">Your post floats on the live art. Now hit <b>Export image</b> or the <b>&#9679; Record</b> button — they capture the framed post (MP4, ready for X). 100% on your device.</p>
-  </section>
 
   <!-- ---------- Output section: share, embed, export target, format and clip length ---------- -->
   <section data-collapsed>
@@ -4092,6 +4115,14 @@ function syncLayerBlocks(){
     addBtn.title = full ? 'Three engines is the maximum — this opens the top one'
       : (depth === 1 ? 'Blend a 2nd engine over this one' : 'Blend a 3rd engine over these');
   }
+  var rmBtn = document.getElementById('removeLayerBtn');
+  if (rmBtn){
+    rmBtn.hidden = depth < 2;              /* nothing to remove when there is one engine */
+    rmBtn.textContent = 'Remove Layer ' + layerTab;
+    rmBtn.title = layerTab === 1
+      ? 'Drop the base — the layer above becomes the artwork'
+      : 'Drop layer ' + layerTab;
+  }
   /* layerTab is settled here and nowhere else, so the strip's highlight is refreshed from
      here too. syncControls calls syncFieldButtons before this runs, which meant adding or
      removing a layer left the strip marking the engine of whichever tab used to be open. */
@@ -5683,7 +5714,18 @@ document.getElementById('randBtn').addEventListener('click', shuffleDesign);
     /* either way the press lands you in the Layers section on the layer in question, so it
        is never a click that appears to do nothing */
     revealSection(document.getElementById('layerTabs'));
-    if (full){ setStatus('THREE ENGINES IS THE MAXIMUM — here is the top one; remove a layer with the ✕ in the tray'); }
+    if (full){ setStatus('THREE ENGINES IS THE MAXIMUM — here is the top one; remove one below, or with the ✕ in the tray'); }
+  });
+})();
+(function(){
+  var b = document.getElementById('removeLayerBtn');
+  if (!b){ return; }
+  /* removes the layer whose tab is open. removeLayer closes the gap rather than leaving a
+     hole — dropping the base promotes the layer above it, carrying its own blend and mix. */
+  b.addEventListener('click', function(){
+    if (layerDepth() < 2){ return; }
+    removeLayer(layerTab);
+    syncLayerBlocks();
   });
 })();
 if (refreshChip){
@@ -6392,7 +6434,7 @@ function updateDesignCount(){
 }
 function setDesignDock(open){
   if (!designDock){ return; }
-  if (open){ setEmbedDock(false); setCursorDock(false); renderDesignList(); }   /* one dock at a time — Save sits next to the cursor chip */
+  if (open){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); renderDesignList(); }   /* one dock at a time — Save sits next to the cursor chip */
   designDock.className = open ? 'open' : '';
   designsChip.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
@@ -6495,7 +6537,7 @@ function deleteSavedDesign(id){
   setStatus('DESIGN REMOVED — local saves updated');
 }
 saveChip.addEventListener('click', saveCurrentDesign);
-designsChip.addEventListener('click', function(){ setEmbedDock(false); setCursorDock(false); setDesignDock(designDock.className !== 'open'); });
+designsChip.addEventListener('click', function(){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); setDesignDock(designDock.className !== 'open'); });
 document.getElementById('closeDesigns').addEventListener('click', function(){ setDesignDock(false); });
 designList.addEventListener('click', function(e){
   var del = closestDesignAttr(e.target, 'data-delete-design');
@@ -6780,7 +6822,7 @@ function renderEmbed(){
 }
 function setEmbedDock(open){
   if (!embedDock){ return; }
-  if (open){ setDesignDock(false); setCursorDock(false); renderEmbed(); }   /* only one dock open at a time */
+  if (open){ setDesignDock(false); setCursorDock(false); setFrameDock(false); renderEmbed(); }   /* only one dock open at a time */
   embedDock.className = open ? 'open' : '';
   if (embedChip){ embedChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
 }
@@ -6805,11 +6847,32 @@ if (embedChip && embedDock){
     setEmbedDock(false);
   });
 }
+/* ---------- frame dock: the screenshot garnish, on the canvas bar rather than in the panel ----------
+   Framing a post is something you do to a finished piece, not part of designing one, so a
+   332px panel section for it sat between controls people reach for constantly. It keeps every
+   control it had; it just lives behind a chip now, like Save and the cursor picker. */
+var frameChip = document.getElementById('frameChip'), frameDock = document.getElementById('frameDock');
+function setFrameDock(open){
+  if (!frameDock){ return; }
+  if (open){ setDesignDock(false); setEmbedDock(false); setCursorDock(false); }
+  frameDock.className = open ? 'open' : '';
+  if (frameChip){ frameChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+}
+if (frameChip && frameDock){
+  frameChip.addEventListener('click', function(){ setFrameDock(frameDock.className !== 'open'); });
+  document.getElementById('closeFrame').addEventListener('click', function(){ setFrameDock(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setFrameDock(false); } });
+  document.addEventListener('pointerdown', function(e){
+    if (frameDock.className !== 'open'){ return; }
+    if (frameDock.contains(e.target) || frameChip.contains(e.target)){ return; }
+    setFrameDock(false);
+  });
+}
 /* ---------- cursor-effect dock: the cursor picker lives on the canvas bar, next to Save ---------- */
 var cursorChip = document.getElementById('cursorChip'), cursorDock = document.getElementById('cursorDock');
 function setCursorDock(open){
   if (!cursorDock){ return; }
-  if (open){ setDesignDock(false); setEmbedDock(false); }
+  if (open){ setDesignDock(false); setEmbedDock(false); setFrameDock(false); }
   cursorDock.className = open ? 'open' : '';
   if (cursorChip){ cursorChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   /* the strip was measured while hidden — let it re-sync its arrows now it has a width */

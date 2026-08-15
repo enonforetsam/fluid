@@ -62,7 +62,6 @@ const SECTIONS = [
   'colour editor markup',
   'Stack section',
   'Look section',
-  'Frame section',
   'Output section',
   'Text section',
   /* js: data tables and state */
@@ -137,6 +136,7 @@ const SECTIONS = [
   'saved shelf',
   'undo keys',
   'embed popover',
+  'frame dock',
   'cursor-effect dock',
   'claude payload',
   'copy-as',
