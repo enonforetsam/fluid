@@ -483,12 +483,13 @@
     margin:0 -12px;padding-left:12px;padding-right:12px;
     transition:background-color .18s ease;
   }
-  /* :has(:focus-visible), not :focus-within — the picker tiles call focus() on click, so
-     focus-within kept a section lit after you had moved on to the artwork. Pointer work is
-     carried by .working, which clears; keyboard focus lights it here, which is the case that
-     actually needs a cue. */
-  .panel section.working,
-  .panel section:has(:focus-visible){ background-color:rgba(255,255,255,.34) }
+  /* Hover, so it follows the pointer and leaves with it. Tracking clicks instead meant the
+     highlight stayed behind on the last card you touched, which reads as state rather than
+     as "you are here". Keyboard focus keeps its own rule — :has(:focus-visible) rather than
+     :focus-within, because the picker tiles call focus() on click and focus-within would
+     bring the lingering back through the side door. */
+  .panel section:hover,
+  .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:rgba(255,255,255,.34) }
   @media(prefers-reduced-motion:reduce){ .panel section{transition:none} }
   .sec-title{
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -5127,10 +5128,18 @@ Array.prototype.forEach.call(document.querySelectorAll('.fieldBtn[data-field]'),
     if (e.button != null && e.button !== 0){ return; }
     skipClick = true;
     run();
+    /* preventDefault below cancels the browser's own focus, so focus is moved by hand to keep
+       the tile keyboard-reachable — and Chrome grants :focus-visible to that scripted focus,
+       which left the whole section highlighted after the pointer had moved on. Marked as
+       pointer-driven so the highlight rule can tell the two apart. A data attribute, not a
+       class: syncFieldButtons rewrites className wholesale and would wipe a class. */
     b.focus();
+    b.setAttribute('data-ptr', '1');
     e.preventDefault();
     setTimeout(function(){ skipClick = false; }, 400);
   });
+  b.addEventListener('keydown', function(){ b.removeAttribute('data-ptr'); });
+  b.addEventListener('blur', function(){ b.removeAttribute('data-ptr'); });
   b.addEventListener('click', function(){
     if (skipClick){ skipClick = false; return; }
     run();
@@ -7991,32 +8000,6 @@ Array.prototype.forEach.call(document.querySelectorAll('.panel .sec-title'), fun
   t.appendChild(b);
 });
 
-/* ---------- working section: mark the card the pointer or keyboard is actually in ----------
-   :focus-within alone is not enough — a slider drag ends in a blur, and several controls are
-   driven by pointer handlers that never take focus at all, so the highlight would flicker off
-   mid-adjust. A class set from the interaction itself holds steady, and clears when attention
-   moves to the artwork. Capture phase, so a handler that stops propagation cannot hide it. */
-(function initWorkingSection(){
-  var scroll = document.querySelector('.panelScroll');
-  if (!scroll){ return; }
-  function clear(except){
-    var on = document.querySelectorAll('.panel section.working');
-    for (var i = 0; i < on.length; i++){ if (on[i] !== except){ on[i].classList.remove('working'); } }
-  }
-  function mark(e){
-    var sec = e.target && e.target.closest ? e.target.closest('.panel section') : null;
-    clear(sec);
-    if (sec){ sec.classList.add('working'); }
-  }
-  scroll.addEventListener('pointerdown', mark, true);
-  scroll.addEventListener('focusin', mark, true);
-  scroll.addEventListener('input', mark, true);
-  /* working on the artwork means you are no longer working in a section */
-  document.addEventListener('pointerdown', function(e){
-    if (e.target && e.target.closest && e.target.closest('.panel section')){ return; }
-    clear(null);
-  }, true);
-})();
 /* ---------- section collapse: wrap each section's content in an animated body, with a caret in the title ----------
    Clicking the title (but not the [i] tip) toggles it. */
 Array.prototype.forEach.call(document.querySelectorAll('.panel section'), function(sec){

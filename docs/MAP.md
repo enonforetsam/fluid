@@ -148,7 +148,6 @@ Zones, in file order:
 | export targets UI | build the size buttons from EXPORT_GROUPS and track the active one | `---------- export targets UI:` |
 | format | one button cycles the supported encoders | `---------- format:` |
 | info tooltips | the one-line explainer behind each section's (i) | `---------- info tooltips:` |
-| working section | mark the card the pointer or keyboard is actually in | `---------- working section:` |
 | section collapse | wrap each section's content in an animated body, with a caret in the title | `---------- section collapse:` |
 | refresh palette | step a stored index through the 7 colourful palettes, skipping Chrome | `---------- refresh palette:` |
 | Vibe (Pro · bring-your-own-key) | describe a mood and the user's own OpenAI key turns it into a Fluid piece | `---------- Vibe (Pro · bring-your-own-key):` |
@@ -172,5 +171,5 @@ Zones, in file order:
 
 ---
 
-124 sections. Anything unbannered is a gap in the map: add a banner in the
+123 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
