@@ -34,19 +34,21 @@ function extractArrayLiteral(name) {
   throw new Error('unbalanced brackets: ' + name);
 }
 
-/* `var NAME = <number>;` — parseHash clamps engine ids against FIELD_MAX, and it has to be a
-   literal because this sandbox has no DOM to count the picker with. */
+/* `var NAME = <number>;` — parseHash clamps engine ids against FIELD_MAX and lens ids against
+   LENS_MAX, and both have to be literals because this sandbox has no DOM to count the pickers
+   with. Each is pinned to its picker by a test below, which is what keeps the literal honest. */
 function extractNumber(name) {
   const m = new RegExp('var\\s+' + name + '\\s*=\\s*(-?\\d+(?:\\.\\d+)?)\\s*;').exec(src);
   if (!m) throw new Error('numeric var not found: ' + name);
   return Number(m[1]);
 }
 const FIELD_MAX = extractNumber('FIELD_MAX');
+const LENS_MAX = extractNumber('LENS_MAX');
 
 function makeCtx() {
   const sandbox = {
     PRESETS: [], activePresetId: null, pendingPreset: 0, EMBED: false,
-    FIELD_MAX,
+    FIELD_MAX, LENS_MAX,
     Math, parseFloat, parseInt, isNaN, String, Number,
     window: { location: { hash: '' } },
     state: {}
@@ -156,6 +158,17 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
       `FIELD_MAX is ${FIELD_MAX} but the picker's highest engine is ${highest} — bump the literal in index.html`);
   });
 
+  it('LENS_MAX matches the highest lens in the picker', () => {
+    /* The same failure, one control over, and it had already happened three times in
+       miniature: the lens count was written out as a literal 12 in the hash clamp, the
+       shuffle roll and fluid-core's decoder, so a 14th lens would have decoded as Modular,
+       never been shuffled into a piece, and changed shape in every embed. */
+    const ids = [...src.matchAll(/data-lens="(\d+)"/g)].map((m) => Number(m[1]));
+    const highest = Math.max(...ids);
+    assert.strictEqual(LENS_MAX, highest,
+      `LENS_MAX is ${LENS_MAX} but the picker's highest lens is ${highest} — bump the literal in index.html`);
+  });
+
   it('every screen 0..3 round-trips', () => {
     for (let s = 0; s <= 4; s++) assert.strictEqual(roundtrip({ screen: s }).after.screen, s, 'screen ' + s);
   });
@@ -166,8 +179,8 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     assert.ok(roundtrip({ material: 0 }).hash.split(',').length <= 16, 'material=0 must not pad the hash');
   });
 
-  it('every math lens 0..12 round-trips via slots [29][30]', () => {
-    for (let l = 0; l <= 12; l++) assert.strictEqual(roundtrip({ lens: l }).after.lens, l, 'lens ' + l);
+  it('every math lens 0..LENS_MAX round-trips via slots [29][30]', () => {
+    for (let l = 0; l <= LENS_MAX; l++) assert.strictEqual(roundtrip({ lens: l }).after.lens, l, 'lens ' + l);
     assert.strictEqual(roundtrip({ lens: 4, lensAmt: 0.65 }).after.lensAmt, 0.65, 'amount survives the ×100 encoding');
     // no lens (or amount 0 = identity) is the default and must trim away — no hash bloat
     assert.ok(roundtrip({ lens: 0 }).hash.split(',').length <= 16, 'lens=0 must not pad the hash');

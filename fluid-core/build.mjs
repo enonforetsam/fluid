@@ -167,6 +167,10 @@ export function emitData(){
     'export const PALETTES_RGB = ' + j(PALETTES_RGB) + ';\n' +
     'export const SCREENS = ' + j(SCREENS) + ';\n' +
     'export const MATERIALS = ' + j(MATERIALS) + ';\n' +
+    '/* math lens slugs by index — share-hash slot [29]. Exported so the decoder can clamp\n' +
+    '   against the real list instead of a literal, which is what let `ground` decode as\n' +
+    '   `modular`; the worker registry has had this for longer. */\n' +
+    'export const LENSES = ' + j(LENSES) + ';\n' +
     'export const BLENDS = ' + j(BLENDS) + ';\n' +
     '/* curated studio looks. p = [speed,zoom,warp,grain,pixel,dot,dots,pal,seed,liq,mix,ar] */\n' +
     'export const LOOKS = ' + JSON.stringify(LOOKS, null, 0) + ';\n';

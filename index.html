@@ -2166,6 +2166,7 @@
       <button class="fieldBtn lensBtn" data-lens="10" title="Joukowski — z + 1/z: the airfoil map from aerodynamics" aria-label="Joukowski lens" aria-pressed="false"><span>Joukowski</span></button>
       <button class="fieldBtn lensBtn" data-lens="11" title="Newton — fractal basins of z&#179; = 1" aria-label="Newton lens" aria-pressed="false"><span>Newton</span></button>
       <button class="fieldBtn lensBtn" data-lens="12" title="Modular — SL(2,&#8484;) fold: hyperbolic tessellation" aria-label="Modular lens" aria-pressed="false"><span>Modular</span></button>
+      <button class="fieldBtn lensBtn" data-lens="13" title="Ground — tip the plane away: the piece recedes to a horizon" aria-label="Ground lens" aria-pressed="false"><span>Ground</span></button>
     </div>
     <button id="mathNext" class="stripBtn" aria-label="Scroll lenses right">&#8250;</button>
     </div>
@@ -3239,7 +3240,7 @@ var FSRC = [
   '        z = clamp(z, -3.0, 3.0);',
   '      }',
   '      lw = z;',
-  '    } else {',
+  '    } else if (u_lens == 12){',
   '      /* modular: fold into the SL(2,Z) fundamental domain (|Re z| < 1/2, |z| > 1',
   '         via T: z->z+1 and S: z->-1/z) — the hyperbolic tessellation of number theory */',
   '      vec2 z = vec2(w.x * 1.4 + u_time * 0.02, abs(w.y * 1.4) + 0.08);',
@@ -3249,6 +3250,30 @@ var FSRC = [
   '        if (zz < 1.0){ z = vec2(-z.x, z.y) / max(zz, 0.01); }',
   '      }',
   '      lw = clamp(z, -4.0, 4.0);',
+  '    } else {',
+  '      /* ground: the only lens that is not a map of the plane onto itself but a CAMERA.',
+  '         Every other lens here bends a flat piece; this one tips it away from you. The',
+  '         screen row is read as a ray angle and intersected with a horizontal plane, so',
+  '         depth goes as 1/(horizon - y): equal steps up the frame become ever larger steps',
+  '         into the distance, texture compresses toward the horizon, and any of the engines',
+  '         becomes a floor stretching to it.',
+  '         Above the horizon a ray never meets the plane at all, and a lens has to return',
+  '         SOMETHING — so the far side is mirrored, giving a sky that reflects the floor',
+  '         rather than a dead half-frame. abs() is what does it, and it also keeps the',
+  '         divide off zero at the horizon line itself.',
+  '         Bounded like the others: the divide is floored, which caps depth at ~27 and',
+  '         limits how finely the field is sampled at the vanishing line. It still aliases',
+  '         there, as any perspective plane does without mip-mapping, and the horizon is the',
+  '         one place a moire is honest. */',
+  '         Which way the plane lies matters, and not for symmetric engines: depth is the',
+  '         engine X here, not its Y. Both are ground planes — they differ by a 90 degree turn —',
+  '         but an engine with a grain reads completely differently through them. Eddy runs its',
+  '         dye along Y, so with depth on Y its whole structure collapses into horizontal bands;',
+  '         turned this way the street recedes along its own length instead. Grid renders',
+  '         identically either way, being symmetric, so nothing is given up for it. */',
+  '      float hz = 0.34;                                  /* horizon height, normalized */',
+  '      float depth = 0.55 / max(abs(hz - w.y), 0.02);',
+  '      lw = clamp(vec2(depth, w.x * depth), -60.0, 60.0);',
   '    }',
   '    p = mix(p, lw * lsc, u_lensAmt);',
   '  }',
@@ -4263,6 +4288,12 @@ var blend2Sel = document.getElementById('blend2Sel');
    the picker. tests/hash pins it to the markup, so adding a 24th engine fails loudly here
    instead of silently clamping the new engine out of every share link. */
 var FIELD_MAX = 23;
+/* Same job as FIELD_MAX, and added for the same reason: the lens count was written out as a
+   literal 12 in three places — the hash clamp, the shuffle roll and fluid-core's decoder — so
+   a new lens decoded as Modular, was never shuffled into a piece, and silently changed shape
+   in every embed. That is exactly how Topo spent a release rendering as Cassini. Pinned to the
+   picker by a test, like FIELD_MAX. */
+var LENS_MAX = 13;
 var FIELD_BTNS = document.querySelectorAll('.fieldBtn[data-field]');
 /* one binder for both layers — two hand-written pairs is how they drift apart */
 function bindLayerSelect(sel, key){
@@ -5937,7 +5968,7 @@ function randomPattern(){
      rather than always-nearly-full — a half-strength lens is a different piece, not a
      weaker one */
   if (rnd() < 0.32){
-    state.lens = 1 + Math.floor(rnd() * 12);
+    state.lens = 1 + Math.floor(rnd() * LENS_MAX);
     state.lensAmt = 0.35 + q[6] * 0.65;
   } else {
     state.lens = 0; state.lensAmt = 1;
@@ -6521,7 +6552,7 @@ function buildHash(embedFlag){
      older links keep decoding identically, and gated on layer 2 being on as well: a stack
      with a hole in it is not a state the app can be in. */
   var wantLayer3 = (state.layerMix || 0) > 0.001 && (state.layerMix2 || 0) > 0.001;
-  /* [29][30] = math lens (1 square .. 12 modular, the picker order) + amount×100 — only
+  /* [29][30] = math lens (1 square .. LENS_MAX ground, the picker order) + amount×100 — only
      when visibly on. Gate on the ENCODED amount: an amount that rounds to slot value 0
      would be trimmed away and then decode as the default 1.0 (full strength).
      Layer 3 lives past these, so its presence forces the lens slots to be written too. */
@@ -6585,7 +6616,7 @@ function parseHash(src){
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
   state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;
-  state.lens = n.length > 29 ? Math.min(12, Math.max(0, Math.round(n[29]))) : 0;
+  state.lens = n.length > 29 ? Math.min(LENS_MAX, Math.max(0, Math.round(n[29]))) : 0;
   state.lensAmt = n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1;
   state.field3 = n.length > 31 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[31]))) : 0;
   state.blend2 = n.length > 32 ? Math.min(5, Math.max(0, Math.round(n[32]))) : 0;

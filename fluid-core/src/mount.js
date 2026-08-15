@@ -7,13 +7,13 @@
  * static, pixel-count cap, context-loss recovery).
  */
 import { VSRC, FSRC } from './generated/shader.js';
-import { FIELDS, PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LOOKS } from './generated/data.js';
+import { FIELDS, PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LENSES, LOOKS } from './generated/data.js';
 
 /* hard cap on physical pixels rendered (a 4K frame); DPR is scaled down past it */
 const MAX_PIXEL_COUNT = 3840 * 2160;
 
-/* math-lens slugs, share-hash slots [29][30] — mirrors the studio's lens picker order */
-const LENSES = ['none', 'square', 'invert', 'mobius', 'droste', 'hyperbolic', 'julia', 'cube', 'exp', 'sine', 'joukowski', 'newton', 'modular'];
+/* LENSES is generated from the studio's picker now, not restated here. Keeping a second
+   copy is what made a new lens a silent no-op in the library while the studio had it. */
 
 function hexToRgb01(h){
   h = String(h).replace('#', '');

@@ -71,7 +71,7 @@ createFluid(el, {
   screen: 'hex',            // square | hex | ascii | dither | glitch
   material: 'molten',       // none | glass | metal | sand | liquid | molten
   lens: 'mobius',           // math lens: square | invert | mobius | droste | hyperbolic |
-                            //   julia | cube | exp | sine | joukowski | newton | modular
+                            //   julia | cube | exp | sine | joukowski | newton | modular | ground
   lensAmt: 0.8              // lens strength 0-1 (default 1)
 });
 ```

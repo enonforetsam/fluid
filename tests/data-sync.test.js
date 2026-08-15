@@ -83,13 +83,19 @@ describe('app <-> worker data sync', () => {
     }
   });
 
-  it('LENSES match across worker-data, fluid-core mount, and the lens buttons', () => {
+  it('LENSES match across worker-data, fluid-core data, and the lens buttons', () => {
     const wLenses = extractAssign(dataSrc, 'LENSES');
+    /* mount.js used to restate this list, and this test guarded the copy against drift. The
+       copy is gone — both registries are generated from the picker now — so what is checked
+       is that fluid-core's generated data carries LENSES at all. Its decoder clamps against
+       it, and a missing export would silently fall back to a shorter list. */
+    const coreData = fs.readFileSync(path.join(ROOT, 'fluid-core', 'src', 'generated', 'data.js'), 'utf8');
+    const cLenses = extractAssign(coreData, 'LENSES');
+    assert.deepStrictEqual(cLenses, wLenses, 'LENSES drift: fluid-core generated data vs worker');
     const mountSrc = fs.readFileSync(path.join(ROOT, 'fluid-core', 'src', 'mount.js'), 'utf8');
-    const mm = /const LENSES = (\[[^\]]+\])/.exec(mountSrc);
-    assert.ok(mm, 'LENSES array not found in fluid-core/src/mount.js');
-    const cLenses = (new Function('return (' + mm[1] + ')'))();
-    assert.deepStrictEqual(cLenses, wLenses, 'LENSES drift: fluid-core mount vs worker');
+    assert.ok(!/const LENSES = \[/.test(mountSrc),
+      'mount.js has grown its own LENSES array again — it must import the generated one, or ' +
+      'a new lens is a no-op in the library while the studio has it');
     /* the studio's picker: data-lens indices must be exactly 0..LENSES-1, contiguous */
     const idx = [];
     const re = /data-lens="(\d+)"/g;

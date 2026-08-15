@@ -7,7 +7,7 @@
  * [9,10], aspect [11]) don't affect a mounted piece and are not returned,
  * except `ar`, which callers may use to size their container.
  */
-import { PALETTES_RGB, FIELDS } from './generated/data.js';
+import { PALETTES_RGB, FIELDS, LENSES } from './generated/data.js';
 
 function unpackCol(v){
   v = Math.max(0, Math.round(v));
@@ -25,6 +25,10 @@ const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(v)));
    hardcoded 21 while the studio shipped 23 engines, so Topo (22) decoded as Cassini (21) in
    every embed and every parseShareHash caller. */
 const FIELD_MAX = FIELDS.length - 1;
+/* and the lenses, for the identical reason: this was a literal 12 while the studio shipped
+   a 14th lens, so `ground` decoded as `modular` — a different piece, silently, in every
+   embed that used it. */
+const LENS_MAX = LENSES.length - 1;
 
 /**
  * Parse a Fluid share hash (or a full share URL) into createFluid() params.
@@ -50,7 +54,7 @@ export function parseShareHash(hash){
     sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
     thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
     material: n.length > 28 ? clampInt(n[28], 0, 5) : 0,
-    lens: n.length > 29 ? clampInt(n[29], 0, 12) : 0,
+    lens: n.length > 29 ? clampInt(n[29], 0, LENS_MAX) : 0,
     lensAmt: n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1
   };
 
