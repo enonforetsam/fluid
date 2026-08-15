@@ -1413,6 +1413,16 @@
     background-image:none;
     border-right:1px solid var(--line);   /* the column edge, as a line rather than a gradient */
   }
+  /* Killing the shadow was not enough on its own: soft corners on tiles that carry a gradient
+     still read as moulded keys rather than swatches. Squared off, they read as samples of the
+     ramp — which is what they are. Written as a wildcard for the same reason as the block
+     above: the editor gains controls, and each new one should not have to remember this.
+     The picker dots are exempt by name — they are dots, and a square one is a bug. */
+  html .panel #colourMore, html[data-ptheme] .panel #colourMore,
+  html .panel #colourMore *:not(.svDot):not(.hueDot),
+  html[data-ptheme] .panel #colourMore *:not(.svDot):not(.hueDot){
+    border-radius:0;
+  }
   /* The one shadow left in the panel, and it is a 1px keyline with no blur and no offset — a
      ring drawn the only way a ring can be drawn on a round element, not a raised edge. The
      dot is a white circle on a field that includes white: without it, the picker vanishes
@@ -2355,11 +2365,15 @@ function rgb01ToHex(c){ function p(x){ var s = Math.max(0,Math.min(255,Math.roun
 function rgb01ToCss(c){ return 'rgb(' + Math.round(c[0]*255) + ',' + Math.round(c[1]*255) + ',' + Math.round(c[2]*255) + ')'; }
 function paletteAccent(pi){ return pi === 7 ? [0.82,0.84,0.86] : (pi === 8 ? state.cols[3] : ((PALETTES_RGB[pi] || PALETTES_RGB[0])[3])); }
 /* a BRIGHT gradient swatch for a palette button — the 3 vivid/light stops (skip the near-black
-   base) so the colours actually show instead of a dark noise-render preview. */
+   base) so the colours actually show instead of a dark noise-render preview.
+   90deg, not the 135deg diagonal this used to run: a gradient going dark-corner to light-corner
+   is how a lit surface is shaded, so on a rounded tile with a caption bar it read as a glossy
+   app icon rather than a sample of a ramp. Left-to-right also matches #rampBar directly above
+   the grid, which has always been 90deg — the tile is now the same object, smaller. */
 function paletteSwatch(pi){
   var s = pi === 7 ? [[0.16,0.17,0.20],[0.55,0.57,0.62],[0.78,0.80,0.84],[0.94,0.96,0.99]]
         : pi === 8 ? (state.cols || PALETTES_RGB[0]) : (PALETTES_RGB[pi] || PALETTES_RGB[0]);
-  return 'linear-gradient(135deg, ' + rgb01ToCss(s[1]) + ', ' + rgb01ToCss(s[2]) + ', ' + rgb01ToCss(s[3]) + ')';
+  return 'linear-gradient(90deg, ' + rgb01ToCss(s[1]) + ', ' + rgb01ToCss(s[2]) + ', ' + rgb01ToCss(s[3]) + ')';
 }
 
 /* ---------- state: every tunable value in one object; the numeric share hash is its serialization ---------- */
