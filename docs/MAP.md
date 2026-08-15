@@ -66,9 +66,8 @@ Zones, in file order:
 | Size section | the aspect fader, portrait through landscape | `---------- Size section:` |
 | Colours section | the palette strip plus the custom two, three or four stop swatches | `---------- Colours section:` |
 | colour editor markup | pick one stop and work it in HSB, RGB or hex | `---------- colour editor markup:` |
-| Field section | the engine strip, the speed/zoom/warp/grain knobs and symmetry | `---------- Field section:` |
-| Math section | the complex-plane lens strip and how far it bends | `---------- Math section:` |
-| Surface section | screen geometry, material finish and the halftone/dither knobs | `---------- Surface section:` |
+| Stack section | the layer tabs and the engine strip they select for | `---------- Stack section:` |
+| Look section | everything that applies to the whole piece, not to one layer | `---------- Look section:` |
 | Frame section | drop a screenshot onto the live art | `---------- Frame section:` |
 | Output section | share, embed, export target, format and clip length | `---------- Output section:` |
 | Text section | words or an uploaded logo filled with the living field | `---------- Text section:` |
@@ -172,5 +171,5 @@ Zones, in file order:
 
 ---
 
-124 sections. Anything unbannered is a gap in the map: add a banner in the
+123 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

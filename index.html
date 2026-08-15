@@ -1827,9 +1827,9 @@
     </div>
   </section>
 
-  <!-- ---------- Field section: the engine strip, the speed/zoom/warp/grain knobs and symmetry ---------- -->
+  <!-- ---------- Stack section: the layer tabs and the engine strip they select for ---------- -->
   <section>
-    <div class="sec-title">03 — Field</div>
+    <div class="sec-title">03 — Stack</div>
     <!-- One card for the whole stack. The tabs pick which layer the engine strip below is
          editing, so adding a layer opens a tab here rather than sending you to a separate
          section to do half the job. -->
@@ -1897,6 +1897,25 @@
         </div>
       </div>
     </div>
+    <div class="row gap">
+      <!-- same action as the canvas chip, so it carries the same word — it used to say
+           "Randomize" and read like a second, different thing -->
+      <button id="randBtn">Shuffle</button>
+      <!-- adding a layer is adding an engine, so it lives with the engine picker rather
+           than in Layers, which is for tuning the ones you already have -->
+      <button id="addLayerBtn" type="button">+ Add layer</button>
+    </div>
+  </section>
+
+  <!-- ---------- Look section: everything that applies to the whole piece, not to one layer ----------
+       Motion, space and surface were three top-level sections (Field's sliders, Math, Surface) that
+       between them read as peers of the engine picker — so with layers added it was unclear which
+       controls belonged to a layer and which to the piece. Only engine, blend and mix are per-layer;
+       every control in this card is a single shader uniform shared by all three engines. Grouping
+       them under one heading says that without a paragraph of explanation. ---------- -->
+  <section>
+    <div class="sec-title">04 — Look</div>
+    <div class="exGroupLabel">Motion &amp; space — the whole piece</div>
     <div class="knobgrid sliderGrid">
       <div class="knobctl">
         <div class="knob" data-for="speed" role="slider" aria-label="Speed"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
@@ -1924,19 +1943,7 @@
         <input id="sym" type="range" min="0" max="12" step="1" value="0">
       </div>
     </div>
-    <div class="row gap">
-      <!-- same action as the canvas chip, so it carries the same word — it used to say
-           "Randomize" and read like a second, different thing -->
-      <button id="randBtn">Shuffle</button>
-      <!-- adding a layer is adding an engine, so it lives with the engine picker rather
-           than in Layers, which is for tuning the ones you already have -->
-      <button id="addLayerBtn" type="button">+ Add layer</button>
-    </div>
-  </section>
-
-  <!-- ---------- Math section: the complex-plane lens strip and how far it bends ---------- -->
-  <section>
-    <div class="sec-title">Math — bend the space</div>
+    <div class="exGroupLabel">Lens — bend the space</div>
     <div class="striprow">
     <button id="mathPrev" class="stripBtn" aria-label="Scroll lenses left">&#8249;</button>
     <div class="fieldstrip" id="mathStrip">
@@ -1956,19 +1963,15 @@
     </div>
     <button id="mathNext" class="stripBtn" aria-label="Scroll lenses right">&#8250;</button>
     </div>
-    <div class="knobgrid">
+    <div class="knobgrid sliderGrid" style="grid-template-columns:1fr">
       <div class="knobctl">
         <div class="knob" data-for="lensAmt" role="slider" aria-label="Amount"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
         <div class="knoblabel">Amount <output id="lensAmtOut">1</output></div>
         <input id="lensAmt" type="range" min="0" max="1" step="0.01" value="1">
       </div>
     </div>
-  </section>
-
-  <!-- ---------- Surface section: screen geometry, material finish and the halftone/dither knobs ---------- -->
-  <section>
-    <div class="sec-title">04 — Surface</div>
-    <div class="knobgrid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="exGroupLabel">Surface</div>
+    <div class="knobgrid sliderGrid">
       <div class="knobctl">
         <div class="knob" data-for="pixel" role="slider" aria-label="Pixelate"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
         <div class="knoblabel">Pixelate <output id="pixelOut">6</output></div>
@@ -2013,8 +2016,11 @@
     </div>
   </section>
 
+
+
+
   <!-- ---------- Frame section: drop a screenshot onto the live art ---------- -->
-  <section>
+  <section data-collapsed>
     <div class="sec-title">Frame — a post on your art</div>
     <button id="frameUpload" type="button" class="primary" style="width:100%">Upload a screenshot</button>
     <input id="frameFile" type="file" accept="image/*">
@@ -2032,7 +2038,7 @@
   </section>
 
   <!-- ---------- Output section: share, embed, export target, format and clip length ---------- -->
-  <section>
+  <section data-collapsed>
     <div class="sec-title">05 — Output</div>
     <div class="exGroupLabel">Share</div>
     <div class="actiongrid" style="grid-template-columns:repeat(2,1fr)">
@@ -7861,8 +7867,8 @@ var SECTION_TIPS = {
   'your words in living colour': 'Type a word or brand name and the living field fills the letters. Pick a font and a background colour; clear (✕) to go back to full art. Kept on this device, and shared links carry it.',
   'Source': 'Optional. Melt a photo, the camera, or a built-in image into the field — its light shapes the pattern, the palette colours it. Liquify sets the melt, Photo blend the mix. Everything stays on your GPU; nothing uploads. Leave it closed for pure generative patterns.',
   'Size': 'The frame shape. Pick an aspect ratio for the export.',
-  'Field': 'The generative engine: Noise, Flow (fluid swirl), Cellular (Voronoi), Gyroid (woven bands), Truchet (maze/circuit), Interfere (moire rings), Kaleido (mandala), Lines (rotated bands), Grid (lattice) or Golden (phyllotaxis spiral) — with speed, zoom, warp, grain and Randomize.',
-  'Surface': 'How the field is screened: Square / Hex / ASCII / Dither pixel geometry, plus optional halftone dots. Dither is a Bayer 2-tone — use Threshold to set its dot density.',
+  'Stack': 'The engines. A tab per layer, and the strip picks the engine for whichever tab is open — so Layer 2 selected means you are choosing Layer 2\u2019s engine. Blend and Mix say how that layer composites onto everything under it; the base has nothing under it, so it has neither.',
+  'Look': 'Everything that applies to the whole piece rather than to one layer: motion and space, the math lens that bends the plane, and the surface it is screened through. All of these are shared by every engine in the stack.',
   'Colours': 'Eight designer palettes, Chrome (a procedural metal), or Custom — pick your own four gradient stops (dark to light). Custom colours travel in the share link and embeds.',
   'Output': 'One place for the finished asset: copy links or embeds, export an image, or record a clip. Format cycles PNG / WebP / JPG; More sizes opens wallpaper, social, OG and icon presets.'
 };
