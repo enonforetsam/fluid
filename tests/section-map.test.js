@@ -63,7 +63,6 @@ const SECTIONS = [
   'Stack section',
   'Look section',
   'Output section',
-  'Text section',
   /* js: data tables and state */
   'studio script',
   'export targets',
@@ -136,6 +135,7 @@ const SECTIONS = [
   'saved shelf',
   'undo keys',
   'embed popover',
+  'text dock',
   'frame dock',
   'cursor-effect dock',
   'claude payload',

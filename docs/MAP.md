@@ -69,7 +69,6 @@ Zones, in file order:
 | Stack section | the layer tabs and the engine strip they select for | `---------- Stack section:` |
 | Look section | everything that applies to the whole piece, not to one layer | `---------- Look section:` |
 | Output section | share, embed, export target, format and clip length | `---------- Output section:` |
-| Text section | words or an uploaded logo filled with the living field | `---------- Text section:` |
 
 ## JavaScript
 
@@ -132,6 +131,7 @@ Zones, in file order:
 | saved shelf | your own keeps, in the same strip as the curated ones | `---------- saved shelf:` |
 | undo keys | the shortcut people try before they look for a button | `---------- undo keys:` |
 | embed popover | the Use-on-your-site sheet, offering a snippet, standalone HTML, SwiftUI and a Claude prompt | `---------- embed popover:` |
+| text dock | the word/logo mark, on the canvas bar with the other garnishes | `---------- text dock:` |
 | frame dock | the screenshot garnish, on the canvas bar rather than in the panel | `---------- frame dock:` |
 | cursor-effect dock | the cursor picker lives on the canvas bar, next to Save | `---------- cursor-effect dock:` |
 | claude payload | a self-describing block Claude can read, with or without the MCP | `---------- claude payload:` |

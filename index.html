@@ -266,14 +266,14 @@
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
   #embedDock.open{display:block}
-  #frameDock{
+  #frameDock,#textDock{
     position:absolute;right:0;top:34px;z-index:8;
     width:min(340px,100%);display:none;
     color:var(--ink);background:var(--panel-metal);
     border:1px solid var(--line);border-radius:8px;
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
-  #frameDock.open{display:block}
+  #frameDock.open,#textDock.open{display:block}
   .frameBody{padding:12px}
   #cursorDock{
     position:absolute;right:0;top:34px;z-index:8;
@@ -1016,7 +1016,7 @@
     .stageInner{width:100%}
     #canvasChips{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));min-width:min(100%, 264px);margin:0 auto}
     #designDock{position:fixed;left:12px;right:12px;top:54px;width:auto;max-height:calc(50vh - 66px)}
-    #cursorDock,#frameDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
+    #cursorDock,#frameDock,#textDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
     .designList{max-height:calc(50vh - 128px)}
     .card{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));margin:0 auto}
     /* drag bar at the top of the controls sheet — drag up/down to resize the artwork */
@@ -1553,6 +1553,40 @@
     <label class="cnote" style="display:flex;align-items:center;gap:6px;margin-top:10px;cursor:pointer"><input id="frameShadow" type="checkbox" checked> Drop shadow</label>
     <button id="frameClear" type="button" style="width:100%;margin-top:10px">Clear screenshot</button>
     <p class="cnote" style="margin:8px 0 0">Your post floats on the live art. Now hit <b>Export image</b> or the <b>&#9679; Record</b> button — they capture the framed post (MP4, ready for X). 100% on your device.</p>
+          </div>
+        </div>
+        <!-- Text and logo is a mark you put ON a finished piece, the same kind of thing as
+             Frame, so it sits on the canvas bar rather than taking a section in the panel. -->
+        <button id="textChip" class="chipIcon" title="Text &amp; logo — your mark in living colour" aria-label="Text and logo" aria-expanded="false" aria-controls="textDock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6V4h16v2"></path><path d="M12 4v16"></path><path d="M9 20h6"></path></svg>
+        </button>
+        <div id="textDock" role="dialog" aria-label="Text and logo">
+          <div class="designDockHead">
+            <div class="designDockTitle">Text &amp; logo &mdash; your mark in living colour</div>
+            <button id="closeText" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div class="frameBody">
+    <div class="row gap" style="align-items:center">
+      <input id="textInput" class="textfield" style="flex:1;min-width:0" type="text" maxlength="48" placeholder="Type a word or name…" aria-label="Text to fill with the pattern" autocomplete="off" spellcheck="false">
+      <button id="textClear" type="button" class="textclear" title="Remove text — back to full art" aria-label="Remove text">&times;</button>
+    </div>
+    <div id="fontGrid" class="fontgrid" role="group" aria-label="Font"></div>
+    <div class="row gap" style="margin-top:10px;align-items:center">
+      <span class="exGroupLabel" style="margin:0 2px 0 0">Logo</span>
+      <button type="button" id="logoBtn">Upload a logo…</button>
+      <span id="logoName" class="cnote" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:9em"></span>
+      <button id="logoClear" type="button" class="textclear" title="Remove logo — back to full art" aria-label="Remove logo" style="display:none">&times;</button>
+      <input id="logoFile" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden>
+    </div>
+    <p class="cnote" style="margin:8px 0 0">Fills your words or logo with the living pattern — clear to turn off. Transparent PNG/SVG logos work best.</p>
+    <div class="row gap" style="margin-top:10px;align-items:center">
+      <span class="exGroupLabel" style="margin:0 2px 0 0">Background</span>
+      <input class="swatch" id="maskBgInput" type="color" value="#0d0d10" aria-label="Background colour (top of the gradient)">
+      <input class="swatch" id="maskBg2Input" type="color" value="#2a2a44" aria-label="Background gradient second colour (bottom)" style="display:none">
+      <button type="button" id="maskBgDark" aria-pressed="true">Dark</button>
+      <button type="button" id="maskBgLight" aria-pressed="false">Light</button>
+      <button type="button" id="maskBgGradBtn" aria-pressed="false" title="Background becomes a top-to-bottom gradient between the two colours">Gradient</button>
+    </div>
           </div>
         </div>
         <button id="cursorChip" class="chipIcon" title="Cursor effect" aria-label="Cursor effect" aria-expanded="false" aria-controls="cursorDock">
@@ -2103,31 +2137,6 @@
     </details>
   </section>
 
-  <!-- ---------- Text section: words or an uploaded logo filled with the living field ---------- -->
-  <section data-collapsed>
-    <div class="sec-title">Text &amp; logo — your mark in living colour</div>
-    <div class="row gap" style="align-items:center">
-      <input id="textInput" class="textfield" style="flex:1;min-width:0" type="text" maxlength="48" placeholder="Type a word or name…" aria-label="Text to fill with the pattern" autocomplete="off" spellcheck="false">
-      <button id="textClear" type="button" class="textclear" title="Remove text — back to full art" aria-label="Remove text">&times;</button>
-    </div>
-    <div id="fontGrid" class="fontgrid" role="group" aria-label="Font"></div>
-    <div class="row gap" style="margin-top:10px;align-items:center">
-      <span class="exGroupLabel" style="margin:0 2px 0 0">Logo</span>
-      <button type="button" id="logoBtn">Upload a logo…</button>
-      <span id="logoName" class="cnote" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:9em"></span>
-      <button id="logoClear" type="button" class="textclear" title="Remove logo — back to full art" aria-label="Remove logo" style="display:none">&times;</button>
-      <input id="logoFile" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden>
-    </div>
-    <p class="cnote" style="margin:8px 0 0">Fills your words or logo with the living pattern — clear to turn off. Transparent PNG/SVG logos work best.</p>
-    <div class="row gap" style="margin-top:10px;align-items:center">
-      <span class="exGroupLabel" style="margin:0 2px 0 0">Background</span>
-      <input class="swatch" id="maskBgInput" type="color" value="#0d0d10" aria-label="Background colour (top of the gradient)">
-      <input class="swatch" id="maskBg2Input" type="color" value="#2a2a44" aria-label="Background gradient second colour (bottom)" style="display:none">
-      <button type="button" id="maskBgDark" aria-pressed="true">Dark</button>
-      <button type="button" id="maskBgLight" aria-pressed="false">Light</button>
-      <button type="button" id="maskBgGradBtn" aria-pressed="false" title="Background becomes a top-to-bottom gradient between the two colours">Gradient</button>
-    </div>
-  </section>
 
   <footer>Free forever — all computation happens on your device.
     <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
@@ -6434,7 +6443,7 @@ function updateDesignCount(){
 }
 function setDesignDock(open){
   if (!designDock){ return; }
-  if (open){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); renderDesignList(); }   /* one dock at a time — Save sits next to the cursor chip */
+  if (open){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); setTextDock(false); renderDesignList(); }   /* one dock at a time — Save sits next to the cursor chip */
   designDock.className = open ? 'open' : '';
   designsChip.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
@@ -6537,7 +6546,7 @@ function deleteSavedDesign(id){
   setStatus('DESIGN REMOVED — local saves updated');
 }
 saveChip.addEventListener('click', saveCurrentDesign);
-designsChip.addEventListener('click', function(){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); setDesignDock(designDock.className !== 'open'); });
+designsChip.addEventListener('click', function(){ setEmbedDock(false); setCursorDock(false); setFrameDock(false); setTextDock(false); setDesignDock(designDock.className !== 'open'); });
 document.getElementById('closeDesigns').addEventListener('click', function(){ setDesignDock(false); });
 designList.addEventListener('click', function(e){
   var del = closestDesignAttr(e.target, 'data-delete-design');
@@ -6822,7 +6831,7 @@ function renderEmbed(){
 }
 function setEmbedDock(open){
   if (!embedDock){ return; }
-  if (open){ setDesignDock(false); setCursorDock(false); setFrameDock(false); renderEmbed(); }   /* only one dock open at a time */
+  if (open){ setDesignDock(false); setCursorDock(false); setFrameDock(false); setTextDock(false); renderEmbed(); }   /* only one dock open at a time */
   embedDock.className = open ? 'open' : '';
   if (embedChip){ embedChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
 }
@@ -6847,6 +6856,24 @@ if (embedChip && embedDock){
     setEmbedDock(false);
   });
 }
+/* ---------- text dock: the word/logo mark, on the canvas bar with the other garnishes ---------- */
+var textChip = document.getElementById('textChip'), textDock = document.getElementById('textDock');
+function setTextDock(open){
+  if (!textDock){ return; }
+  if (open){ setDesignDock(false); setEmbedDock(false); setCursorDock(false); setFrameDock(false); }
+  textDock.className = open ? 'open' : '';
+  if (textChip){ textChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+}
+if (textChip && textDock){
+  textChip.addEventListener('click', function(){ setTextDock(textDock.className !== 'open'); });
+  document.getElementById('closeText').addEventListener('click', function(){ setTextDock(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setTextDock(false); } });
+  document.addEventListener('pointerdown', function(e){
+    if (textDock.className !== 'open'){ return; }
+    if (textDock.contains(e.target) || textChip.contains(e.target)){ return; }
+    setTextDock(false);
+  });
+}
 /* ---------- frame dock: the screenshot garnish, on the canvas bar rather than in the panel ----------
    Framing a post is something you do to a finished piece, not part of designing one, so a
    332px panel section for it sat between controls people reach for constantly. It keeps every
@@ -6854,7 +6881,7 @@ if (embedChip && embedDock){
 var frameChip = document.getElementById('frameChip'), frameDock = document.getElementById('frameDock');
 function setFrameDock(open){
   if (!frameDock){ return; }
-  if (open){ setDesignDock(false); setEmbedDock(false); setCursorDock(false); }
+  if (open){ setDesignDock(false); setEmbedDock(false); setCursorDock(false); setTextDock(false); }
   frameDock.className = open ? 'open' : '';
   if (frameChip){ frameChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
 }
@@ -6872,7 +6899,7 @@ if (frameChip && frameDock){
 var cursorChip = document.getElementById('cursorChip'), cursorDock = document.getElementById('cursorDock');
 function setCursorDock(open){
   if (!cursorDock){ return; }
-  if (open){ setDesignDock(false); setEmbedDock(false); setFrameDock(false); }
+  if (open){ setDesignDock(false); setEmbedDock(false); setFrameDock(false); setTextDock(false); }
   cursorDock.className = open ? 'open' : '';
   if (cursorChip){ cursorChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   /* the strip was measured while hidden — let it re-sync its arrows now it has a width */
