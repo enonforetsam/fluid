@@ -1,7 +1,7 @@
 /* GENERATED from index.html by fluid-core/build.mjs — DO NOT EDIT.
    Regenerate with: node fluid-core/build.mjs */
 /* engine slugs by index — index = the #p= hash field id */
-export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo"];
+export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo","eddy"];
 export const SCREENS = ["square","hex","ascii","dither","glitch"];
 /* material finishes — share-hash slot [28] */
 export const FINISHES = ["none","glass","metal","sand","liquid","molten"];

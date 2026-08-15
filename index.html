@@ -2032,6 +2032,7 @@
       <button class="fieldBtn" data-field="20" title="Chladni" aria-label="Chladni" aria-pressed="false"><span>Chladni</span></button>
       <button class="fieldBtn" data-field="21" title="Cassini" aria-label="Cassini" aria-pressed="false"><span>Cassini</span></button>
       <button class="fieldBtn" data-field="22" title="Topo" aria-label="Topo" aria-pressed="false"><span>Topo</span></button>
+      <button class="fieldBtn" data-field="23" title="Eddy" aria-label="Eddy" aria-pressed="false"><span>Eddy</span></button>
     </div>
     <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
     </div>
@@ -2889,6 +2890,43 @@ var FSRC = [
   '  line *= 1.0 - smoothstep(0.22, 0.5, w);',
   '  return clamp(line * (0.30 + 0.70 * clamp(e, 0.0, 1.0)), 0.0, 1.0);',
   '}',
+  '/* ln(cosh y - cos x), written so it cannot overflow. cosh y = e^|y| (1 + e^-2|y|) / 2, so',
+  '   the log splits into |y| - ln2 plus a bounded remainder; exp(|y|) on its own leaves float',
+  '   range near |y| = 88, which zoom reaches. The remainder is (e^-|y| - cos x)^2 + sin^2 x,',
+  '   which is zero only at a vortex core — that surviving log singularity is the eye of the',
+  '   eddy, so it is floored rather than removed. */',
+  'float lnCoshCos(float y, float cx){',
+  '  float ay = abs(y);',
+  '  float e = exp(-ay);',
+  '  return ay - 0.6931472 + log(max(1.0 + e * e - 2.0 * cx * e, 1e-5));',
+  '}',
+  '/* eddy engine (23): a von Karman vortex street — the staggered double row of counter-',
+  '   rotating vortices that sheds behind a cylinder between Reynolds ~40 and ~1000, which is',
+  '   the pattern in every photograph of flow past a bluff body. Not a noise trick dressed up:',
+  '   this is the exact stream function of an infinite row of point vortices,',
+  '     psi = (G / 4pi) ln[ cosh(2pi(y - y0) / a) - cos(2pi(x - x0) / a) ],',
+  '   evaluated for an upper row and subtracted for a lower one carrying opposite circulation.',
+  '   The lower row sits HALF A WAVELENGTH downstream, and that offset is the whole street: in',
+  '   phase the rows pair up and the wake stops staggering entirely. Row separation is held at',
+  '   h/a = 0.281, the von Karman stability ratio — the one spacing at which the street does',
+  '   not tear itself apart. The pattern convects downstream in t. Warp = circulation, so the',
+  '   eddies roll tighter and the cores bite deeper while the wavelength stays put. */',
+  'float fieldEddy(vec2 p, float t){',
+  '  float a = 1.15;                                  /* wavelength: gap between same-row cores */',
+  '  float k = 6.2831853 / a;',
+  '  float h = 0.281 * a;                             /* von Karman stability ratio */',
+  '  float x = p.x - t * 0.55;                        /* the street convects downstream */',
+  '  float g = 0.20 + u_warp * 0.085;                 /* circulation */',
+  '  float up = lnCoshCos((p.y - h) * k, cos(x * k));',
+  '  float lo = lnCoshCos((p.y + h) * k, cos((x - a * 0.5) * k));',
+  '  float psi = g * (up - lo);',
+  '  /* the far field saturates to a constant either side of the street, so a soft sign reads',
+  '     as the two dye streams of the photograph: one lobe per row, tight eyes at the cores */',
+  '  float s = psi * 2.6;',
+  '  float lobes = 0.5 + 0.5 * (s / (1.0 + abs(s)));',
+  '  float lines = 0.5 + 0.5 * cos(psi * 6.0);        /* closed streamlines: the roll-up itself */',
+  '  return clamp(mix(lobes, lines, 0.28), 0.0, 1.0);',
+  '}',
   '',
   /* ---------- glsl dispatch: the Bayer table, fieldOf by index, and the layer blend modes ---------- */
   '/* ordered (Bayer) dither thresholds, recursive 2x2 -> 4x4 -> 8x8, WebGL1-safe */',
@@ -2923,6 +2961,7 @@ var FSRC = [
   '  else if (eng == 20){ return fieldChladni(p, t); }',
   '  else if (eng == 21){ return fieldCassini(p, t); }',
   '  else if (eng == 22){ return fieldTopo(p, t); }',
+  '  else if (eng == 23){ return fieldEddy(p, t); }',
   '  vec2 m1 = vec2(d1, d2);',
   '  vec2 m2 = vec2(d2, -d1);',
   '  vec2 q = vec2(fbm(p + m1 * 0.5), fbm(p + vec2(5.2, 1.3) + m2 * 0.5));',
@@ -4162,7 +4201,7 @@ var blend2Sel = document.getElementById('blend2Sel');
    run in a sandbox by tests/hash, with no DOM — so this is a literal rather than a count of
    the picker. tests/hash pins it to the markup, so adding a 24th engine fails loudly here
    instead of silently clamping the new engine out of every share link. */
-var FIELD_MAX = 22;
+var FIELD_MAX = 23;
 var FIELD_BTNS = document.querySelectorAll('.fieldBtn[data-field]');
 /* one binder for both layers — two hand-written pairs is how they drift apart */
 function bindLayerSelect(sel, key){
@@ -5193,7 +5232,8 @@ var FIELD_STATUS = [
   'PURSUIT FIELD — whirling polygons, a nested spiral chase',
   'CHLADNI FIELD — vibrating-plate nodal figures; warp sets mode order',
   'CASSINI FIELD — lemniscate ovals, equipotential contours',
-  'TOPO FIELD — elevation contours of a drifting landmass; warp = ruggedness'
+  'TOPO FIELD — elevation contours of a drifting landmass; warp = ruggedness',
+  'EDDY FIELD — von Karman vortex street; warp = circulation'
 ];
 /* The picker edits whichever layer's tab is open, not always the base — one engine strip
    serving all three, because three copies of 23 tiles would be three sets of thumbnails to
@@ -5718,7 +5758,8 @@ var FIELD_TUNE = [
   [0.7, 1.7, 1.5, 7.0],  /* pursuit */
   [0.8, 2.0, 1.5, 9.0],  /* chladni — warp = eigenmode order */
   [0.8, 1.8, 2.5, 9.0],  /* cassini — warp = contour density */
-  [0.9, 2.2, 2.0, 7.0]   /* topo — warp = domain-warp ruggedness */
+  [0.9, 2.2, 2.0, 7.0],  /* topo — warp = domain-warp ruggedness */
+  [0.7, 1.6, 2.0, 8.0]   /* eddy — low zoom keeps several sheddings in frame; warp = circulation */
 ];
 /* #3 procedural palette: a harmonious dark->light 4-stop ramp around a random hue (analogous
    or complementary), so the shuffle occasionally invents a colourway instead of a preset. */

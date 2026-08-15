@@ -339,7 +339,12 @@ function withEmbedFlag(nums, on){
    Bump this only in the same change as the matching `npm publish` — a range that resolves to
    nothing 404s every embed snippet this string appears in. Mirrored in README.md.
    0.3 is the first release with all 23 engines, the math lenses and the third layer; 0.2
-   silently rendered Topo as Cassini. */
+   silently rendered Topo as Cassini.
+   AHEAD OF THE PIN: the studio now ships 24 engines — eddy (23) landed after 0.3.0 was
+   published. fluid-core clamps unknown engine ids down to its own highest, so until the
+   packages are republished a share link using eddy renders as topo through the CDN embed,
+   the same silent substitution 0.2 made. The studio and the iframe embed are unaffected;
+   they run this deploy's shader. Publish, then bump this pin in the same change. */
 var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.3';
 
 function embedCode(input, base){
@@ -482,7 +487,7 @@ var TOOLS = [
       type: 'object',
       properties: {
         look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated starting point' },
-        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours), topo (topographic contour map — elevation isolines of a drifting landmass)' },
+        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours), topo (topographic contour map — elevation isolines of a drifting landmass), eddy (von Karman vortex street — the staggered counter-rotating eddies shed behind a cylinder)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
         finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks)' },
         lens: { type: 'string', enum: LENSES, description: 'math lens — a named transform of the complex plane the engine is sampled through: square (conformal z^2), invert (circle inversion 1/z), mobius (disk automorphism, orbiting pole), droste (log-polar Escher spiral), hyperbolic (Poincare rim compression), julia (z^2+c orbit sampling), cube (conformal z^3), exp (e^z strip-to-fan), sine (sin z mirror lattice), joukowski (z + 1/z airfoil map), newton (Newton-fractal basins of z^3=1), modular (SL(2,Z) fundamental-domain fold)' },

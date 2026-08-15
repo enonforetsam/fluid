@@ -25,9 +25,10 @@ test('fluid-core generated files match the studio (no drift)', async () => {
 
 test('fluid-core registry shape', async () => {
   const data = await import('../fluid-core/src/generated/data.js');
-  assert.strictEqual(data.FIELDS.length, 23, 'expected 23 field engines');
+  assert.strictEqual(data.FIELDS.length, 24, 'expected 24 field engines');
   assert.strictEqual(data.FIELDS[0], 'noise');
   assert.strictEqual(data.FIELDS[21], 'cassini');
+  assert.strictEqual(data.FIELDS[23], 'eddy');
   assert.strictEqual(data.FIELD_TUNE.length, data.FIELDS.length, 'FIELD_TUNE covers every engine');
   assert.strictEqual(data.PALETTES.length, 8, 'expected 8 palette slugs (7 rgb + chrome)');
   assert.strictEqual(data.PALETTES_RGB.length, 7, 'chrome is procedural, so 7 stop sets');

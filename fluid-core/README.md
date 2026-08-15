@@ -90,6 +90,6 @@ Instance API: `set(params)`, `play()`, `pause()`, `seed`, `toDataURL()`,
 
 ## Scope
 
-Pure field pieces: all 23 engines, up to three stacked layers, screens, materials, math lenses,
+Pure field pieces: all 24 engines, up to three stacked layers, screens, materials, math lenses,
 kaleidoscope symmetry, palettes + custom gradients. Studio-only features (image melt, text
 masks, cursor effects, recording) intentionally stay in the studio.
