@@ -54,6 +54,7 @@ Zones, in file order:
 | per-theme materials | each theme builds its own keys and knobs on top of the shared flat base above | `---------- per-theme materials:` |
 | per-theme dial rings, pucks and the aspect slider | the two remaining chrome parts | `---------- per-theme dial rings, pucks and the aspect slider:` |
 | flat sidebar | one override that ends the chrome, for every theme | `---------- flat sidebar:` |
+| flat canvas chrome | the chip bar and the docks, matching the sidebar | `---------- flat canvas chrome:` |
 
 ## Markup
 
@@ -171,5 +172,5 @@ Zones, in file order:
 
 ---
 
-123 sections. Anything unbannered is a gap in the map: add a banner in the
+124 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

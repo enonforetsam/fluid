@@ -1418,6 +1418,42 @@
   html .panel #panelHandle, html[data-ptheme] .panel #panelHandle{
     background-image:none;background-color:var(--p-btn, rgba(0,0,0,.05));
   }
+
+  /* ---------- flat canvas chrome: the chip bar and the docks, matching the sidebar ----------
+     The flat block above is scoped to .panel, so everything on the stage kept the brushed
+     base: .chipIcon clears the gradient with a background shorthand but never resets the
+     inset highlights, which is the whole of the raised look on those icons.
+     The DOCK PANELS keep their drop shadow — like the colour editor, they float over the
+     artwork and that shadow is separation, not decoration. Only their controls flatten.
+     #refreshChip.asking is exempt: its first-run pulse IS a box-shadow, and !important beats
+     a keyframe, so including it here would silently kill the animation. */
+  #canvasChips button:not(.asking), #canvasChips .filebtn,
+  #designDock button, #cursorDock button, #embedDock button,
+  #frameDock button, #textDock button,
+  #designDock input, #frameDock input, #textDock input, #embedDock textarea{
+    box-shadow:none !important;
+    text-shadow:none !important;
+    background-image:none !important;
+  }
+  #canvasChips button:active, #designDock button:active, #cursorDock button:active,
+  #embedDock button:active, #frameDock button:active, #textDock button:active{
+    transform:none;                       /* the nudge was part of the same 3D illusion */
+  }
+  /* dock controls need a fill of their own now the gradient is gone */
+  #designDock button:not(.fieldBtn):not(.primary), #cursorDock button:not(.fieldBtn),
+  #embedDock button:not(.fieldBtn):not(.primary), #frameDock button:not(.fieldBtn):not(.primary),
+  #textDock button:not(.fieldBtn):not(.primary){
+    background-color:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--ink);
+  }
+  #designDock button:not(.fieldBtn):hover, #cursorDock button:not(.fieldBtn):hover,
+  #embedDock button:not(.fieldBtn):hover, #frameDock button:not(.fieldBtn):hover,
+  #textDock button:not(.fieldBtn):hover{ background-color:rgba(255,255,255,.14) }
+  #frameDock button.primary, #textDock button.primary, #designDock button.primary{
+    background-color:var(--ink);color:var(--ink-c);border:1px solid var(--ink);
+  }
+  /* the cursor picker's active tile drew its ring with a shadow, same as the panel's tiles */
+  #cursorDock .fieldBtn.on{ outline:2px solid var(--ink);outline-offset:-2px;border-color:var(--ink) }
+  #cursorDock .fieldBtn:hover{ transform:none;border-color:var(--ink) }
   /* the raised/pressed states were shadow changes, so they need something else to say
      "on" — a fill and a border, which read the same flat.
      .primary is excluded, not restyled: it carries its own dark fill AND its own light text,
