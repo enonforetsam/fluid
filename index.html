@@ -1413,16 +1413,6 @@
     background-image:none;
     border-right:1px solid var(--line);   /* the column edge, as a line rather than a gradient */
   }
-  /* Killing the shadow was not enough on its own: soft corners on tiles that carry a gradient
-     still read as moulded keys rather than swatches. Squared off, they read as samples of the
-     ramp — which is what they are. Written as a wildcard for the same reason as the block
-     above: the editor gains controls, and each new one should not have to remember this.
-     The picker dots are exempt by name — they are dots, and a square one is a bug. */
-  html .panel #colourMore, html[data-ptheme] .panel #colourMore,
-  html .panel #colourMore *:not(.svDot):not(.hueDot),
-  html[data-ptheme] .panel #colourMore *:not(.svDot):not(.hueDot){
-    border-radius:0;
-  }
   /* The one shadow left in the panel, and it is a 1px keyline with no blur and no offset — a
      ring drawn the only way a ring can be drawn on a round element, not a raised edge. The
      dot is a white circle on a field that includes white: without it, the picker vanishes
@@ -1540,6 +1530,18 @@
      saying which one is on. */
   html .panel .fieldBtn.on, html[data-ptheme] .panel .fieldBtn.on{
     border-color:var(--ink);outline:2px solid var(--ink);outline-offset:-2px;
+  }
+  /* The engine strip and the palette grid are the same tile, and they came out wearing
+     opposite edges: --line resolves light in the dark dock and dark in the light panel, so
+     the strip got a soft rim riding its own artwork while the palette grid got a box drawn
+     around it. The rim is the better of the two — it belongs to the tile rather than framing
+     it — so the grid takes it. Written as white-at-low-alpha rather than borrowing the dock's
+     literal colour, so the five panel themes all keep a rim instead of one hard-coded grey.
+     Idle only: the SELECTED ring stays --ink, because a light ring on a light panel is not
+     a ring, and that ring is the only thing saying which palette you are on. */
+  html .panel #palStrip .fieldBtn:not(.on),
+  html[data-ptheme] .panel #palStrip .fieldBtn:not(.on){
+    border-color:rgba(255,255,255,.14);
   }
   html .panel .themeDot.on, html[data-ptheme] .panel .themeDot.on{
     outline:2px solid var(--ink);outline-offset:2px;
