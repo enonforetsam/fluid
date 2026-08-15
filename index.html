@@ -593,8 +593,12 @@
     width:min(340px, calc(100vw - 24px));
     max-height:min(78vh, 760px);display:flex;flex-direction:column;
     color:var(--ink);background:var(--panel-metal);
-    border:1px solid var(--line);border-radius:10px;
-    box-shadow:0 22px 54px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+    /* Flat like the rest, which means the drop shadow that used to lift it off the artwork is
+       gone — so the edge has to do that job alone. A full-strength --ink border rather than the
+       hairline --line every other box uses: this one is the only element that floats over
+       unknown content, and a 16%-opacity edge over a busy pattern is not an edge. --ink is
+       defined per theme against the panel fill, so it always shows against the dialog. */
+    border:1px solid var(--ink);border-radius:10px;
   }
   #colourMore[hidden]{display:none}
   .cmHead{
@@ -1393,9 +1397,10 @@
      beating the theme selectors, and stating the rule once: inside the sidebar, nothing
      casts. Depth is carried by borders and fills alone.
 
-     Deliberately NOT flattened: the floating colour editor, which sits over the artwork
-     rather than in the sidebar. Its shadow is what separates it from a busy canvas
-     underneath — that is load-bearing, not decoration. */
+     The floating colour editor was exempted at first, on the reasoning that its shadow was
+     separation rather than decoration. It reads as the one raised object left in a flat
+     studio, so it now takes the same rule as everything else and carries its own edge in
+     the border instead. */
   /* One wildcard, with !important, rather than editing 91 scattered declarations across a
      base and five themes: each would have to be found, and the next theme added would
      reintroduce them. This says the rule once and it cannot be undone by accident. */
@@ -1408,15 +1413,11 @@
     background-image:none;
     border-right:1px solid var(--line);   /* the column edge, as a line rather than a gradient */
   }
-  /* The exemption this block claims for the floating editor has to be written, not just
-     stated: #colourMore is a DOM descendant of .panel, so the wildcard above reached it and
-     took the very shadow the comment says is load-bearing. Both shadows here are separation,
-     not decoration — the dialog from whatever it floats over, and the picker dot from the
-     pad. Without the dot's keyline it is a white ring on white, invisible across the entire
-     light-and-desaturated quadrant, which is the one place you most need to see it. */
-  html .panel #colourMore, html[data-ptheme] .panel #colourMore{
-    box-shadow:0 22px 54px rgba(0,0,0,.5) !important;
-  }
+  /* The one shadow left in the panel, and it is a 1px keyline with no blur and no offset — a
+     ring drawn the only way a ring can be drawn on a round element, not a raised edge. The
+     dot is a white circle on a field that includes white: without it, the picker vanishes
+     across the whole light-and-desaturated quadrant, which is the one place you most need
+     to see where you are. */
   html .panel .svDot, html .panel .hueDot,
   html[data-ptheme] .panel .svDot, html[data-ptheme] .panel .hueDot{
     box-shadow:0 0 0 1px rgba(0,0,0,.55) !important;
