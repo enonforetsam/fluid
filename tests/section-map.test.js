@@ -154,6 +154,7 @@ const SECTIONS = [
   'format',
   /* js: panel behaviour, vibe, boot, thumbnails */
   'info tooltips',
+  'working section',
   'section collapse',
   'refresh palette',
   'Vibe (Pro · bring-your-own-key)',
