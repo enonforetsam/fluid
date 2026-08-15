@@ -184,7 +184,7 @@
     color:var(--ink-c);background:var(--ink);border:1px solid var(--ink);
     border-radius:8px;padding:6px 12px;cursor:pointer;
   }
-  #refreshChip:hover{opacity:.85}
+  #refreshChip:hover{opacity:1;background:var(--ink-c);color:var(--ink);border-color:var(--ink)}
   #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #refreshChip:active .ricon{transform:rotate(180deg)}
   /* The chip is the one control that makes something happen with no decisions first, so it
@@ -206,7 +206,11 @@
     border-radius:8px;cursor:pointer;position:relative;
     display:inline-flex;align-items:center;justify-content:center;
   }
-  .chipIcon:hover{opacity:.78}
+  /* Invert on hover rather than fade. Dimming a light icon on a dark bar reads as blank or
+     disabled — the opposite of "this is live". Filled with --ink and the glyph switched to
+     --ink-c, it matches what the saved indicator already does when it is on. */
+  .chipIcon:hover{opacity:1;background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+  .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
   .chipIcon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   #saveChip.saved{color:var(--ink-c);background:var(--ink);border-color:var(--ink)}
   .chipCount{
@@ -222,12 +226,14 @@
     color:var(--ink);background:transparent;border:0;border-radius:0;padding:6px 12px;cursor:pointer;
   }
   .modeOpt + .modeOpt{border-left:1px solid var(--ink)}
+  .modeOpt:not(.on):hover{background:rgba(232,232,228,.18)}
   .modeOpt.on,.modeOpt.on:active{background:var(--ink);color:var(--ink-c);font-weight:700}
   #recChip{
     font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);background:transparent;border:1px solid var(--ink);
     border-radius:8px;padding:6px 10px;cursor:pointer;
   }
+  #recChip:hover{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
   #recChip .dot{color:#c2160a}
   #recChipText:not(:empty){margin-left:5px}   /* gap shows only when the rec timer is on */
   /* ---------- before/after overlay: the draggable split that reveals the untouched source ---------- */
