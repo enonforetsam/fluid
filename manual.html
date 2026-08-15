@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLUID — MANUAL</title>
-<meta name="description" content="The complete manual: looks, field controls, surface, sources, camera melt, before/after, recording, exports, share links, embeds.">
+<meta name="description" content="The complete manual: layers, engines, lenses, the colour editor, surface, sources, exports, clips, share links, embeds and the daily seed.">
 <meta name="theme-color" content="#d8d8d5">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <script src="assets/fluid-favicon.js" defer></script>
@@ -38,21 +38,55 @@
 <body>
 <div class="wrap">
   <h1>Fluid — Manual</h1>
-  <div class="tag">Everything the instrument does — two minutes to read, free forever, nothing leaves your device</div>
+  <div class="tag">Everything the instrument does — five minutes to read, free forever, nothing leaves your device</div>
 
   <section>
     <div class="sec-title">What it is</div>
-    <p>A generative art instrument. A domain-warped noise field is colored through thermal-optics
-    palettes, quantized into pixels, screened with halftone dots, finished with grain. Load a photo
-    and its luminance drives the structure while the palette drives the color — anything melts into
-    glowing chromatic imagery. Everything renders live on your GPU; there is no server, no account,
-    no upload.</p>
-    <p class="soft">You land on a random built-in image, already melted. Tap the canvas to reseed,
-    pick a look, or load your own photo.</p>
+    <p>A generative art instrument. Up to three stacked fields — chosen from twenty-three engines —
+    are bent through a lens, coloured through a gradient you control, quantized into pixels, screened
+    with halftone dots and finished with grain. Load a photo and its luminance drives the structure
+    while the palette drives the colour, so anything melts into glowing chromatic imagery. Everything
+    renders live on your GPU; there is no server, no account, no upload.</p>
+    <p class="soft">You land on a fresh piece every visit, with your last design kept. Tap the canvas
+    to reseed, hit SHUFFLE for a new one, or load your own photo.</p>
   </section>
 
   <section>
-    <div class="sec-title">01 — Source</div>
+    <div class="sec-title">The canvas bar</div>
+    <p>The row above the artwork holds the things you reach for while looking at it, rather than
+    while building it.</p>
+    <dl>
+      <dt>Shuffle</dt><dd>a whole new random design. Tapping the canvas reseeds the current one
+      instead, keeping its character.</dd>
+      <dt>Undo / Redo</dt><dd>step back and forward through the pieces you have made this session.
+      Each button names where it is going, and dims at the ends of the history. <code>⌘Z</code> and
+      <code>⇧⌘Z</code> do the same.</dd>
+      <dt>Save</dt><dd>keeps the current design in <strong>Saved</strong>, under the artwork.</dd>
+      <dt>Frame</dt><dd>puts the piece in a post — a mat around the art, with size, corner radius and
+      an optional shadow, plus your own image dropped on top.</dd>
+      <dt>Text &amp; logo</dt><dd>lay type or a logo over the artwork, for a cover or a title card.</dd>
+      <dt>Cursor</dt><dd>what the pointer does on the art: OFF, RIPPLE, LENS, VORTEX or PUSH. Live
+      only — in STILL the pointer leaves a frozen piece alone.</dd>
+      <dt>Embed / Designs</dt><dd>the embed snippets, and the designs you have saved.</dd>
+      <dt>Live / Still</dt><dd>LIVE animates; STILL freezes the drift for a clean static export. You
+      can still tweak sliders and reseed while frozen.</dd>
+      <dt>REC</dt><dd>records the animation live, with a timer. Hidden in STILL.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">Under the artwork</div>
+    <dl>
+      <dt>Layers</dt><dd>what the stack is currently made of, one chip per layer, with its blend and
+      mix. Remove one from here, or add another.</dd>
+      <dt>Recent</dt><dd>the pieces you have just been through — the visual form of undo.</dd>
+      <dt>Saved</dt><dd>everything you kept with the Save button. They survive a reload.</dd>
+      <dt>Explore</dt><dd>a wall of ready-made pieces to start from. Tap one to load it.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">00 — Source</div>
     <p>Five built-in sources (hands, profile, orchid, silk, splash) generated for melting: strong
     silhouette, glossy highlights, true-black background. Or bring your own —
     <strong>LOAD PHOTO</strong>, paste from the clipboard, or drag a file anywhere onto the page.
@@ -69,7 +103,7 @@
   </section>
 
   <section>
-    <div class="sec-title">02 — Size</div>
+    <div class="sec-title">01 — Size</div>
     <dl>
       <dt>1:1 / 4:5 / 5:4 / 3:2 / 16:9 / 9:16</dt><dd>square, portrait, two landscapes, wide, and story.
       The piece reflows, centered; a loaded image cover-fits the frame.</dd>
@@ -79,16 +113,42 @@
   </section>
 
   <section>
-    <div class="sec-title">03 — Templates</div>
-    <p>Curated starting points, one tap each. A template sets the field, palette and shape; tweak anything
-    afterwards, or hit Randomize for a fresh pattern. The active one stays highlighted until you change
-    something.</p>
+    <div class="sec-title">02 — Colours</div>
+    <p>The section is one line: the <strong>ramp itself</strong>, named. Most colour decisions are
+    "is this right?", which you answer by looking at it. Everything that edits it lives behind
+    <strong>MORE</strong>, which opens a floating editor you can <strong>drag anywhere</strong> on the
+    page — it never covers the artwork against your will, and never blocks it.</p>
+    <dl>
+      <dt>Palettes</dt><dd>eight designer gradients — AURORA (navy→teal→green→pink), SUNSET
+      (plum→magenta→orange→gold), OCEAN (midnight→blue→cyan→seafoam), DUSK (indigo→violet→blush),
+      EMBER (black→crimson→amber→cream), MINT (teal→mint→cream), IRIS (indigo→blue→lilac), and CHROME
+      (a procedural liquid metal). All nine tiles sit in one grid, so nothing hides behind an arrow.</dd>
+      <dt>Custom</dt><dd>your own gradient — your exact brand colours. Choose how many colours to work
+      with (2 / 3 / 4): with 2 or 3, Fluid blends the full dark→light gradient between them; with 4 you
+      design every stop yourself. Editing any swatch drops into Custom; tap a preset to start over.</dd>
+      <dt>Editor</dt><dd>pick a stop, then work it on the saturation/brightness pad, the hue strip, or
+      numerically in <strong>HSB, RGB or hex</strong> — whichever moved, every control shows the same
+      stop. Custom colours travel in the share link and embeds, so the piece reproduces anywhere.</dd>
+    </dl>
   </section>
 
   <section>
-    <div class="sec-title">04 — Field</div>
+    <div class="sec-title">03 — Stack</div>
+    <p>The piece can be up to <strong>three layers</strong>, each running its own engine. The tabs at the
+    top of the card choose which layer you are editing; the strip below always edits the selected one.
+    <strong>+ ADD LAYER</strong> stacks another, <strong>REMOVE LAYER</strong> takes the current one away,
+    and <strong>SHUFFLE</strong> rerolls the engine and its settings.</p>
     <dl>
-      <dt>Mode — twenty-two engines</dt><dd>the generator. NOISE is domain-warped value noise (the default).
+      <dt>Blend</dt><dd>how a layer meets the one under it — normal, multiply, screen, add, difference or
+      overlay. Layers 2 and 3 each carry their own.</dd>
+      <dt>Mix</dt><dd>how much of the layer is present, from nothing to full strength.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">03b — Engines</div>
+    <dl>
+      <dt>Twenty-three engines</dt><dd>the generator. NOISE is domain-warped value noise (the default).
       FLOW is the curl of a noise potential — divergence-free, so it swirls like fluid and smoke.
       CELLULAR is Voronoi noise — crystalline cells whose edges vs centers are blended by Warp.
       GYROID slices a 3D gyroid through time for interwoven organic bands. TRUCHET draws random corner
@@ -110,17 +170,27 @@
       into a vortex like mice chasing corner to corner (Warp = chase fraction; seed picks triangle
       through hexagon); CHLADNI draws the nodal sand figures of a vibrating plate, sweeping between
       resonances (Warp = eigenmode order); CASSINI contours the potential of four drifting foci into
-      nested Cassini ovals that pinch through figure-eights (Warp = contour density).</dd>
+      nested Cassini ovals that pinch through figure-eights (Warp = contour density); TOPO draws the
+      elevation contours of a drifting landmass, like a survey map (Warp = ruggedness).</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="sec-title">04 — Look</div>
+    <p class="soft">Everything here applies to the whole piece, not to one layer.</p>
+    <dl>
       <dt>Speed</dt><dd>animation rate. 0 freezes the drift; the piece itself stays.</dd>
       <dt>Zoom</dt><dd>scale of the forms — low is large slow shapes, high is dense detail.</dd>
       <dt>Warp</dt><dd>how violently the field folds — slides CELLULAR cells toward edges, tightens FLOW,
       packs TRUCHET bands, and adds KALEIDO sectors.</dd>
       <dt>Grain</dt><dd>analog noise over the final image.</dd>
+      <dt>Symmetry</dt><dd>folds the frame into mirrored sectors — a kaleidoscope over whatever the stack
+      is already doing. 0 is off.</dd>
     </dl>
   </section>
 
   <section>
-    <div class="sec-title">04b — Math (lenses)</div>
+    <div class="sec-title">04b — Lenses</div>
     <dl>
       <dt>Lens — bend the space</dt><dd>a named transform of the complex plane that every engine is
       sampled through. SQUARE is the conformal map z² (angles double around the centre). INVERT is
@@ -138,82 +208,89 @@
   </section>
 
   <section>
-    <div class="sec-title">05 — Surface</div>
+    <div class="sec-title">04c — Surface</div>
     <dl>
-      <dt>Screen — Square / Hex / ASCII / Dither</dt><dd>the pixel geometry. SQUARE is the classic mosaic
-      (with optional halftone dots). HEX is a honeycomb. ASCII maps each cell's brightness to a
+      <dt>Screen — Square / Hex / ASCII / Dither / Glitch</dt><dd>the pixel geometry. SQUARE is the classic
+      mosaic (with optional halftone dots). HEX is a honeycomb. ASCII maps each cell's brightness to a
       character from a dark→light ramp ( .:-=+*#%@ ). DITHER uses an ordered Bayer threshold; Threshold
-      controls the bright-pixel density. Pixelate sets the cell size.</dd>
+      controls the bright-pixel density. GLITCH tears the frame into displaced scan blocks. Pixelate sets
+      the cell size.</dd>
       <dt>Pixelate</dt><dd>mosaic / hex / glyph cell size. 1 is off (square only); 48 is brutalist.</dd>
       <dt>Halftone + dot size</dt><dd>CMYK-style dot screen over a square field — dots over pixels is the signature look.</dd>
+      <dt>Finish</dt><dd>re-lights the palette colour as a material: GLASS, METAL, SAND, LIQUID or MOLTEN.
+      NONE leaves the flat colour alone.</dd>
     </dl>
   </section>
 
   <section>
-    <div class="sec-title">05b — Colours</div>
+    <div class="sec-title">05 — Output</div>
     <dl>
-      <dt>Palettes</dt><dd>eight designer gradients — AURORA (navy→teal→green→pink), SUNSET
-      (plum→magenta→orange→gold), OCEAN (midnight→blue→cyan→seafoam), DUSK (indigo→violet→blush),
-      EMBER (black→crimson→amber→cream), MINT (teal→mint→cream), IRIS (indigo→blue→lilac), and CHROME
-      (a procedural liquid metal).</dd>
-      <dt>Custom</dt><dd>pick your own gradient with the colour swatches — your exact brand colours.
-      Choose how many colours to work with (2 / 3 / 4): with 2 or 3, Fluid blends the full dark→light
-      gradient between them; with 4 you design every stop yourself. Editing any swatch drops into
-      Custom; tap a preset to start over. Custom colours travel
-      in the share link and embeds, so the piece reproduces anywhere.</dd>
-    </dl>
-  </section>
-
-  <section>
-    <div class="sec-title">06 — Share &amp; embed</div>
-    <dl>
-      <dt>Live / Still</dt><dd>the pill above the image. LIVE animates; STILL freezes the drift for a
-      clean static export (you can still tweak sliders and reseed while frozen). Recording is hidden in STILL.</dd>
-      <dt>Randomize</dt><dd>spins through seeds and settles. Tapping the canvas reseeds instantly.</dd>
-      <dt>Copy share link</dt><dd>a URL that reproduces this exact piece — every slider, the seed,
-      even the built-in source. Open it anywhere, remix from there.</dd>
-      <dt>Copy iframe / full-bleed / CSS</dt><dd>three ways to put the piece on a site: a responsive iframe,
+      <dt>Copy link</dt><dd>a URL that reproduces this exact piece — every slider, the seed, the whole
+      stack, your custom colours. Open it anywhere, remix from there.</dd>
+      <dt>For Claude</dt><dd>a ready-to-paste prompt for Claude Code or Cursor, with the embed snippet
+      already baked in. Hand it to an agent and the piece lands in your site.</dd>
+      <dt>Iframe / full-bleed / CSS</dt><dd>three ways to put the piece on a site: a responsive iframe,
       a fixed full-bleed background that never eats clicks, or a CSS snippet for a static exported image.
       See <a href="dev.html">DEV</a>.</dd>
     </dl>
   </section>
 
   <section>
-    <div class="sec-title">07 — Export</div>
+    <div class="sec-title">05b — Export</div>
     <dl>
       <dt>Size presets</dt><dd>pick a target — Wallpaper (1080p, 1440p, 4K, ultrawide, phone), Web (hero,
       OG image, background, X header), Social (post, story), or Icon. The export is exactly those pixels and
       the frame reflows to match. 4K / ultrawide are heavy and scale down if the GPU can't hold them.</dd>
       <dt>PNG / JPG / WebP</dt><dd>PNG and WebP keep transparency and are crisp; JPG is much smaller. The
       readout shows the exact pixels and format.</dd>
-      <dt>Poster + caption</dt><dd>POSTER stamps a lab caption bar onto exports — your caption (or seed +
-      palette) plus attribution. The caption also names the file; leave it empty and the piece names itself
-      with a codename like <em>neon-current</em>.</dd>
+      <dt>Filename</dt><dd>names the download. Leave it empty and the piece names itself with a codename
+      like <em>neon-current</em>.</dd>
       <dt>Export image</dt><dd>renders exactly the on-screen look at the chosen size. On phones it opens the
       native share sheet instead of downloading.</dd>
-      <dt>Record clip</dt><dd>the REC chip on the canvas (or this button) records the animation with a live
-      timer — MP4 (H.264) where the browser allows, so it plays everywhere; Firefox saves WebM. Clips and
-      exports always render the pure effect — no divider, no UI.</dd>
+      <dt>Record clip</dt><dd>the REC chip on the canvas captures the animation as it plays, with a live
+      timer — MP4 (H.264) where the browser allows, so it plays everywhere; Firefox saves WebM. Resolution
+      cycles 1080p / 2K / 4K.</dd>
+      <dt>Export clip</dt><dd>4, 8 or 15 seconds rendered <strong>offline, frame by frame</strong>, so the
+      result is smooth regardless of what your machine could manage in real time.</dd>
+    </dl>
+    <p class="soft">Clips and exports always render the pure effect — no divider, no UI.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">06 — Share links, under the hood</div>
+    <p>Everything after <code>#p=</code> is the piece, as plain numbers in fixed positions: speed, zoom,
+    warp, grain, pixel, dot, halftone, palette, seed, liquify, blend, aspect, source preset, engine,
+    screen, threshold, symmetry — then your four custom colours packed one per slot, the dither, each
+    extra layer with its blend and mix, the finish, and the lens with its amount.</p>
+    <p>The format is <strong>append-only</strong>: new features take new slots on the end, so a link
+    written a year ago still opens. Trailing zeros are trimmed, which is why two links can be different
+    lengths and both be complete.</p>
+    <pre>https://fluid.krackeddevs.com/#p=0.28,0.6,3.5,0.02,1,10,0,8,44,0,0,1,0,0,0,0,0,0,0,0,656898,7027205,15242255,16768906,0,0,0,0,5</pre>
+  </section>
+
+  <section>
+    <div class="sec-title">06b — Seed of the day</div>
+    <p><a href="/today">fluid.krackeddevs.com/today</a> opens one piece per UTC day — the same piece for
+    everyone, derived from the date alone. There is no storage behind it, so yesterday stays
+    reproducible: <code>/api/today?date=YYYY-MM-DD</code> replays any day as JSON.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">07 — Use it in your code</div>
+    <p>Iframe embeds, an MCP server for Claude (<code>claude mcp add --transport http fluid
+    https://fluid.krackeddevs.com/mcp</code>), and a plain JSON API live on
+    <a href="dev.html">the DEV page</a>.</p>
+    <p>Two npm packages ship the renderer itself, so you are not bound to an iframe:</p>
+    <dl>
+      <dt>fluid-core</dt><dd>the engine as a library — mount a piece on your own canvas and drive it
+      from code. <a href="/fluid-core/demo">See the demo</a>.</dd>
+      <dt>fluid-bg</dt><dd>a drop-in animated background: the <code>&lt;fluid-bg&gt;</code> custom
+      element, a React component, or a CDN tag. It renders in your page, not in a frame.</dd>
     </dl>
   </section>
 
   <section>
-    <div class="sec-title">08 — Share links, under the hood</div>
-    <p>Everything after <code>#p=</code> is the piece: speed, zoom, warp, grain, pixel, dot,
-    halftone, palette, seed, liquify, blend, aspect, source preset — and an optional final flag that
-    switches to canvas-only embed mode. The format only ever grows; old links keep working.</p>
-    <pre>https://fluid.krackeddevs.com/#p=0.5,1.6,4.5,0.1,8,10,1,2,18.4,0.9,0.95,1,1</pre>
-  </section>
-
-  <section>
-    <div class="sec-title">09 — Use it in your code</div>
-    <p>Iframe embeds, an MCP server for Claude (<code>claude mcp add --transport http fluid
-    https://fluid.krackeddevs.com/mcp</code>), and a plain JSON API live on
-    <a href="dev.html">the DEV page</a>.</p>
-  </section>
-
-  <section>
-    <div class="sec-title">10 — Notes</div>
+    <div class="sec-title">08 — Notes</div>
     <p>Free forever — all computation happens on the viewer's device, so there is nothing to pay
     for and nothing to outgrow. No account, no upload, no app backend. Reduced-motion
     users start paused. If the camera is blocked (some embedded browsers), photos and presets still
