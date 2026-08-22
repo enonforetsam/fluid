@@ -57,3 +57,13 @@ test('fluid-core shader carries every engine dispatch branch', async () => {
     assert.ok(FSRC.indexOf('eng == ' + i) >= 0, 'no dispatch for engine ' + i + ' (' + FIELDS[i] + ')');
   }
 });
+
+test('fluid-core VERSION export matches package.json (so npm users can trust it)', async () => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'fluid-core', 'package.json'), 'utf8'));
+  const src = fs.readFileSync(path.join(ROOT, 'fluid-core', 'src', 'index.js'), 'utf8');
+  const m = src.match(/export const VERSION = '([^']+)'/);
+  assert.ok(m, 'index.js exports a VERSION literal');
+  assert.strictEqual(m[1], pkg.version, 'VERSION in src/index.js must equal package.json version — bump both together');
+  const bg = JSON.parse(fs.readFileSync(path.join(ROOT, 'fluid-bg', 'package.json'), 'utf8'));
+  assert.strictEqual(bg.version, pkg.version, 'fluid-bg and fluid-core publish in lockstep — bump both');
+});

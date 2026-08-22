@@ -10,4 +10,4 @@ export {
   FIELDS, FIELD_TUNE, FIELD_STATUS,
   PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LOOKS
 } from './generated/data.js';
-export const VERSION = '0.2.0';
+export const VERSION = '0.4.0';
