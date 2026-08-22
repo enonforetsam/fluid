@@ -165,7 +165,7 @@
     scrollbar-width:none;-ms-overflow-style:none;
     position:relative;z-index:1;
   }
-  .panelMobileMeta{display:none}
+  .panelMobileMeta,.mobTitle{display:none}
   .panelScroll::-webkit-scrollbar{width:0;height:0}
   /* push the footer block to the bottom; collapses to 0 once content fills the panel */
   .panelScroll > footer{margin-top:auto;padding-top:28px}
@@ -228,7 +228,8 @@
     color:var(--ink-c);background:var(--ink);border:1px solid var(--ink);
     border-radius:8px;padding:6px 12px;cursor:pointer;
   }
-  #refreshChip:hover{opacity:1;background:var(--ink-c);color:var(--ink);border-color:var(--ink)}
+  /* hover looks are gated to hover-capable pointers throughout — see the note on .panel section:hover */
+  @media (hover:hover) and (pointer:fine){ #refreshChip:hover{opacity:1;background:var(--ink-c);color:var(--ink);border-color:var(--ink)} }
   #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #refreshChip:active .ricon{transform:rotate(180deg)}
   /* The chip is the one control that makes something happen with no decisions first, so it
@@ -253,8 +254,10 @@
   /* Invert on hover rather than fade. Dimming a light icon on a dark bar reads as blank or
      disabled — the opposite of "this is live". Filled with --ink and the glyph switched to
      --ink-c, it matches what the saved indicator already does when it is on. */
-  .chipIcon:hover{opacity:1;background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
-  .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
+  @media (hover:hover) and (pointer:fine){
+    .chipIcon:hover{opacity:1;background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+    .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
+  }
   .chipIcon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   #saveChip.saved{color:var(--ink-c);background:var(--ink);border-color:var(--ink)}
   .chipCount{
@@ -270,14 +273,14 @@
     color:var(--ink);background:transparent;border:0;border-radius:0;padding:6px 12px;cursor:pointer;
   }
   .modeOpt + .modeOpt{border-left:1px solid var(--ink)}
-  .modeOpt:not(.on):hover{background:rgba(232,232,228,.18)}
+  @media (hover:hover) and (pointer:fine){ .modeOpt:not(.on):hover{background:rgba(232,232,228,.18)} }
   .modeOpt.on,.modeOpt.on:active{background:var(--ink);color:var(--ink-c);font-weight:700}
   #recChip{
     font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);background:transparent;border:1px solid var(--ink);
     border-radius:8px;padding:6px 10px;cursor:pointer;
   }
-  #recChip:hover{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+  @media (hover:hover) and (pointer:fine){ #recChip:hover{background:var(--ink);color:var(--ink-c);border-color:var(--ink)} }
   #recChip .dot{color:#c2160a}
   #recChipText:not(:empty){margin-left:5px}   /* gap shows only when the rec timer is on */
   /* ---------- before/after overlay: the draggable split that reveals the untouched source ---------- */
@@ -370,16 +373,18 @@
      --trayH, shrink the artwork — the same resize the fixed body height exists to prevent */
   .layerStack{display:flex;flex-wrap:nowrap;align-items:center;gap:6px;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none}
   .layerStack::-webkit-scrollbar{display:none}
-  .layerRow{display:inline-flex;align-items:stretch;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04);overflow:hidden}
+  .layerRow{display:inline-flex;flex:0 0 auto;align-items:stretch;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.04);overflow:hidden}   /* flex:none — three rows scroll the stack, they do not crush each other's names to 0px */
   .layerRow.base{opacity:.75}
-  .layerRow:hover{border-color:rgba(232,232,228,.34)}
-  .layerRow.base:hover{opacity:1}
+  @media (hover:hover) and (pointer:fine){
+    .layerRow:hover{border-color:rgba(232,232,228,.34)}
+    .layerRow.base:hover{opacity:1}
+  }
   button.layerGo{
     flex:1;min-width:0;display:inline-flex;align-items:center;gap:7px;padding:6px 8px;
     background-image:none;box-shadow:none;background-color:transparent;border:0;
     color:var(--ink);text-shadow:none;letter-spacing:0;text-align:left;
   }
-  button.layerGo:hover{background-image:none;box-shadow:none;background-color:rgba(255,255,255,.07)}
+  @media (hover:hover) and (pointer:fine){ button.layerGo:hover{background-image:none;box-shadow:none;background-color:rgba(255,255,255,.07)} }
   .layerNum{flex:0 0 auto;font-size:8px;letter-spacing:.08em;color:var(--soft);border:1px solid var(--line);border-radius:4px;padding:2px 5px}
   .layerName{flex:1;min-width:0;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .layerMeta{flex:0 0 auto;font-size:9px;letter-spacing:.05em;color:var(--soft)}
@@ -388,7 +393,7 @@
     background-image:none;box-shadow:none;background-color:transparent;
     border:0;border-left:1px solid var(--line);color:var(--soft);text-shadow:none;
   }
-  button.layerX:hover{color:var(--ink);background-image:none;box-shadow:none;background-color:rgba(255,255,255,.10)}
+  @media (hover:hover) and (pointer:fine){ button.layerX:hover{color:var(--ink);background-image:none;box-shadow:none;background-color:rgba(255,255,255,.10)} }
   button.layerAdd{flex:0 0 auto;padding:6px 10px;font-size:9px;letter-spacing:.1em}
 
   /* ---------- stage tray styles: the tabbed shelf under the artwork ---------- */
@@ -399,6 +404,13 @@
   }
   html.embed #stageTray{display:none !important}
   .trayTabs{display:flex;align-items:center;gap:4px;padding:5px 6px;border-bottom:1px solid rgba(255,255,255,.07)}
+  /* the tab row scrolls sideways when badges make it too wide; the 11px padding/negative
+     margin keeps the touch halos and focus rings inside the scroller's clip */
+  .trayTabsScroll{display:flex;align-items:center;gap:4px;flex:1 1 auto;min-width:0;overflow-x:auto;overflow-y:hidden;
+    padding:11px 2px;margin:-11px -2px;scrollbar-width:none;-ms-overflow-style:none}
+  .trayTabsScroll::-webkit-scrollbar{display:none}
+  #trayToggle{flex:none}
+  @media(max-width:879px){ button.trayTab{padding:5px 9px} .tabBadge{margin-left:4px} }
   #stageTray.collapsed .trayTabs{border-bottom:0}
   #stageTray.collapsed .trayBody{display:none}
   button.trayTab{
@@ -406,7 +418,7 @@
     background-image:none;box-shadow:none;border:1px solid transparent;
     background-color:transparent;color:rgba(232,232,228,.55);text-shadow:none;border-radius:6px;
   }
-  button.trayTab:hover{background-image:none;box-shadow:none;color:#e8e8e4}
+  @media (hover:hover) and (pointer:fine){ button.trayTab:hover{background-image:none;box-shadow:none;color:#e8e8e4} }
   button.trayTab.on{background-color:rgba(255,255,255,.10);border-color:rgba(255,255,255,.14);color:#e8e8e4}
   /* stays readable when the tray is collapsed or Explore is open — a shuffle that adds a
      layer has to be visible without hunting for it */
@@ -417,7 +429,7 @@
     background-image:none;box-shadow:none;background-color:transparent;
     border:1px solid rgba(255,255,255,.12);color:rgba(232,232,228,.6);text-shadow:none;
   }
-  #trayToggle:hover{background-image:none;box-shadow:none;color:#e8e8e4}
+  @media (hover:hover) and (pointer:fine){ #trayToggle:hover{background-image:none;box-shadow:none;color:#e8e8e4} }
   /* One height for every pane. The tray's height is subtracted from the artwork's budget, so
      a pane that measured shorter than its neighbour would resize the canvas on every tab
      click — the piece must not change shape because you looked at a different shelf. */
@@ -448,8 +460,10 @@
     display:block;padding:3px 5px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;
     color:rgba(232,232,228,.72);background:rgba(6,6,10,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .expTile:hover{background-image:none;box-shadow:0 3px 10px rgba(0,0,0,.5);border-color:rgba(255,255,255,.3)}
-  .expTile:hover span{color:#e8e8e4}
+  @media (hover:hover) and (pointer:fine){
+    .expTile:hover{background-image:none;box-shadow:0 3px 10px rgba(0,0,0,.5);border-color:rgba(255,255,255,.3)}
+    .expTile:hover span{color:#e8e8e4}
+  }
   /* the day's piece carries no thumbnail — it is generated fresh each day, and inventing a
      picture for it would be a picture of the wrong thing. It gets a face of its own instead. */
   .expTile.today{
@@ -459,7 +473,7 @@
   }
   .expTile.today b{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#e8e8e4;font-weight:700}
   .expTile.today span{padding:0;background:none;font-size:8px;letter-spacing:.08em;color:rgba(232,232,228,.6)}
-  .expTile.today:hover{border-color:rgba(255,255,255,.6)}
+  @media (hover:hover) and (pointer:fine){ .expTile.today:hover{border-color:rgba(255,255,255,.6)} }
   @media (max-width:900px){ .expTile.today{height:67px} }
   @media (max-width:900px){
     .expTile,.expTile img{width:88px}
@@ -523,8 +537,11 @@
   html.embed #canvasChips,html.embed #ba{display:none !important}
   canvas{
     display:block;width:100%;aspect-ratio:1/1;cursor:crosshair;
-    /* pan-y by default so a finger can scroll the page past the canvas; JS switches it
-       to 'none' (canvas owns the gesture) only while a photo is loaded, for smooth pan */
+    /* pan-y here is for EMBEDS: an iframe's canvas must hand an up/down finger to the host
+       page, or that page stops scrolling where the art begins. The studio has nothing under
+       the canvas that scrolls (.wrap is a fixed 100dvh), so the phone block below takes the
+       whole gesture for the ripple/lens — under pan-y the browser cancelled every mostly
+       vertical stroke after ~16px. JS still switches to 'none' while a photo is loaded. */
     touch-action:pan-y;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
   }
@@ -551,8 +568,12 @@
      as "you are here". Keyboard focus keeps its own rule — :has(:focus-visible) rather than
      :focus-within, because the picker tiles call focus() on click and focus-within would
      bring the lingering back through the side door. */
-  .panel section:hover,
   .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:rgba(255,255,255,.34) }
+  /* …and only for pointers that can hover. Touch browsers emulate :hover on tap and leave
+     it on the last thing touched, so the band stuck to the last section tapped and read as
+     state — the very thing hover was chosen to avoid. Every hover-only look in the file
+     takes this gate (plain links aside); the focus branches stay ungated. */
+  @media (hover:hover) and (pointer:fine){ .panel section:hover{ background-color:rgba(255,255,255,.34) } }
   @media(prefers-reduced-motion:reduce){ .panel section{transition:none} }
   .sec-title{
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -569,7 +590,7 @@
     box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 1px 2px rgba(0,0,0,.35);
     transition:background .1s ease,transform .08s ease;
   }
-  .sec-caret:hover{background:rgba(255,255,255,.10)}
+  @media (hover:hover) and (pointer:fine){ .sec-caret:hover{background:rgba(255,255,255,.10)} }
   .sec-caret:active{transform:scale(.9)}
   /* slide via grid-rows 1fr->0fr: pure CSS, no JS height measurement or reflow,
      so the minimise glides instead of hitching against the live render loop */
@@ -605,7 +626,8 @@
     box-shadow:0 6px 20px rgba(6,6,10,.4);
     opacity:0;visibility:hidden;transition:opacity .12s ease;pointer-events:none;
   }
-  .info:hover::after,.info:focus-visible::after,.info:focus::after{opacity:1;visibility:visible}
+  .info:focus-visible::after,.info:focus::after{opacity:1;visibility:visible}
+  @media (hover:hover) and (pointer:fine){ .info:hover::after{opacity:1;visibility:visible} }
   /* ---------- controls: swatches, text fields, font chips, export rows and the raw range inputs ---------- */
   .exGroupLabel{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--soft);margin:10px 0 6px}
   /* nine palettes, all visible: a grid rather than a scrolling strip, so none of them sits
@@ -657,17 +679,22 @@
     flex:0 0 auto;padding:2px 8px;font-size:15px;line-height:1;letter-spacing:0;
     background-image:none;box-shadow:none;background-color:transparent;border:1px solid var(--line);color:var(--soft);
   }
-  #cmClose:hover{color:var(--ink);background-image:none;box-shadow:none}
+  @media (hover:hover) and (pointer:fine){ #cmClose:hover{color:var(--ink);background-image:none;box-shadow:none} }
   .cmBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 14px}
-  @media(max-width:700px){
+  /* Pinned wherever the layout is stacked (the same 879px as the mobile block, and the same
+     query isPinned() asks — they drifted apart at 700px once, and a 744px tablet got a
+     floating box over 42% of the art). */
+  @media(max-width:879px){
     /* No room to float beside the art, so it sits at the BOTTOM — which needs saying, not
        just commenting: without a top/bottom the base top:96px still won and the editor
        covered the artwork it exists to let you watch. Width is stated outright rather than
        inferred from left+right, because clampPos writes right:auto and a width:auto box then
-       collapses to shrink-to-fit. */
+       collapses to shrink-to-fit. The height is the panel's, not the screen's: at 62vh the
+       sheet stood ~100px up into the stage and hid the art it exists to show. */
     #colourMore{
       left:8px;right:auto;top:auto;bottom:8px;
-      width:calc(100vw - 16px);max-height:min(62vh,560px);
+      width:calc(100vw - 16px);
+      max-height:min(46vh,560px);max-height:min(46dvh,560px);
     }
   }
   .stopTabs{display:flex;gap:6px;margin-bottom:9px}
@@ -712,14 +739,14 @@
   .textfield::placeholder{color:var(--soft)}
   .textfield:focus{border-color:var(--ink);box-shadow:0 0 0 2px var(--line)}
   .textclear{flex:0 0 auto;font-size:16px;line-height:1;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:9px 13px;cursor:pointer}
-  .textclear:hover{border-color:var(--ink)}
+  @media (hover:hover) and (pointer:fine){ .textclear:hover{border-color:var(--ink)} }
   #maskBgDark.on,#maskBgLight.on,#maskBgGradBtn.on,#stops2.on,#stops3.on,#stops4.on{background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
   .fontgrid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
   .fontbtn{
     font-size:15px;line-height:1;color:var(--ink);background:transparent;
     border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;
   }
-  .fontbtn:hover{border-color:var(--ink)}
+  @media (hover:hover) and (pointer:fine){ .fontbtn:hover{border-color:var(--ink)} }
   .fontbtn.on{border-color:var(--ink);background:var(--ink);color:var(--ink-c)}
   .exgroups .row{margin-bottom:2px}
   .moresizes{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
@@ -727,7 +754,7 @@
   .moresizes>summary::-webkit-details-marker{display:none}
   .moresizes>summary::before{content:'▸ '}
   .moresizes[open]>summary::before{content:'▾ '}
-  .moresizes>summary:hover{color:var(--ink)}
+  @media (hover:hover) and (pointer:fine){ .moresizes>summary:hover{color:var(--ink)} }
   #looks button{
     color:var(--ink);
     border-color:var(--line);
@@ -736,7 +763,7 @@
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.04), 0 1px 2px rgba(0,0,0,.18);
     text-shadow:none;
   }
-  #looks button:hover{background-color:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 2px 5px rgba(0,0,0,.22)}
+  @media (hover:hover) and (pointer:fine){ #looks button:hover{background-color:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 2px 5px rgba(0,0,0,.22)} }
   #looks button.on{color:var(--ink-c);background-color:var(--ink);background-image:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
   .actiongrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
   .actiongrid button{padding:9px 7px;font-size:9px;white-space:normal;line-height:1.15;text-align:center}
@@ -760,8 +787,10 @@
   .ctl output{color:var(--soft);letter-spacing:.10em}
   input[type=range]{
     -webkit-appearance:none;appearance:none;width:100%;height:18px;background:transparent;cursor:pointer;
-    /* the dial owns the drag so the page never scrolls mid-adjust on touch */
-    touch-action:none;
+    /* pan-y, not none: the dial owns a SIDEWAYS drag (bindSlider claims it on the first
+       pointermove) and an up/down finger keeps the panel scroll. With none every 40px slider
+       row was a band where the panel refused to scroll and the value jumped to the finger. */
+    touch-action:pan-y;
   }
   input[type=range]::-webkit-slider-runnable-track{height:2px;background:rgba(16,16,16,.28)}
   input[type=range]::-webkit-slider-thumb{
@@ -801,15 +830,17 @@
     transition:box-shadow .1s ease, transform .06s ease, background-color .1s ease, color .1s ease;
     text-shadow:0 1px 0 rgba(255,255,255,.45);
   }
-  button:hover,.filebtn:hover{
-    background-color:#e0e3e6;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,1),
-      inset 0 -2px 2px rgba(0,0,0,.24),
-      inset 1px 0 0 rgba(255,255,255,.6),
-      inset -1px 0 0 rgba(0,0,0,.18),
-      0 1px 0 rgba(255,255,255,.16),
-      0 5px 10px rgba(0,0,0,.46);
+  @media (hover:hover) and (pointer:fine){
+    button:hover,.filebtn:hover{
+      background-color:#e0e3e6;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 -2px 2px rgba(0,0,0,.24),
+        inset 1px 0 0 rgba(255,255,255,.6),
+        inset -1px 0 0 rgba(0,0,0,.18),
+        0 1px 0 rgba(255,255,255,.16),
+        0 5px 10px rgba(0,0,0,.46);
+    }
   }
   button:active,.filebtn:active{
     transform:translateY(1.5px);
@@ -882,7 +913,7 @@
   @media(max-width:520px){ .knobgrid.sliderGrid{grid-template-columns:1fr} }
   /* dark instrument-meter dial: black outer arc, chrome rim, glass face, amber sweep */
   .knob{
-    width:72px;height:72px;position:relative;cursor:pointer;touch-action:none;
+    width:72px;height:72px;position:relative;cursor:pointer;touch-action:pan-y;   /* pan-y: see input[type=range] */
     -webkit-user-select:none;user-select:none;border-radius:50%;
     background:
       radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 47%, #111217 48%, #050507 71%, rgba(0,0,0,0) 72%),
@@ -956,7 +987,7 @@
     cursor:pointer;transition:transform .07s ease, box-shadow .1s ease, outline-color .1s ease;
     text-shadow:none;
   }
-  .fieldBtn:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 4px 8px rgba(0,0,0,.5)}
+  @media (hover:hover) and (pointer:fine){ .fieldBtn:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 4px 8px rgba(0,0,0,.5)} }
   .fieldBtn:active{transform:translateY(1px)}
   .fieldBtn span{
     position:absolute;left:0;right:0;bottom:0;padding:3px 0;
@@ -964,7 +995,7 @@
     background:rgba(6,6,10,.74);color:var(--label-ink,var(--tile-ink));opacity:0;transition:opacity .12s,color .12s;
     text-shadow:0 0 6px rgba(6,6,10,.85),0 1px 1px rgba(0,0,0,.75);
   }
-  .fieldBtn:hover span{opacity:1}
+  @media (hover:hover) and (pointer:fine){ .fieldBtn:hover span{opacity:1} }
   .fieldBtn.on{
     outline:0;
     box-shadow:inset 0 0 0 2px var(--ink), inset 0 0 0 4px rgba(6,6,10,.55), 0 2px 7px rgba(0,0,0,.55);
@@ -999,7 +1030,7 @@
   .cmIcon{display:block;width:46%;height:46%;position:absolute;top:43%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
   /* horizontal aspect-ratio fader — slides portrait → landscape, saves space */
   .ardial{position:relative;padding:2px 2px 0}
-  #arSlider{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;touch-action:none;margin:0}
+  #arSlider{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;touch-action:pan-y;margin:0}
   #arSlider::-webkit-slider-runnable-track{height:9px;border-radius:5px;
     background:
       linear-gradient(180deg, rgba(0,0,0,.62), rgba(255,255,255,.07) 54%, rgba(0,0,0,.32)),
@@ -1101,16 +1132,80 @@
     .panelMobileMeta .status{order:-29}
     .panelMobileMeta .metaLine{order:-28}
     .panelMobileMeta .signature{order:-27}
-    header{margin-top:8px;margin-bottom:10px}
-    header .tag{display:none}
+    /* the title moves INTO the scroller (the .mobTitle copy under the grip) so a swipe
+       that starts on it scrolls the controls — as a .panel child it was a dead band
+       between the grip and the first section, exactly where thumbs land */
+    .panel > header{display:none}
+    .mobTitle{display:block;order:-31;margin:8px 0 10px}
     .panel > .status,.panel > .metaLine,.panel > .signature{display:none}
-    /* the control bar matches the artwork (card) width and centres with it, so the
-       shuffle (left) and record (right) buttons sit flush with the square's edges */
     .stageInner{width:100%}
-    #canvasChips{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));min-width:min(100%, 264px);margin:0 auto}
-    #designDock{position:fixed;left:12px;right:12px;top:54px;width:auto;max-height:calc(50vh - 66px)}
-    #cursorDock,#frameDock,#textDock{position:fixed;left:12px;right:12px;top:54px;width:auto}
-    .designList{max-height:calc(50vh - 128px)}
+    /* The studio canvas owns the stroke on phones: a vertical finger on the art ripples it
+       instead of being taken for a scroll that cannot happen here (nothing at the root
+       scrolls). Embeds are excluded — at phone widths they are still an iframe in someone's
+       page, and that page must keep scrolling through the art. */
+    html:not(.embed) #cv{touch-action:none}
+    /* and since nothing at the root scrolls, an up/down swipe that starts on the stage, a
+       chip or the tray must not become a pull-to-refresh or a rubber-band of the whole app */
+    html:not(.embed),html:not(.embed) body{overscroll-behavior:none}
+    /* The bar holds ~600px of chips and no phone card is that wide. Sized to the card it
+       overflowed, and with justify-content:flex-end the overflow spilled off the START
+       edge — where html/body/.wrap clip and nothing can scroll to it — so Shuffle, Undo,
+       Redo and the only play/pause pill were simply gone, the pill crushed to its two
+       borders because overflow:hidden made it the one child allowed to shrink. So the bar
+       is a full-width swipe strip instead, laid out from the left, every child flex:none
+       so nothing can absorb a shortfall. The 6px of vertical padding, handed straight
+       back by the margin, is room for the .chipCount badge (top:-6px) and focus rings,
+       which a scroll container would otherwise clip — the bar still takes its 28px of the
+       40px in the card formula. */
+    #canvasChips{
+      width:auto;align-self:stretch;min-width:0;justify-content:flex-start;
+      margin:-6px -4px;padding:6px 4px;
+      overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+      scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x;
+    }
+    #canvasChips::-webkit-scrollbar{display:none}
+    #canvasChips > *{flex:none}
+    /* Edge fades say there is more to swipe to. They are overlays on .stageInner, NOT a mask
+       on the bar as the picker strips do it: the docks are fixed-position descendants of the
+       bar, and a mask on it paints them through its own 40px box — i.e. not at all. :has()
+       reads the atStart/atEnd classes the JS toggles; both are set when the bar fits (and in
+       embed mode, where it is hidden), so nothing shows. Fades to the stage's base colour. */
+    .stageInner::before,.stageInner::after{
+      content:'';position:absolute;top:-6px;width:20px;height:40px;z-index:1;pointer-events:none;
+      opacity:0;transition:opacity .15s ease;
+    }
+    .stageInner::before{left:-4px;background:linear-gradient(90deg,#111216,rgba(17,18,22,0))}
+    .stageInner::after{right:-4px;background:linear-gradient(90deg,rgba(17,18,22,0),#111216)}
+    .stageInner:has(#canvasChips:not(.atStart))::before{opacity:1}
+    .stageInner:has(#canvasChips:not(.atEnd))::after{opacity:1}
+    html.embed .stageInner::before,html.embed .stageInner::after{display:none}
+    /* Overlays compete at the ROOT here, not inside their columns. .panelScroll's z-index:1
+       made a stacking context that trapped the fixed colour editor (z40) under the sticky
+       grip (z20, a direct child of .panel), and .stageInner's did the same to the docks — a
+       tap on the editor's top palette row or a dock's bottom row hit the grip, and a drag
+       there resized the stage. Applied as a PAIR: raising .stageInner alone puts the stage
+       tray over the editor, because the editor is still inside the z1 scroller. */
+    .panelScroll{z-index:auto}
+    .stageInner{z-index:30}
+    /* Bottom sheets, not top popovers. Anchored at top:54px a dock sat exactly on the card
+       and hid the artwork it edits — text, frame and cursor were set blind — and the Text
+       dock (~414px) always ran past the 50dvh stage into the panel. At the bottom it covers
+       the controls instead, the art stays in view, and a long dock scrolls inside itself
+       (landscape clipped the Frame dock's last rows with nothing to scroll). 50dvh matches
+       the default split so the sheet stops short of the card; the 120px floor keeps the
+       chip bar reachable once the stage has been dragged small. The head is sticky so the
+       × never scrolls away. */
+    #cursorDock,#frameDock,#textDock,#designDock{
+      position:fixed;top:auto;bottom:0;left:0;right:0;width:auto;
+      max-height:min(50vh, calc(100vh - 120px));
+      max-height:min(50dvh, calc(100dvh - 120px));
+      overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+      border-radius:12px 12px 0 0;
+    }
+    #cursorDock .designDockHead,#frameDock .designDockHead,#textDock .designDockHead,#designDock .designDockHead{
+      position:sticky;top:0;z-index:1;background:var(--panel-metal);
+    }
+    .designList{max-height:none}
     .card{width:min(100%, calc((var(--stageH) - 40px - var(--trayH, 0px)) * var(--ar, 1)));margin:0 auto}
     /* drag bar at the top of the controls sheet — drag up/down to resize the artwork */
     #panelHandle{
@@ -1131,6 +1226,70 @@
     #panelHandle:active .phlabel{color:var(--ink)}
     @media(prefers-reduced-motion:reduce){.stage,.panel{transition:none}}
   }
+  /* A phone on its side has no height to split. 50dvh of 390 is 195px, and the chip bar,
+     the tray and the padding alone are 190 of it — the artwork was a 5px dot over a 92px
+     controls scroller, on every phone below the breakpoint, with no grip position where
+     both halves were usable. So the halves sit side by side instead: the art takes the
+     left ~half at full height, the controls the rest, and the grip (a vertical split has
+     nothing for it to do) goes away. The aspect guard keeps a merely-short window — a
+     desktop window squashed to 500x480, a keyboard eating a small phone — on the stacked
+     path, where a narrow controls column would be worse than a short one. The JS sheet
+     code keys on the SAME query (isLandscapeMobile) to clear an inline stage height that a
+     portrait drag left behind — without that the inline px would override height:100dvh. */
+  @media (max-width:879px) and (orientation:landscape) and (min-aspect-ratio:4/3){
+    .wrap{flex-direction:row}
+    .stage{
+      width:52vw;height:100vh;height:100dvh;
+      --stageH:calc(100vh - 24px);
+      --stageH:calc(100dvh - 24px);
+    }
+    html.embed .stage{width:auto}   /* an embed is the whole window, not a column of it */
+    .panel{
+      min-width:0;border-top:0;border-left:1px solid var(--line);
+      box-shadow:
+        inset 1px 0 0 rgba(255,255,255,.10),
+        inset 18px 0 30px rgba(0,0,0,.22);
+    }
+    #panelHandle{display:none}
+    /* the bottom sheets cover the controls column only — the art is beside it, not under */
+    #cursorDock,#frameDock,#textDock,#designDock{
+      left:52vw;
+      max-height:calc(100vh - 24px);
+      max-height:calc(100dvh - 24px);
+    }
+    /* the pinned colour editor likewise: the column is full height, so it may be tall */
+    #colourMore{
+      left:calc(52vw + 8px);width:calc(48vw - 16px);
+      max-height:min(calc(100vh - 16px),560px);max-height:min(calc(100dvh - 16px),560px);
+    }
+  }
+  /* Thumb-sized hit areas, without moving a box that layout depends on. The tray tabs feed
+     --trayH (growing them shrinks the artwork) and the chip bar has a fixed 28px in the
+     card budget, so those get an invisible ::after halo; the section title takes padding
+     that its margins hand straight back (the section's 16px top absorbs the -11px); only
+     free-standing buttons actually grow. */
+  @media (pointer:coarse){
+    .sec-title{padding-top:11px;padding-bottom:11px;margin-top:-11px;margin-bottom:3px}
+    section.collapsed .sec-title{margin-bottom:-11px}
+    #panelHandle{min-height:44px}
+    button.layerTab{padding:11px 14px}
+    #addLayerBtn,#removeLayerBtn,#randBtn{min-height:40px}
+    button.trayTab,#trayToggle,
+    #closeCursor,#closeEmbed,#closeDesigns,#closeText,#closeFrame,#cmClose,
+    #refreshChip,#recChip,.modeOpt{position:relative}
+    /* ±2px sideways on the tabs: the halos meet in the 4px gaps instead of overlapping */
+    button.trayTab::after,#trayToggle::after{content:'';position:absolute;inset:-11px -2px}
+    #closeCursor::after,#closeEmbed::after,#closeDesigns::after,#closeText::after,#closeFrame::after,#cmClose::after{
+      content:'';position:absolute;inset:-11px;
+    }
+    /* the chip bar's 6px of padding (mobile CSS above) is exactly the room these halos need */
+    .chipIcon::after,#refreshChip::after,#recChip::after,.modeOpt::after{content:'';position:absolute;inset:-6px -4px}
+    /* the pill clips its children, so the halo has to be let out — the fills keep their
+       rounded ends by carrying the pill's inner radius themselves */
+    #modePill{overflow:visible}
+    #modePill .modeOpt:first-child{border-radius:7px 0 0 7px}
+    #modePill .modeOpt:last-child{border-radius:0 7px 7px 0}
+  }
 
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
      A theme is a personal preference (localStorage fluid:theme), never part of the
@@ -1142,7 +1301,7 @@
     background-image:none;border:1px solid rgba(0,0,0,.38);
     box-shadow:0 1px 2px rgba(0,0,0,.3);text-shadow:none;
   }
-  .themeRow button.themeDot:hover{transform:translateY(-1px)}
+  @media (hover:hover) and (pointer:fine){ .themeRow button.themeDot:hover{transform:translateY(-1px)} }
   .themeRow button.themeDot.on{box-shadow:0 0 0 2px var(--panel-metal), 0 0 0 3.5px var(--ink)}
   /* fills must out-rank the .themeRow button.themeDot reset above — hence the .themeRow prefix */
   .themeRow .themeDot[data-ptheme="metal"]{background:linear-gradient(180deg,#f2f3f4,#a9afb7)}
@@ -1170,8 +1329,10 @@
     background-color:var(--p-btn);border:1px solid var(--p-btn-line);
     box-shadow:0 1px 2px rgba(0,0,0,.22);
   }
-  html[data-ptheme] .panel button:not(.armed):not(.themeDot):hover, html[data-ptheme] .panel .filebtn:hover{
-    background-color:var(--p-btn-hi);background-image:none;box-shadow:0 2px 5px rgba(0,0,0,.28);
+  @media (hover:hover) and (pointer:fine){
+    html[data-ptheme] .panel button:not(.armed):not(.themeDot):hover, html[data-ptheme] .panel .filebtn:hover{
+      background-color:var(--p-btn-hi);background-image:none;box-shadow:0 2px 5px rgba(0,0,0,.28);
+    }
   }
   html[data-ptheme] .panel button:not(.armed):not(.themeDot):active, html[data-ptheme] .panel .filebtn:active{
     transform:translateY(1px);background-image:none;box-shadow:inset 0 2px 5px rgba(0,0,0,.32);
@@ -1246,12 +1407,14 @@
       linear-gradient(180deg,#2c2f37,#1b1d23);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.09), inset 0 -1px 0 rgba(0,0,0,.55), 0 2px 5px rgba(0,0,0,.5);
   }
-  html[data-ptheme="carbon"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="carbon"] .panel .filebtn:hover{
-    background-image:
-      radial-gradient(130% 65% at 50% 0%, rgba(255,255,255,.16), rgba(255,255,255,0) 62%),
-      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 4px),
-      linear-gradient(180deg,#353943,#22242b);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.13), inset 0 -1px 0 rgba(0,0,0,.5), 0 3px 8px rgba(0,0,0,.55);
+  @media (hover:hover) and (pointer:fine){
+    html[data-ptheme="carbon"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="carbon"] .panel .filebtn:hover{
+      background-image:
+        radial-gradient(130% 65% at 50% 0%, rgba(255,255,255,.16), rgba(255,255,255,0) 62%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg,#353943,#22242b);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.13), inset 0 -1px 0 rgba(0,0,0,.5), 0 3px 8px rgba(0,0,0,.55);
+    }
   }
   html[data-ptheme="carbon"] .panel button:not(.armed):not(.themeDot):active, html[data-ptheme="carbon"] .panel .filebtn:active{
     background-image:linear-gradient(180deg,#16181d,#20222a);
@@ -1270,10 +1433,12 @@
     box-shadow:inset 0 0 10px rgba(61,255,112,.07);
     text-shadow:0 0 7px rgba(61,255,112,.5);
   }
-  html[data-ptheme="phosphor"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="phosphor"] .panel .filebtn:hover{
-    background-image:repeating-linear-gradient(180deg, rgba(61,255,112,.07) 0 1px, transparent 1px 3px);
-    box-shadow:inset 0 0 12px rgba(61,255,112,.13), 0 0 10px rgba(61,255,112,.20);
-    text-shadow:0 0 9px rgba(61,255,112,.7);
+  @media (hover:hover) and (pointer:fine){
+    html[data-ptheme="phosphor"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="phosphor"] .panel .filebtn:hover{
+      background-image:repeating-linear-gradient(180deg, rgba(61,255,112,.07) 0 1px, transparent 1px 3px);
+      box-shadow:inset 0 0 12px rgba(61,255,112,.13), 0 0 10px rgba(61,255,112,.20);
+      text-shadow:0 0 9px rgba(61,255,112,.7);
+    }
   }
   html[data-ptheme="phosphor"] .panel button:not(.armed):not(.themeDot):active, html[data-ptheme="phosphor"] .panel .filebtn:active{
     background-image:repeating-linear-gradient(180deg, rgba(61,255,112,.07) 0 1px, transparent 1px 3px);
@@ -1294,9 +1459,11 @@
     border-radius:7px 9px 6px 10px / 9px 6px 10px 7px;
     box-shadow:0 1px 0 #d8d0ba, 0 2.5px 0 rgba(38,50,60,.16);
   }
-  html[data-ptheme="paper"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="paper"] .panel .filebtn:hover{
-    background-image:linear-gradient(180deg,#fffff9,#fdf8ea);
-    box-shadow:0 2px 0 #d8d0ba, 0 4px 7px rgba(38,50,60,.20);
+  @media (hover:hover) and (pointer:fine){
+    html[data-ptheme="paper"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="paper"] .panel .filebtn:hover{
+      background-image:linear-gradient(180deg,#fffff9,#fdf8ea);
+      box-shadow:0 2px 0 #d8d0ba, 0 4px 7px rgba(38,50,60,.20);
+    }
   }
   html[data-ptheme="paper"] .panel button:not(.armed):not(.themeDot):active, html[data-ptheme="paper"] .panel .filebtn:active{
     transform:translateY(1.5px);
@@ -1320,12 +1487,14 @@
     background-clip:padding-box, border-box;
     box-shadow:0 2px 6px rgba(0,0,0,.45);
   }
-  html[data-ptheme="neon"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="neon"] .panel .filebtn:hover{
-    border-color:transparent;
-    background-image:linear-gradient(#2c1542,#2c1542), linear-gradient(135deg,#ff3d81,#8b3dff 50%,#41e8ff);
-    background-origin:border-box;
-    background-clip:padding-box, border-box;
-    box-shadow:0 0 12px rgba(255,61,129,.30), 0 0 12px rgba(65,232,255,.16), 0 2px 6px rgba(0,0,0,.45);
+  @media (hover:hover) and (pointer:fine){
+    html[data-ptheme="neon"] .panel button:not(.armed):not(.themeDot):not(.on):not(.primary):hover, html[data-ptheme="neon"] .panel .filebtn:hover{
+      border-color:transparent;
+      background-image:linear-gradient(#2c1542,#2c1542), linear-gradient(135deg,#ff3d81,#8b3dff 50%,#41e8ff);
+      background-origin:border-box;
+      background-clip:padding-box, border-box;
+      box-shadow:0 0 12px rgba(255,61,129,.30), 0 0 12px rgba(65,232,255,.16), 0 2px 6px rgba(0,0,0,.45);
+    }
   }
   html[data-ptheme="neon"] .panel button:not(.armed):not(.themeDot):active, html[data-ptheme="neon"] .panel .filebtn:active{
     border-color:transparent;
@@ -1474,8 +1643,12 @@
   html[data-ptheme] .panel .svDot, html[data-ptheme] .panel .hueDot{
     box-shadow:0 0 0 1px rgba(0,0,0,.55) !important;
   }
+  /* Opaque, because it is the one sticky thing in the sheet: as a 5% tint alone it was
+     invisible wherever it overlapped a dark dock or the colour editor, so a dead band read
+     as a live button. The tint rides on the panel fill instead of on whatever is beneath. */
   html .panel #panelHandle, html[data-ptheme] .panel #panelHandle{
-    background-image:none;background-color:var(--p-btn, rgba(0,0,0,.05));
+    background-color:var(--panel-metal);
+    background-image:linear-gradient(var(--p-btn, rgba(0,0,0,.05)), var(--p-btn, rgba(0,0,0,.05)));
   }
 
   /* ---------- flat canvas chrome: the chip bar and the docks, matching the sidebar ----------
@@ -1510,15 +1683,17 @@
   #textDock button:not(.fieldBtn):not(.primary){
     background-color:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--ink);
   }
-  #designDock button:not(.fieldBtn):hover, #cursorDock button:not(.fieldBtn):hover,
-  #embedDock button:not(.fieldBtn):hover, #frameDock button:not(.fieldBtn):hover,
-  #textDock button:not(.fieldBtn):hover{ background-color:rgba(255,255,255,.14) }
+  @media (hover:hover) and (pointer:fine){
+    #designDock button:not(.fieldBtn):hover, #cursorDock button:not(.fieldBtn):hover,
+    #embedDock button:not(.fieldBtn):hover, #frameDock button:not(.fieldBtn):hover,
+    #textDock button:not(.fieldBtn):hover{ background-color:rgba(255,255,255,.14) }
+  }
   #frameDock button.primary, #textDock button.primary, #designDock button.primary{
     background-color:var(--ink);color:var(--ink-c);border:1px solid var(--ink);
   }
   /* the cursor picker's active tile drew its ring with a shadow, same as the panel's tiles */
   #cursorDock .fieldBtn.on{ outline:2px solid var(--ink);outline-offset:-2px;border-color:var(--ink) }
-  #cursorDock .fieldBtn:hover{ transform:none;border-color:var(--ink) }
+  @media (hover:hover) and (pointer:fine){ #cursorDock .fieldBtn:hover{ transform:none;border-color:var(--ink) } }
   /* the raised/pressed states were shadow changes, so they need something else to say
      "on" — a fill and a border, which read the same flat.
      .primary is excluded, not restyled: it carries its own dark fill AND its own light text,
@@ -1532,21 +1707,25 @@
   }
   /* the one control in the panel that is a <label>, not a <button>, so every button selector
      in this block misses it and "Load photo" kept its brushed gradient */
-  html .panel .filebtn:hover, html[data-ptheme] .panel .filebtn:hover{
-    background-image:none;background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+  @media (hover:hover) and (pointer:fine){
+    html .panel .filebtn:hover, html[data-ptheme] .panel .filebtn:hover{
+      background-image:none;background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+    }
   }
   /* primary keeps its pair: flatten the gradient, keep fill and text together */
   html .panel button.primary, html[data-ptheme] .panel button.primary{
     background-image:none;background-color:var(--ink);color:var(--ink-c);border:1px solid var(--ink);
   }
-  html .panel button.primary:hover, html[data-ptheme] .panel button.primary:hover{ opacity:.88 }
+  @media (hover:hover) and (pointer:fine){ html .panel button.primary:hover, html[data-ptheme] .panel button.primary:hover{ opacity:.88 } }
   /* Hover and press must out-specify the base rule, not tie with it or fall short. The press
      rule was a shorter :not() chain than the base and there was no hover rule at all, so
      idle, hover and pressed were pixel-identical everywhere in the sidebar — cursor:pointer
      was the only remaining affordance. Both carry the base chain plus their pseudo-class. */
-  html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover,
-  html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover{
-    background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+  @media (hover:hover) and (pointer:fine){
+    html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover,
+    html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):hover{
+      background-color:var(--p-btn-hi, rgba(0,0,0,.10));
+    }
   }
   html .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):active,
   html[data-ptheme] .panel button:not(.themeDot):not(.palBtn):not(.fieldBtn):not(.armed):not(.primary):active{
@@ -1555,8 +1734,10 @@
   }
   /* picker tiles are excluded from the base rule, so they need their own pair — the wildcard
      took their hover shadow and the flat block took their lift, leaving them inert too */
-  html .panel .fieldBtn:hover, html[data-ptheme] .panel .fieldBtn:hover{
-    transform:none;border-color:var(--ink);
+  @media (hover:hover) and (pointer:fine){
+    html .panel .fieldBtn:hover, html[data-ptheme] .panel .fieldBtn:hover{
+      transform:none;border-color:var(--ink);
+    }
   }
   html .panel .fieldBtn:active, html[data-ptheme] .panel .fieldBtn:active{ transform:none;opacity:.7 }
   /* Unavailable has to LOOK unavailable. Flattening removed the pressed/raised difference
@@ -1845,11 +2026,15 @@
       <div id="stageTray">
         <!-- yours, then yours, then ours: what you are building, where you have been,
              what you kept, and only last what we curated -->
-        <div class="trayTabs" role="tablist" aria-label="Under the artwork">
-          <button class="trayTab on" type="button" data-tray="layers" role="tab" aria-selected="true">Layers<span id="layerCount" class="tabBadge" hidden>2</span></button>
-          <button class="trayTab" type="button" data-tray="recent" role="tab" aria-selected="false">Recent<span id="recentCount" class="tabBadge" hidden>0</span></button>
-          <button class="trayTab" type="button" data-tray="saved" role="tab" aria-selected="false">Saved<span id="savedCount" class="tabBadge" hidden>0</span></button>
-          <button class="trayTab" type="button" data-tray="explore" role="tab" aria-selected="false">Explore</button>
+        <div class="trayTabs">
+          <!-- the tabs scroll, the toggle never moves: once the count badges fill in, four tabs
+               outgrow a 360px phone and the collapse button was the thing that fell off -->
+          <div class="trayTabsScroll" role="tablist" aria-label="Under the artwork">
+            <button class="trayTab on" type="button" data-tray="layers" role="tab" aria-selected="true">Layers<span id="layerCount" class="tabBadge" hidden>2</span></button>
+            <button class="trayTab" type="button" data-tray="recent" role="tab" aria-selected="false">Recent<span id="recentCount" class="tabBadge" hidden>0</span></button>
+            <button class="trayTab" type="button" data-tray="saved" role="tab" aria-selected="false">Saved<span id="savedCount" class="tabBadge" hidden>0</span></button>
+            <button class="trayTab" type="button" data-tray="explore" role="tab" aria-selected="false">Explore</button>
+          </div>
           <button id="trayToggle" type="button" aria-label="Collapse tray" aria-expanded="true" title="Collapse">&minus;</button>
         </div>
         <div class="trayBody">
@@ -1896,6 +2081,9 @@
   <div class="signature">Made by <a href="https://themasterofnone.xyz" target="_blank" rel="noopener">TheMasterOfNone</a></div>
 
   <div class="panelScroll">
+  <!-- mobile only (display:none above 880px): the same title as the header, inside the scroller
+       so the band under the grip scrolls the controls instead of doing nothing -->
+  <h1 class="mobTitle">Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
   <div class="panelMobileMeta" aria-hidden="true">
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
     <div class="status">RANDOM PATTERN — move your cursor over it to ripple</div>
@@ -3424,6 +3612,7 @@ var gl = canvas.getContext('webgl', { preserveDrawingBuffer:true }) ||
          canvas.getContext('experimental-webgl', { preserveDrawingBuffer:true });
 var fallback2d = gl ? null : canvas.getContext('2d');
 var statusEl = document.getElementById('status');
+var statusElM = document.querySelector('.panelMobileMeta .status');   /* the phone copy — the header one is display:none there */
 
 /* fade only when the state label (text before '—') changes, so live slider
    drags stay smooth but switching controls gets a clean cross-fade */
@@ -3435,9 +3624,11 @@ function setStatus(s){
     statusEl.style.opacity = '0';
     requestAnimationFrame(function(){ requestAnimationFrame(function(){
       statusEl.textContent = s; statusEl.style.opacity = '1';
+      if (statusElM){ statusElM.textContent = s; }
     }); });
   } else {
     statusEl.textContent = s;
+    if (statusElM){ statusElM.textContent = s; }
   }
 }
 
@@ -4262,15 +4453,26 @@ function bindSlider(id, key, fmt){
     requestRender();
   }
   /* native path — keyboard arrows (and a fallback if pointer events are unavailable) */
-  el.addEventListener('input', apply);
+  el.addEventListener('input', function(){
+    /* Chrome's native range moves the thumb to a finger on touchstart, before the pointer
+       code below can tell a tap from the start of a scroll. While the gesture is undecided
+       that move is undone here, so a scroll that begins on a slider leaves its value alone. */
+    if (armed){ if (el.value !== startVal){ el.value = startVal; } return; }
+    apply();
+  });
   el.addEventListener('change', persist);
   /* the moment a key is used the focus is no longer pointer-driven, so the ring comes back */
   el.addEventListener('keydown', function(){ el.classList.remove('ptrFocus'); });
   el.addEventListener('blur', function(){ el.classList.remove('ptrFocus'); });
-  /* app-feel drag: grab anywhere on the row and slide. The input owns the gesture
-     (touch-action:none in CSS) + pointer capture, so the page never scrolls mid-adjust.
-     Modeled on the before/after grip. */
-  var dragging = false;
+  /* app-feel drag: grab anywhere on the row and slide. With a mouse the input owns the
+     gesture from pointerdown (pointer capture + preventDefault, so the native thumb is not
+     double-driven). A finger is different: at pointerdown nobody knows yet whether it is
+     adjusting or scrolling the panel past the row, so the touch path only takes a snapshot
+     and waits — the first sideways move claims the drag, an up/down move belongs to the
+     browser (touch-action:pan-y hands it the scroll and sends pointercancel), and a lift
+     without movement is a tap that sets the value under the finger. Modeled on the
+     before/after grip. */
+  var dragging = false, armed = false, startVal = null, sx = 0, sy = 0;
   function setFromX(clientX){
     var r = el.getBoundingClientRect();
     var pad = 12; /* ~half the touch thumb, so the ends (min/max) are reachable */
@@ -4282,8 +4484,7 @@ function bindSlider(id, key, fmt){
     el.value = String(v);
     apply();
   }
-  el.addEventListener('pointerdown', function(e){
-    dragging = true;
+  function claim(e){
     try { el.setPointerCapture(e.pointerId); } catch(err){}
     /* The drag preventDefaults, which cancels the browser's own focus, so focus is moved by
        hand to keep the control keyboard-reachable after a tap. Whether that scripted focus
@@ -4292,22 +4493,95 @@ function bindSlider(id, key, fmt){
        instead of leaving it to the heuristic; a key press or a re-focus clears the mark, so
        keyboard users still get their ring. */
     try { el.focus(); el.classList.add('ptrFocus'); } catch(err){}
+  }
+  el.addEventListener('pointerdown', function(e){
+    startVal = el.value;
+    if (e.pointerType !== 'mouse'){
+      armed = true; dragging = false; sx = e.clientX; sy = e.clientY;
+      return;                          /* no preventDefault: the panel may still want this scroll */
+    }
+    dragging = true;
+    claim(e);
     setFromX(e.clientX);
     e.preventDefault();                /* suppress the native thumb-drag so we don't double-drive */
   });
   el.addEventListener('pointermove', function(e){
+    if (armed){
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8)){ return; }
+      armed = false; dragging = true;  /* sideways: the slider takes it from here */
+      claim(e);
+    }
     if (!dragging){ return; }
     setFromX(e.clientX);
     e.preventDefault();
   });
   function endDrag(e){
+    if (armed){                        /* the finger never went sideways */
+      armed = false;
+      if (e.type === 'pointercancel'){ /* the browser took it as a scroll */
+        if (el.value !== startVal){ el.value = startVal; apply(); }
+        return;
+      }
+      el.classList.add('ptrFocus');    /* a tap: the value goes to the finger, as a click would */
+      setFromX(e.clientX);
+      persist();
+      return;
+    }
     if (!dragging){ return; }
     dragging = false;
     try { el.releasePointerCapture(e.pointerId); } catch(err){}
+    /* claimed, and the browser still decided it was a scroll (its slop is larger than the
+       8px here): the finger was scrolling, so the few frames of adjustment are undone */
+    if (e.type === 'pointercancel' && e.pointerType !== 'mouse'){
+      if (el.value !== startVal){ el.value = startVal; apply(); }
+      return;
+    }
     persist();
   }
   el.addEventListener('pointerup', endDrag);
   el.addEventListener('pointercancel', endDrag);
+}
+/* Native-driven range inputs (the aspect fader, the colour editor's channel sliders) get the
+   same touch deferral as bindSlider without its drag model: the browser moves the thumb to a
+   finger on touchstart, before a tap can be told from a scroll that merely begins here, so a
+   finger arms a snapshot and that move is undone until the gesture shows sideways intent
+   (from then on the native drag drives as before), a lift without movement applies the tap,
+   and a pointercancel — the panel scrolled — leaves the value alone. `apply` is the input
+   handler; it only ever sees a settled value. The mouse path is untouched. */
+function nativeRangeTouch(el, apply){
+  var armed = false, startVal = null, tapVal = null, sx = 0, sy = 0;
+  el.addEventListener('input', function(){
+    if (armed){ tapVal = el.value; if (el.value !== startVal){ el.value = startVal; } return; }
+    apply();
+  });
+  el.addEventListener('pointerdown', function(e){
+    if (e.pointerType === 'mouse'){ return; }
+    armed = true; startVal = el.value; tapVal = null; sx = e.clientX; sy = e.clientY;
+  });
+  el.addEventListener('pointermove', function(e){
+    if (!armed){ return; }
+    var dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8){ armed = false; }   /* the native drag takes over */
+  });
+  function settle(e){
+    if (!armed){ return; }
+    armed = false;
+    if (e.type === 'pointercancel'){ if (el.value !== startVal){ el.value = startVal; } return; }
+    /* a tap: the value the native thumb jumped to, or (an engine that does not jump on
+       touchstart) the position under the finger — assigning snaps it to the step */
+    var v = tapVal;
+    if (v == null){
+      var r = el.getBoundingClientRect(), lo = parseFloat(el.min) || 0, hi = parseFloat(el.max) || 0;
+      var t = Math.max(0, Math.min(1, (e.clientX - r.left) / Math.max(1, r.width)));
+      v = String(lo + t * (hi - lo));
+    }
+    if (v !== el.value){ el.value = v; }
+    apply();
+    el.dispatchEvent(new Event('change', { bubbles: true }));   /* a tap is a settled edit */
+  }
+  el.addEventListener('pointerup', settle);
+  el.addEventListener('pointercancel', settle);
 }
 bindSlider('speed', 'speed');
 bindSlider('scale', 'scale');
@@ -4429,7 +4703,7 @@ function blendLabel(i){
 /* Open the panel section that owns `el` and scroll to it. The tray rows are shortcuts INTO
    the panel, not a second set of controls, so this reuses the title's own toggle rather
    than reaching into its collapse state — one source of truth for open/closed. */
-function revealSection(el){
+function revealSection(el, inPlace){
   var sec = el && el.closest ? el.closest('.panel section') : null;
   if (!sec){ return; }
   /* The panel can be closed now, and everything below happens inside it — expanding a section,
@@ -4445,8 +4719,21 @@ function revealSection(el){
     var title = sec.querySelector('.sec-title');
     if (title){ title.click(); }
   }
-  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  sec.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  /* inPlace: the request came from a press inside the section itself, so it is scrolled to
+     only if it is not on screen at all — block:'start' here would move the very control the
+     finger is still resting on (and on a phone, out of the viewport) */
+  var onScreen = false;
+  if (inPlace){
+    var ps = sec.closest('.panelScroll');
+    if (ps){
+      var pr = ps.getBoundingClientRect(), sr = sec.getBoundingClientRect();
+      onScreen = sr.bottom > pr.top && sr.top < pr.bottom;
+    }
+  }
+  if (!onScreen){
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    sec.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'start' });
+  }
   /* restart the flash when the same row is clicked twice */
   sec.classList.remove('sec-flash');
   void sec.offsetWidth;
@@ -4567,6 +4854,15 @@ if (textInput){
     state.text = textInput.value;
     if (textActive() && logoImg){ clearLogo(true); }   /* one mark at a time: typing replaces the logo */
     updateMaskTex(); persistText();
+  });
+  /* On phones the dock is a bottom sheet and the keyboard comes up underneath it; once the
+     viewport has settled (iOS pans a beat later) pull the field back into view within the
+     sheet. It is the sheet's first row, so this is cheap and usually a no-op. */
+  textInput.addEventListener('focus', function(){
+    if (window.matchMedia && window.matchMedia('(min-width:880px)').matches){ return; }
+    setTimeout(function(){
+      try { textInput.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e){}
+    }, 300);
   });
 }
 var textClear = document.getElementById('textClear');
@@ -4754,22 +5050,43 @@ function makeKnob(knobEl){
     if (deg > 135){ deg = 135; } else if (deg < -135){ deg = -135; }
     commit(min + ((deg - START) / SWEEP) * (max - min));
   }
-  var dragging = false;
+  /* a finger is deferred the way bindSlider defers it: the dial is pan-y, so an up/down
+     finger scrolls the panel, the first sideways move claims the turn, a lift without
+     movement is a tap on the ring. The mouse keeps its instant grab. */
+  var dragging = false, armed = false, startVal = null, sx = 0, sy = 0;
   knobEl.addEventListener('pointerdown', function(e){
+    if (e.pointerType !== 'mouse'){
+      armed = true; dragging = false; startVal = input.value; sx = e.clientX; sy = e.clientY;
+      return;
+    }
     dragging = true;
     try { knobEl.setPointerCapture(e.pointerId); } catch(_){}
     setFromPoint(e.clientX, e.clientY);
     e.preventDefault();
   });
   knobEl.addEventListener('pointermove', function(e){
+    if (armed){
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8)){ return; }
+      armed = false; dragging = true;
+      try { knobEl.setPointerCapture(e.pointerId); } catch(_){}
+    }
     if (!dragging){ return; }
     setFromPoint(e.clientX, e.clientY);
     e.preventDefault();
   });
   function end(e){
+    if (armed){
+      armed = false;
+      if (e.type === 'pointercancel'){ return; }           /* a scroll: nothing was turned */
+      setFromPoint(e.clientX, e.clientY);                   /* a tap on the ring */
+      input.dispatchEvent(new Event('change', { bubbles:true }));
+      return;
+    }
     if (!dragging){ return; }
     dragging = false;
     try { knobEl.releasePointerCapture(e.pointerId); } catch(_){}
+    if (e.type === 'pointercancel' && e.pointerType !== 'mouse'){ commit(parseFloat(startVal)); }
     input.dispatchEvent(new Event('change', { bubbles:true }));
   }
   knobEl.addEventListener('pointerup', end);
@@ -5198,11 +5515,17 @@ function syncColourEditor(){
   /* Keep the panel fully on screen. Called on open and on resize, because a window that
      shrinks below a remembered position would otherwise strand the editor off the edge with
      no way to drag it back — its own drag handle would be outside the viewport. */
-  /* narrow viewports pin the editor to the bottom in CSS — there is nowhere to float it to,
-     and writing left/top here would fight that layout and undo it */
-  function isPinned(){ return window.matchMedia && window.matchMedia('(max-width:700px)').matches; }
+  /* stacked layouts pin the editor to the bottom in CSS (the same 879px as the mobile block)
+     — there is nowhere to float it to, and an inline left/top would fight that layout. It is
+     not enough to skip writing them: a position written while floating (every open writes
+     one) survives a rotation into the pinned width and parks the sheet over the art, or, after
+     a drag toward the right, clean off the screen. So pinned means the inline position goes. */
+  function isPinned(){ return window.matchMedia && window.matchMedia('(max-width:879px)').matches; }
+  function unpin(){ more.style.left = ''; more.style.top = ''; more.style.right = ''; }
   function clampPos(){
-    if (!more || more.hidden || isPinned()){ return; }
+    if (!more){ return; }
+    if (isPinned()){ unpin(); return; }
+    if (more.hidden){ return; }
     var r = more.getBoundingClientRect();
     var maxL = Math.max(8, window.innerWidth - r.width - 8);
     var maxT = Math.max(8, window.innerHeight - r.height - 8);
@@ -5217,6 +5540,7 @@ function syncColourEditor(){
     more.hidden = !open;
     line.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (!open){ return; }
+    unpin();                                   /* a position from a wider layout is not this one's */
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem(CM_POS_LS) || 'null'); } catch(e){}
     if (saved && !isPinned() && isFinite(saved.x) && isFinite(saved.y)){
@@ -5237,12 +5561,21 @@ function syncColourEditor(){
     if (e.key === 'Escape' && more && !more.hidden){ openEditor(false); }
   });
   window.addEventListener('resize', clampPos);
+  /* pinned, the sheet covers the controls and its MORE line with them, so — like the docks —
+     a tap anywhere outside closes it; floating it stays non-modal and is left alone */
+  document.addEventListener('pointerdown', function(e){
+    if (!more || more.hidden || !isPinned()){ return; }
+    if (more.contains(e.target) || (line && line.contains(e.target))){ return; }
+    dismissTap = true;
+    openEditor(false);
+  });
   /* drag by the header. Pointer capture means a fast drag that outruns the cursor still
      tracks, and the offset is taken once at grab so the panel never jumps under the hand. */
   if (head && more){
     var dragging = false, offX = 0, offY = 0;
     head.addEventListener('pointerdown', function(e){
       if (e.target.closest('#cmClose')){ return; }
+      if (isPinned()){ return; }               /* a pinned sheet has one place: the bottom */
       var r = more.getBoundingClientRect();
       offX = e.clientX - r.left; offY = e.clientY - r.top;
       dragging = true;
@@ -5299,7 +5632,9 @@ function syncColourEditor(){
   function chan(id, fn){
     var el = document.getElementById(id);
     if (!el){ return; }
-    el.addEventListener('input', function(){ fn(parseFloat(el.value)); });
+    /* native-driven, so the touch deferral comes from nativeRangeTouch (sliders section):
+       a finger scrolling the sheet past a channel must not move it */
+    nativeRangeTouch(el, function(){ fn(parseFloat(el.value)); });
     el.addEventListener('change', function(){ pushColourHistory(rgb01ToHex(stopColour(editStop))); });
   }
   chan('chH', function(v){ editH = v; applyEditorColour(hsv2rgb(editH, editS, editV), false); });
@@ -5401,6 +5736,12 @@ Array.prototype.forEach.call(document.querySelectorAll('.fieldBtn[data-field]'),
   }
   b.addEventListener('pointerdown', function(e){
     if (e.button != null && e.button !== 0){ return; }
+    /* A finger is different: pointerdown fires before the browser knows whether this is a
+       tap or the start of a scroll, and selecting here committed the engine under every
+       swipe that began on a tile (status, Recent, share state, and the strip re-centring
+       under the finger). Touch and pen select on click instead — a scroll cancels the
+       click, a tap still lands. The mouse keeps its instant response. */
+    if (e.pointerType !== 'mouse'){ return; }
     skipClick = true;
     run();
     /* preventDefault below cancels the browser's own focus, so focus is moved by hand to keep
@@ -5426,6 +5767,10 @@ function initStrip(id, prevId, nextId){
   if (!st){ return; }
   var pv = document.getElementById(prevId), nx = document.getElementById(nextId);
   var lastOn = null, revealed = false;
+  /* a finger on the strip: no centring while it is down (the strip would move under a pan
+     or a tap), and a tap on a tile that is already fully in view leaves the strip where it
+     is — tab switches and other external changes still centre as before */
+  var touching = false, touchAt = 0;
   function sync(){
     var max = st.scrollWidth - st.clientWidth - 1;
     var fits = max <= 1;
@@ -5437,10 +5782,16 @@ function initStrip(id, prevId, nextId){
   function nudge(dir){
     st.scrollBy({ left: dir * Math.max(120, Math.round(st.clientWidth * 0.8)), behavior: reduceMotion ? 'auto' : 'smooth' });
   }
+  function inView(b){
+    var sr = st.getBoundingClientRect(), br = b.getBoundingClientRect();
+    return br.left >= sr.left + 18 - 1 && br.right <= sr.right - 18 + 1;   /* inside the edge fades */
+  }
   function reveal(){                       /* centre the active tile whenever it CHANGES */
     var b = st.querySelector('.fieldBtn.on');
-    if (!b || b === lastOn){ return; }
+    if (touching && Date.now() - touchAt > 5000){ touching = false; }   /* a lift that never arrived */
+    if (!b || b === lastOn || touching){ return; }
     lastOn = b;
+    if (revealed && Date.now() - touchAt < 700 && inView(b)){ return; }   /* a tap on a visible tile */
     var target = st.scrollLeft +
       (b.getBoundingClientRect().left - st.getBoundingClientRect().left) -
       (st.clientWidth - b.offsetWidth) / 2;
@@ -5449,6 +5800,10 @@ function initStrip(id, prevId, nextId){
   }
   st.addEventListener('scroll', sync, { passive: true });
   window.addEventListener('resize', sync);
+  st.addEventListener('pointerdown', function(e){ if (e.pointerType !== 'mouse'){ touching = true; touchAt = Date.now(); } });
+  function touchDone(){ if (!touching){ return; } touching = false; touchAt = Date.now(); reveal(); }
+  st.addEventListener('pointerup', touchDone);
+  st.addEventListener('pointercancel', touchDone);
   if (pv){ pv.addEventListener('click', function(){ nudge(-1); }); }
   if (nx){ nx.addEventListener('click', function(){ nudge(1); }); }
   new MutationObserver(reveal).observe(st, { subtree: true, attributes: true, attributeFilter: ['class'] });
@@ -5628,6 +5983,9 @@ initStrip('savedStrip', 'savPrev', 'savNext');
    called it before it existed. Nothing fills until trayReady, which boot sets once the whole
    script has run; then the open pane is filled exactly once. */
 var trayReady = false, trayPaneOpen = 'layers';
+/* initTray hands out its markTray here, so the mobile sheet can fold the shelf when the
+   screen is too short to show it AND a usable artwork (phones on their side, split screens) */
+var setTrayCollapsed = null;
 function fillTrayPane(which){
   if (!trayReady){ return; }
   /* An embed is a canvas on somebody's page, not the studio: the tray is hidden there, and
@@ -5671,6 +6029,7 @@ function trayPostBoot(){
     }
     try { localStorage.setItem('fluid:trayOpen', collapsed ? '0' : '1'); } catch(e){}
   }
+  setTrayCollapsed = markTray;
   function showPane(which){
     for (var i = 0; i < tabs.length; i++){
       var on = tabs[i].getAttribute('data-tray') === which;
@@ -5696,8 +6055,16 @@ function trayPostBoot(){
   if (toggle){
     toggle.addEventListener('click', function(){ markTray(!tray.classList.contains('collapsed')); });
   }
-  var saved = null, open = '1';
-  try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen') || '1'; } catch(e){}
+  var saved = null, open = null;
+  try { saved = localStorage.getItem('fluid:tray'); open = localStorage.getItem('fluid:trayOpen'); } catch(e){}
+  /* First visit on a short phone held upright (SE-class, 667 tall): the open shelf leaves
+     a 143px artwork in the default split, so it starts folded there — one tap opens it, and
+     markTray remembers the choice either way. Taller phones and desktop start open. */
+  if (open === null){
+    var shortPhone = window.innerHeight < 720 && window.innerWidth < window.innerHeight &&
+      !!(window.matchMedia && window.matchMedia('(max-width:879px)').matches);
+    open = shortPhone ? '0' : '1';
+  }
   showPane(TRAY_TABS.indexOf(saved) >= 0 ? saved : 'layers');
   /* showPane always opens the tray, so a remembered "closed" is re-applied after it. Stated
      directly rather than by synthesising a click on the button. */
@@ -5918,9 +6285,12 @@ function setAspect(ar){
   updateExportSpec();
   syncControls();
 }
-document.getElementById('arSlider').addEventListener('input', function(){
-  setAspect(AR_LIST[parseInt(this.value,10)].ar);
-});
+(function(){
+  var ar = document.getElementById('arSlider');
+  /* native-driven; nativeRangeTouch (sliders section) keeps a finger that is scrolling the
+     panel from changing the aspect on touchstart */
+  nativeRangeTouch(ar, function(){ setAspect(AR_LIST[parseInt(ar.value,10)].ar); });
+})();
 document.getElementById('liveBtn').addEventListener('click', function(){
   setPlaying(true);
 });
@@ -6122,12 +6492,21 @@ document.getElementById('randBtn').addEventListener('click', shuffleDesign);
   if (!b){ return; }
   b.addEventListener('click', function(){
     var full = layerDepth() >= 3;
+    /* Phones: the blend/mix row unhides ABOVE this row, so the button leapt ~110px down the
+       moment it was pressed and a second quick press landed on the new layer's mix slider.
+       The scroller takes the same delta, so the button stays under the finger, and the
+       section — already on screen, the finger is in it — is not scrolled to its top (on a
+       phone that put this row below the fold). Desktop keeps its scroll-to-section. */
+    var stacked = window.matchMedia && window.matchMedia('(max-width:879px)').matches;
+    var ps = stacked ? b.closest('.panelScroll') : null;
+    var top0 = ps ? b.getBoundingClientRect().top : 0;
     if (!full){ addLayer(); }
     layerTab = layerDepth();        /* the new layer's tab — or the top one, at the cap */
     syncLayerBlocks();
+    if (ps){ ps.scrollTop += b.getBoundingClientRect().top - top0; }
     /* either way the press lands you in the Layers section on the layer in question, so it
        is never a click that appears to do nothing */
-    revealSection(document.getElementById('layerTabs'));
+    revealSection(document.getElementById('layerTabs'), !!ps);
     if (full){ setStatus('THREE ENGINES IS THE MAXIMUM — here is the top one; remove one below, or with the ✕ in the tray'); }
   });
 })();
@@ -6152,8 +6531,13 @@ if (refreshChip){
 }
 /* ---------- canvas pointer: hover ripples the field, drag pans a loaded image, a tap reseeds ---------- */
 var panning = false, panMoved = false, panSX = 0, panSY = 0, panBX = 0, panBY = 0, ptrDown = false;
+/* A tap whose only job was to put a sheet/dock away must not also reseed the artwork. The
+   dock closers run on document pointerdown (after this canvas listener), and flag the tap;
+   pointerup then swallows it. Reset here so a stale flag can never eat a later tap. */
+var dismissTap = false;
 canvas.addEventListener('pointerdown', function(e){
   if (EMBED){ return; }
+  dismissTap = false;
   panMoved = false; ptrDown = true;
   panSX = e.clientX; panSY = e.clientY;
   if (state.hasTex){
@@ -6190,6 +6574,7 @@ canvas.addEventListener('pointerup', function(e){
     try { canvas.releasePointerCapture(e.pointerId); } catch(err){}
     if (panMoved){ persist(); }   /* save the new image position */
   }
+  if (dismissTap){ dismissTap = false; ptrDown = false; return; }   /* the tap closed a sheet — that was its job */
   if (ptrDown && !panMoved && !EMBED && !state.hasTex){ reseed(); }  /* a tap on a loaded photo must not reseed the hidden field */
   ptrDown = false;
 });
@@ -6223,6 +6608,13 @@ PRESETS.forEach(function(p){
   presetBtns[p.id] = b;
   shelf.appendChild(b);
 });
+/* nothing on the shelf = no shelf: a "Built-in — tap to melt" label over an empty row read
+   as something broken, on phones especially, where it sat right under the first section title */
+if (!PRESETS.length && shelf){
+  shelf.style.display = 'none';
+  var shelfLabel = shelf.previousElementSibling;
+  if (shelfLabel && shelfLabel.className === 'exGroupLabel'){ shelfLabel.style.display = 'none'; }
+}
 var activePresetId = null;
 function markPreset(b, id){
   if (activePresetBtn){ activePresetBtn.classList.remove('on'); }
@@ -6551,18 +6943,36 @@ sourceToggle.addEventListener('click', function(){
 
 /* ---------- mobile panel sheet: drag the grip to trade panel height for artwork ---------- */
 var panelHandle = document.getElementById('panelHandle');
-if (panelHandle){
+/* not in an embed: the stage IS the window there, and an inline height meant for the
+   studio's split would crop the canvas (the class is set pre-paint, see the head) */
+if (panelHandle && !document.documentElement.classList.contains('embed')){
   /* drag the bar up/down to resize the artwork vs the controls (no minimise toggle —
      this just resizes the aspect-locked stage, the normal render path that works on iOS) */
   var stageEl = document.querySelector('.stage');
-  function clampH(h){
+  var panelEl = document.getElementById('panel');
+  var panelScrollEl = document.querySelector('.panelScroll');
+  var trayEl = document.getElementById('stageTray');
+  /* The grip's bounds come from what each half really needs, not from fractions of the
+     window. The old 22%..88% let the artwork reach 0x0 — the stage's own chrome (padding,
+     chip bar, tray) is ~190px, more than 22% of any phone — and let the controls reach 0px,
+     nothing holding the panel open past its grip; both states persisted. CARD_MIN is the
+     least canvas worth looking at, SCROLL_MIN the least of the scroller worth reaching for. */
+  var CARD_MIN = 120, SCROLL_MIN = 120;
+  var STAGE_PAD = 24;            /* .stage padding top+bottom on phones; setStageH's --stageH uses the same */
+  var CHIPS_H = 40;              /* the chip bar's slice of the card budget — the constant in the .card calc */
+  function clampH(h, mayFold){
     var vh = window.innerHeight || 700;
-    return Math.max(Math.round(vh * 0.22), Math.min(Math.round(vh * 0.88), h));
+    var ceiling = Math.round(vh - panelMin());
+    foldTrayIfNeeded(ceiling, mayFold);
+    var floor = Math.round(STAGE_PAD + CHIPS_H + trayBudget() + CARD_MIN);
+    /* a window too short for both minimums: the grip stays reachable, the art takes the hit */
+    if (floor > ceiling){ floor = ceiling; }
+    return Math.max(floor, Math.min(ceiling, h));
   }
   function setStageH(h){
     if (!stageEl){ return; }
     stageEl.style.height = h + 'px';
-    stageEl.style.setProperty('--stageH', (h - 24) + 'px');
+    stageEl.style.setProperty('--stageH', (h - STAGE_PAD) + 'px');
   }
   function clearStageH(){
     if (!stageEl){ return; }
@@ -6570,13 +6980,100 @@ if (panelHandle){
     stageEl.style.removeProperty('--stageH');
   }
   function isMobileLayout(){ return !(window.matchMedia && window.matchMedia('(min-width:880px)').matches); }
+  /* a phone on its side lays the halves side by side (the landscape block in the mobile
+     CSS — this is that rule's query, verbatim): no grip, and a split height means nothing */
+  var landQ = window.matchMedia ? window.matchMedia('(orientation:landscape) and (min-aspect-ratio:4/3)') : null;
+  function isLandscapeMobile(){ return isMobileLayout() && !!(landQ && landQ.matches); }
+  /* the tray's share of the card budget — the sum trayHeightFeedback writes to --trayH,
+     read live because clampH needs the new number the moment the shelf folds */
+  function trayBudget(){ var h = trayEl ? trayEl.offsetHeight : 0; return h ? h + 8 : 0; }
+  function trayOpen(){ return !!(trayEl && !trayEl.classList.contains('collapsed')); }
+  /* the card a stage this tall can hold — the .card calc, in px */
+  function cardIn(stageH){ return stageH - STAGE_PAD - CHIPS_H - trayBudget(); }
+  /* Fold the tray when even a stage this tall cannot show CARD_MIN of art beside it — the
+     shelf is the one thing in the budget that can give. Only when the viewport asked
+     (boot, rotate, resize): a shelf the user has just opened must not snap shut again. */
+  function foldTrayIfNeeded(stageH, mayFold){
+    if (mayFold && trayOpen() && cardIn(stageH) < CARD_MIN && typeof setTrayCollapsed === 'function'){ setTrayCollapsed(true); }
+  }
+  /* the least height the controls half can have: its chrome (grip, padding, border) plus
+     SCROLL_MIN of scroller. Measured two ways and the larger kept: panel-minus-scroller
+     counts whatever else is shown in the panel, but reads short once a stale inline stage
+     has already squashed the panel under its own chrome — that case is exactly the one
+     being repaired. */
+  function panelMin(){
+    var chrome = 0;
+    if (panelEl && panelScrollEl){
+      chrome = panelEl.getBoundingClientRect().height - panelScrollEl.getBoundingClientRect().height;
+      var cs = getComputedStyle(panelEl);
+      var fixed = panelHandle.offsetHeight + (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0) +
+        (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+      chrome = Math.max(chrome, fixed);
+    }
+    return Math.max(0, Math.round(chrome)) + SCROLL_MIN;
+  }
+  /* The split the user asked for, remembered per way up — one px value for both ways is
+     how a landscape drag used to come back as a shrunken portrait. localStorage is its
+     memory, `want` the session's truth (storage can be refused). The pre-per-orientation
+     key is read once as the portrait value, which is what nearly every phone saved, and
+     retired by the first save. */
+  var want = {};
+  function stageKey(){ return 'fluid:stageH:' + (landQ && landQ.matches ? 'l' : 'p'); }
+  function getWant(){
+    var k = stageKey();
+    if (want[k] === undefined){
+      var v = 0;
+      try {
+        v = parseFloat(localStorage.getItem(k));
+        if (!(v > 0) && k === 'fluid:stageH:p'){ v = parseFloat(localStorage.getItem('fluid:stageH')); }
+      } catch (e){}
+      want[k] = v > 0 ? v : 0;
+    }
+    return want[k];
+  }
+  function setWant(h){
+    want[stageKey()] = h;
+    try { localStorage.setItem(stageKey(), Math.round(h)); localStorage.removeItem('fluid:stageH'); } catch (e){}
+  }
+  var dragging = false, startY = 0, startH = 0;
+  /* Lay the split out for the viewport as it is NOW — one path for boot, rotation, any
+     resize and a tray that changed height. Side by side (landscape) clears any inline
+     height, the stylesheet owns it there. Stacked re-derives the inline height from what
+     the user asked for, clamped to today's bounds: that is what keeps the grip on screen
+     when a split-screen or window shrink — no orientationchange — drops innerHeight under a
+     dragged stage, and gives the height back when the window grows again. A stage nobody
+     has dragged stays on the stylesheet's 50dvh unless that leaves less than CARD_MIN of
+     art, when it is raised to the floor (short phones, split screens). It only writes when
+     the number changes, so a URL-bar resize is a no-op unless the stage sits at an extreme. */
+  function syncSheet(mayFold, fromBoot){
+    if (!stageEl || dragging || !isMobileLayout()){ return; }
+    var cur = parseFloat(stageEl.style.height) || 0, h;
+    if (isLandscapeMobile()){
+      if (cur){ clearStageH(); }
+      foldTrayIfNeeded(stageEl.getBoundingClientRect().height, mayFold);
+    } else {
+      var asked = getWant();
+      if (asked){
+        h = clampH(asked, mayFold);
+        /* a stale px (older build, another device's shape) is corrected for good, once */
+        if (fromBoot && h !== asked){ setWant(h); }
+        if (h !== cur){ setStageH(h); }
+      } else {
+        if (cur){ clearStageH(); }
+        var css = stageEl.getBoundingClientRect().height;
+        h = clampH(css, mayFold);
+        if (h !== css){ setStageH(h); }
+      }
+    }
+    if ((parseFloat(stageEl.style.height) || 0) !== cur){
+      if (typeof resize === 'function'){ resize(); }
+      requestRender();
+    }
+  }
   /* restore the saved split ONLY on mobile — on desktop #panelHandle is hidden and an
      inline height (from a prior mobile session) would wrongly shrink the full-height stage */
-  try {
-    var savedH = parseFloat(localStorage.getItem('fluid:stageH'));
-    if (savedH && isMobileLayout()){ setStageH(clampH(savedH)); }
-  } catch (e){}
-  var dragging = false, startY = 0, startH = 0;
+  var wasMobile = isMobileLayout();
+  if (wasMobile){ syncSheet(true, true); }
   panelHandle.addEventListener('pointerdown', function(e){
     if (!stageEl){ return; }
     dragging = true; startY = e.clientY; startH = stageEl.getBoundingClientRect().height;
@@ -6585,7 +7082,7 @@ if (panelHandle){
   });
   panelHandle.addEventListener('pointermove', function(e){
     if (!dragging){ return; }
-    setStageH(clampH(startH + (e.clientY - startY)));
+    setStageH(clampH(startH + (e.clientY - startY), false));
     if (typeof resize === 'function'){ resize(); }
     requestRender();
     e.preventDefault();
@@ -6594,29 +7091,55 @@ if (panelHandle){
     if (!dragging){ return; }
     dragging = false;
     try { panelHandle.releasePointerCapture(e.pointerId); } catch (err){}
-    try { localStorage.setItem('fluid:stageH', Math.round(stageEl.getBoundingClientRect().height)); } catch (err){}
+    setWant(Math.round(stageEl.getBoundingClientRect().height));
   }
   panelHandle.addEventListener('pointerup', endDrag);
   panelHandle.addEventListener('pointercancel', endDrag);
-  /* React only when the mobile/desktop breakpoint actually CROSSES — mobile browsers fire
-     'resize' constantly as the URL bar shows/hides, which would re-clamp and visibly twitch
-     the stage mid-scroll. Never fight an active drag. */
-  var wasMobile = isMobileLayout();
+  /* Never fight an active drag. Crossing to desktop drops the inline height exactly once;
+     every resize on the phone side re-derives the split (syncSheet is the one that knows
+     when nothing needs to change). */
   window.addEventListener('resize', function(){
     if (!stageEl || dragging){ return; }
     var nowMobile = isMobileLayout();
-    if (nowMobile === wasMobile){ return; }
-    wasMobile = nowMobile;
-    if (nowMobile){ var h = parseFloat(stageEl.style.height); if (h){ setStageH(clampH(h)); } }
-    else { clearStageH(); }
+    if (!nowMobile){
+      if (wasMobile){ clearStageH(); }
+      wasMobile = false;
+      return;
+    }
+    wasMobile = true;
+    syncSheet(true, false);
   });
-  /* rotation within mobile: re-clamp the saved height to the new viewport (innerHeight
-     settles a beat after orientationchange) */
+  /* rotation: innerHeight settles a beat after orientationchange (the resize that follows
+     is caught above too — this just makes sure it lands) */
   window.addEventListener('orientationchange', function(){
     if (!stageEl || dragging || !isMobileLayout()){ return; }
-    setTimeout(function(){ var h = parseFloat(stageEl.style.height); if (h){ setStageH(clampH(h)); } }, 250);
+    setTimeout(function(){ syncSheet(true, false); }, 250);
   });
+  /* the tray's height is part of the floor: a shelf opening under a stage dragged to the
+     floor lifts the stage rather than eating the art, and a closing one gives the room back */
+  if (trayEl && window.ResizeObserver){ new ResizeObserver(function(){ syncSheet(false, false); }).observe(trayEl); }
 }
+/* The chip bar scrolls sideways on phones (see the mobile CSS): atStart/atEnd drive its edge
+   fades, the same way initStrip does for the picker strips. Desktop never styles the
+   classes, so this is inert there. Children are observed too — a chip being shown or
+   hidden changes the overflow without changing the bar's own box. */
+(function(){
+  var bar = document.getElementById('canvasChips');
+  if (!bar){ return; }
+  function edges(){
+    var max = bar.scrollWidth - bar.clientWidth - 1;
+    bar.classList.toggle('atStart', bar.scrollLeft <= 1);
+    bar.classList.toggle('atEnd', bar.scrollLeft >= max);
+  }
+  bar.addEventListener('scroll', edges, { passive: true });
+  window.addEventListener('resize', edges);
+  if (window.ResizeObserver){
+    var ro = new ResizeObserver(edges);
+    ro.observe(bar);
+    Array.prototype.forEach.call(bar.children, function(c){ ro.observe(c); });
+  }
+  edges();
+})();
 
 /* ---------- share links: #p= is comma-joined numbers in an EXACT, append-only order ----------
    [0] speed [1] scale [2] warp [3] grain [4] pixel [5] dot [6] dots
@@ -6968,6 +7491,7 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setDe
 document.addEventListener('pointerdown', function(e){
   if (!designDock || designDock.className !== 'open'){ return; }
   if (designDock.contains(e.target) || designsChip.contains(e.target) || saveChip.contains(e.target)){ return; }
+  dismissTap = true;
   setDesignDock(false);
 });
 /* ---------- strip tiles: one tile shape shared by Recent, Saved and Explore ----------
@@ -7289,6 +7813,7 @@ if (embedChip && embedDock){
   document.addEventListener('pointerdown', function(e){
     if (embedDock.className !== 'open'){ return; }
     if (embedDock.contains(e.target) || embedChip.contains(e.target)){ return; }
+    dismissTap = true;
     setEmbedDock(false);
   });
 }
@@ -7307,6 +7832,7 @@ if (textChip && textDock){
   document.addEventListener('pointerdown', function(e){
     if (textDock.className !== 'open'){ return; }
     if (textDock.contains(e.target) || textChip.contains(e.target)){ return; }
+    dismissTap = true;
     setTextDock(false);
   });
 }
@@ -7328,6 +7854,7 @@ if (frameChip && frameDock){
   document.addEventListener('pointerdown', function(e){
     if (frameDock.className !== 'open'){ return; }
     if (frameDock.contains(e.target) || frameChip.contains(e.target)){ return; }
+    dismissTap = true;
     setFrameDock(false);
   });
 }
@@ -7348,6 +7875,7 @@ if (cursorChip && cursorDock){
   document.addEventListener('pointerdown', function(e){
     if (cursorDock.className !== 'open'){ return; }
     if (cursorDock.contains(e.target) || cursorChip.contains(e.target)){ return; }
+    dismissTap = true;
     setCursorDock(false);
   });
 }
