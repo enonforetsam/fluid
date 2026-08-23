@@ -1323,7 +1323,7 @@
      title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
      sit on the nav. The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned
      by a test. */
-  #appNav,.sheetHead,#toast,#imageChip,#palShuffle{display:none}
+  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass{display:none}
   @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
     /* 42dvh, but never so tall that the art drops under half the screen once the nav is
        counted — on a 667px phone 42dvh + 56 left 49.6% */
@@ -1359,8 +1359,7 @@
     html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
       display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
       height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
-      background:rgba(10,10,14,.55);box-shadow:0 -8px 24px rgba(0,0,0,.28);
-      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+      background:transparent;box-shadow:0 -8px 24px rgba(0,0,0,.28);
     }
     .wrap[data-sheet="browse"] #stageTray .trayBody{display:block;flex:1;min-height:0;height:auto;padding:10px 10px 12px}
     .wrap[data-sheet="browse"] #stageTray .trayTabs{padding:10px 8px 6px}
@@ -1380,11 +1379,9 @@
       display:flex;flex-direction:column;
       padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;
       box-shadow:0 -8px 24px rgba(0,0,0,.28);
-      /* glass (Danial: "make the tab see-through"): the art stays the room behind the controls.
-         backdrop-filter makes this a containing block for fixed descendants — the colour
-         editor is static in here on phones, and the docks live in the stage, so nothing moves. */
-      background-color:rgba(226,226,222,.5);background-image:none;
-      -webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2);
+      /* glass (Danial: "make the tab see-through"): the sheet is transparent; #glass below it
+         carries the blurred mirror of the art and the tint — see the markup note */
+      background-color:transparent;background-image:none;
     }
     html:not(.embed) .wrap:not([data-sheet]) .panel,
     html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
@@ -1457,6 +1454,12 @@
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
+    /* the frosted pane: fixed, sized to the open sheet by the shell each frame; the canvas is
+       drawn 20% oversize so the blur has no transparent fringe; ::after is the tint */
+    #glass{position:fixed;z-index:34;overflow:hidden;border-radius:14px 14px 0 0;pointer-events:none;display:none}
+    #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:blur(16px);-webkit-filter:blur(16px);transform:translateZ(0)}
+    #glass::after{content:'';position:absolute;inset:0;background:rgba(226,226,222,.5)}
+    #glass.dark::after{background:rgba(10,10,14,.55)}
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
@@ -2735,6 +2738,11 @@
     <button type="button" class="navBtn" data-nav="browse" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg><span>Browse</span></button>
     <button type="button" class="navBtn" data-nav="export" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span>Export</span></button>
   </nav>
+  <!-- app shell: the frosted pane behind an open sheet. WebKit's backdrop-filter does not
+       sample the WebGL canvas (the sheet came out flat grey on an iPhone), so the glass is
+       made by hand: a small canvas that mirrors the slice of art under the sheet each frame,
+       blurred by CSS, with the sheet's tint laid over it. The sheets themselves are transparent. -->
+  <div id="glass" aria-hidden="true"><canvas width="48" height="48"></canvas></div>
 </div>
 
 <script>
@@ -7504,8 +7512,40 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       });
     }
     if (imageChip){ imageChip.setAttribute('aria-expanded', key === 'image' ? 'true' : 'false'); }
+    if (key){ glassStart(); } else if (glassEl){ glassEl.style.display = 'none'; }
     if (prev !== key){ relayout(); }
   }
+  /* the frosted pane: mirror the slice of art under the open sheet into a 48px-wide canvas
+     (CSS blurs it) at ~15fps while a sheet is open; stops itself when none is */
+  var glassEl = document.getElementById('glass');
+  var glassCv = glassEl ? glassEl.querySelector('canvas') : null;
+  var glassCtx = glassCv ? glassCv.getContext('2d') : null;
+  var glassRAF = 0, glassLast = 0;
+  function glassTarget(){
+    var k = currentSheet();
+    if (!k){ return null; }
+    return k === 'browse' ? trayEl : panelEl;
+  }
+  function glassTick(ts){
+    glassRAF = 0;
+    var t = glassTarget();
+    if (!t || !glassCtx || !isAppShell()){ if (glassEl){ glassEl.style.display = 'none'; } return; }
+    var r = t.getBoundingClientRect();
+    glassEl.style.display = 'block';
+    glassEl.style.left = r.left + 'px'; glassEl.style.top = r.top + 'px';
+    glassEl.style.width = r.width + 'px'; glassEl.style.height = r.height + 'px';
+    glassEl.className = currentSheet() === 'browse' ? 'dark' : '';
+    if (ts - glassLast > 66 && r.width > 0 && r.height > 0){
+      glassLast = ts;
+      var src = canvas;
+      var sx = src.width / (window.innerWidth || 1), sy = src.height / (window.innerHeight || 1);
+      var mw = 48, mh = Math.max(8, Math.round(mw * r.height / r.width));
+      if (glassCv.width !== mw || glassCv.height !== mh){ glassCv.width = mw; glassCv.height = mh; }
+      try { glassCtx.drawImage(src, r.left * sx, r.top * sy, r.width * sx, r.height * sy, 0, 0, mw, mh); } catch (e){}
+    }
+    glassRAF = requestAnimationFrame(glassTick);
+  }
+  function glassStart(){ if (!glassRAF && glassCtx){ glassRAF = requestAnimationFrame(glassTick); } }
   closeOpenSheet = function(){
     if (!isAppShell() || !currentSheet()){ return false; }
     openSheet(null);
