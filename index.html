@@ -1323,7 +1323,7 @@
      title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
      sit on the nav. The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned
      by a test. */
-  #appNav,.sheetHead,#toast,#imageChip{display:none}
+  #appNav,.sheetHead,#toast,#imageChip,#palShuffle{display:none}
   @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
     /* 42dvh, but never so tall that the art drops under half the screen once the nav is
        counted — on a 667px phone 42dvh + 56 left 49.6% */
@@ -1427,17 +1427,16 @@
        Colour tab right under it is the way out; the two rows are the whole sheet */
     html:not(.embed) .wrap[data-sheet="colour"] .sheetHead{display:none}
     .wrap[data-sheet="colour"] .panelScroll{padding-bottom:8px}
-    .wrap[data-sheet="colour"] .cmBody{padding:10px 0 4px;overflow:visible}
-    .wrap[data-sheet="colour"] .cmBody > :not(#palStrip):not(#swatchRow){display:none}
-    .wrap[data-sheet="colour"] #palStrip{grid-template-columns:repeat(8,1fr);gap:7px}
-    .wrap[data-sheet="colour"] #palStrip .palBtn[data-pal="8"]{display:none}
-    /* flat: the engine-tile bevel (inset highlight + drop shadow) read as half-3D here */
-    .wrap[data-sheet="colour"] #palStrip .fieldBtn{aspect-ratio:1/1;height:auto;border-radius:9px;border:1px solid rgba(0,0,0,.16);box-shadow:none}
-    .wrap[data-sheet="colour"] #palStrip .fieldBtn.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
-    .wrap[data-sheet="colour"] #palStrip .fieldBtn:active{transform:none}
-    .wrap[data-sheet="colour"] #palStrip .fieldBtn span{display:none}
-    .wrap[data-sheet="colour"] #swatchRow{margin-top:8px;gap:7px}
-    .wrap[data-sheet="colour"] .swatch{max-width:none;height:40px;flex:1;border-radius:9px}
+    /* one row: the four stops and a shuffle. The preset squares went — with a custom or
+       shuffled palette none of them was lit, and a row of colours that did not match the
+       four under it read as a bug (Danial). A swatch is the OS colour picker; shuffle deals
+       a new palette; the shuffle sits OUTSIDE #swatchRow so Chrome's disabled row cannot
+       take it with it. */
+    .wrap[data-sheet="colour"] .cmBody{display:flex;align-items:center;gap:8px;padding:10px 0 4px;overflow:visible}
+    .wrap[data-sheet="colour"] .cmBody > :not(#swatchRow):not(#palShuffle){display:none}
+    .wrap[data-sheet="colour"] #swatchRow{flex:1 1 auto;min-width:0;margin:0;gap:7px;flex-wrap:nowrap}
+    .wrap[data-sheet="colour"] .swatch{max-width:none;min-width:0;height:40px;flex:1;border-radius:9px}
+    .wrap[data-sheet="colour"] #palShuffle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:40px;padding:0;font-size:18px;line-height:1;letter-spacing:0;border-radius:9px}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
@@ -2415,6 +2414,9 @@
       <input class="swatch" id="c2" type="color" aria-label="Gradient stop 3">
       <input class="swatch" id="c3" type="color" aria-label="Gradient stop 4 (lightest)">
     </div>
+    <!-- app shell (portrait phones): a new palette in one tap, beside the four stops. Hidden
+         everywhere else — the desktop has the palette grid for this. -->
+    <button type="button" id="palShuffle" aria-label="Shuffle colours" title="Shuffle colours">&#8635;</button>
     <div class="cnote" id="cnote"></div>
 
     <!-- ---------- colour editor markup: pick one stop and work it in HSB, RGB or hex ---------- -->
@@ -5482,6 +5484,25 @@ Array.prototype.forEach.call(document.querySelectorAll('.palBtn'), function(b){
     syncControls();
   });
 });
+/* app shell: one tap deals a new palette for the piece — a preset most of the time, a
+   procedural gradient some of the time, never the one already showing. Same housekeeping
+   as a palette tile tap. */
+var palShuffle = document.getElementById('palShuffle');
+if (palShuffle){
+  palShuffle.addEventListener('click', function(){
+    var was = state.pal;
+    if (Math.random() < 0.3){ state.pal = 8; state.cols = randomGradient(); }
+    else {
+      var n = Math.floor(Math.random() * 7);
+      if (n === was){ n = (n + 1) % 7; }
+      state.pal = n;
+    }
+    resetCustomMode();
+    markLook(null);
+    syncControls();
+    setStatus('COLOURS SHUFFLED — tap a swatch to tune one');
+  });
+}
 /* ---------- custom gradient: derive the 4 shader stops from 2 or 3 colours the user picked ----------
    The engine always runs on 4 stops (share-hash slots [20..23] unchanged); in
    2- or 3-colour mode the extra stops are derived by blending, so a designer can
