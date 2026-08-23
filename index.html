@@ -1354,9 +1354,9 @@
     /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
        on any art (the scrim alone was not enough at the pale end) */
     html:not(.embed) .wrap #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)}
-    /* the tray is the Browse sheet */
-    html:not(.embed) .wrap #stageTray{display:none}
-    html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
+    /* the tray is the Browse sheet (parked below the screen until Browse opens — see the
+       slide rules further down) */
+    html:not(.embed) .wrap #stageTray{
       display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
       height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
       background:transparent;box-shadow:0 -8px 24px rgba(0,0,0,.28);
@@ -1383,8 +1383,25 @@
          carries the blurred mirror of the art and the tint — see the markup note */
       background-color:transparent;background-image:none;
     }
-    html:not(.embed) .wrap:not([data-sheet]) .panel,
-    html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
+    /* the sheets slide up and fade in, slide down and fade out (Danial: "smoothly"). They are
+       never display:none here — a transition cannot start from none — only moved off the
+       bottom and hidden; data-closing on .wrap keeps the open section on screen while it
+       leaves, and the shell drops the attributes when the slide has run. */
+    html:not(.embed) .wrap .panel,
+    html:not(.embed) .wrap #stageTray{
+      transform:translateY(calc(100% + 16px));opacity:0;visibility:hidden;pointer-events:none;
+      transition:transform .28s cubic-bezier(.4,0,.6,1),opacity .22s ease,visibility 0s linear .28s;
+    }
+    html:not(.embed) .wrap[data-sheet]:not([data-sheet="browse"]):not([data-closing]) .panel,
+    html:not(.embed) .wrap[data-sheet="browse"]:not([data-closing]) #stageTray{
+      transform:none;opacity:1;visibility:visible;pointer-events:auto;
+      transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .2s ease,visibility 0s;
+    }
+    #glass{transition:opacity .24s ease}
+    .wrap[data-closing] #glass{opacity:0}
+    @media(prefers-reduced-motion:reduce){
+      html:not(.embed) .wrap .panel,html:not(.embed) .wrap #stageTray,#glass{transition:none}
+    }
     #panelHandle{display:none}
     .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
     /* no sheet heads on phones (Danial, Colour then Engine: "remove the top tab title and the
@@ -7494,10 +7511,13 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     requestRender();
     window.dispatchEvent(new Event('resize'));
   }
+  var closeTimer = 0;
+  function isClosing(){ return !!(wrapEl && wrapEl.hasAttribute('data-closing')); }
   function openSheet(key){
     if (!wrapEl){ return; }
     if (key && !isAppShell()){ return; }
     var prev = currentSheet();
+    if (closeTimer){ clearTimeout(closeTimer); closeTimer = 0; wrapEl.removeAttribute('data-closing'); }
     if (key){
       wrapEl.setAttribute('data-sheet', key);
       Array.prototype.forEach.call(document.querySelectorAll('.panel section[data-nav="' + key + '"]'), function(sec){
@@ -7513,9 +7533,17 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       if (panelScrollEl){ panelScrollEl.scrollTop = 0; }
       closeDocks();
       if (key !== 'colour'){ closeColourEditor(); }
-    } else {
-      wrapEl.removeAttribute('data-sheet');
+    } else if (prev){
+      /* leave the section on screen while the sheet slides out; the attributes go when the
+         transition has run (320ms ≥ the CSS 280ms) */
+      wrapEl.setAttribute('data-closing', '');
       closeColourEditor();
+      closeTimer = setTimeout(function(){
+        closeTimer = 0;
+        wrapEl.removeAttribute('data-closing');
+        wrapEl.removeAttribute('data-sheet');
+        if (glassEl){ glassEl.style.display = 'none'; }
+      }, 320);
     }
     if (navEl){
       Array.prototype.forEach.call(navEl.querySelectorAll('.navBtn'), function(b){
@@ -7525,7 +7553,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       });
     }
     if (imageChip){ imageChip.setAttribute('aria-expanded', key === 'image' ? 'true' : 'false'); }
-    if (key){ glassStart(); } else if (glassEl){ glassEl.style.display = 'none'; }
+    if (key){ glassStart(); }
     if (prev !== key){ relayout(); }
   }
   /* the frosted pane: mirror the slice of art under the open sheet into a 48px-wide canvas
@@ -7560,7 +7588,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   }
   function glassStart(){ if (!glassRAF && glassCtx){ glassRAF = requestAnimationFrame(glassTick); } }
   closeOpenSheet = function(){
-    if (!isAppShell() || !currentSheet()){ return false; }
+    if (!isAppShell() || !currentSheet() || isClosing()){ return false; }
     openSheet(null);
     return true;
   };
@@ -7568,7 +7596,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     if (!isAppShell() || !el || !el.getAttribute){ return false; }
     var key = el.getAttribute('data-nav');
     if (!key){ return false; }
-    if (currentSheet() !== key){ openSheet(key); }
+    if (currentSheet() !== key || isClosing()){ openSheet(key); }
     return true;
   };
   if (navEl){
@@ -7576,10 +7604,10 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       var b = e.target.closest ? e.target.closest('.navBtn') : null;
       if (!b){ return; }
       var key = b.getAttribute('data-nav');
-      openSheet(currentSheet() === key ? null : key);
+      openSheet((!isClosing() && currentSheet() === key) ? null : key);
     });
   }
-  if (imageChip){ imageChip.addEventListener('click', function(){ openSheet(currentSheet() === 'image' ? null : 'image'); }); }
+  if (imageChip){ imageChip.addEventListener('click', function(){ openSheet((!isClosing() && currentSheet() === 'image') ? null : 'image'); }); }
   /* close by ✕ (click for the mouse, touchend for fingers — preventDefault so one tap closes
      once and never also re-fires through the synthetic click) and by a pull on the grip */
   if (sheetClose){
