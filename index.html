@@ -1359,8 +1359,8 @@
     html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
       display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
       height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
-      background:rgba(10,10,14,.68);box-shadow:0 -8px 24px rgba(0,0,0,.28);
-      -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+      background:rgba(10,10,14,.55);box-shadow:0 -8px 24px rgba(0,0,0,.28);
+      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
     }
     .wrap[data-sheet="browse"] #stageTray .trayBody{display:block;flex:1;min-height:0;height:auto;padding:10px 10px 12px}
     .wrap[data-sheet="browse"] #stageTray .trayTabs{padding:10px 8px 6px}
@@ -1383,8 +1383,8 @@
       /* glass (Danial: "make the tab see-through"): the art stays the room behind the controls.
          backdrop-filter makes this a containing block for fixed descendants — the colour
          editor is static in here on phones, and the docks live in the stage, so nothing moves. */
-      background-color:rgba(222,222,218,.74);background-image:none;
-      -webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);
+      background-color:rgba(226,226,222,.5);background-image:none;
+      -webkit-backdrop-filter:blur(24px) saturate(1.2);backdrop-filter:blur(24px) saturate(1.2);
     }
     html:not(.embed) .wrap:not([data-sheet]) .panel,
     html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
@@ -1460,8 +1460,8 @@
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
-      background:rgba(17,18,22,.7);border-top:1px solid rgba(255,255,255,.10);
-      -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+      background:rgba(17,18,22,.55);border-top:1px solid rgba(255,255,255,.10);
+      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
     }
     .navBtn{
       position:relative;flex:1 1 0;min-width:0;
