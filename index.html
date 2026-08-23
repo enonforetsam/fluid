@@ -1384,6 +1384,9 @@
     html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
     #panelHandle{display:none}
     .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
+    /* no sheet heads on phones (Danial, Colour then Engine: "remove the top tab title and the
+       x"): the lit tab under a sheet is the way out, and every pixel of a sheet is controls */
+    html:not(.embed) .wrap .sheetHead{display:none}
     .sheetHead{
       display:flex;align-items:center;gap:10px;flex:none;
       padding:10px 0 9px;border-bottom:1px solid var(--line);
@@ -1423,9 +1426,6 @@
     .wrap[data-sheet="colour"] #rampLine{display:none}
     .wrap[data-sheet="colour"] #colourMore{display:flex !important;position:static;width:auto;max-height:none;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:auto}
     .wrap[data-sheet="colour"] .cmHead,.wrap[data-sheet="colour"] .cmFoot{display:none}
-    /* no head on this one (Danial: "remove the top tab with the label and the x") — the lit
-       Colour tab right under it is the way out; the two rows are the whole sheet */
-    html:not(.embed) .wrap[data-sheet="colour"] .sheetHead{display:none}
     .wrap[data-sheet="colour"] .panelScroll{padding-bottom:8px}
     /* one row: the four stops and a shuffle. The preset squares went — with a custom or
        shuffled palette none of them was lit, and a row of colours that did not match the
@@ -1437,6 +1437,17 @@
     .wrap[data-sheet="colour"] #swatchRow{flex:1 1 auto;min-width:0;margin:0;gap:7px;flex-wrap:nowrap}
     .wrap[data-sheet="colour"] .swatch{max-width:none;min-width:0;height:40px;flex:1;border-radius:9px}
     .wrap[data-sheet="colour"] #palShuffle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:40px;padding:0;font-size:18px;line-height:1;letter-spacing:0;border-radius:9px}
+    /* Engine: content-sized, 64px tiles, tighter rows (Danial: "this section is too high,
+       reduce the size of the squares") */
+    html:not(.embed) .wrap[data-sheet="engine"] .panel{height:auto;max-height:var(--sheetH)}
+    .wrap[data-sheet="engine"] .panel section{padding-top:12px}
+    .wrap[data-sheet="engine"] .layerTabs{margin-bottom:8px;gap:5px}
+    .wrap[data-sheet="engine"] button.layerTab{padding:8px 12px}
+    .wrap[data-sheet="engine"] .striprow{margin-bottom:8px}
+    .wrap[data-sheet="engine"] .fieldstrip .fieldBtn{flex:0 0 64px;width:64px;border-radius:7px}
+    .wrap[data-sheet="engine"] .fieldstrip .fieldBtn span{font-size:7px;padding:2px 0}
+    .wrap[data-sheet="engine"] #randBtn,.wrap[data-sheet="engine"] #addLayerBtn,.wrap[data-sheet="engine"] #removeLayerBtn{min-height:36px;padding:8px 12px}
+    .wrap[data-sheet="engine"] .panelScroll{padding-bottom:10px}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
