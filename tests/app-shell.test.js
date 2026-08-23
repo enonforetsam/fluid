@@ -17,17 +17,16 @@ describe('app shell (portrait phones)', () => {
   const sectionKeys = [...html.matchAll(/<section[^>]*data-nav="([a-z]+)"/g)].map(m => m[1]);
 
   it('has the five doors, in the agreed order', () => {
-    assert.deepStrictEqual(navKeys, ['colour', 'engine', 'look', 'browse', 'export']);
+    assert.deepStrictEqual(navKeys, ['colour', 'engine', 'look', 'export']);
   });
 
   it('every door leads somewhere, and every navigable section has a door', () => {
-    /* browse is the stage tray, not a panel section; image is opened by the chip bar's image
-       chip, not a tab — both are deliberate, and both are pinned here so they cannot drift */
+    /* image is opened by the chip bar's image chip, not a tab — deliberate, pinned here so it
+       cannot drift; the stage tray has no tab on phones at all */
     const navSet = new Set(navKeys), secSet = new Set(sectionKeys);
-    for (const k of navSet) if (k !== 'browse') assert.ok(secSet.has(k), `nav "${k}" has no section[data-nav="${k}"]`);
+    for (const k of navSet) assert.ok(secSet.has(k), `nav "${k}" has no section[data-nav="${k}"]`);
     for (const k of secSet) if (k !== 'image') assert.ok(navSet.has(k), `section[data-nav="${k}"] has no nav button`);
     assert.ok(html.includes('<button id="imageChip"'), 'the image chip opens the Source section');
-    assert.ok(/\.wrap\[data-sheet="browse"\] #stageTray\{/.test(html), 'Browse shows the stage tray as a sheet');
     assert.ok(sectionKeys.filter(k => k === 'export').length === 2, 'Size and Output share the Export sheet');
   });
 

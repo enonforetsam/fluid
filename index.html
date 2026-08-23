@@ -1354,24 +1354,8 @@
     /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
        on any art (the scrim alone was not enough at the pale end) */
     html:not(.embed) .wrap #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)}
-    /* the tray is the Browse sheet (parked below the screen until Browse opens — see the
-       slide rules further down) */
-    html:not(.embed) .wrap #stageTray{
-      display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
-      height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
-      background:transparent;box-shadow:0 -8px 24px rgba(0,0,0,.28);
-    }
-    .wrap[data-sheet="browse"] #stageTray .trayBody{display:block;flex:1;min-height:0;height:auto;padding:10px 10px 12px}
-    .wrap[data-sheet="browse"] #stageTray .trayTabs{padding:10px 8px 6px}
-    #trayToggle{display:none}
-    /* Browse has the room a 92px tray never had: the shelves wrap into a three-column grid
-       that scrolls down, and the layer rows sit at the top rather than floating mid-sheet */
-    .wrap[data-sheet="browse"] #trayExplore,.wrap[data-sheet="browse"] #trayRecent,.wrap[data-sheet="browse"] #traySaved{align-items:flex-start;height:100%;overflow:hidden}
-    .wrap[data-sheet="browse"] .expStrip{flex-wrap:wrap;align-content:flex-start;overflow-x:hidden;overflow-y:auto;scroll-snap-type:none;height:100%;gap:8px;padding-bottom:8px}
-    .wrap[data-sheet="browse"] .expTile{width:calc((100% - 16px) / 3)}
-    .wrap[data-sheet="browse"] .expTile img{width:100%;height:auto;aspect-ratio:104/59}
-    .wrap[data-sheet="browse"] .layerStack{align-items:flex-start;height:auto;padding-top:4px}
-    .wrap[data-sheet="browse"] .stripBtn{display:none}
+    /* no tray on phones (the Browse tab was removed — nothing there a phone user wanted) */
+    html:not(.embed) .wrap #stageTray{display:none}
     /* the controls: one section as a sheet over the art, above the nav */
     html:not(.embed) .wrap .panel{
       position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
@@ -1387,20 +1371,18 @@
        never display:none here — a transition cannot start from none — only moved off the
        bottom and hidden; data-closing on .wrap keeps the open section on screen while it
        leaves, and the shell drops the attributes when the slide has run. */
-    html:not(.embed) .wrap .panel,
-    html:not(.embed) .wrap #stageTray{
+    html:not(.embed) .wrap .panel{
       transform:translateY(calc(100% + 16px));opacity:0;visibility:hidden;pointer-events:none;
       transition:transform .28s cubic-bezier(.4,0,.6,1),opacity .22s ease,visibility 0s linear .28s;
     }
-    html:not(.embed) .wrap[data-sheet]:not([data-sheet="browse"]):not([data-closing]) .panel,
-    html:not(.embed) .wrap[data-sheet="browse"]:not([data-closing]) #stageTray{
+    html:not(.embed) .wrap[data-sheet]:not([data-closing]) .panel{
       transform:none;opacity:1;visibility:visible;pointer-events:auto;
       transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .2s ease,visibility 0s;
     }
     #glass{transition:opacity .24s ease}
     .wrap[data-closing] #glass{opacity:0}
     @media(prefers-reduced-motion:reduce){
-      html:not(.embed) .wrap .panel,html:not(.embed) .wrap #stageTray,#glass{transition:none}
+      html:not(.embed) .wrap .panel,#glass{transition:none}
     }
     #panelHandle{display:none}
     .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
@@ -1489,7 +1471,6 @@
     #glass{position:fixed;z-index:34;overflow:hidden;border-radius:14px 14px 0 0;pointer-events:none;display:none}
     #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:blur(16px);-webkit-filter:blur(16px);transform:translateZ(0)}
     #glass::after{content:'';position:absolute;inset:0;background:rgba(226,226,222,.5)}
-    #glass.dark::after{background:rgba(10,10,14,.55)}
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
@@ -1528,8 +1509,7 @@
     @media(prefers-reduced-motion:reduce){#toast{transition:none}}
     /* a tablet gets centred sheets, not full-width slabs */
     @media (min-width:600px){
-      html:not(.embed) .wrap .panel,
-      html:not(.embed) .wrap[data-sheet="browse"] #stageTray{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+      html:not(.embed) .wrap .panel{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}
     }
   }
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
@@ -2758,14 +2738,13 @@
   </div>
   <!-- app shell (portrait phones + small tablets): five doors, one open at a time, floating
        over the bottom of the art. Colour/Engine/Look/Export open their panel section as a sheet
-       (Export carries Size too — the frame is an export decision here); Browse is the stage
-       tray as a sheet. Source is behind the image chip on the chip bar. Hidden above 880px
-       and in landscape. -->
+       (Export carries Size too — the frame is an export decision here). Source is behind the
+       image chip on the chip bar; the stage tray has no tab (Browse came and went — "nothing
+       there" on a phone). Hidden above 880px and in landscape. -->
   <nav id="appNav" aria-label="Studio sections">
     <button type="button" class="navBtn" data-nav="colour" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg><span>Colour</span></button>
     <button type="button" class="navBtn" data-nav="engine" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-6 5-6 2.5 0 3 0"></path></svg><span>Engine</span></button>
     <button type="button" class="navBtn" data-nav="look" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Look</span></button>
-    <button type="button" class="navBtn" data-nav="browse" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg><span>Browse</span></button>
     <button type="button" class="navBtn" data-nav="export" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span>Export</span></button>
   </nav>
   <!-- app shell: the frosted pane behind an open sheet. WebKit's backdrop-filter does not
@@ -7562,11 +7541,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var glassCv = glassEl ? glassEl.querySelector('canvas') : null;
   var glassCtx = glassCv ? glassCv.getContext('2d') : null;
   var glassRAF = 0, glassLast = 0;
-  function glassTarget(){
-    var k = currentSheet();
-    if (!k){ return null; }
-    return k === 'browse' ? trayEl : panelEl;
-  }
+  function glassTarget(){ return currentSheet() ? panelEl : null; }
   function glassTick(ts){
     glassRAF = 0;
     var t = glassTarget();
@@ -7575,7 +7550,6 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     glassEl.style.display = 'block';
     glassEl.style.left = r.left + 'px'; glassEl.style.top = r.top + 'px';
     glassEl.style.width = r.width + 'px'; glassEl.style.height = r.height + 'px';
-    glassEl.className = currentSheet() === 'browse' ? 'dark' : '';
     if (ts - glassLast > 66 && r.width > 0 && r.height > 0){
       glassLast = ts;
       var src = canvas;
