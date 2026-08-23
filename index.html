@@ -1310,37 +1310,75 @@
     #modePill .modeOpt:last-child{border-radius:0 7px 7px 0}
   }
 
-  /* ---------- app shell layout: portrait phones + small tablets — a bottom nav, one section as a sheet, the art keeps at least half the screen ----------
-     Below 880px and not landscape (landscape keeps the side-by-side split above): the stage
-     fills everything above a five-tab nav; a tab opens ITS panel section as a sheet of 42dvh,
-     and the stage shrinks above it rather than being covered — the artwork is the point of the
-     app, so it never drops under half the screen. Same DOM, same ids, same wiring: the nav only
-     decides which section is visible. The drag grip and its clamps are retired here (the sheet
-     height is a constant), the phone title/meta/status rows are gone (status speaks as a toast),
-     and the docks + colour editor sit above the nav instead of on the screen's edge.
-     The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned by a test. */
-  #appNav,.sheetHead,#toast{display:none}
+  /* ---------- app shell layout: portrait phones + small tablets — full-bleed art, a bottom nav, one section as a sheet over it ----------
+     Below 880px and not landscape (landscape keeps the side-by-side split above): the artwork
+     IS the screen. The canvas fills the viewport edge to edge, the chip bar floats over its top
+     (clear of the notch), a five-tab nav floats over its bottom, and a tab opens ITS panel
+     section as a 42dvh sheet above the nav — capped at 50dvh minus the nav, so the art is never
+     less than half the screen. Size lives in the Export sheet: here the frame is an export
+     decision (runExport renders at exportTarget whatever the canvas box is) and the screen just
+     shows the pattern. Browse is the stage tray as a sheet; Source is behind the image chip (a
+     photo is put ON the canvas, like Text or a Frame). Same DOM, same ids, same wiring: the nav
+     only decides what shows. The drag grip and its clamps are retired here, the phone
+     title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
+     sit on the nav. The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned
+     by a test. */
+  #appNav,.sheetHead,#toast,#imageChip{display:none}
   @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
-    .wrap{--navH:calc(56px + env(safe-area-inset-bottom, 0px));--sheetH:0px}
-    /* 42dvh, but never so tall that the art drops under half the screen once the nav's 56px
-       is counted — on a 667px phone 42dvh + 56 left 49.6% */
-    .wrap[data-sheet]{--sheetH:min(42vh, calc(50vh - var(--navH)));--sheetH:min(42dvh, calc(50dvh - var(--navH)))}
+    /* 42dvh, but never so tall that the art drops under half the screen once the nav is
+       counted — on a 667px phone 42dvh + 56 left 49.6% */
+    .wrap{--navH:calc(56px + env(safe-area-inset-bottom, 0px));--sheetH:min(42vh, calc(50vh - var(--navH)));--sheetH:min(42dvh, calc(50dvh - var(--navH)))}
+    /* the art is the screen */
     html:not(.embed) .wrap .stage{
-      flex:none;
-      height:calc(100vh - var(--navH) - var(--sheetH));height:calc(100dvh - var(--navH) - var(--sheetH));
-      --stageH:calc(100vh - var(--navH) - var(--sheetH) - 24px);--stageH:calc(100dvh - var(--navH) - var(--sheetH) - 24px);
+      flex:none;height:100vh;height:100dvh;padding:0;
+      --stageH:calc(100vh - 24px);--stageH:calc(100dvh - 24px);
       transition:none;
     }
-    html:not(.embed) .wrap .panel{
-      flex:none;height:var(--sheetH);min-height:0;overflow:hidden;
-      display:flex;flex-direction:column;
-      padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);
+    html:not(.embed) .wrap .stageInner{width:100%;height:100%;max-width:none;gap:0;margin:0}
+    html:not(.embed) .wrap .card{width:100%;height:100%;border-radius:0;margin:0;box-shadow:none}
+    /* !important: applyAspect writes the frame's ratio inline, and here the box is the screen.
+       object-fit keeps a running recording (whose backing store is the clip's own frame)
+       letterboxed rather than stretched. */
+    html:not(.embed) .wrap #cv{width:100%;height:100%;aspect-ratio:auto !important;object-fit:contain;border-radius:0}
+    /* the chip bar floats over the top of the art, clear of the notch; the scrim keeps the
+       chips readable over a bright pattern */
+    html:not(.embed) .wrap #canvasChips{
+      position:absolute;top:0;left:0;right:0;z-index:2;margin:0;
+      padding:calc(8px + env(safe-area-inset-top, 0px)) 10px 12px;
+      background:linear-gradient(180deg, rgba(6,6,10,.62), rgba(6,6,10,0));
     }
-    html:not(.embed) .wrap:not([data-sheet]) .panel{display:none}
-    /* the stage is a screen now, not a box: chip bar at the top, tray at the bottom, the art
-       centred in what is left (auto margins absorb the slack a square piece leaves) */
-    html:not(.embed) .wrap .stageInner{height:100%}
-    html:not(.embed) .wrap .card{margin:auto}
+    .stageInner::before,.stageInner::after{top:0;height:calc(48px + env(safe-area-inset-top, 0px))}
+    .stageInner::before{left:0;background:linear-gradient(90deg,rgba(6,6,10,.6),rgba(6,6,10,0))}
+    .stageInner::after{right:0;background:linear-gradient(90deg,rgba(6,6,10,0),rgba(6,6,10,.6))}
+    #imageChip{display:inline-flex}
+    /* the tray is the Browse sheet */
+    html:not(.embed) .wrap #stageTray{display:none}
+    html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
+      display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
+      height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
+      background:rgba(10,10,14,.96);box-shadow:0 -8px 24px rgba(0,0,0,.28);
+    }
+    .wrap[data-sheet="browse"] #stageTray .trayBody{display:block;flex:1;min-height:0;height:auto;padding:10px 10px 12px}
+    .wrap[data-sheet="browse"] #stageTray .trayTabs{padding:10px 8px 6px}
+    #trayToggle{display:none}
+    /* Browse has the room a 92px tray never had: the shelves wrap into a three-column grid
+       that scrolls down, and the layer rows sit at the top rather than floating mid-sheet */
+    .wrap[data-sheet="browse"] #trayExplore,.wrap[data-sheet="browse"] #trayRecent,.wrap[data-sheet="browse"] #traySaved{align-items:flex-start;height:100%;overflow:hidden}
+    .wrap[data-sheet="browse"] .expStrip{flex-wrap:wrap;align-content:flex-start;overflow-x:hidden;overflow-y:auto;scroll-snap-type:none;height:100%;gap:8px;padding-bottom:8px}
+    .wrap[data-sheet="browse"] .expTile{width:calc((100% - 16px) / 3)}
+    .wrap[data-sheet="browse"] .expTile img{width:100%;height:auto;aspect-ratio:104/59}
+    .wrap[data-sheet="browse"] .layerStack{align-items:flex-start;height:auto;padding-top:4px}
+    .wrap[data-sheet="browse"] .stripBtn{display:none}
+    /* the controls: one section as a sheet over the art, above the nav */
+    html:not(.embed) .wrap .panel{
+      position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
+      height:var(--sheetH);min-height:0;overflow:hidden;
+      display:flex;flex-direction:column;
+      padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;
+      box-shadow:0 -8px 24px rgba(0,0,0,.28);
+    }
+    html:not(.embed) .wrap:not([data-sheet]) .panel,
+    html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
     #panelHandle{display:none}
     .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
     .sheetHead{
@@ -1357,33 +1395,35 @@
     .panelScroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:14px}
     .panel section{display:none;border-top:0;box-shadow:none;padding-top:10px}
     .panel section .sec-title{display:none}
-    .wrap[data-sheet="canvas"] .panel section[data-nav="canvas"],
+    .wrap[data-sheet="image"] .panel section[data-nav="image"],
     .wrap[data-sheet="colour"] .panel section[data-nav="colour"],
     .wrap[data-sheet="engine"] .panel section[data-nav="engine"],
     .wrap[data-sheet="look"] .panel section[data-nav="look"],
     .wrap[data-sheet="export"] .panel section[data-nav="export"]{display:block}
+    /* Export = Size, then Output: a hairline between the two sections that share the sheet */
+    .wrap[data-sheet="export"] .panel section[data-nav="export"] ~ section[data-nav="export"]{border-top:1px solid var(--line);margin-top:6px;padding-top:14px}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
     #appNav{
-      display:flex;align-items:stretch;flex:none;position:relative;z-index:35;
+      display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
-      background:var(--panel-metal);border-top:1px solid var(--line);
+      background:rgba(17,18,22,.9);border-top:1px solid rgba(255,255,255,.10);
     }
     .navBtn{
       position:relative;flex:1 1 0;min-width:0;
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
       padding:6px 2px;border:0;border-radius:0;
       background:transparent;background-image:none;box-shadow:none;text-shadow:none;
-      color:var(--soft);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+      color:rgba(232,232,228,.55);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
       cursor:pointer;touch-action:manipulation;
     }
     .navBtn:active{transform:none;background-image:none;box-shadow:none}
     .navBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
     /* the global button.on (a pressed, ink-filled key) must not reach the nav: an active tab is
        a lit icon and a bar, not a filled block */
-    .navBtn.on{color:var(--ink);background-color:transparent;background-image:none;box-shadow:none;transform:none;text-shadow:none}
-    .navBtn.on::before{content:'';position:absolute;top:-1px;left:50%;width:28px;margin-left:-14px;height:2px;background:var(--ink);border-radius:0 0 2px 2px}
+    .navBtn.on{color:#e8e8e4;background-color:transparent;background-image:none;box-shadow:none;transform:none;text-shadow:none}
+    .navBtn.on::before{content:'';position:absolute;top:-1px;left:50%;width:28px;margin-left:-14px;height:2px;background:#e8e8e4;border-radius:0 0 2px 2px}
     html.embed #appNav{display:none}
     /* the docks and the colour editor sit on the nav, not under it */
     #cursorDock,#frameDock,#textDock,#designDock{
@@ -1393,16 +1433,17 @@
     }
     #colourMore{bottom:calc(var(--navH) + 8px)}
     #toast{
-      display:block;position:absolute;left:8px;right:8px;top:40px;z-index:6;pointer-events:none;
+      display:block;position:absolute;left:8px;right:8px;top:calc(54px + env(safe-area-inset-top, 0px));z-index:6;pointer-events:none;
       text-align:center;font-size:9px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;
       background:rgba(6,6,10,.84);color:#e8e8e4;padding:7px 10px;border-radius:7px;
       opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;
     }
     #toast.show{opacity:1;transform:none}
     @media(prefers-reduced-motion:reduce){#toast{transition:none}}
-    /* a tablet gets a centred sheet, not a full-width slab */
+    /* a tablet gets centred sheets, not full-width slabs */
     @media (min-width:600px){
-      html:not(.embed) .wrap .panel{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:14px 14px 0 0}
+      html:not(.embed) .wrap .panel,
+      html:not(.embed) .wrap[data-sheet="browse"] #stageTray{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}
     }
   }
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
@@ -1982,6 +2023,12 @@
         <button id="redoChip" class="chipIcon" title="Redo" aria-label="Redo">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5"></path><path d="M20 9H10a6 6 0 0 0 0 12h3"></path></svg>
         </button>
+        <!-- app shell (portrait phones): Source has no nav tab — a photo is something you put ON
+             the canvas, like Text or a Frame, so it sits here with them and opens the Image sheet.
+             display:none outside the shell, where Source is a panel section. -->
+        <button id="imageChip" class="chipIcon" title="Insert an image" aria-label="Insert an image" aria-expanded="false" aria-controls="panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 16l-5-5-8 8"></path></svg>
+        </button>
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
         </button>
@@ -2237,7 +2284,7 @@
 
   <!-- ---------- Source section: an optional photo, camera frame or drop melted into the field ---------- -->
   <!-- optional image source: collapsed by default; melts a photo/built-in into the field -->
-  <section data-nav="canvas">
+  <section data-nav="image">
     <div class="sec-title">00 — Source</div>
     <button id="sourceToggle" aria-expanded="false">+ Insert image</button>
     <div id="sourcePanel">
@@ -2273,7 +2320,7 @@
   </section>
 
   <!-- ---------- Size section: the aspect fader, portrait through landscape ---------- -->
-  <section data-nav="canvas">
+  <section data-nav="export">
     <div class="sec-title">01 — Size</div>
     <div class="ardial">
       <input id="arSlider" type="range" min="0" max="5" step="1" value="2" aria-label="Aspect ratio">
@@ -2620,14 +2667,16 @@
     <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
   </div>
   </div>
-  <!-- app shell (portrait phones + small tablets): five doors, one open at a time. Each opens
-       its panel section as a sheet under the artwork; the art always keeps at least half the
-       screen. Canvas = Source + Size (both short). Hidden above 880px and in landscape. -->
+  <!-- app shell (portrait phones + small tablets): five doors, one open at a time, floating
+       over the bottom of the art. Colour/Engine/Look/Export open their panel section as a sheet
+       (Export carries Size too — the frame is an export decision here); Browse is the stage
+       tray as a sheet. Source is behind the image chip on the chip bar. Hidden above 880px
+       and in landscape. -->
   <nav id="appNav" aria-label="Studio sections">
-    <button type="button" class="navBtn" data-nav="canvas" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"></path><rect x="8" y="9" width="8" height="6" rx="1"></rect></svg><span>Canvas</span></button>
     <button type="button" class="navBtn" data-nav="colour" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg><span>Colour</span></button>
     <button type="button" class="navBtn" data-nav="engine" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-6 5-6 2.5 0 3 0"></path></svg><span>Engine</span></button>
     <button type="button" class="navBtn" data-nav="look" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Look</span></button>
+    <button type="button" class="navBtn" data-nav="browse" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"></rect><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"></rect><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"></rect></svg><span>Browse</span></button>
     <button type="button" class="navBtn" data-nav="export" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span>Export</span></button>
   </nav>
 </div>
@@ -7235,11 +7284,9 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     if (!stageEl || dragging || !isMobileLayout()){ return; }
     var cur = parseFloat(stageEl.style.height) || 0, h;
     if (isAppShell()){
-      /* the shell's CSS owns the stage height; an inline px from a stacked-layout session
-         would hold the art at that size under the sheet. Clear it, and still fold the tray
-         when the card would drop under CARD_MIN. */
+      /* the shell's CSS owns the stage (the art is the screen); an inline px from a stacked-
+         layout session would shrink it. Clear it. The tray is a sheet here, never folded. */
       if (cur){ clearStageH(); if (typeof resize === 'function'){ resize(); } requestRender(); }
-      foldTrayIfNeeded(stageEl.getBoundingClientRect().height, mayFold);
       return;
     }
     if (isLandscapeMobile()){
@@ -7313,7 +7360,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
      floor lifts the stage rather than eating the art, and a closing one gives the room back */
   if (trayEl && window.ResizeObserver){ new ResizeObserver(function(){ syncSheet(false, false); }).observe(trayEl); }
 
-  /* ---------- app shell: bottom nav + one section at a time on portrait phones — the art keeps at least half the screen ----------
+  /* ---------- app shell: bottom nav + one section at a time over full-bleed art on portrait phones ----------
      Pure state: `data-sheet` on .wrap names the open section (CSS shows it and sizes the stage
      and sheet); the nav buttons mirror it. Nothing is re-wired — every control keeps its boot
      binding — the shell only toggles the attribute, expands the section if it was collapsed
@@ -7326,6 +7373,8 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var sheetHead = document.getElementById('sheetHead');
   var sheetTitle = document.getElementById('sheetTitle');
   var sheetClose = document.getElementById('sheetClose');
+  var imageChip = document.getElementById('imageChip');
+  var SHEET_LABEL = { image: 'Image' };   /* sheets opened from a chip, not a tab */
   function currentSheet(){ return wrapEl ? wrapEl.getAttribute('data-sheet') : null; }
   function closeDocks(){
     if (typeof setDesignDock === 'function'){ setDesignDock(false); }
@@ -7339,11 +7388,11 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     if (more && !more.hidden && x){ x.click(); }
   }
   function relayout(){
-    /* the stage just changed height under the sheet: re-measure the canvas and the strips
-       (initStrip listens to resize), then fold the tray if the card would drop under its floor */
+    /* a sheet just showed or hid: the strips inside measure themselves on resize (initStrip),
+       and the canvas re-checks its backing store. The stage itself never changes size here —
+       the art is the screen and the sheets float over it. */
     if (typeof resize === 'function'){ resize(); }
     requestRender();
-    if (stageEl){ foldTrayIfNeeded(stageEl.getBoundingClientRect().height, true); }
     window.dispatchEvent(new Event('resize'));
   }
   function openSheet(key){
@@ -7360,7 +7409,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       });
       if (sheetTitle){
         var b = navEl ? navEl.querySelector('.navBtn[data-nav="' + key + '"]') : null;
-        sheetTitle.textContent = b ? b.textContent.trim() : key;
+        sheetTitle.textContent = b ? b.textContent.trim() : (SHEET_LABEL[key] || key);
       }
       if (panelScrollEl){ panelScrollEl.scrollTop = 0; }
       closeDocks();
@@ -7376,6 +7425,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
     }
+    if (imageChip){ imageChip.setAttribute('aria-expanded', key === 'image' ? 'true' : 'false'); }
     if (prev !== key){ relayout(); }
   }
   openSheetFor = function(el){
@@ -7393,6 +7443,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       openSheet(currentSheet() === key ? null : key);
     });
   }
+  if (imageChip){ imageChip.addEventListener('click', function(){ openSheet(currentSheet() === 'image' ? null : 'image'); }); }
   /* close by ✕ (click for the mouse, touchend for fingers — preventDefault so one tap closes
      once and never also re-fires through the synthetic click) and by a pull on the grip */
   if (sheetClose){
