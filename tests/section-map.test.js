@@ -49,6 +49,7 @@ const SECTIONS = [
   'pickers',
   'shelves and footer',
   'mobile layout',
+  'app shell layout',
   'panel themes',
   'per-theme materials',
   'per-theme dial rings, pucks and the aspect slider',
@@ -129,6 +130,7 @@ const SECTIONS = [
   'clear',
   'source disclosure',
   'mobile panel sheet',
+  'app shell',
   /* js: sharing and persistence */
   'share links',
   'persistence',

@@ -1310,6 +1310,101 @@
     #modePill .modeOpt:last-child{border-radius:0 7px 7px 0}
   }
 
+  /* ---------- app shell layout: portrait phones + small tablets — a bottom nav, one section as a sheet, the art keeps at least half the screen ----------
+     Below 880px and not landscape (landscape keeps the side-by-side split above): the stage
+     fills everything above a five-tab nav; a tab opens ITS panel section as a sheet of 42dvh,
+     and the stage shrinks above it rather than being covered — the artwork is the point of the
+     app, so it never drops under half the screen. Same DOM, same ids, same wiring: the nav only
+     decides which section is visible. The drag grip and its clamps are retired here (the sheet
+     height is a constant), the phone title/meta/status rows are gone (status speaks as a toast),
+     and the docks + colour editor sit above the nav instead of on the screen's edge.
+     The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned by a test. */
+  #appNav,.sheetHead,#toast{display:none}
+  @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
+    .wrap{--navH:calc(56px + env(safe-area-inset-bottom, 0px));--sheetH:0px}
+    /* 42dvh, but never so tall that the art drops under half the screen once the nav's 56px
+       is counted — on a 667px phone 42dvh + 56 left 49.6% */
+    .wrap[data-sheet]{--sheetH:min(42vh, calc(50vh - var(--navH)));--sheetH:min(42dvh, calc(50dvh - var(--navH)))}
+    html:not(.embed) .wrap .stage{
+      flex:none;
+      height:calc(100vh - var(--navH) - var(--sheetH));height:calc(100dvh - var(--navH) - var(--sheetH));
+      --stageH:calc(100vh - var(--navH) - var(--sheetH) - 24px);--stageH:calc(100dvh - var(--navH) - var(--sheetH) - 24px);
+      transition:none;
+    }
+    html:not(.embed) .wrap .panel{
+      flex:none;height:var(--sheetH);min-height:0;overflow:hidden;
+      display:flex;flex-direction:column;
+      padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);
+    }
+    html:not(.embed) .wrap:not([data-sheet]) .panel{display:none}
+    /* the stage is a screen now, not a box: chip bar at the top, tray at the bottom, the art
+       centred in what is left (auto margins absorb the slack a square piece leaves) */
+    html:not(.embed) .wrap .stageInner{height:100%}
+    html:not(.embed) .wrap .card{margin:auto}
+    #panelHandle{display:none}
+    .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
+    .sheetHead{
+      display:flex;align-items:center;gap:10px;flex:none;
+      padding:10px 0 9px;border-bottom:1px solid var(--line);
+      touch-action:none;-webkit-user-select:none;user-select:none;
+    }
+    .sheetGrip{width:36px;height:4px;border-radius:3px;background:var(--line);flex:none}
+    .sheetTitle{flex:1;min-width:0;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ink)}
+    #sheetClose{
+      flex:none;min-width:36px;min-height:32px;padding:0;font-size:20px;line-height:1;letter-spacing:0;
+      background-image:none;box-shadow:none;background-color:transparent;border:1px solid var(--line);color:var(--soft);
+    }
+    .panelScroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:14px}
+    .panel section{display:none;border-top:0;box-shadow:none;padding-top:10px}
+    .panel section .sec-title{display:none}
+    .wrap[data-sheet="canvas"] .panel section[data-nav="canvas"],
+    .wrap[data-sheet="colour"] .panel section[data-nav="colour"],
+    .wrap[data-sheet="engine"] .panel section[data-nav="engine"],
+    .wrap[data-sheet="look"] .panel section[data-nav="look"],
+    .wrap[data-sheet="export"] .panel section[data-nav="export"]{display:block}
+    /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
+    .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
+    .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
+    #appNav{
+      display:flex;align-items:stretch;flex:none;position:relative;z-index:35;
+      height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
+      background:var(--panel-metal);border-top:1px solid var(--line);
+    }
+    .navBtn{
+      position:relative;flex:1 1 0;min-width:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      padding:6px 2px;border:0;border-radius:0;
+      background:transparent;background-image:none;box-shadow:none;text-shadow:none;
+      color:var(--soft);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+      cursor:pointer;touch-action:manipulation;
+    }
+    .navBtn:active{transform:none;background-image:none;box-shadow:none}
+    .navBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    /* the global button.on (a pressed, ink-filled key) must not reach the nav: an active tab is
+       a lit icon and a bar, not a filled block */
+    .navBtn.on{color:var(--ink);background-color:transparent;background-image:none;box-shadow:none;transform:none;text-shadow:none}
+    .navBtn.on::before{content:'';position:absolute;top:-1px;left:50%;width:28px;margin-left:-14px;height:2px;background:var(--ink);border-radius:0 0 2px 2px}
+    html.embed #appNav{display:none}
+    /* the docks and the colour editor sit on the nav, not under it */
+    #cursorDock,#frameDock,#textDock,#designDock{
+      bottom:var(--navH);
+      max-height:min(50vh, calc(100vh - var(--navH) - 80px));
+      max-height:min(50dvh, calc(100dvh - var(--navH) - 80px));
+    }
+    #colourMore{bottom:calc(var(--navH) + 8px)}
+    #toast{
+      display:block;position:absolute;left:8px;right:8px;top:40px;z-index:6;pointer-events:none;
+      text-align:center;font-size:9px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;
+      background:rgba(6,6,10,.84);color:#e8e8e4;padding:7px 10px;border-radius:7px;
+      opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;
+    }
+    #toast.show{opacity:1;transform:none}
+    @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+    /* a tablet gets a centred sheet, not a full-width slab */
+    @media (min-width:600px){
+      html:not(.embed) .wrap .panel{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:14px 14px 0 0}
+    }
+  }
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
      A theme is a personal preference (localStorage fluid:theme), never part of the
      share hash. Each theme re-scopes the .panel palette variables and flattens the
@@ -1867,6 +1962,8 @@
   <div class="stage">
     <canvas id="glowCanvas" aria-hidden="true"></canvas>
     <div class="stageInner">
+      <!-- app shell: the status line has no panel to live in, so it speaks once, briefly, over the art -->
+      <div id="toast" role="status" aria-live="polite"></div>
       <div id="canvasChips">
         <!-- Sits at the far left, apart from the art controls, because it changes the room
              rather than the piece — and because it has to stay put: once the panel is gone
@@ -2083,6 +2180,13 @@
   <!-- ---------- panel markup: header, status line, theme dots and the scrolling list of edit sections ---------- -->
   <div class="panel" id="panel">
   <div id="panelHandle" role="separator" aria-orientation="horizontal" aria-label="Drag up or down to resize the artwork"><span class="grip"></span><span class="phlabel">↕ Drag to resize</span></div>
+  <!-- app shell (portrait phones): the sheet's own head — title of the open section, a grip
+       to pull it shut, and a close. Hidden everywhere else; see the app shell CSS + JS. -->
+  <div class="sheetHead" id="sheetHead">
+    <span class="sheetGrip" aria-hidden="true"></span>
+    <span class="sheetTitle" id="sheetTitle">Section</span>
+    <button type="button" id="sheetClose" aria-label="Close section">&times;</button>
+  </div>
   <header>
     <h1>Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
@@ -2133,7 +2237,7 @@
 
   <!-- ---------- Source section: an optional photo, camera frame or drop melted into the field ---------- -->
   <!-- optional image source: collapsed by default; melts a photo/built-in into the field -->
-  <section>
+  <section data-nav="canvas">
     <div class="sec-title">00 — Source</div>
     <button id="sourceToggle" aria-expanded="false">+ Insert image</button>
     <div id="sourcePanel">
@@ -2169,7 +2273,7 @@
   </section>
 
   <!-- ---------- Size section: the aspect fader, portrait through landscape ---------- -->
-  <section>
+  <section data-nav="canvas">
     <div class="sec-title">01 — Size</div>
     <div class="ardial">
       <input id="arSlider" type="range" min="0" max="5" step="1" value="2" aria-label="Aspect ratio">
@@ -2180,7 +2284,7 @@
   </section>
 
   <!-- ---------- Colours section: the palette strip plus the custom two, three or four stop swatches ---------- -->
-  <section>
+  <section data-nav="colour">
     <div class="sec-title">02 — Colours</div>
     <!-- the basic line: the ramp itself. Most colour decisions are "is this right?", which
          you answer by looking at it, not by opening anything. Everything that edits it lives
@@ -2270,7 +2374,7 @@
   </section>
 
   <!-- ---------- Stack section: the layer tabs and the engine strip they select for ---------- -->
-  <section>
+  <section data-nav="engine">
     <div class="sec-title">03 — Stack</div>
     <!-- One card for the whole stack. The tabs pick which layer the engine strip below is
          editing, so adding a layer opens a tab here rather than sending you to a separate
@@ -2360,7 +2464,7 @@
        controls belonged to a layer and which to the piece. Only engine, blend and mix are per-layer;
        every control in this card is a single shader uniform shared by all three engines. Grouping
        them under one heading says that without a paragraph of explanation. ---------- -->
-  <section>
+  <section data-nav="look">
     <div class="sec-title">04 — Look</div>
     <div class="exGroupLabel">Motion &amp; space — the whole piece</div>
     <div class="knobgrid sliderGrid">
@@ -2469,7 +2573,7 @@
 
 
   <!-- ---------- Output section: share, embed, export target, format and clip length ---------- -->
-  <section data-collapsed>
+  <section data-collapsed data-nav="export">
     <div class="sec-title">05 — Output</div>
     <div class="exGroupLabel">Share</div>
     <div class="actiongrid" style="grid-template-columns:repeat(2,1fr)">
@@ -2516,6 +2620,16 @@
     <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
   </div>
   </div>
+  <!-- app shell (portrait phones + small tablets): five doors, one open at a time. Each opens
+       its panel section as a sheet under the artwork; the art always keeps at least half the
+       screen. Canvas = Source + Size (both short). Hidden above 880px and in landscape. -->
+  <nav id="appNav" aria-label="Studio sections">
+    <button type="button" class="navBtn" data-nav="canvas" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"></path><rect x="8" y="9" width="8" height="6" rx="1"></rect></svg><span>Canvas</span></button>
+    <button type="button" class="navBtn" data-nav="colour" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg><span>Colour</span></button>
+    <button type="button" class="navBtn" data-nav="engine" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-6 5-6 2.5 0 3 0"></path></svg><span>Engine</span></button>
+    <button type="button" class="navBtn" data-nav="look" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Look</span></button>
+    <button type="button" class="navBtn" data-nav="export" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span>Export</span></button>
+  </nav>
 </div>
 
 <script>
@@ -3633,6 +3747,17 @@ var gl = canvas.getContext('webgl', { preserveDrawingBuffer:true }) ||
 var fallback2d = gl ? null : canvas.getContext('2d');
 var statusEl = document.getElementById('status');
 var statusElM = document.querySelector('.panelMobileMeta .status');   /* the phone copy — the header one is display:none there */
+/* app shell (portrait phones): there is no status row on screen, so a NEW message shows once
+   as a toast over the art and fades. Only on a key change — a slider drag would otherwise
+   flicker it on every value. Costs nothing where the toast is display:none. */
+var toastEl = document.getElementById('toast'), toastTimer = 0;
+function showToast(s){
+  if (!toastEl || getComputedStyle(toastEl).display === 'none'){ return; }
+  toastEl.textContent = s;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2400);
+}
 
 /* fade only when the state label (text before '—') changes, so live slider
    drags stay smooth but switching controls gets a clean cross-fade */
@@ -3641,6 +3766,7 @@ function setStatus(s){
   var key = String(s).split('—')[0];
   if (key !== lastStatusKey){
     lastStatusKey = key;
+    showToast(s);
     statusEl.style.opacity = '0';
     requestAnimationFrame(function(){ requestAnimationFrame(function(){
       statusEl.textContent = s; statusEl.style.opacity = '1';
@@ -4739,6 +4865,8 @@ function revealSection(el, inPlace){
     var title = sec.querySelector('.sec-title');
     if (title){ title.click(); }
   }
+  /* app shell: the section is behind a nav tab — open that sheet, then scroll within it */
+  if (typeof openSheetFor === 'function'){ openSheetFor(sec); }
   /* inPlace: the request came from a press inside the section itself, so it is scrolled to
      only if it is not on screen at all — block:'start' here would move the very control the
      finger is still resting on (and on a phone, out of the viewport) */
@@ -6020,6 +6148,7 @@ var trayReady = false, trayPaneOpen = 'layers';
 /* initTray hands out its markTray here, so the mobile sheet can fold the shelf when the
    screen is too short to show it AND a usable artwork (phones on their side, split screens) */
 var setTrayCollapsed = null;
+var openSheetFor = null;   /* the app shell (portrait phones) sets this: open the sheet that holds an element */
 function fillTrayPane(which){
   if (!trayReady){ return; }
   /* An embed is a canvas on somebody's page, not the studio: the tray is hidden there, and
@@ -6976,6 +7105,23 @@ sourceToggle.addEventListener('click', function(){
 });
 
 /* ---------- mobile panel sheet: drag the grip to trade panel height for artwork ---------- */
+(function(){
+  var bar = document.getElementById('canvasChips');
+  if (!bar){ return; }
+  function edges(){
+    var max = bar.scrollWidth - bar.clientWidth - 1;
+    bar.classList.toggle('atStart', bar.scrollLeft <= 1);
+    bar.classList.toggle('atEnd', bar.scrollLeft >= max);
+  }
+  bar.addEventListener('scroll', edges, { passive: true });
+  window.addEventListener('resize', edges);
+  if (window.ResizeObserver){
+    var ro = new ResizeObserver(edges);
+    ro.observe(bar);
+    Array.prototype.forEach.call(bar.children, function(c){ ro.observe(c); });
+  }
+  edges();
+})();
 var panelHandle = document.getElementById('panelHandle');
 /* not in an embed: the stage IS the window there, and an inline height meant for the
    studio's split would crop the canvas (the class is set pre-paint, see the head) */
@@ -7018,6 +7164,12 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
      CSS — this is that rule's query, verbatim): no grip, and a split height means nothing */
   var landQ = window.matchMedia ? window.matchMedia('(orientation:landscape) and (min-aspect-ratio:4/3)') : null;
   function isLandscapeMobile(){ return isMobileLayout() && !!(landQ && landQ.matches); }
+  /* the app shell's query — the CSS block of the same name uses this string verbatim (a test
+     pins them equal). A browser that cannot parse `not (...)` reports no match and simply keeps
+     the stacked layout above; the shell only ever switches on where its CSS does. */
+  var APP_Q = '(max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3)))';
+  var appQ = window.matchMedia ? window.matchMedia(APP_Q) : null;
+  function isAppShell(){ return !!(appQ && appQ.matches); }
   /* the tray's share of the card budget — the sum trayHeightFeedback writes to --trayH,
      read live because clampH needs the new number the moment the shelf folds */
   function trayBudget(){ var h = trayEl ? trayEl.offsetHeight : 0; return h ? h + 8 : 0; }
@@ -7082,6 +7234,14 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   function syncSheet(mayFold, fromBoot){
     if (!stageEl || dragging || !isMobileLayout()){ return; }
     var cur = parseFloat(stageEl.style.height) || 0, h;
+    if (isAppShell()){
+      /* the shell's CSS owns the stage height; an inline px from a stacked-layout session
+         would hold the art at that size under the sheet. Clear it, and still fold the tray
+         when the card would drop under CARD_MIN. */
+      if (cur){ clearStageH(); if (typeof resize === 'function'){ resize(); } requestRender(); }
+      foldTrayIfNeeded(stageEl.getBoundingClientRect().height, mayFold);
+      return;
+    }
     if (isLandscapeMobile()){
       if (cur){ clearStageH(); }
       foldTrayIfNeeded(stageEl.getBoundingClientRect().height, mayFold);
@@ -7109,7 +7269,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var wasMobile = isMobileLayout();
   if (wasMobile){ syncSheet(true, true); }
   panelHandle.addEventListener('pointerdown', function(e){
-    if (!stageEl){ return; }
+    if (!stageEl || isAppShell()){ return; }
     dragging = true; startY = e.clientY; startH = stageEl.getBoundingClientRect().height;
     try { panelHandle.setPointerCapture(e.pointerId); } catch (err){}
     e.preventDefault();
@@ -7152,28 +7312,135 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   /* the tray's height is part of the floor: a shelf opening under a stage dragged to the
      floor lifts the stage rather than eating the art, and a closing one gives the room back */
   if (trayEl && window.ResizeObserver){ new ResizeObserver(function(){ syncSheet(false, false); }).observe(trayEl); }
+
+  /* ---------- app shell: bottom nav + one section at a time on portrait phones — the art keeps at least half the screen ----------
+     Pure state: `data-sheet` on .wrap names the open section (CSS shows it and sizes the stage
+     and sheet); the nav buttons mirror it. Nothing is re-wired — every control keeps its boot
+     binding — the shell only toggles the attribute, expands the section if it was collapsed
+     (inert is not a CSS matter), closes the chip-bar docks so one sheet shows at a time, and
+     tells the canvas the stage changed size. The art stays fully interactive with a sheet
+     open (ripple, reseed, pan): that is what the half-screen is for, so a tap on the art does
+     NOT dismiss the sheet — the ✕, the same tab, or a pull on the grip do. */
+  var wrapEl = document.querySelector('.wrap');
+  var navEl = document.getElementById('appNav');
+  var sheetHead = document.getElementById('sheetHead');
+  var sheetTitle = document.getElementById('sheetTitle');
+  var sheetClose = document.getElementById('sheetClose');
+  function currentSheet(){ return wrapEl ? wrapEl.getAttribute('data-sheet') : null; }
+  function closeDocks(){
+    if (typeof setDesignDock === 'function'){ setDesignDock(false); }
+    if (typeof setEmbedDock === 'function'){ setEmbedDock(false); }
+    if (typeof setTextDock === 'function'){ setTextDock(false); }
+    if (typeof setFrameDock === 'function'){ setFrameDock(false); }
+    if (typeof setCursorDock === 'function'){ setCursorDock(false); }
+  }
+  function closeColourEditor(){
+    var more = document.getElementById('colourMore'), x = document.getElementById('cmClose');
+    if (more && !more.hidden && x){ x.click(); }
+  }
+  function relayout(){
+    /* the stage just changed height under the sheet: re-measure the canvas and the strips
+       (initStrip listens to resize), then fold the tray if the card would drop under its floor */
+    if (typeof resize === 'function'){ resize(); }
+    requestRender();
+    if (stageEl){ foldTrayIfNeeded(stageEl.getBoundingClientRect().height, true); }
+    window.dispatchEvent(new Event('resize'));
+  }
+  function openSheet(key){
+    if (!wrapEl){ return; }
+    if (key && !isAppShell()){ return; }
+    var prev = currentSheet();
+    if (key){
+      wrapEl.setAttribute('data-sheet', key);
+      Array.prototype.forEach.call(document.querySelectorAll('.panel section[data-nav="' + key + '"]'), function(sec){
+        if (sec.classList.contains('collapsed')){
+          var t = sec.querySelector('.sec-title');
+          if (t){ t.click(); }
+        }
+      });
+      if (sheetTitle){
+        var b = navEl ? navEl.querySelector('.navBtn[data-nav="' + key + '"]') : null;
+        sheetTitle.textContent = b ? b.textContent.trim() : key;
+      }
+      if (panelScrollEl){ panelScrollEl.scrollTop = 0; }
+      closeDocks();
+      if (key !== 'colour'){ closeColourEditor(); }
+    } else {
+      wrapEl.removeAttribute('data-sheet');
+      closeColourEditor();
+    }
+    if (navEl){
+      Array.prototype.forEach.call(navEl.querySelectorAll('.navBtn'), function(b){
+        var on = !!key && b.getAttribute('data-nav') === key;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    if (prev !== key){ relayout(); }
+  }
+  openSheetFor = function(el){
+    if (!isAppShell() || !el || !el.getAttribute){ return false; }
+    var key = el.getAttribute('data-nav');
+    if (!key){ return false; }
+    if (currentSheet() !== key){ openSheet(key); }
+    return true;
+  };
+  if (navEl){
+    navEl.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.navBtn') : null;
+      if (!b){ return; }
+      var key = b.getAttribute('data-nav');
+      openSheet(currentSheet() === key ? null : key);
+    });
+  }
+  /* close by ✕ (click for the mouse, touchend for fingers — preventDefault so one tap closes
+     once and never also re-fires through the synthetic click) and by a pull on the grip */
+  if (sheetClose){
+    sheetClose.addEventListener('click', function(){ openSheet(null); });
+    sheetClose.addEventListener('touchend', function(e){ e.preventDefault(); openSheet(null); }, { passive:false });
+  }
+  if (sheetHead){
+    var pullY = null;
+    sheetHead.addEventListener('pointerdown', function(e){
+      if (e.target.closest && e.target.closest('#sheetClose')){ return; }
+      pullY = e.clientY;
+    });
+    function endPull(e){
+      if (pullY === null){ return; }
+      var dy = (e && isFinite(e.clientY)) ? e.clientY - pullY : 0;
+      pullY = null;
+      if (dy > 40){ openSheet(null); }
+    }
+    sheetHead.addEventListener('pointerup', endPull);
+    sheetHead.addEventListener('pointercancel', endPull);
+  }
+  /* a chip-bar dock opening takes the sheet's place — one sheet at a time */
+  if (window.MutationObserver){
+    var dockMo = new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++){
+        var d = muts[i].target;
+        if (d.className === 'open' && currentSheet()){ openSheet(null); return; }
+      }
+    });
+    ['designDock', 'embedDock', 'textDock', 'frameDock', 'cursorDock'].forEach(function(id){
+      var d = document.getElementById(id);
+      if (d){ dockMo.observe(d, { attributes:true, attributeFilter:['class'] }); }
+    });
+  }
+  /* rotating or resizing out of the shell: every section is a panel section again, so the
+     attribute must go (the sheet CSS would otherwise hide all but one); coming back in, the
+     art starts full-screen, as on boot */
+  if (appQ){
+    var onAppQ = function(){ if (!isAppShell()){ openSheet(null); } else { relayout(); } };
+    if (appQ.addEventListener){ appQ.addEventListener('change', onAppQ); }
+    else if (appQ.addListener){ appQ.addListener(onAppQ); }
+  }
+  if (isAppShell()){ openSheet(null); }
 }
 /* The chip bar scrolls sideways on phones (see the mobile CSS): atStart/atEnd drive its edge
    fades, the same way initStrip does for the picker strips. Desktop never styles the
    classes, so this is inert there. Children are observed too — a chip being shown or
    hidden changes the overflow without changing the bar's own box. */
-(function(){
-  var bar = document.getElementById('canvasChips');
-  if (!bar){ return; }
-  function edges(){
-    var max = bar.scrollWidth - bar.clientWidth - 1;
-    bar.classList.toggle('atStart', bar.scrollLeft <= 1);
-    bar.classList.toggle('atEnd', bar.scrollLeft >= max);
-  }
-  bar.addEventListener('scroll', edges, { passive: true });
-  window.addEventListener('resize', edges);
-  if (window.ResizeObserver){
-    var ro = new ResizeObserver(edges);
-    ro.observe(bar);
-    Array.prototype.forEach.call(bar.children, function(c){ ro.observe(c); });
-  }
-  edges();
-})();
 
 /* ---------- share links: #p= is comma-joined numbers in an EXACT, append-only order ----------
    [0] speed [1] scale [2] warp [3] grain [4] pixel [5] dot [6] dots
