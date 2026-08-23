@@ -1410,6 +1410,24 @@
     .panel .sliderGrid .knoblabel{display:contents}
     .panel .sliderGrid .knoblabel output{grid-column:3;grid-row:1;text-align:right;font-size:10px}
     .panel .sliderGrid .knobctl input[type=range]{grid-column:2;grid-row:1;height:40px;margin:0}
+    /* Colour: eight small palette squares and the four stops, nothing else (Danial: "reduce the
+       height, 8 small squares, no labels, the 4-part colour box that opens the colour pointer,
+       remove the sliders"). The editor's body shows IN PLACE — not as its own sheet — with only
+       the palette grid and the swatch row; a swatch is the OS colour picker, and editing one
+       already turns a preset into Custom, so the Custom tile is not needed. The sheet is only
+       as tall as that. The ramp line and MORE are gone here; nothing else is rewired. */
+    html:not(.embed) .wrap[data-sheet="colour"] .panel{height:auto;max-height:var(--sheetH)}
+    .wrap[data-sheet="colour"] #rampLine{display:none}
+    .wrap[data-sheet="colour"] #colourMore{display:flex !important;position:static;width:auto;max-height:none;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:auto}
+    .wrap[data-sheet="colour"] .cmHead,.wrap[data-sheet="colour"] .cmFoot{display:none}
+    .wrap[data-sheet="colour"] .cmBody{padding:6px 0 10px;overflow:visible}
+    .wrap[data-sheet="colour"] .cmBody > :not(#palStrip):not(#swatchRow){display:none}
+    .wrap[data-sheet="colour"] #palStrip{grid-template-columns:repeat(8,1fr);gap:7px}
+    .wrap[data-sheet="colour"] #palStrip .palBtn[data-pal="8"]{display:none}
+    .wrap[data-sheet="colour"] #palStrip .fieldBtn{aspect-ratio:1/1;height:auto;border-radius:8px}
+    .wrap[data-sheet="colour"] #palStrip .fieldBtn span{display:none}
+    .wrap[data-sheet="colour"] #swatchRow{margin-top:12px;gap:8px}
+    .wrap[data-sheet="colour"] .swatch{max-width:none;height:46px;flex:1}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
