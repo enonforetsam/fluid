@@ -1351,6 +1351,9 @@
     .stageInner::before{left:0;background:linear-gradient(90deg,rgba(6,6,10,.6),rgba(6,6,10,0))}
     .stageInner::after{right:0;background:linear-gradient(90deg,rgba(6,6,10,0),rgba(6,6,10,.6))}
     #imageChip{display:inline-flex}
+    /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
+       on any art (the scrim alone was not enough at the pale end) */
+    html:not(.embed) .wrap #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)}
     /* the tray is the Browse sheet */
     html:not(.embed) .wrap #stageTray{display:none}
     html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
@@ -1420,14 +1423,21 @@
     .wrap[data-sheet="colour"] #rampLine{display:none}
     .wrap[data-sheet="colour"] #colourMore{display:flex !important;position:static;width:auto;max-height:none;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:auto}
     .wrap[data-sheet="colour"] .cmHead,.wrap[data-sheet="colour"] .cmFoot{display:none}
-    .wrap[data-sheet="colour"] .cmBody{padding:6px 0 10px;overflow:visible}
+    /* no head on this one (Danial: "remove the top tab with the label and the x") — the lit
+       Colour tab right under it is the way out; the two rows are the whole sheet */
+    html:not(.embed) .wrap[data-sheet="colour"] .sheetHead{display:none}
+    .wrap[data-sheet="colour"] .panelScroll{padding-bottom:8px}
+    .wrap[data-sheet="colour"] .cmBody{padding:10px 0 4px;overflow:visible}
     .wrap[data-sheet="colour"] .cmBody > :not(#palStrip):not(#swatchRow){display:none}
     .wrap[data-sheet="colour"] #palStrip{grid-template-columns:repeat(8,1fr);gap:7px}
     .wrap[data-sheet="colour"] #palStrip .palBtn[data-pal="8"]{display:none}
-    .wrap[data-sheet="colour"] #palStrip .fieldBtn{aspect-ratio:1/1;height:auto;border-radius:8px}
+    /* flat: the engine-tile bevel (inset highlight + drop shadow) read as half-3D here */
+    .wrap[data-sheet="colour"] #palStrip .fieldBtn{aspect-ratio:1/1;height:auto;border-radius:9px;border:1px solid rgba(0,0,0,.16);box-shadow:none}
+    .wrap[data-sheet="colour"] #palStrip .fieldBtn.on{box-shadow:0 0 0 2px var(--ink);border-color:var(--ink)}
+    .wrap[data-sheet="colour"] #palStrip .fieldBtn:active{transform:none}
     .wrap[data-sheet="colour"] #palStrip .fieldBtn span{display:none}
-    .wrap[data-sheet="colour"] #swatchRow{margin-top:12px;gap:8px}
-    .wrap[data-sheet="colour"] .swatch{max-width:none;height:46px;flex:1}
+    .wrap[data-sheet="colour"] #swatchRow{margin-top:8px;gap:7px}
+    .wrap[data-sheet="colour"] .swatch{max-width:none;height:40px;flex:1;border-radius:9px}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
