@@ -1359,7 +1359,8 @@
     html:not(.embed) .wrap[data-sheet="browse"] #stageTray{
       display:flex;position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
       height:var(--sheetH);border-radius:14px 14px 0 0;border-bottom:0;
-      background:rgba(10,10,14,.96);box-shadow:0 -8px 24px rgba(0,0,0,.28);
+      background:rgba(10,10,14,.68);box-shadow:0 -8px 24px rgba(0,0,0,.28);
+      -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
     }
     .wrap[data-sheet="browse"] #stageTray .trayBody{display:block;flex:1;min-height:0;height:auto;padding:10px 10px 12px}
     .wrap[data-sheet="browse"] #stageTray .trayTabs{padding:10px 8px 6px}
@@ -1379,6 +1380,11 @@
       display:flex;flex-direction:column;
       padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;
       box-shadow:0 -8px 24px rgba(0,0,0,.28);
+      /* glass (Danial: "make the tab see-through"): the art stays the room behind the controls.
+         backdrop-filter makes this a containing block for fixed descendants — the colour
+         editor is static in here on phones, and the docks live in the stage, so nothing moves. */
+      background-color:rgba(222,222,218,.74);background-image:none;
+      -webkit-backdrop-filter:blur(18px) saturate(1.15);backdrop-filter:blur(18px) saturate(1.15);
     }
     html:not(.embed) .wrap:not([data-sheet]) .panel,
     html:not(.embed) .wrap[data-sheet="browse"] .panel{display:none}
@@ -1454,7 +1460,8 @@
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
-      background:rgba(17,18,22,.9);border-top:1px solid rgba(255,255,255,.10);
+      background:rgba(17,18,22,.7);border-top:1px solid rgba(255,255,255,.10);
+      -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
     }
     .navBtn{
       position:relative;flex:1 1 0;min-width:0;
@@ -6266,6 +6273,7 @@ var trayReady = false, trayPaneOpen = 'layers';
    screen is too short to show it AND a usable artwork (phones on their side, split screens) */
 var setTrayCollapsed = null;
 var openSheetFor = null;   /* the app shell (portrait phones) sets this: open the sheet that holds an element */
+var closeOpenSheet = null; /* …and this: a tap on the art puts an open sheet away; returns true if it did */
 function fillTrayPane(which){
   if (!trayReady){ return; }
   /* An embed is a canvas on somebody's page, not the studio: the tray is hidden there, and
@@ -6855,6 +6863,9 @@ canvas.addEventListener('pointerup', function(e){
     if (panMoved){ persist(); }   /* save the new image position */
   }
   if (dismissTap){ dismissTap = false; ptrDown = false; return; }   /* the tap closed a sheet — that was its job */
+  /* app shell: a clean tap on the art with a sheet open puts the sheet away — that is the
+     tap's whole job (a drag still ripples; panMoved guards it) */
+  if (ptrDown && !panMoved && !EMBED && typeof closeOpenSheet === 'function' && closeOpenSheet()){ ptrDown = false; return; }
   if (ptrDown && !panMoved && !EMBED && !state.hasTex){ reseed(); }  /* a tap on a loaded photo must not reseed the hidden field */
   ptrDown = false;
 });
@@ -7433,9 +7444,8 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
      and sheet); the nav buttons mirror it. Nothing is re-wired — every control keeps its boot
      binding — the shell only toggles the attribute, expands the section if it was collapsed
      (inert is not a CSS matter), closes the chip-bar docks so one sheet shows at a time, and
-     tells the canvas the stage changed size. The art stays fully interactive with a sheet
-     open (ripple, reseed, pan): that is what the half-screen is for, so a tap on the art does
-     NOT dismiss the sheet — the ✕, the same tab, or a pull on the grip do. */
+     tells the canvas the stage changed size. With a sheet open the art is still live to drag
+     (ripple, pan); a clean TAP on it puts the sheet away (Danial) — so does the same tab. */
   var wrapEl = document.querySelector('.wrap');
   var navEl = document.getElementById('appNav');
   var sheetHead = document.getElementById('sheetHead');
@@ -7496,6 +7506,11 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     if (imageChip){ imageChip.setAttribute('aria-expanded', key === 'image' ? 'true' : 'false'); }
     if (prev !== key){ relayout(); }
   }
+  closeOpenSheet = function(){
+    if (!isAppShell() || !currentSheet()){ return false; }
+    openSheet(null);
+    return true;
+  };
   openSheetFor = function(el){
     if (!isAppShell() || !el || !el.getAttribute){ return false; }
     var key = el.getAttribute('data-nav');
