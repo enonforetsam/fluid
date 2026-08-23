@@ -681,6 +681,10 @@
   }
   @media (hover:hover) and (pointer:fine){ #cmClose:hover{color:var(--ink);background-image:none;box-shadow:none} }
   .cmBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 14px}
+  /* phones only (below): a Done bar a thumb cannot miss. Floating on a desktop the × and the
+     MORE line are both in reach, so the bar would be a third way to do one thing. */
+  .cmFoot{display:none;flex:0 0 auto;padding:8px 12px 10px;border-top:1px solid var(--line)}
+  .cmFoot button{width:100%;min-height:40px;font-size:10px;letter-spacing:.14em}
   /* Pinned wherever the layout is stacked (the same 879px as the mobile block, and the same
      query isPinned() asks — they drifted apart at 700px once, and a 744px tablet got a
      floating box over 42% of the art). */
@@ -694,8 +698,23 @@
     #colourMore{
       left:8px;right:auto;top:auto;bottom:8px;
       width:calc(100vw - 16px);
-      max-height:min(46vh,560px);max-height:min(46dvh,560px);
+      max-height:min(calc(50vh - 10px),560px);max-height:min(calc(50dvh - 10px),560px);
     }
+    /* Compact on a phone. The nine palette tiles were 100px squares: they filled the whole
+       sheet, pushed the picker below the fold, and with the × at 15px the sheet read as a page
+       you could not leave. As 44px ramps they say what they are — a gradient — and the pad
+       stays in view; the sheet stops at the stage's edge so the artwork it exists to show
+       stays clear. Three ways out, all thumb-sized: the ×, the Done bar, a pull down on the
+       handle; a tap anywhere outside still closes it too. */
+    #colourMore .palettegrid .fieldBtn{aspect-ratio:auto;height:40px}
+    #colourMore .palettegrid .fieldBtn span{font-size:8px;padding:3px 0}
+    #colourMore .cmBody{padding:8px 12px 12px}
+    #colourMore .exGroupLabel{margin:8px 0 5px}
+    #colourMore #svPad{height:110px}
+    #colourMore .chanGrid{gap:4px}
+    #colourMore .cmGrip{width:36px}
+    #cmClose{min-width:36px;min-height:32px;font-size:20px;padding:0}
+    .cmFoot{display:block}
   }
   .stopTabs{display:flex;gap:6px;margin-bottom:9px}
   button.stopTab{
@@ -2246,6 +2265,7 @@
     <div class="exGroupLabel" style="margin-top:12px">Recent</div>
     <div class="histRow" id="histRow"></div>
       </div>
+      <div class="cmFoot"><button type="button" id="cmDone" class="primary">Done</button></div>
     </div>
   </section>
 
@@ -5556,7 +5576,15 @@ function syncColourEditor(){
     syncColourEditor();
   }
   if (line){ line.addEventListener('click', function(){ openEditor(more.hidden); }); }
-  if (close){ close.addEventListener('click', function(){ openEditor(false); }); }
+  /* Closing must work from a thumb. click serves the mouse; touchend serves fingers and
+     preventDefaults so the tap closes once and never also fires the synthetic click. */
+  function onTap(el, fn){
+    if (!el){ return; }
+    el.addEventListener('click', fn);
+    el.addEventListener('touchend', function(e){ e.preventDefault(); fn(); }, { passive:false });
+  }
+  onTap(close, function(){ openEditor(false); });
+  onTap(document.getElementById('cmDone'), function(){ openEditor(false); });
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && more && !more.hidden){ openEditor(false); }
   });
@@ -5572,10 +5600,10 @@ function syncColourEditor(){
   /* drag by the header. Pointer capture means a fast drag that outruns the cursor still
      tracks, and the offset is taken once at grab so the panel never jumps under the hand. */
   if (head && more){
-    var dragging = false, offX = 0, offY = 0;
+    var dragging = false, offX = 0, offY = 0, sheetY = null;
     head.addEventListener('pointerdown', function(e){
       if (e.target.closest('#cmClose')){ return; }
-      if (isPinned()){ return; }               /* a pinned sheet has one place: the bottom */
+      if (isPinned()){ sheetY = e.clientY; return; }   /* pinned, the handle does not move the sheet — a pull down on it dismisses it */
       var r = more.getBoundingClientRect();
       offX = e.clientX - r.left; offY = e.clientY - r.top;
       dragging = true;
@@ -5589,7 +5617,13 @@ function syncColourEditor(){
       more.style.top = Math.min(Math.max(8, e.clientY - offY), Math.max(8, window.innerHeight - r.height - 8)) + 'px';
       more.style.right = 'auto';
     });
-    function endDrag(){
+    function endDrag(e){
+      if (sheetY !== null){
+        var dy = (e && isFinite(e.clientY)) ? e.clientY - sheetY : 0;
+        sheetY = null;
+        if (dy > 40 && isPinned()){ openEditor(false); }
+        return;
+      }
       if (!dragging){ return; }
       dragging = false;
       try { localStorage.setItem(CM_POS_LS, JSON.stringify({ x: parseFloat(more.style.left), y: parseFloat(more.style.top) })); } catch(e){}
