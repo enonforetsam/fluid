@@ -1402,6 +1402,14 @@
     .wrap[data-sheet="export"] .panel section[data-nav="export"]{display:block}
     /* Export = Size, then Output: a hairline between the two sections that share the sheet */
     .wrap[data-sheet="export"] .panel section[data-nav="export"] ~ section[data-nav="export"]{border-top:1px solid var(--line);margin-top:6px;padding-top:14px}
+    /* Look: caption, track and value share one row — a stacked caption per slider spent a
+       third of a short sheet on words. The caption is display:contents, so its text and its
+       <output> become grid items beside the range: name | track | value. */
+    .panel .knobgrid.sliderGrid{gap:0 16px}
+    .panel .sliderGrid .knobctl{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;align-items:center;gap:0 10px;min-height:40px}
+    .panel .sliderGrid .knoblabel{display:contents}
+    .panel .sliderGrid .knoblabel output{grid-column:3;grid-row:1;text-align:right;font-size:10px}
+    .panel .sliderGrid .knobctl input[type=range]{grid-column:2;grid-row:1;height:40px;margin:0}
     /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
     .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
     .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
