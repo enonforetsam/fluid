@@ -601,9 +601,11 @@ function withSec(resp){
   return new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: h });
 }
 
-/* staging: keep it out of search indexes and stamp a visible badge so it is never
-   mistaken for production. Driven by the STAGE var (set per-env in wrangler.jsonc). */
-function markStaging(resp){
+/* staging / preview: keep it out of search indexes and stamp a visible badge so it is
+   never mistaken for production. Driven by the STAGE var (set per-env in wrangler.jsonc);
+   the badge reads the stage name, so a preview worker says PREVIEW. */
+function markStaging(resp, label){
+  label = label || 'STAGING';
   var h = new Headers(resp.headers);
   h.set('x-robots-tag', 'noindex, nofollow');
   var out = new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: h });
@@ -614,7 +616,7 @@ function markStaging(resp){
         el.append(
           '<div style="position:fixed;left:8px;bottom:8px;z-index:99999;' +
           'font:700 9px ui-monospace,monospace;letter-spacing:.16em;background:#b91c1c;' +
-          'color:#fff;padding:4px 9px;border-radius:5px;pointer-events:none;opacity:.92">STAGING</div>',
+          'color:#fff;padding:4px 9px;border-radius:5px;pointer-events:none;opacity:.92">' + label + '</div>',
           { html: true }
         );
       }
@@ -820,7 +822,7 @@ export default {
     else if (url.pathname === '/api' || url.pathname.indexOf('/api/') === 0){ resp = await api(req, url); }
     else { resp = await env.ASSETS.fetch(req); }
     resp = withSec(resp);
-    if (env.STAGE === 'staging'){ resp = markStaging(resp); }
+    if (env.STAGE === 'staging' || env.STAGE === 'preview'){ resp = markStaging(resp, String(env.STAGE).toUpperCase()); }
     return resp;
   }
 };
