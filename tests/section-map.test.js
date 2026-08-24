@@ -50,6 +50,7 @@ const SECTIONS = [
   'shelves and footer',
   'mobile layout',
   'app shell layout',
+  'wide screens',
   'panel themes',
   'per-theme materials',
   'per-theme dial rings, pucks and the aspect slider',

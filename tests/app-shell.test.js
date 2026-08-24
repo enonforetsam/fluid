@@ -37,11 +37,12 @@ describe('app shell (portrait phones)', () => {
   });
 
   it('the shell media query is one string, used verbatim by CSS and JS', () => {
-    const css = html.match(/@media (\(max-width:879px\) and \(not \(\(orientation:landscape\) and \(min-aspect-ratio:4\/3\)\)\))\)?\{/);
+    /* the shell is every screen now; a wide screen only reshapes the furniture, in a nested
+       block that must not go missing or a desktop gets phone-sized sheets */
     const js = html.match(/var APP_Q = '([^']+)';/);
-    assert.ok(css, 'CSS shell block not found');
     assert.ok(js, 'APP_Q not found');
-    assert.strictEqual(js[1], css[1]);
+    assert.ok(html.includes('@media ' + js[1] + '{'), 'no CSS block for APP_Q');
+    assert.ok(/@media \(min-width:880px\)\{/.test(html), 'the wide-screen block is gone');
   });
 
   it('the sheet chrome and the toast exist once', () => {

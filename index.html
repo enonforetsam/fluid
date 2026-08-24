@@ -216,7 +216,7 @@
   }
   html.embed #glowCanvas{display:none}
   /* the glow's GPU read-back + heavy blur isn't worth it on phones — skip it */
-  @media(max-width:879px){#glowCanvas{display:none}}
+  #glowCanvas{display:none}   /* the art is the whole window now — there is no card to bloom behind */
   /* ---------- canvas chips: the control bar over the artwork, shuffle through record ---------- */
   /* control bar above the image (on the light artboard) */
   #canvasChips{display:flex;gap:8px;justify-content:flex-end;align-items:center;min-height:26px}
@@ -1128,7 +1128,7 @@
   /* mobile: fixed 50/50 split — artwork pinned top, controls scroll below */
   /* the mobile minimise grip is desktop-hidden */
   #panelHandle{display:none}
-  @media(max-width:879px){
+  @media screen{
     .wrap{
       display:flex;flex-direction:column;gap:0;align-items:stretch;
       height:100vh;height:100dvh;max-width:none;padding:0;overflow:hidden;
@@ -1268,33 +1268,6 @@
      path, where a narrow controls column would be worse than a short one. The JS sheet
      code keys on the SAME query (isLandscapeMobile) to clear an inline stage height that a
      portrait drag left behind — without that the inline px would override height:100dvh. */
-  @media (max-width:879px) and (orientation:landscape) and (min-aspect-ratio:4/3){
-    .wrap{flex-direction:row}
-    .stage{
-      width:52vw;height:100vh;height:100dvh;
-      --stageH:calc(100vh - 24px);
-      --stageH:calc(100dvh - 24px);
-    }
-    html.embed .stage{width:auto}   /* an embed is the whole window, not a column of it */
-    .panel{
-      min-width:0;border-top:0;border-left:1px solid var(--line);
-      box-shadow:
-        inset 1px 0 0 rgba(255,255,255,.10),
-        inset 18px 0 30px rgba(0,0,0,.22);
-    }
-    #panelHandle{display:none}
-    /* the bottom sheets cover the controls column only — the art is beside it, not under */
-    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
-      left:52vw;
-      max-height:calc(100vh - 24px);
-      max-height:calc(100dvh - 24px);
-    }
-    /* the pinned colour editor likewise: the column is full height, so it may be tall */
-    #colourMore{
-      left:calc(52vw + 8px);width:calc(48vw - 16px);
-      max-height:min(calc(100vh - 16px),560px);max-height:min(calc(100dvh - 16px),560px);
-    }
-  }
   /* Thumb-sized hit areas, without moving a box that layout depends on. The tray tabs feed
      --trayH (growing them shrinks the artwork) and the chip bar has a fixed 28px in the
      card budget, so those get an invisible ::after halo; the section title takes padding
@@ -1334,10 +1307,12 @@
      photo is put ON the canvas, like Text or a Frame). Same DOM, same ids, same wiring: the nav
      only decides what shows. The drag grip and its clamps are retired here, the phone
      title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
-     sit on the nav. The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned
-     by a test. */
+     sit on the nav. Every size gets this now (Danial: "same for
+     desktop — nav at the bottom middle, saves space and gives more room for the art"); a wide
+     screen only changes the furniture's shape, in the min-width:880px block at the end. The
+     query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned by a test. */
   #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass,#moreChip{display:none}
-  @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
+  @media screen{
     /* 42dvh, but never so tall that the art drops under half the screen once the nav is
        counted — on a 667px phone 42dvh + 56 left 49.6% */
     .wrap{--navH:calc(56px + env(safe-area-inset-bottom, 0px));--sheetH:min(42vh, calc(50vh - var(--navH)));--sheetH:min(42dvh, calc(50dvh - var(--navH)))}
@@ -1541,6 +1516,55 @@
       max-height:min(50dvh, calc(100dvh - var(--navH) - 80px));
     }
     #colourMore{bottom:calc(var(--navH) + 8px)}
+    /* ---------- wide screens: the same shell, in furniture that suits the room ----------
+       The nav stops being a bar across the bottom and becomes a pill in the middle of it; the
+       sheets stop being slabs and become cards of the same width, floating above it; and the
+       stage tray — which a phone has no room for — comes back as a shelf in that column. */
+    @media (min-width:880px){
+      .wrap{--navH:84px;--sheetH:min(46vh,520px);--sheetH:min(46dvh,520px);--shellW:min(760px, calc(100vw - 64px))}
+      #appNav{
+        left:0;right:0;width:max-content;margin:0 auto;bottom:20px;height:64px;
+        padding:0 8px;border:1px solid rgba(255,255,255,.12);border-radius:18px;
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
+      .navBtn{flex:0 0 auto;min-width:92px;padding:8px 14px;gap:5px;font-size:9px}
+      .navBtn svg{width:21px;height:21px}
+      .navBtn.on::before{top:0;width:34px;margin-left:-17px;border-radius:0 0 2px 2px}
+      html:not(.embed) .wrap .panel,
+      #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
+        left:0;right:0;width:var(--shellW);margin:0 auto;
+        bottom:calc(var(--navH) + 8px);border-radius:16px;border:1px solid var(--line);
+      }
+      html:not(.embed) .wrap .panel{padding:0 22px}
+      #glass{border-radius:16px}
+      #cursorDock,#frameDock,#textDock,#designDock,#moreDock{max-height:min(52vh,560px);max-height:min(52dvh,560px)}
+      #colourMore{left:0;right:0;width:var(--shellW);margin:0 auto;bottom:calc(var(--navH) + 8px);border-radius:16px}
+      /* the shelf a phone had no room for: Layers, Recent, Saved and Explore, in the sheets'
+         column, and out of the way while a sheet is open */
+      html:not(.embed) .wrap #stageTray{
+        display:flex;position:fixed;left:0;right:0;width:var(--shellW);margin:0 auto;
+        bottom:calc(var(--navH) + 8px);z-index:33;border-radius:14px;
+        background:rgba(10,10,14,.72);box-shadow:0 12px 32px rgba(0,0,0,.34);
+        transition:opacity .2s ease,transform .2s ease;
+      }
+      html:not(.embed) .wrap[data-sheet]:not([data-closing]) #stageTray{opacity:0;transform:translateY(10px);pointer-events:none}
+      /* the bar is a row of tools in the middle, not a span across the window */
+      html:not(.embed) .wrap #canvasChips{
+        justify-content:center;gap:9px;padding:14px 24px 16px;background:none;
+      }
+      /* Shuffle's auto margin was there to pin it to the left of a bar that spanned the
+         window; centred, it would shove everything else to the right edge */
+      html:not(.embed) .wrap #refreshChip{margin-right:0}
+      .stageInner::before,.stageInner::after{display:none}
+      #moreChip{display:none}          /* the bar has room for every tool up here */
+      #imageChip{display:inline-flex}
+      #toast{left:0;right:0;width:var(--shellW);margin:0 auto;top:64px}
+      /* a big screen can carry the picker tiles and type it always had */
+      .panel .fieldstrip .fieldBtn{flex:0 0 84px;width:84px}
+      .panel .fieldstrip .fieldBtn span{font-size:8px}
+      .panel .sliderGrid .knobctl{grid-template-columns:64px minmax(0,1fr) 40px;min-height:38px}
+      .panel .exGroupLabel{font-size:10px}
+    }
     #toast{
       display:block;position:absolute;left:8px;right:8px;top:calc(54px + env(safe-area-inset-top, 0px));z-index:6;pointer-events:none;
       text-align:center;font-size:9px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;
@@ -1549,10 +1573,6 @@
     }
     #toast.show{opacity:1;transform:none}
     @media(prefers-reduced-motion:reduce){#toast{transition:none}}
-    /* a tablet gets centred sheets, not full-width slabs */
-    @media (min-width:600px){
-      html:not(.embed) .wrap .panel{width:min(100%, 600px);margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}
-    }
   }
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
      A theme is a personal preference (localStorage fluid:theme), never part of the
@@ -7365,9 +7385,8 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var landQ = window.matchMedia ? window.matchMedia('(orientation:landscape) and (min-aspect-ratio:4/3)') : null;
   function isLandscapeMobile(){ return isMobileLayout() && !!(landQ && landQ.matches); }
   /* the app shell's query — the CSS block of the same name uses this string verbatim (a test
-     pins them equal). A browser that cannot parse `not (...)` reports no match and simply keeps
-     the stacked layout above; the shell only ever switches on where its CSS does. */
-  var APP_Q = '(max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3)))';
+     pins them equal). It is every screen now; only the furniture changes with width. */
+  var APP_Q = 'screen';
   var appQ = window.matchMedia ? window.matchMedia(APP_Q) : null;
   function isAppShell(){ return !!(appQ && appQ.matches); }
   /* the tray's share of the card budget — the sum trayHeightFeedback writes to --trayH,
@@ -7543,8 +7562,10 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     moreDock.className = open ? 'open' : '';
     if (moreChip){ moreChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   }
+  var narrowQ = window.matchMedia ? window.matchMedia('(max-width:879px)') : null;
+  function isNarrow(){ return !narrowQ || narrowQ.matches; }
   function syncChipOverflow(){
-    var shell = isAppShell();
+    var shell = isNarrow();        /* the tools menu is for a bar too narrow to hold them */
     for (var i = 0; i < moreHome.length; i++){
       var h = moreHome[i];
       if (shell){ if (h.el.parentNode !== moreGrid){ moreGrid.appendChild(h.el); } }
@@ -7721,6 +7742,13 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     var onAppQ = function(){ syncChipOverflow(); if (!isAppShell()){ openSheet(null); } else { relayout(); } };
     if (appQ.addEventListener){ appQ.addEventListener('change', onAppQ); }
     else if (appQ.addListener){ appQ.addListener(onAppQ); }
+    if (narrowQ){
+      /* crossing 880px moves the tools between the bar and the menu and reshapes the sheet —
+         the canvas has to re-measure either way */
+      var onNarrow = function(){ syncChipOverflow(); relayout(); };
+      if (narrowQ.addEventListener){ narrowQ.addEventListener('change', onNarrow); }
+      else if (narrowQ.addListener){ narrowQ.addListener(onNarrow); }
+    }
   }
   syncChipOverflow();
   if (isAppShell()){ openSheet(null); }

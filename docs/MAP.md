@@ -52,6 +52,7 @@ Zones, in file order:
 | shelves and footer | the look shelf, status line, signature and credits | `---------- shelves and footer:` |
 | mobile layout | artwork pinned to the top, controls scrolling below, drag-to-resize grip | `---------- mobile layout:` |
 | app shell layout | portrait phones + small tablets — full-bleed art, a bottom nav, one section as a sheet over it | `---------- app shell layout:` |
+| wide screens | the same shell, in furniture that suits the room | `---------- wide screens:` |
 | panel themes | METAL (default, above) + carbon/phosphor/paper/neon | `---------- panel themes:` |
 | per-theme materials | each theme builds its own keys and knobs on top of the shared flat base above | `---------- per-theme materials:` |
 | per-theme dial rings, pucks and the aspect slider | the two remaining chrome parts | `---------- per-theme dial rings, pucks and the aspect slider:` |
@@ -177,5 +178,5 @@ Zones, in file order:
 
 ---
 
-129 sections. Anything unbannered is a gap in the map: add a banner in the
+130 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.
