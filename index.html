@@ -165,8 +165,15 @@
     scrollbar-width:none;-ms-overflow-style:none;
     position:relative;z-index:1;
   }
+  /* the browser's own track/thumb — a grey column at the panel's edge on some platforms
+     (Safari's "always show scrollbars" in particular) — is fought here, not left to chance:
+     scrollbar-width above is Firefox's + modern Chromium's way to ask cleanly; !important on
+     the WebKit pseudo-element is the belt, since this is the one place fighting a browser
+     default rather than this file's own cascade. #panelScrollBar below replaces it. */
+  .panelScroll::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}
   .panelMobileMeta,.mobTitle{display:none}
-  .panelScroll::-webkit-scrollbar{width:0;height:0}
+  .panelScrollBar{position:absolute;top:0;bottom:0;right:5px;width:3px;pointer-events:none;z-index:2;display:none}
+  .panelScrollBar i{position:absolute;left:0;right:0;top:0;border-radius:2px;background:rgba(0,0,0,.22)}
   /* push the footer block to the bottom; collapses to 0 once content fills the panel */
   .panelScroll > footer{margin-top:auto;padding-top:28px}
   .stage{
@@ -2831,6 +2838,12 @@
   <footer>Free forever — all computation happens on your device.
     <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
   </div>
+  <!-- app shell: a thin scroll-position indicator, standing in for whatever the browser's own
+       scrollbar would draw (Danial: "I don't wanna see the grey border when I scroll — just one
+       background colour, with a thin scroll line on the right"). A sibling of .panelScroll, not
+       a child of it — inside it, position:absolute would scroll away with the content; out
+       here it stays put while its height/position (JS below) tracks scroll progress. -->
+  <div id="panelScrollBar" class="panelScrollBar" aria-hidden="true"><i></i></div>
   </div>
   <!-- app shell (portrait phones + small tablets): five doors, one open at a time, floating
        over the bottom of the art. Colour/Engine/Look/Export open their panel section as a sheet
@@ -7656,6 +7669,23 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     var more = document.getElementById('colourMore'), x = document.getElementById('cmClose');
     if (more && !more.hidden && x){ x.click(); }
   }
+  /* the custom thin scroll indicator that stands in for the browser's own scrollbar (see the
+     CSS note by .panelScrollBar). Height = the visible fraction of the content, position =
+     scroll fraction — the two numbers a scrollbar has always shown, nothing more. */
+  var panelScrollBarEl = document.getElementById('panelScrollBar');
+  var panelScrollThumb = panelScrollBarEl ? panelScrollBarEl.querySelector('i') : null;
+  function syncPanelScrollbar(){
+    if (!panelScrollBarEl || !panelScrollThumb || !panelScrollEl){ return; }
+    var sh = panelScrollEl.scrollHeight, ch = panelScrollEl.clientHeight;
+    if (ch <= 0 || sh - ch <= 2){ panelScrollBarEl.style.display = 'none'; return; }
+    panelScrollBarEl.style.display = 'block';
+    var trackH = panelScrollBarEl.clientHeight;
+    var thumbH = Math.max(24, Math.round(trackH * (ch / sh)));
+    var thumbY = Math.round((trackH - thumbH) * (panelScrollEl.scrollTop / (sh - ch)));
+    panelScrollThumb.style.height = thumbH + 'px';
+    panelScrollThumb.style.transform = 'translateY(' + thumbY + 'px)';
+  }
+  if (panelScrollEl){ panelScrollEl.addEventListener('scroll', syncPanelScrollbar, { passive: true }); }
   function relayout(){
     /* a sheet just showed or hid: the strips inside measure themselves on resize (initStrip),
        and the canvas re-checks its backing store. The stage itself never changes size here —
@@ -7663,6 +7693,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     if (typeof resize === 'function'){ resize(); }
     requestRender();
     window.dispatchEvent(new Event('resize'));
+    syncPanelScrollbar();
   }
   var closeTimer = 0;
   function isClosing(){ return !!(wrapEl && wrapEl.hasAttribute('data-closing')); }
@@ -7802,6 +7833,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     glassRAF = 0;
     var t = glassTarget();
     if (!t || !glassCtx || !isAppShell()){ if (glassEl){ glassEl.style.display = 'none'; } return; }
+    syncPanelScrollbar();
     var r = t.getBoundingClientRect();
     glassEl.style.display = 'block';
     glassEl.style.left = r.left + 'px'; glassEl.style.top = r.top + 'px';
