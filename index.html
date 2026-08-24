@@ -9735,6 +9735,14 @@ function thumbSpecs(){
     jobs.push({ el: dots, ov: { field:0, screen:0, pixel:1, dots:1, dot:9, scale:1.5, warp:5.0,
       grain:0.02, seed:60, t:1.1, hasTex:0 } });
   }
+  /* finish tiles: the SAME soft field rendered with each material, so the strip is a row of
+     surfaces. They had no spec at all — every Finish square was a bare black card with a
+     label, which read as six broken images (Danial: "why is there no image for these"). */
+  var mb = document.querySelectorAll('.materialBtn');
+  for (i = 0; i < mb.length; i++){
+    jobs.push({ el: mb[i], ov: { material: parseInt(mb[i].getAttribute('data-material'), 10),
+      field:3, pixel:1, dots:0, screen:0, hasTex:0, scale:1.6, warp:4.0, grain:0.02, seed:28, t:1.35 } });
+  }
   /* palette buttons get a vivid CSS gradient swatch (set in syncControls), not a noise render —
      the noise field is mid/dark-biased so the old previews read dark. */
   return jobs;
@@ -9751,7 +9759,7 @@ function renderOneThumb(job){
        halftone dots — so Hex, ASCII, Dither and Glitch all rendered as plain smooth fields,
        each showing the opposite of what clicking it does. Anything the job states for itself
        now stands; only what it leaves unsaid is cleared. */
-    state.material = 0;
+    if (job.ov.material == null){ state.material = 0; }   /* the finish tiles preview a material */
     if (job.ov.dots == null){ state.dots = 0; }
     if (job.ov.pixel == null){ state.pixel = 1; }
     if (job.ov.screen == null){ state.screen = 0; }
