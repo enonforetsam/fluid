@@ -1402,6 +1402,10 @@
     }
     .panelScroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:14px}
     .panel section{display:none;border-top:0;box-shadow:none;padding-top:10px}
+    /* every picker strip in a sheet runs on 64px tiles (Danial: Engine first, then "the
+       squares in Look too") — the 100px tile is a desktop size */
+    .panel .fieldstrip .fieldBtn{flex:0 0 64px;width:64px;border-radius:7px}
+    .panel .fieldstrip .fieldBtn span{font-size:7px;padding:2px 0}
     .panel section .sec-title{display:none}
     .wrap[data-sheet="image"] .panel section[data-nav="image"],
     .wrap[data-sheet="colour"] .panel section[data-nav="colour"],
@@ -1446,8 +1450,6 @@
     .wrap[data-sheet="engine"] .layerTabs{margin-bottom:8px;gap:5px}
     .wrap[data-sheet="engine"] button.layerTab{padding:8px 12px}
     .wrap[data-sheet="engine"] .striprow{margin-bottom:8px}
-    .wrap[data-sheet="engine"] .fieldstrip .fieldBtn{flex:0 0 64px;width:64px;border-radius:7px}
-    .wrap[data-sheet="engine"] .fieldstrip .fieldBtn span{font-size:7px;padding:2px 0}
     /* the action row never wraps (Danial: "maximum of 3 rows"): three equal thirds, tighter
        type, and a label that cannot fit is clipped rather than pushed to a new line */
     .wrap[data-sheet="engine"] #randBtn,.wrap[data-sheet="engine"] #addLayerBtn,.wrap[data-sheet="engine"] #removeLayerBtn{
