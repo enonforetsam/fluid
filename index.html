@@ -1337,11 +1337,31 @@
     html:not(.embed) .wrap #cv{width:100%;height:100%;aspect-ratio:auto !important;object-fit:contain;border-radius:0}
     /* the chip bar floats over the top of the art, clear of the notch; the scrim keeps the
        chips readable over a bright pattern */
+    /* the top bar reads as the nav's twin now (Danial: "similar to the bottom nav, give it a
+       background like it"): same fill, same blur, same edge — flush and square on a phone,
+       lifted into its own floating pill on a wide screen (in the wide-screen block below). The
+       gradient scrim this replaced existed only because the bar used to be transparent chips
+       floating loose over the art; a bar with its own background does not need one. */
     html:not(.embed) .wrap #canvasChips{
       position:absolute;top:0;left:0;right:0;z-index:2;margin:0;
-      padding:calc(8px + env(safe-area-inset-top, 0px)) 10px 12px;
-      background:linear-gradient(180deg, rgba(6,6,10,.62), rgba(6,6,10,0));
+      padding:calc(8px + env(safe-area-inset-top, 0px)) 10px calc(8px + env(safe-area-inset-top, 0px));
+      border-bottom:1px solid rgba(255,255,255,.10);
     }
+    /* the fill lives on a pseudo-element, not on #canvasChips itself: filter/backdrop-filter
+       on an element makes IT the containing block for any position:fixed DESCENDANT — and the
+       docks (#textDock, #frameDock, #cursorDock, #designDock, #moreDock) are markup children
+       of this bar. Putting backdrop-filter here directly re-anchored every one of them to the
+       bar's own ~50px box instead of the viewport; #textDock rendered with its bottom edge at
+       y=-23, entirely off-screen above the art. The pseudo-element has no descendants of its
+       own to break. */
+    html:not(.embed) .wrap #canvasChips::before{
+      content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
+      background:rgba(17,18,22,.55);
+      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+    }
+    .chipsBrand{display:flex;align-items:center;gap:8px;margin-right:auto;flex:none}
+    .chipsBrandName{font-size:10px;letter-spacing:.2em;font-weight:700;text-transform:uppercase;color:var(--ink)}
+    .chipsBrand .ghLink{margin-left:0}
     .stageInner::before,.stageInner::after{top:0;height:calc(48px + env(safe-area-inset-top, 0px))}
     .stageInner::before{left:0;background:linear-gradient(90deg,rgba(6,6,10,.6),rgba(6,6,10,0))}
     .stageInner::after{right:0;background:linear-gradient(90deg,rgba(6,6,10,0),rgba(6,6,10,.6))}
@@ -1351,6 +1371,8 @@
        deeper (Danial: "just keep shuffle and record there, the rest in a plus icon menu") —
        so the bar never scrolls and nothing is hidden off its left edge. */
     html:not(.embed) .wrap #canvasChips{justify-content:space-between;overflow:visible}
+    #canvasChips #refreshChip{width:32px;height:28px;padding:0;justify-content:center;gap:0}
+    #canvasChips #refreshChip span:not(.ricon){display:none}
     /* a tool in the menu is a tile: its icon, and its own aria-label under it */
     #moreGrid .chipIcon,#moreGrid #recChip,#moreGrid #refreshChip{
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
@@ -1576,13 +1598,17 @@
         transition:opacity .2s ease,transform .2s ease;
       }
       html:not(.embed) .wrap[data-sheet]:not([data-closing]) #stageTray{opacity:0;transform:translateY(10px);pointer-events:none}
-      /* the bar is a row of tools in the middle, not a span across the window */
+      /* the bar becomes the nav's twin up here too: not a row spanning the window, but its
+         own floating pill, the same distance from the top that the nav sits from the bottom */
       html:not(.embed) .wrap #canvasChips{
-        justify-content:center;gap:9px;padding:14px 24px 16px;background:none;
+        justify-content:center;gap:9px;top:20px;left:0;right:0;width:max-content;margin:0 auto;
+        padding:10px 16px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
       }
       /* Shuffle's auto margin was there to pin it to the left of a bar that spanned the
-         window; centred, it would shove everything else to the right edge */
+         window; the brand mark took over that job when the bar got a name (Fluid + GitHub) */
       html:not(.embed) .wrap #refreshChip{margin-right:0}
+      .chipsBrand{margin-right:0}
       .stageInner::before,.stageInner::after{display:none}
       #moreChip{display:none}          /* the bar has room for every tool up here */
       #imageChip{display:inline-flex}
@@ -2162,6 +2188,15 @@
       <!-- app shell: the status line has no panel to live in, so it speaks once, briefly, over the art -->
       <div id="toast" role="status" aria-live="polite"></div>
       <div id="canvasChips">
+        <!-- app shell: the bar is its own opaque pill now (like the nav below it), so it reads
+             as a piece of chrome rather than a scrim over the art — which meant it needed a
+             name. The real wordmark lives in the header, display:none for good in the shell;
+             this is the same pattern as .mobTitle above: a second, bar-sized copy of the same
+             title + GitHub link, not a re-wire of either. -->
+        <div class="chipsBrand">
+          <span class="chipsBrandName">Fluid</span>
+          <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+        </div>
         <!-- Sits at the far left, apart from the art controls, because it changes the room
              rather than the piece — and because it has to stay put: once the panel is gone
              this button is the only way back to it. -->
