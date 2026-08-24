@@ -1417,11 +1417,16 @@
     /* Look: caption, track and value share one row — a stacked caption per slider spent a
        third of a short sheet on words. The caption is display:contents, so its text and its
        <output> become grid items beside the range: name | track | value. */
-    .panel .knobgrid.sliderGrid{gap:0 16px}
-    .panel .sliderGrid .knobctl{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;align-items:center;gap:0 10px;min-height:40px}
-    .panel .sliderGrid .knoblabel{display:contents}
-    .panel .sliderGrid .knoblabel output{grid-column:3;grid-row:1;text-align:right;font-size:10px}
-    .panel .sliderGrid .knobctl input[type=range]{grid-column:2;grid-row:1;height:40px;margin:0}
+    .panel .knobgrid.sliderGrid{grid-template-columns:1fr 1fr;gap:2px 14px}
+    .panel .sliderGrid .knobctl{display:grid;grid-template-columns:46px minmax(0,1fr) 30px;align-items:center;gap:0 6px;min-height:36px}
+    .panel .sliderGrid .knoblabel{display:contents;font-size:8px;letter-spacing:.06em}
+    .panel .sliderGrid .knoblabel output{grid-column:3;grid-row:1;text-align:right;font-size:9px}
+    /* the row stays 36px so the target is a thumb's worth even though the dot is small */
+    .panel .sliderGrid .knobctl input[type=range]{grid-column:2;grid-row:1;height:36px;margin:0}
+    .panel .sliderGrid input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-7px}
+    .panel .sliderGrid input[type=range]::-moz-range-thumb{width:16px;height:16px}
+    /* one column is right for the layer mix (it shares its row with the blend select) */
+    .panel #layerMixRow .knobgrid.sliderGrid{grid-template-columns:1fr}
     /* Colour: eight small palette squares and the four stops, nothing else (Danial: "reduce the
        height, 8 small squares, no labels, the 4-part colour box that opens the colour pointer,
        remove the sliders"). The editor's body shows IN PLACE — not as its own sheet — with only
