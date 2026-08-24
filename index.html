@@ -1486,7 +1486,10 @@
     /* the frosted pane: fixed, sized to the open sheet by the shell each frame; the canvas is
        drawn 20% oversize so the blur has no transparent fringe; ::after is the tint */
     #glass{position:fixed;z-index:34;overflow:hidden;border-radius:14px 14px 0 0;pointer-events:none;display:none}
-    #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:blur(16px);-webkit-filter:blur(16px);transform:translateZ(0)}
+    /* url(#fluidGlassFilter) first (the lensed edge + colour fringe, built below), blur(16px)
+       after — softening the already-warped result reads more like real frosted glass than a
+       crisp warp inside a soft field, and hides the coarseness of the 48px mirror underneath */
+    #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:url(#fluidGlassFilter) blur(16px);-webkit-filter:url(#fluidGlassFilter) blur(16px);transform:translateZ(0)}
     #glass::after{content:'';position:absolute;inset:0;background:rgba(226,226,222,.5)}
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
@@ -2838,6 +2841,40 @@
        made by hand: a small canvas that mirrors the slice of art under the sheet each frame,
        blurred by CSS, with the sheet's tint laid over it. The sheets themselves are transparent. -->
   <div id="glass" aria-hidden="true"><canvas width="48" height="48"></canvas></div>
+  <!-- liquid glass: the lensed edge + colour fringe from rdev/liquid-glass-react (MIT,
+       https://github.com/rdev/liquid-glass-react) — that library drives the look through
+       backdrop-filter, which is exactly the piece iOS Safari would not sample from our WebGL
+       canvas (see the note above #glass), so it is ported onto the mirror canvas instead: an
+       feDisplacementMap fed a generated map (JS below), independent of backdrop-filter, works
+       everywhere the mirror does. Structure is static; JS only ever rewrites #glassMap's href
+       and the three feDisplacementMap scales, whenever the open pane's size changes. -->
+  <svg id="glassSvg" aria-hidden="true" xmlns:xlink="http://www.w3.org/1999/xlink" style="position:absolute;width:0;height:0;overflow:hidden">
+    <filter id="fluidGlassFilter" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feImage id="glassMap" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"></feImage>
+      <!-- luminance of the map reads as "how far from the flat centre" — thresholded into a mask
+           so the colour-fringed edge composites only over the rim, and the clean centre (below)
+           only over the untouched middle -->
+      <feColorMatrix in="MAP" type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 1 0" result="EDGE_L"></feColorMatrix>
+      <feComponentTransfer in="EDGE_L" result="EDGE_MASK"><feFuncA type="discrete" tableValues="0 0.1 1"></feFuncA></feComponentTransfer>
+      <feOffset in="SourceGraphic" dx="0" dy="0" result="CENTER"></feOffset>
+      <!-- three copies of the same warp, each a slightly different strength (JS sets the three
+           scales) — screen-blended, this is the chromatic aberration: real glass bends red,
+           green and blue by very slightly different amounts at a refracting edge -->
+      <feDisplacementMap id="glassDispR" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DR"></feDisplacementMap>
+      <feColorMatrix in="DR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="DRC"></feColorMatrix>
+      <feDisplacementMap id="glassDispG" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DG"></feDisplacementMap>
+      <feColorMatrix in="DG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="DGC"></feColorMatrix>
+      <feDisplacementMap id="glassDispB" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DB"></feDisplacementMap>
+      <feColorMatrix in="DB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="DBC"></feColorMatrix>
+      <feBlend in="DGC" in2="DBC" mode="screen" result="GB"></feBlend>
+      <feBlend in="DRC" in2="GB" mode="screen" result="FRINGE_RGB"></feBlend>
+      <feGaussianBlur in="FRINGE_RGB" stdDeviation="0.3" result="FRINGE_SOFT"></feGaussianBlur>
+      <feComposite in="FRINGE_SOFT" in2="EDGE_MASK" operator="in" result="FRINGE"></feComposite>
+      <feComponentTransfer in="EDGE_MASK" result="INV_MASK"><feFuncA type="table" tableValues="1 0"></feFuncA></feComponentTransfer>
+      <feComposite in="CENTER" in2="INV_MASK" operator="in" result="CLEAR_CENTER"></feComposite>
+      <feComposite in="FRINGE" in2="CLEAR_CENTER" operator="over"></feComposite>
+    </filter>
+  </svg>
 </div>
 
 <script>
@@ -7672,6 +7709,88 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var glassCtx = glassCv ? glassCv.getContext('2d') : null;
   var glassRAF = 0, glassLast = 0;
   function glassTarget(){ return currentSheet() ? panelEl : null; }
+  /* the SDF + smoothstep displacement is rdev/liquid-glass-react's (MIT) — see the markup
+     note above #glassSvg. Ported to plain math with one change: the library's box is a fixed
+     0.3/0.2 FRACTION of the container, tuned for one pill-shaped demo. Our sheets range from a
+     97px strip to a full-height column, and a fractional box would go flat on the strip and
+     vanish on the column — so the box here is inset from each edge by a constant PHYSICAL rim
+     (a real glass bevel does not get proportionally thicker on a bigger pane), and the
+     transition band runs from just inside that box out to the element's own edge. */
+  function glassSDF(x, y, hw, hh, r){
+    var qx = Math.abs(x) - hw + r, qy = Math.abs(y) - hh + r;
+    return Math.min(Math.max(qx, qy), 0) + Math.sqrt(Math.pow(Math.max(qx, 0), 2) + Math.pow(Math.max(qy, 0), 2)) - r;
+  }
+  function glassSmooth(a, b, t){ t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
+  var glassMapCv = null, glassMapCtx = null;
+  var GLASS_ABERRATION = 2;                /* 0 = a plain lensed edge with no colour fringe */
+  function buildGlassMap(pxW, pxH){
+    var longSide = Math.max(pxW, pxH), k = Math.min(1, 72 / longSide);
+    var mw = Math.max(8, Math.round(pxW * k)), mh = Math.max(8, Math.round(pxH * k));
+    if (!glassMapCv){ glassMapCv = document.createElement('canvas'); glassMapCtx = glassMapCv.getContext('2d'); }
+    glassMapCv.width = mw; glassMapCv.height = mh;
+    var short = Math.min(pxW, pxH);
+    /* a real glass bevel is a few px deep regardless of how big the pane is — margin/reach are
+       capped SMALL constants, not a fraction of the panel that keeps growing with it. Scaling
+       the rim to the panel's short side (the first cut of this) gave a full-height sheet a
+       ~55px band from EACH edge — a third of the sheet under warp, reading as one diagonal
+       smear rather than a lensed rim. */
+    var margin = Math.max(4, Math.min(10, short * 0.06));    /* the clear box's inset from each edge */
+    var reach = Math.max(8, Math.min(22, short * 0.16));     /* how far the warp band reaches beyond that */
+    var radius = Math.min(short * 0.5, 10 + short * 0.05);
+    var hw = pxW / 2 - margin, hh = pxH / 2 - margin;
+    /* the actual lens pull, in px. A first cut of this map encoded the raw pull-toward-centre
+       vector and normalised every pixel by the single largest one — which sits in the FAR
+       CORNER of a wide, short sheet (clipped by the panel's own rounded corner anyway), miles
+       beyond the actual rim. Dividing by that corner's huge value rounded the real, visible
+       edge down to nothing. Direction and strength are kept separate now: strength is a
+       bounded 0..1 curve, direction is a unit vector, and dispPx is the one number both scale
+       by — so nothing off-screen can wash out what is actually on screen. */
+    var dispPx = Math.max(4, Math.min(14, reach * 0.6));
+    var n = mw * mh, i = 0;
+    var x, y, px, py, ix, iy, d, mag, dist, ux, uy;
+    var img = glassMapCtx.createImageData(mw, mh), data = img.data;
+    for (y = 0; y < mh; y++){
+      py = (y + 0.5) / mh * pxH;
+      for (x = 0; x < mw; x++){
+        px = (x + 0.5) / mw * pxW;
+        ix = px - pxW / 2; iy = py - pxH / 2;
+        d = glassSDF(ix, iy, hw, hh, radius);
+        /* 0 (no pull) from deep inside the box out to just past its edge; 1 (full pull, toward
+           the centre — the lens bulge) by the time d reaches the element's own outer edge */
+        mag = 1 - glassSmooth(margin + reach, -2, d);
+        dist = Math.sqrt(ix * ix + iy * iy) || 1;
+        ux = -ix / dist; uy = -iy / dist;
+        var p = i * 4;
+        data[p] = Math.max(0, Math.min(255, ux * mag * 127.5 + 127.5));
+        data[p + 1] = Math.max(0, Math.min(255, uy * mag * 127.5 + 127.5));
+        data[p + 2] = data[p + 1];
+        data[p + 3] = 255;
+        i++;
+      }
+    }
+    glassMapCtx.putImageData(img, 0, 0);
+    return { url: glassMapCv.toDataURL(), scale: dispPx };
+  }
+  var glassMapEl = null, glassDispR = null, glassDispG = null, glassDispB = null;
+  var glassLastW = 0, glassLastH = 0;
+  function updateGlassFilter(pxW, pxH){
+    if (pxW < 4 || pxH < 4){ return; }
+    if (Math.abs(pxW - glassLastW) < 3 && Math.abs(pxH - glassLastH) < 3){ return; }
+    if (!glassMapEl){
+      glassMapEl = document.getElementById('glassMap');
+      glassDispR = document.getElementById('glassDispR');
+      glassDispG = document.getElementById('glassDispG');
+      glassDispB = document.getElementById('glassDispB');
+    }
+    if (!glassMapEl || !glassDispR || !glassDispG || !glassDispB){ return; }
+    glassLastW = pxW; glassLastH = pxH;
+    var m = buildGlassMap(pxW, pxH);
+    glassMapEl.setAttribute('href', m.url);
+    glassMapEl.setAttributeNS('http://www.w3.org/1999/xlink', 'href', m.url);
+    glassDispR.setAttribute('scale', m.scale);
+    glassDispG.setAttribute('scale', m.scale * (1 - GLASS_ABERRATION * 0.05));
+    glassDispB.setAttribute('scale', m.scale * (1 - GLASS_ABERRATION * 0.10));
+  }
   function glassTick(ts){
     glassRAF = 0;
     var t = glassTarget();
@@ -7680,6 +7799,9 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
     glassEl.style.display = 'block';
     glassEl.style.left = r.left + 'px'; glassEl.style.top = r.top + 'px';
     glassEl.style.width = r.width + 'px'; glassEl.style.height = r.height + 'px';
+    /* the canvas that actually gets warped is 120% of #glass (drawn oversize so the blur has
+       no transparent fringe — see its CSS) — the filter's math has to run in ITS pixel space */
+    updateGlassFilter(r.width * 1.2, r.height * 1.2);
     if (ts - glassLast > 66 && r.width > 0 && r.height > 0){
       glassLast = ts;
       var src = canvas;
