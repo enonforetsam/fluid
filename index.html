@@ -1505,16 +1505,23 @@
       color:rgba(232,232,228,.55);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
       cursor:pointer;touch-action:manipulation;
     }
-    .navBtn:active{transform:none;background-color:rgba(255,255,255,.14);background-image:none;box-shadow:none}
-    /* the global metal button hover was landing here: a hard white slab with square corners
-       cutting straight through the pill (Danial: "on hover looks ugly"). A tab is not a key —
-       hover just lifts it out of the dark, in the tab's own rounded box. */
+    /* pressed: a scale dip, not a fill — see the note below on why a fill has no clean edge
+       to give on a tab this tall */
+    .navBtn:active{transform:scale(.94);background-color:transparent;background-image:none;box-shadow:none}
+    /* the global metal button hover was landing here first: a hard white slab with square
+       corners cutting straight through the pill (Danial: "on hover looks ugly"). Fixed with a
+       rounded 10% tint in the tab's own box — which then showed its OWN edge (Danial: "the
+       edges show, I want it clean"): align-items:stretch makes each tab the pill's full ~64px
+       height, so a 14px border-radius only rounds the top and bottom of that — the two long
+       sides in between are a dead straight line at any fill opacity. No inset/rectangle can be
+       clean here without either shrinking the hit target or fighting the pill's own shape. So
+       there is no fill at all: a tab lifts out of the dark by colour alone, exactly like the
+       active tab already does with just its colour and underline — nothing with an edge to see. */
     @media (hover:hover) and (pointer:fine){
       .navBtn:hover{
-        background-color:rgba(255,255,255,.10);background-image:none;box-shadow:none;
+        background-color:transparent;background-image:none;box-shadow:none;
         color:#e8e8e4;text-shadow:none;transform:none;
       }
-      .navBtn.on:hover{background-color:rgba(255,255,255,.14)}
     }
     .navBtn:focus-visible{outline:2px solid rgba(232,232,228,.7);outline-offset:-3px;border-radius:14px}
     .navBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
