@@ -320,6 +320,19 @@
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
   #designDock.open{display:block}
+  /* the tools menu shares the docks' shape; it MUST be declared here with them — parked after
+     the mobile block instead, its `position:absolute` beat the bottom-sheet rule and the menu
+     opened behind the canvas */
+  #moreDock{
+    position:absolute;right:0;top:34px;z-index:8;
+    width:min(360px,100%);display:none;overflow:hidden;
+    color:var(--ink);background:var(--panel-metal);
+    border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #moreDock.open{display:block}
+  #moreGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+
   #embedDock{
     position:absolute;right:0;top:34px;z-index:8;
     width:min(360px,100%);display:none;
@@ -1214,14 +1227,14 @@
        the default split so the sheet stops short of the card; the 120px floor keeps the
        chip bar reachable once the stage has been dragged small. The head is sticky so the
        × never scrolls away. */
-    #cursorDock,#frameDock,#textDock,#designDock{
+    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
       position:fixed;top:auto;bottom:0;left:0;right:0;width:auto;
       max-height:min(50vh, calc(100vh - 120px));
       max-height:min(50dvh, calc(100dvh - 120px));
       overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
       border-radius:12px 12px 0 0;
     }
-    #cursorDock .designDockHead,#frameDock .designDockHead,#textDock .designDockHead,#designDock .designDockHead{
+    #cursorDock .designDockHead,#frameDock .designDockHead,#textDock .designDockHead,#designDock .designDockHead,#moreDock .designDockHead{
       position:sticky;top:0;z-index:1;background:var(--panel-metal);
     }
     .designList{max-height:none}
@@ -1271,7 +1284,7 @@
     }
     #panelHandle{display:none}
     /* the bottom sheets cover the controls column only — the art is beside it, not under */
-    #cursorDock,#frameDock,#textDock,#designDock{
+    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
       left:52vw;
       max-height:calc(100vh - 24px);
       max-height:calc(100dvh - 24px);
@@ -1323,7 +1336,7 @@
      title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
      sit on the nav. The query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned
      by a test. */
-  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass{display:none}
+  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass,#moreChip{display:none}
   @media (max-width:879px) and (not ((orientation:landscape) and (min-aspect-ratio:4/3))){
     /* 42dvh, but never so tall that the art drops under half the screen once the nav is
        counted — on a 667px phone 42dvh + 56 left 49.6% */
@@ -1350,7 +1363,26 @@
     .stageInner::before,.stageInner::after{top:0;height:calc(48px + env(safe-area-inset-top, 0px))}
     .stageInner::before{left:0;background:linear-gradient(90deg,rgba(6,6,10,.6),rgba(6,6,10,0))}
     .stageInner::after{right:0;background:linear-gradient(90deg,rgba(6,6,10,0),rgba(6,6,10,.6))}
-    #imageChip{display:inline-flex}
+    #imageChip{display:none}   /* it lives in the tools menu now, with the rest */
+    #moreChip{display:inline-flex}
+    /* the bar holds three things: Shuffle, the tools menu, Record. Everything else is one tap
+       deeper (Danial: "just keep shuffle and record there, the rest in a plus icon menu") —
+       so the bar never scrolls and nothing is hidden off its left edge. */
+    html:not(.embed) .wrap #canvasChips{justify-content:space-between;overflow:visible}
+    /* a tool in the menu is a tile: its icon, and its own aria-label under it */
+    #moreGrid .chipIcon,#moreGrid #recChip,#moreGrid #refreshChip{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+      width:auto;height:auto;min-height:64px;padding:12px 4px;
+      font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+      background-color:rgba(255,255,255,.05);border-color:var(--line);
+    }
+    #moreGrid .chipIcon svg{width:20px;height:20px}
+    #moreGrid .chipIcon::before{content:attr(aria-label);order:2;color:var(--soft);font-size:8px;letter-spacing:.08em;text-align:center;line-height:1.2}
+    #moreGrid .chipIcon::after{content:none}          /* the tile is already thumb-sized */
+    #moreGrid .chipCount{top:6px;right:6px}
+    #moreGrid #modePill{grid-column:1 / -1;height:40px}
+    #moreGrid .modeOpt{flex:1;font-size:9px}
+    #moreGrid #modePill .modeOpt::after{content:none}
     /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
        on any art (the scrim alone was not enough at the pale end) */
     html:not(.embed) .wrap #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)}
@@ -1500,7 +1532,7 @@
     .navBtn.on::before{content:'';position:absolute;top:-1px;left:50%;width:28px;margin-left:-14px;height:2px;background:#e8e8e4;border-radius:0 0 2px 2px}
     html.embed #appNav{display:none}
     /* the docks and the colour editor sit on the nav, not under it */
-    #cursorDock,#frameDock,#textDock,#designDock{
+    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
       bottom:var(--navH);
       max-height:min(50vh, calc(100vh - var(--navH) - 80px));
       max-height:min(50dvh, calc(100dvh - var(--navH) - 80px));
@@ -2238,6 +2270,19 @@
             <button id="closeDesigns" type="button" aria-label="Close my designs">&times;</button>
           </div>
           <div id="designList" class="designList"></div>
+        </div>
+        <!-- app shell (portrait phones): everything the bar cannot hold lives behind this.
+             The chips are MOVED here (not copied) when the shell is on, so every one keeps the
+             wiring it was born with; they go back to the bar on a desktop or in landscape. -->
+        <button id="moreChip" class="chipIcon" title="More tools" aria-label="More tools" aria-expanded="false" aria-controls="moreDock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        </button>
+        <div id="moreDock" role="dialog" aria-label="More tools">
+          <div class="designDockHead">
+            <div class="designDockTitle">Tools</div>
+            <button id="closeMore" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div id="moreGrid"></div>
         </div>
         <div id="modePill" role="group" aria-label="Still or live">
           <button id="liveBtn" class="modeOpt" aria-pressed="false">Live</button>
@@ -7478,12 +7523,55 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var imageChip = document.getElementById('imageChip');
   var SHEET_LABEL = { image: 'Image' };   /* sheets opened from a chip, not a tab */
   function currentSheet(){ return wrapEl ? wrapEl.getAttribute('data-sheet') : null; }
+  /* the chips the bar hands over to the tools menu, in the order they read there */
+  var MORE_IDS = ['undoChip', 'redoChip', 'imageChip', 'saveChip', 'frameChip', 'textChip',
+    'cursorChip', 'embedChip', 'designsChip', 'modePill'];
+  var moreChip = document.getElementById('moreChip');
+  var moreDock = document.getElementById('moreDock');
+  var moreGrid = document.getElementById('moreGrid');
+  var moreHome = [];                       /* where each chip came from, so it can go back */
+  Array.prototype.forEach.call(MORE_IDS, function(id){
+    var el = document.getElementById(id);
+    if (el && el.parentNode){ moreHome.push({ el: el, parent: el.parentNode, next: el.nextSibling }); }
+  });
+  function setMoreDock(open){
+    if (!moreDock){ return; }
+    if (open){ closeDocks(); openSheet(null); }
+    moreDock.className = open ? 'open' : '';
+    if (moreChip){ moreChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  }
+  function syncChipOverflow(){
+    var shell = isAppShell();
+    for (var i = 0; i < moreHome.length; i++){
+      var h = moreHome[i];
+      if (shell){ if (h.el.parentNode !== moreGrid){ moreGrid.appendChild(h.el); } }
+      else if (h.el.parentNode !== h.parent){ h.parent.insertBefore(h.el, h.next); }
+    }
+    if (!shell){ setMoreDock(false); }
+  }
+  if (moreChip && moreDock){
+    moreChip.addEventListener('click', function(){ setMoreDock(moreDock.className !== 'open'); });
+    document.getElementById('closeMore').addEventListener('click', function(){ setMoreDock(false); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setMoreDock(false); } });
+    document.addEventListener('pointerdown', function(e){
+      if (moreDock.className !== 'open'){ return; }
+      if (moreDock.contains(e.target) || moreChip.contains(e.target)){ return; }
+      dismissTap = true;
+      setMoreDock(false);
+    });
+    /* a tool that opens its own dock takes the menu's place */
+    moreGrid.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('button') : null;
+      if (b && b.id !== 'liveBtn' && b.id !== 'stillBtn'){ setMoreDock(false); }
+    });
+  }
   function closeDocks(){
     if (typeof setDesignDock === 'function'){ setDesignDock(false); }
     if (typeof setEmbedDock === 'function'){ setEmbedDock(false); }
     if (typeof setTextDock === 'function'){ setTextDock(false); }
     if (typeof setFrameDock === 'function'){ setFrameDock(false); }
     if (typeof setCursorDock === 'function'){ setCursorDock(false); }
+    if (moreDock && moreDock.className === 'open'){ moreDock.className = ''; if (moreChip){ moreChip.setAttribute('aria-expanded', 'false'); } }
   }
   function closeColourEditor(){
     var more = document.getElementById('colourMore'), x = document.getElementById('cmClose');
@@ -7588,7 +7676,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
       openSheet((!isClosing() && currentSheet() === key) ? null : key);
     });
   }
-  if (imageChip){ imageChip.addEventListener('click', function(){ openSheet((!isClosing() && currentSheet() === 'image') ? null : 'image'); }); }
+  if (imageChip){ imageChip.addEventListener('click', function(){ setMoreDock(false); openSheet((!isClosing() && currentSheet() === 'image') ? null : 'image'); }); }
   /* close by ✕ (click for the mouse, touchend for fingers — preventDefault so one tap closes
      once and never also re-fires through the synthetic click) and by a pull on the grip */
   if (sheetClose){
@@ -7618,7 +7706,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
         if (d.className === 'open' && currentSheet()){ openSheet(null); return; }
       }
     });
-    ['designDock', 'embedDock', 'textDock', 'frameDock', 'cursorDock'].forEach(function(id){
+    ['designDock', 'embedDock', 'textDock', 'frameDock', 'cursorDock', 'moreDock'].forEach(function(id){
       var d = document.getElementById(id);
       if (d){ dockMo.observe(d, { attributes:true, attributeFilter:['class'] }); }
     });
@@ -7627,10 +7715,11 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
      attribute must go (the sheet CSS would otherwise hide all but one); coming back in, the
      art starts full-screen, as on boot */
   if (appQ){
-    var onAppQ = function(){ if (!isAppShell()){ openSheet(null); } else { relayout(); } };
+    var onAppQ = function(){ syncChipOverflow(); if (!isAppShell()){ openSheet(null); } else { relayout(); } };
     if (appQ.addEventListener){ appQ.addEventListener('change', onAppQ); }
     else if (appQ.addListener){ appQ.addListener(onAppQ); }
   }
+  syncChipOverflow();
   if (isAppShell()){ openSheet(null); }
 }
 /* The chip bar scrolls sideways on phones (see the mobile CSS): atStart/atEnd drive its edge
