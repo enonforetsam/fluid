@@ -1434,6 +1434,9 @@
     }
     .panelScroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:14px}
     .panel section{display:none;border-top:0;box-shadow:none;padding-top:10px}
+    /* a sheet has no section title, so these group labels ARE its headings — they have to
+       carry that weight (Danial: darker and bold) rather than read as fine print */
+    .panel .exGroupLabel{color:var(--ink);font-weight:700}
     /* every picker strip in a sheet runs on 64px tiles (Danial: Engine first, then "the
        squares in Look too") — the 100px tile is a desktop size */
     .panel .fieldstrip .fieldBtn{flex:0 0 64px;width:64px;border-radius:7px}
