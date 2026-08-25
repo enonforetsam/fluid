@@ -266,6 +266,11 @@
     .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
   }
   .chipIcon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* the generic :focus-visible ring (outline 2px, offset OUTWARD 2px) is sized for the sidebar's
+     bigger buttons; on a 28px chip the outward bulge reads as a chunky square poking past the
+     8px rounding — an inset ring (same trick as .navBtn's own fix) follows the small shape
+     cleanly instead. */
+  .chipIcon:focus-visible{outline:2px solid rgba(232,232,228,.85);outline-offset:-2px}
   #saveChip.saved{color:var(--ink-c);background:var(--ink);border-color:var(--ink)}
   .chipCount{
     position:absolute;right:-6px;top:-6px;min-width:15px;height:15px;padding:0 4px;
@@ -1573,9 +1578,13 @@
     @media (min-width:880px){
       .wrap{--navH:84px;--sheetH:min(46vh,520px);--sheetH:min(46dvh,520px);--shellW:min(760px, calc(100vw - 64px))}
       #appNav{
-        left:0;right:0;width:max-content;margin:0 auto;bottom:20px;height:64px;
-        padding:0 8px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;
+        left:0;right:0;width:var(--shellW);margin:0 auto;bottom:20px;height:64px;
+        padding:0 20px;justify-content:space-between;
+        border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;
         box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
+      html:not(.embed) .wrap:not([data-sheet]) #appNav{
+        border-top-left-radius:0;border-top-right-radius:0;border-top:0;
       }
       .navBtn{flex:0 0 auto;min-width:92px;padding:8px 14px;gap:5px;font-size:9px}
       .navBtn svg{width:21px;height:21px}
@@ -1589,12 +1598,21 @@
       #glass{border-radius:16px}
       #cursorDock,#frameDock,#textDock,#designDock,#moreDock{max-height:min(52vh,560px);max-height:min(52dvh,560px)}
       #colourMore{left:0;right:0;width:var(--shellW);margin:0 auto;bottom:calc(var(--navH) + 8px);border-radius:16px}
-      /* the shelf a phone had no room for: Layers, Recent, Saved and Explore, in the sheets'
-         column, and out of the way while a sheet is open */
+      /* the shelf a phone had no room for: Layers, Recent, Saved and Explore, out of the way
+         while a sheet is open. It sits flush on the nav now (Danial: "have the top, longer bar
+         merge into the top nav") rather than floating above it as its own separately-shadowed
+         pill with a gap — same width, same fill, one shape; only the outer corners stay
+         rounded, tray on top and nav below. Nav's own :not([data-sheet]) rule above squares
+         its top corners to match ONLY while the tray is actually merged flush above it — the
+         moment a sheet opens and the tray fades (unchanged, below), nav's base border-radius
+         (all four corners) applies again, so it is never a pill with a corner cut off for no
+         reason. */
       html:not(.embed) .wrap #stageTray{
         display:flex;position:fixed;left:0;right:0;width:var(--shellW);margin:0 auto;
-        bottom:calc(var(--navH) + 8px);z-index:33;border-radius:14px;
-        background:rgba(10,10,14,.72);box-shadow:0 12px 32px rgba(0,0,0,.34);
+        bottom:var(--navH);z-index:33;border-radius:16px 16px 0 0;
+        background:rgba(17,18,22,.55);
+        -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+        border:1px solid rgba(255,255,255,.12);border-bottom:0;box-shadow:none;
         transition:opacity .2s ease,transform .2s ease;
       }
       html:not(.embed) .wrap[data-sheet]:not([data-closing]) #stageTray{opacity:0;transform:translateY(10px);pointer-events:none}
