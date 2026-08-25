@@ -251,19 +251,35 @@
     #refreshChip.asking{animation:none}
     #refreshChip .ricon{transition:none}
   }
+  /* Flat, like .navBtn on the pill below — it never opted out of the global skeuomorphic
+     button (box-shadow/text-shadow/background-image are all still that rule's), which is
+     the "slightly 3D" Danial saw: a small embossed metal key next to flat nav icons. Every
+     state below re-zeroes them, because :hover/:active on the base button bring their OWN,
+     different shadow sets — zeroing the base alone would still show the 3D look the moment
+     you touched one. */
   .chipIcon{
     font-family:inherit;font-size:13px;letter-spacing:0;line-height:1;
     width:32px;height:28px;padding:0;flex:none;
-    color:var(--ink);background:transparent;border:1px solid var(--line);
+    color:var(--ink);background:transparent;background-image:none;
+    border:1px solid var(--line);box-shadow:none;text-shadow:none;
     border-radius:8px;cursor:pointer;position:relative;
     display:inline-flex;align-items:center;justify-content:center;
+    transition:background-color .1s ease,color .1s ease,border-color .1s ease,transform .06s ease;
   }
+  .chipIcon:active{transform:scale(.92);background-image:none;box-shadow:none}
   /* Invert on hover rather than fade. Dimming a light icon on a dark bar reads as blank or
      disabled — the opposite of "this is live". Filled with --ink and the glyph switched to
      --ink-c, it matches what the saved indicator already does when it is on. */
   @media (hover:hover) and (pointer:fine){
-    .chipIcon:hover{opacity:1;background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+    .chipIcon:hover{opacity:1;background:var(--ink);background-image:none;box-shadow:none;color:var(--ink-c);border-color:var(--ink);text-shadow:none}
     .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
+    /* found while flattening these, not what was asked but in the exact rule being touched:
+       the bar's own #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)} (added for
+       legibility over pale art) out-specifies the line above it — same ID, one extra class —
+       so hover never actually inverted; the icon's colour flipped to near-black while its
+       background stayed dark, effectively invisible. One extra :hover out-specifies THAT
+       rule in turn, gated the same way it is, so it only ever engages on a real mouse. */
+    html:not(.embed) .wrap #canvasChips .chipIcon:hover{background-color:var(--ink)}
   }
   .chipIcon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   /* the generic :focus-visible ring (outline 2px, offset OUTWARD 2px) is sized for the sidebar's
