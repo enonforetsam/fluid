@@ -588,17 +588,19 @@
     padding-left:var(--panel-pad);padding-right:var(--panel-pad);
     transition:background-color .18s ease;
   }
-  /* Hover, so it follows the pointer and leaves with it. Tracking clicks instead meant the
-     highlight stayed behind on the last card you touched, which reads as state rather than
-     as "you are here". Keyboard focus keeps its own rule — :has(:focus-visible) rather than
-     :focus-within, because the picker tiles call focus() on click and focus-within would
-     bring the lingering back through the side door. */
-  .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:rgba(255,255,255,.34) }
-  /* …and only for pointers that can hover. Touch browsers emulate :hover on tap and leave
-     it on the last thing touched, so the band stuck to the last section tapped and read as
-     state — the very thing hover was chosen to avoid. Every hover-only look in the file
-     takes this gate (plain links aside); the focus branches stay ungated. */
-  @media (hover:hover) and (pointer:fine){ .panel section:hover{ background-color:rgba(255,255,255,.34) } }
+  /* RETIRED (Danial: "remove the highlight, the card background should be one single
+     colour"): this told you which section you were in while scrolling PAST several visible
+     ones in the old sidebar — the whole reason it existed. The app shell shows exactly one
+     section per sheet, always; there is never a second one to tell it apart from, so the
+     band only ever reads as an unexplained colour shift on hover. Rules kept, not deleted —
+     background-color is the only thing turned off — so the mechanism is intact if a future
+     layout ever again shows more than one section at once.
+     Was: hover, so it follows the pointer and leaves with it (tracking clicks left it stuck
+     on the last card touched); keyboard focus had its own :has(:focus-visible) rule, gated
+     off :focus-within because the picker tiles call focus() on click; the hover half was
+     gated to hover-capable pointers only, since touch emulates :hover and leaves it stuck. */
+  .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:transparent }
+  @media (hover:hover) and (pointer:fine){ .panel section:hover{ background-color:transparent } }
   @media(prefers-reduced-motion:reduce){ .panel section{transition:none} }
   .sec-title{
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
