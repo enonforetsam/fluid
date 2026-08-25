@@ -1323,7 +1323,10 @@
      desktop — nav at the bottom middle, saves space and gives more room for the art"); a wide
      screen only changes the furniture's shape, in the min-width:880px block at the end. The
      query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned by a test. */
-  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass,#moreChip{display:none}
+  /* Text & Frame off the bar for now (Danial) — display:none only, nothing torn out: the
+     docks, their JS, and MORE_IDS all still exist untouched, so restoring is a one-line
+     revert of this selector, not a rebuild. */
+  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass,#moreChip,#textChip,#frameChip{display:none}
   @media screen{
     /* 42dvh, but never so tall that the art drops under half the screen once the nav is
        counted — on a 667px phone 42dvh + 56 left 49.6% */
@@ -1379,6 +1382,10 @@
     #canvasChips #refreshChip{width:32px;height:28px;padding:0;justify-content:center;gap:0}
     #canvasChips #refreshChip span:not(.ricon){display:none}
     /* a tool in the menu is a tile: its icon, and its own aria-label under it */
+    /* #moreGrid .chipIcon (a class selector) outranks the plain-ID #textChip,#frameChip hide
+       above it in source, so it re-showed them the moment either one became a child of the
+       menu — an ID pair beats a class every time, restoring the hide in this context too */
+    #moreGrid #textChip,#moreGrid #frameChip{display:none}
     #moreGrid .chipIcon,#moreGrid #recChip,#moreGrid #refreshChip{
       display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
       width:auto;height:auto;min-height:64px;padding:12px 4px;
