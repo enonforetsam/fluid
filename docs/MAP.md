@@ -51,6 +51,8 @@ Zones, in file order:
 | pickers | the thumbnail tiles, the swipeable strips they live in, and the aspect fader | `---------- pickers:` |
 | shelves and footer | the look shelf, status line, signature and credits | `---------- shelves and footer:` |
 | mobile layout | artwork pinned to the top, controls scrolling below, drag-to-resize grip | `---------- mobile layout:` |
+| app shell layout | portrait phones + small tablets — full-bleed art, a bottom nav, one section as a sheet over it | `---------- app shell layout:` |
+| wide screens | the same shell, in furniture that suits the room | `---------- wide screens:` |
 | panel themes | METAL (default, above) + carbon/phosphor/paper/neon | `---------- panel themes:` |
 | per-theme materials | each theme builds its own keys and knobs on top of the shared flat base above | `---------- per-theme materials:` |
 | per-theme dial rings, pucks and the aspect slider | the two remaining chrome parts | `---------- per-theme dial rings, pucks and the aspect slider:` |
@@ -126,6 +128,7 @@ Zones, in file order:
 | clear | drop the image source and go back to a pure field | `---------- clear:` |
 | source disclosure | the 00 Source panel opens itself the moment an image lands | `---------- source disclosure:` |
 | mobile panel sheet | drag the grip to trade panel height for artwork | `---------- mobile panel sheet:` |
+| app shell | bottom nav + one section at a time over full-bleed art on portrait phones | `---------- app shell:` |
 | share links | #p= is comma-joined numbers in an EXACT, append-only order | `---------- share links:` |
 | persistence | the URL hash and localStorage are rewritten on every change | `---------- persistence:` |
 | local saved designs | private saves that stay in this browser, hash plus thumbnail | `---------- local saved designs:` |
@@ -175,5 +178,5 @@ Zones, in file order:
 
 ---
 
-127 sections. Anything unbannered is a gap in the map: add a banner in the
+130 sections. Anything unbannered is a gap in the map: add a banner in the
 surrounding style rather than growing an orphan block.

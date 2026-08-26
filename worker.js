@@ -613,10 +613,13 @@ function markStaging(resp, label){
   if (ct.indexOf('text/html') >= 0){
     return new HTMLRewriter().on('body', {
       element: function(el){
+        /* desktop only: on a phone the art is the whole screen and a red tag over it is noise
+           (Danial: "it's disrupting my view") — the noindex header still does the real job */
         el.append(
-          '<div style="position:fixed;left:8px;bottom:8px;z-index:99999;' +
+          '<div id="stageBadge" style="position:fixed;left:8px;bottom:8px;z-index:99999;' +
           'font:700 9px ui-monospace,monospace;letter-spacing:.16em;background:#b91c1c;' +
-          'color:#fff;padding:4px 9px;border-radius:5px;pointer-events:none;opacity:.92">' + label + '</div>',
+          'color:#fff;padding:4px 9px;border-radius:5px;pointer-events:none;opacity:.92">' + label + '</div>' +
+          '<style>@media(max-width:879px){#stageBadge{display:none}}</style>',
           { html: true }
         );
       }

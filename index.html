@@ -165,8 +165,15 @@
     scrollbar-width:none;-ms-overflow-style:none;
     position:relative;z-index:1;
   }
+  /* the browser's own track/thumb — a grey column at the panel's edge on some platforms
+     (Safari's "always show scrollbars" in particular) — is fought here, not left to chance:
+     scrollbar-width above is Firefox's + modern Chromium's way to ask cleanly; !important on
+     the WebKit pseudo-element is the belt, since this is the one place fighting a browser
+     default rather than this file's own cascade. #panelScrollBar below replaces it. */
+  .panelScroll::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important}
   .panelMobileMeta,.mobTitle{display:none}
-  .panelScroll::-webkit-scrollbar{width:0;height:0}
+  .panelScrollBar{position:absolute;top:0;bottom:0;right:5px;width:3px;pointer-events:none;z-index:2;display:none}
+  .panelScrollBar i{position:absolute;left:0;right:0;top:0;border-radius:2px;background:rgba(0,0,0,.22)}
   /* push the footer block to the bottom; collapses to 0 once content fills the panel */
   .panelScroll > footer{margin-top:auto;padding-top:28px}
   .stage{
@@ -216,7 +223,7 @@
   }
   html.embed #glowCanvas{display:none}
   /* the glow's GPU read-back + heavy blur isn't worth it on phones — skip it */
-  @media(max-width:879px){#glowCanvas{display:none}}
+  #glowCanvas{display:none}   /* the art is the whole window now — there is no card to bloom behind */
   /* ---------- canvas chips: the control bar over the artwork, shuffle through record ---------- */
   /* control bar above the image (on the light artboard) */
   #canvasChips{display:flex;gap:8px;justify-content:flex-end;align-items:center;min-height:26px}
@@ -229,7 +236,9 @@
     border-radius:8px;padding:6px 12px;cursor:pointer;
   }
   /* hover looks are gated to hover-capable pointers throughout — see the note on .panel section:hover */
-  @media (hover:hover) and (pointer:fine){ #refreshChip:hover{opacity:1;background:var(--ink-c);color:var(--ink);border-color:var(--ink)} }
+  /* background-color, not the background shorthand: the shorthand resets background-image
+     to none, which would strip the shine gradient the wide-screen circle carries on hover */
+  @media (hover:hover) and (pointer:fine){ #refreshChip:hover{opacity:1;background-color:var(--ink-c);color:var(--ink);border-color:var(--ink)} }
   #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #refreshChip:active .ricon{transform:rotate(180deg)}
   /* The chip is the one control that makes something happen with no decisions first, so it
@@ -244,21 +253,42 @@
     #refreshChip.asking{animation:none}
     #refreshChip .ricon{transition:none}
   }
+  /* Flat, like .navBtn on the pill below — it never opted out of the global skeuomorphic
+     button (box-shadow/text-shadow/background-image are all still that rule's), which is
+     the "slightly 3D" Danial saw: a small embossed metal key next to flat nav icons. Every
+     state below re-zeroes them, because :hover/:active on the base button bring their OWN,
+     different shadow sets — zeroing the base alone would still show the 3D look the moment
+     you touched one. */
   .chipIcon{
     font-family:inherit;font-size:13px;letter-spacing:0;line-height:1;
     width:32px;height:28px;padding:0;flex:none;
-    color:var(--ink);background:transparent;border:1px solid var(--line);
+    color:var(--ink);background:transparent;background-image:none;
+    border:1px solid var(--line);box-shadow:none;text-shadow:none;
     border-radius:8px;cursor:pointer;position:relative;
     display:inline-flex;align-items:center;justify-content:center;
+    transition:background-color .1s ease,color .1s ease,border-color .1s ease,transform .06s ease;
   }
+  .chipIcon:active{transform:scale(.92);background-image:none;box-shadow:none}
   /* Invert on hover rather than fade. Dimming a light icon on a dark bar reads as blank or
      disabled — the opposite of "this is live". Filled with --ink and the glyph switched to
      --ink-c, it matches what the saved indicator already does when it is on. */
   @media (hover:hover) and (pointer:fine){
-    .chipIcon:hover{opacity:1;background:var(--ink);color:var(--ink-c);border-color:var(--ink)}
+    .chipIcon:hover{opacity:1;background:var(--ink);background-image:none;box-shadow:none;color:var(--ink-c);border-color:var(--ink);text-shadow:none}
     .chipIcon:hover .chipCount{background:var(--ink-c);color:var(--ink)}
+    /* found while flattening these, not what was asked but in the exact rule being touched:
+       the bar's own #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)} (added for
+       legibility over pale art) out-specifies the line above it — same ID, one extra class —
+       so hover never actually inverted; the icon's colour flipped to near-black while its
+       background stayed dark, effectively invisible. One extra :hover out-specifies THAT
+       rule in turn, gated the same way it is, so it only ever engages on a real mouse. */
+    html:not(.embed) .wrap #canvasChips .chipIcon:hover{background-color:var(--ink)}
   }
   .chipIcon svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  /* the generic :focus-visible ring (outline 2px, offset OUTWARD 2px) is sized for the sidebar's
+     bigger buttons; on a 28px chip the outward bulge reads as a chunky square poking past the
+     8px rounding — an inset ring (same trick as .navBtn's own fix) follows the small shape
+     cleanly instead. */
+  .chipIcon:focus-visible{outline:2px solid rgba(232,232,228,.85);outline-offset:-2px}
   #saveChip.saved{color:var(--ink-c);background:var(--ink);border-color:var(--ink)}
   .chipCount{
     position:absolute;right:-6px;top:-6px;min-width:15px;height:15px;padding:0 4px;
@@ -267,14 +297,22 @@
     font-size:8px;letter-spacing:0;font-weight:700;
   }
   .chipCount.on{display:flex}
-  #modePill{display:inline-flex;align-items:stretch;border:1px solid var(--ink);border-radius:8px;overflow:hidden}
+  /* flat toggle: no pill, no fill — Live/Still are just two words, dim for the one you're
+     not on, full ink and bold for the one you are. The boxed segmented-control look read as
+     an iOS switch next to the rest of the bar's plain icons, which is the opposite of flat. */
+  #modePill{display:inline-flex;align-items:center;gap:14px}
   .modeOpt{
-    font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ink);background:transparent;border:0;border-radius:0;padding:6px 12px;cursor:pointer;
+    font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    color:var(--soft);background:transparent;border:0;border-radius:0;padding:2px 0;cursor:pointer;
   }
-  .modeOpt + .modeOpt{border-left:1px solid var(--ink)}
-  @media (hover:hover) and (pointer:fine){ .modeOpt:not(.on):hover{background:rgba(232,232,228,.18)} }
-  .modeOpt.on,.modeOpt.on:active{background:var(--ink);color:var(--ink-c);font-weight:700}
+  /* background-color:transparent here too: the generic button:hover skin (further down)
+     fills any hovered button with a pale grey, which is the raised-key look this whole
+     rule exists to remove — omitting it just left that fill unopposed on hover. */
+  @media (hover:hover) and (pointer:fine){ .modeOpt:not(.on):hover{color:var(--ink);background-color:transparent} }
+  /* background-color:transparent, explicitly: the generic button.on skin (further down)
+     fills any .on button with --ink by default, which is exactly the boxed look this
+     rule exists to remove — .modeOpt.on has to say so itself, not just omit a fill. */
+  .modeOpt.on,.modeOpt.on:active{color:var(--ink);background-color:transparent;transform:none}
   #recChip{
     font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);background:transparent;border:1px solid var(--ink);
@@ -320,6 +358,19 @@
     box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
   }
   #designDock.open{display:block}
+  /* the tools menu shares the docks' shape; it MUST be declared here with them — parked after
+     the mobile block instead, its `position:absolute` beat the bottom-sheet rule and the menu
+     opened behind the canvas */
+  #moreDock{
+    position:absolute;right:0;top:34px;z-index:8;
+    width:min(360px,100%);display:none;overflow:hidden;
+    color:var(--ink);background:var(--panel-metal);
+    border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 18px 44px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #moreDock.open{display:block}
+  #moreGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+
   #embedDock{
     position:absolute;right:0;top:34px;z-index:8;
     width:min(360px,100%);display:none;
@@ -563,17 +614,19 @@
     padding-left:var(--panel-pad);padding-right:var(--panel-pad);
     transition:background-color .18s ease;
   }
-  /* Hover, so it follows the pointer and leaves with it. Tracking clicks instead meant the
-     highlight stayed behind on the last card you touched, which reads as state rather than
-     as "you are here". Keyboard focus keeps its own rule — :has(:focus-visible) rather than
-     :focus-within, because the picker tiles call focus() on click and focus-within would
-     bring the lingering back through the side door. */
-  .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:rgba(255,255,255,.34) }
-  /* …and only for pointers that can hover. Touch browsers emulate :hover on tap and leave
-     it on the last thing touched, so the band stuck to the last section tapped and read as
-     state — the very thing hover was chosen to avoid. Every hover-only look in the file
-     takes this gate (plain links aside); the focus branches stay ungated. */
-  @media (hover:hover) and (pointer:fine){ .panel section:hover{ background-color:rgba(255,255,255,.34) } }
+  /* RETIRED (Danial: "remove the highlight, the card background should be one single
+     colour"): this told you which section you were in while scrolling PAST several visible
+     ones in the old sidebar — the whole reason it existed. The app shell shows exactly one
+     section per sheet, always; there is never a second one to tell it apart from, so the
+     band only ever reads as an unexplained colour shift on hover. Rules kept, not deleted —
+     background-color is the only thing turned off — so the mechanism is intact if a future
+     layout ever again shows more than one section at once.
+     Was: hover, so it follows the pointer and leaves with it (tracking clicks left it stuck
+     on the last card touched); keyboard focus had its own :has(:focus-visible) rule, gated
+     off :focus-within because the picker tiles call focus() on click; the hover half was
+     gated to hover-capable pointers only, since touch emulates :hover and leaves it stuck. */
+  .panel section:has(:focus-visible:not([data-ptr]):not(.ptrFocus)){ background-color:transparent }
+  @media (hover:hover) and (pointer:fine){ .panel section:hover{ background-color:transparent } }
   @media(prefers-reduced-motion:reduce){ .panel section{transition:none} }
   .sec-title{
     font-size:10px;letter-spacing:.18em;text-transform:uppercase;
@@ -1115,7 +1168,7 @@
   /* mobile: fixed 50/50 split — artwork pinned top, controls scroll below */
   /* the mobile minimise grip is desktop-hidden */
   #panelHandle{display:none}
-  @media(max-width:879px){
+  @media screen{
     .wrap{
       display:flex;flex-direction:column;gap:0;align-items:stretch;
       height:100vh;height:100dvh;max-width:none;padding:0;overflow:hidden;
@@ -1214,14 +1267,14 @@
        the default split so the sheet stops short of the card; the 120px floor keeps the
        chip bar reachable once the stage has been dragged small. The head is sticky so the
        × never scrolls away. */
-    #cursorDock,#frameDock,#textDock,#designDock{
+    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
       position:fixed;top:auto;bottom:0;left:0;right:0;width:auto;
       max-height:min(50vh, calc(100vh - 120px));
       max-height:min(50dvh, calc(100dvh - 120px));
       overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
       border-radius:12px 12px 0 0;
     }
-    #cursorDock .designDockHead,#frameDock .designDockHead,#textDock .designDockHead,#designDock .designDockHead{
+    #cursorDock .designDockHead,#frameDock .designDockHead,#textDock .designDockHead,#designDock .designDockHead,#moreDock .designDockHead{
       position:sticky;top:0;z-index:1;background:var(--panel-metal);
     }
     .designList{max-height:none}
@@ -1255,33 +1308,6 @@
      path, where a narrow controls column would be worse than a short one. The JS sheet
      code keys on the SAME query (isLandscapeMobile) to clear an inline stage height that a
      portrait drag left behind — without that the inline px would override height:100dvh. */
-  @media (max-width:879px) and (orientation:landscape) and (min-aspect-ratio:4/3){
-    .wrap{flex-direction:row}
-    .stage{
-      width:52vw;height:100vh;height:100dvh;
-      --stageH:calc(100vh - 24px);
-      --stageH:calc(100dvh - 24px);
-    }
-    html.embed .stage{width:auto}   /* an embed is the whole window, not a column of it */
-    .panel{
-      min-width:0;border-top:0;border-left:1px solid var(--line);
-      box-shadow:
-        inset 1px 0 0 rgba(255,255,255,.10),
-        inset 18px 0 30px rgba(0,0,0,.22);
-    }
-    #panelHandle{display:none}
-    /* the bottom sheets cover the controls column only — the art is beside it, not under */
-    #cursorDock,#frameDock,#textDock,#designDock{
-      left:52vw;
-      max-height:calc(100vh - 24px);
-      max-height:calc(100dvh - 24px);
-    }
-    /* the pinned colour editor likewise: the column is full height, so it may be tall */
-    #colourMore{
-      left:calc(52vw + 8px);width:calc(48vw - 16px);
-      max-height:min(calc(100vh - 16px),560px);max-height:min(calc(100dvh - 16px),560px);
-    }
-  }
   /* Thumb-sized hit areas, without moving a box that layout depends on. The tray tabs feed
      --trayH (growing them shrinks the artwork) and the chip bar has a fixed 28px in the
      card budget, so those get an invisible ::after halo; the section title takes padding
@@ -1303,13 +1329,390 @@
     }
     /* the chip bar's 6px of padding (mobile CSS above) is exactly the room these halos need */
     .chipIcon::after,#refreshChip::after,#recChip::after,.modeOpt::after{content:'';position:absolute;inset:-6px -4px}
-    /* the pill clips its children, so the halo has to be let out — the fills keep their
-       rounded ends by carrying the pill's inner radius themselves */
-    #modePill{overflow:visible}
-    #modePill .modeOpt:first-child{border-radius:7px 0 0 7px}
-    #modePill .modeOpt:last-child{border-radius:0 7px 7px 0}
   }
 
+  /* ---------- app shell layout: portrait phones + small tablets — full-bleed art, a bottom nav, one section as a sheet over it ----------
+     Below 880px and not landscape (landscape keeps the side-by-side split above): the artwork
+     IS the screen. The canvas fills the viewport edge to edge, the chip bar floats over its top
+     (clear of the notch), a five-tab nav floats over its bottom, and a tab opens ITS panel
+     section as a 42dvh sheet above the nav — capped at 50dvh minus the nav, so the art is never
+     less than half the screen. Size lives in the Export sheet: here the frame is an export
+     decision (runExport renders at exportTarget whatever the canvas box is) and the screen just
+     shows the pattern. Browse is the stage tray as a sheet; Source is behind the image chip (a
+     photo is put ON the canvas, like Text or a Frame). Same DOM, same ids, same wiring: the nav
+     only decides what shows. The drag grip and its clamps are retired here, the phone
+     title/meta/status rows are gone (status speaks as a toast), and the docks + colour editor
+     sit on the nav. Every size gets this now (Danial: "same for
+     desktop — nav at the bottom middle, saves space and gives more room for the art"); a wide
+     screen only changes the furniture's shape, in the min-width:880px block at the end. The
+     query string is mirrored VERBATIM in the shell JS (APP_Q) and pinned by a test. */
+  /* Text & Frame off the bar for now (Danial) — display:none only, nothing torn out: the
+     docks, their JS, and MORE_IDS all still exist untouched, so restoring is a one-line
+     revert of this selector, not a rebuild. */
+  #appNav,.sheetHead,#toast,#imageChip,#palShuffle,#glass,#moreChip,#textChip,#frameChip{display:none}
+  @media screen{
+    /* 42dvh, but never so tall that the art drops under half the screen once the nav is
+       counted — on a 667px phone 42dvh + 56 left 49.6% */
+    .wrap{--navH:calc(56px + env(safe-area-inset-bottom, 0px));--sheetH:min(42vh, calc(50vh - var(--navH)));--sheetH:min(42dvh, calc(50dvh - var(--navH)))}
+    /* the art is the screen */
+    html:not(.embed) .wrap .stage{
+      flex:none;height:100vh;height:100dvh;padding:0;
+      --stageH:calc(100vh - 24px);--stageH:calc(100dvh - 24px);
+      transition:none;
+    }
+    html:not(.embed) .wrap .stageInner{width:100%;height:100%;max-width:none;gap:0;margin:0}
+    html:not(.embed) .wrap .card{width:100%;height:100%;border-radius:0;margin:0;box-shadow:none}
+    /* !important: applyAspect writes the frame's ratio inline, and here the box is the screen.
+       object-fit keeps a running recording (whose backing store is the clip's own frame)
+       letterboxed rather than stretched. */
+    html:not(.embed) .wrap #cv{width:100%;height:100%;aspect-ratio:auto !important;object-fit:contain;border-radius:0}
+    /* the chip bar floats over the top of the art, clear of the notch; the scrim keeps the
+       chips readable over a bright pattern */
+    /* the top bar reads as the nav's twin now (Danial: "similar to the bottom nav, give it a
+       background like it"): same fill, same blur, same edge — flush and square on a phone,
+       lifted into its own floating pill on a wide screen (in the wide-screen block below). The
+       gradient scrim this replaced existed only because the bar used to be transparent chips
+       floating loose over the art; a bar with its own background does not need one. */
+    html:not(.embed) .wrap #canvasChips{
+      position:absolute;top:0;left:0;right:0;z-index:2;margin:0;
+      padding:calc(8px + env(safe-area-inset-top, 0px)) 10px calc(8px + env(safe-area-inset-top, 0px));
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+    /* the fill lives on a pseudo-element, not on #canvasChips itself: filter/backdrop-filter
+       on an element makes IT the containing block for any position:fixed DESCENDANT — and the
+       docks (#textDock, #frameDock, #cursorDock, #designDock, #moreDock) are markup children
+       of this bar. Putting backdrop-filter here directly re-anchored every one of them to the
+       bar's own ~50px box instead of the viewport; #textDock rendered with its bottom edge at
+       y=-23, entirely off-screen above the art. The pseudo-element has no descendants of its
+       own to break. */
+    html:not(.embed) .wrap #canvasChips::before{
+      content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
+      background:rgba(17,18,22,.55);
+      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+    }
+    .chipsBrand{display:flex;align-items:center;gap:8px;margin-right:auto;flex:none}
+    .chipsBrandName{font-size:10px;letter-spacing:.2em;font-weight:700;text-transform:uppercase;color:var(--ink)}
+    .chipsBrand .ghLink{margin-left:0}
+    .stageInner::before,.stageInner::after{top:0;height:calc(48px + env(safe-area-inset-top, 0px))}
+    .stageInner::before{left:0;background:linear-gradient(90deg,rgba(6,6,10,.6),rgba(6,6,10,0))}
+    .stageInner::after{right:0;background:linear-gradient(90deg,rgba(6,6,10,0),rgba(6,6,10,.6))}
+    #imageChip{display:none}   /* it lives in the tools menu now, with the rest */
+    #moreChip{display:inline-flex}
+    /* the bar holds three things: Shuffle, the tools menu, Record. Everything else is one tap
+       deeper (Danial: "just keep shuffle and record there, the rest in a plus icon menu") —
+       so the bar never scrolls and nothing is hidden off its left edge. */
+    html:not(.embed) .wrap #canvasChips{justify-content:space-between;overflow:visible}
+    #canvasChips #refreshChip{width:32px;height:28px;padding:0;justify-content:center;gap:0}
+    #canvasChips #refreshChip span:not(.ricon){display:none}
+    /* a tool in the menu is a tile: its icon, and its own aria-label under it */
+    /* #moreGrid .chipIcon (a class selector) outranks the plain-ID #textChip,#frameChip hide
+       above it in source, so it re-showed them the moment either one became a child of the
+       menu — an ID pair beats a class every time, restoring the hide in this context too */
+    #moreGrid #textChip,#moreGrid #frameChip{display:none}
+    #moreGrid .chipIcon,#moreGrid #recChip,#moreGrid #refreshChip{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+      width:auto;height:auto;min-height:64px;padding:12px 4px;
+      font-size:8px;letter-spacing:.1em;text-transform:uppercase;
+      background-color:rgba(255,255,255,.05);border-color:var(--line);
+    }
+    #moreGrid .chipIcon svg{width:20px;height:20px}
+    #moreGrid .chipIcon::before{content:attr(aria-label);order:2;color:var(--soft);font-size:8px;letter-spacing:.08em;text-align:center;line-height:1.2}
+    #moreGrid .chipIcon::after{content:none}          /* the tile is already thumb-sized */
+    #moreGrid .chipCount{top:6px;right:6px}
+    /* flex:1 (each half of the old bordered pill) is why this needs justify-content:center
+       now — the border it used to fill is gone, so two lone words stretched to the tile's
+       full width read as unrelated settings, not a live/still choice, sitting a tile apart. */
+    #moreGrid #modePill{grid-column:1 / -1;height:40px;justify-content:center}
+    #moreGrid .modeOpt{flex:0 0 auto;font-size:9px}
+    #moreGrid #modePill .modeOpt::after{content:none}
+    /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
+       on any art (the scrim alone was not enough at the pale end) */
+    html:not(.embed) .wrap #canvasChips .chipIcon{background-color:rgba(6,6,10,.42)}
+    /* no tray on phones (the Browse tab was removed — nothing there a phone user wanted) */
+    html:not(.embed) .wrap #stageTray{display:none}
+    /* the controls: one section as a sheet over the art, above the nav */
+    html:not(.embed) .wrap .panel{
+      position:fixed;left:0;right:0;bottom:var(--navH);z-index:36;
+      height:var(--sheetH);min-height:0;overflow:hidden;
+      display:flex;flex-direction:column;
+      padding:0 var(--panel-pad) 0;border-top:1px solid var(--line);border-radius:14px 14px 0 0;
+      box-shadow:0 -8px 24px rgba(0,0,0,.28);
+      /* glass (Danial: "make the tab see-through"): the sheet is transparent; #glass below it
+         carries the blurred mirror of the art and the tint — see the markup note */
+      background-color:transparent;background-image:none;
+    }
+    /* the sheets slide up and fade in, slide down and fade out (Danial: "smoothly"). They are
+       never display:none here — a transition cannot start from none — only moved off the
+       bottom and hidden; data-closing on .wrap keeps the open section on screen while it
+       leaves, and the shell drops the attributes when the slide has run. */
+    html:not(.embed) .wrap .panel{
+      transform:translateY(calc(100% + 16px));opacity:0;visibility:hidden;pointer-events:none;
+      transition:transform .28s cubic-bezier(.4,0,.6,1),opacity .22s ease,visibility 0s linear .28s;
+    }
+    html:not(.embed) .wrap[data-sheet]:not([data-closing]) .panel{
+      transform:none;opacity:1;visibility:visible;pointer-events:auto;
+      transition:transform .34s cubic-bezier(.2,.8,.2,1),opacity .2s ease,visibility 0s;
+    }
+    #glass{transition:opacity .24s ease}
+    .wrap[data-closing] #glass{opacity:0}
+    @media(prefers-reduced-motion:reduce){
+      html:not(.embed) .wrap .panel,#glass{transition:none}
+    }
+    #panelHandle{display:none}
+    .mobTitle,.panelMobileMeta,.panel > header,.panel footer{display:none !important}
+    /* no sheet heads on phones (Danial, Colour then Engine: "remove the top tab title and the
+       x"): the lit tab under a sheet is the way out, and every pixel of a sheet is controls */
+    html:not(.embed) .wrap .sheetHead{display:none}
+    .sheetHead{
+      display:flex;align-items:center;gap:10px;flex:none;
+      padding:10px 0 9px;border-bottom:1px solid var(--line);
+      touch-action:none;-webkit-user-select:none;user-select:none;
+    }
+    .sheetGrip{width:36px;height:4px;border-radius:3px;background:var(--line);flex:none}
+    .sheetTitle{flex:1;min-width:0;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ink)}
+    #sheetClose{
+      flex:none;min-width:36px;min-height:32px;padding:0;font-size:20px;line-height:1;letter-spacing:0;
+      background-image:none;box-shadow:none;background-color:transparent;border:1px solid var(--line);color:var(--soft);
+    }
+    .panelScroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:14px}
+    .panel section{display:none;border-top:0;box-shadow:none;padding-top:10px}
+    /* a sheet has no section title, so these group labels ARE its headings — they have to
+       carry that weight (Danial: darker and bold) rather than read as fine print */
+    .panel .exGroupLabel{color:var(--ink);font-weight:700}
+    /* every picker strip in a sheet runs on 64px tiles (Danial: Engine first, then "the
+       squares in Look too") — the 100px tile is a desktop size */
+    .panel .fieldstrip .fieldBtn{flex:0 0 64px;width:64px;border-radius:7px}
+    .panel .fieldstrip .fieldBtn span{font-size:7px;padding:2px 0}
+    .panel section .sec-title{display:none}
+    .wrap[data-sheet="image"] .panel section[data-nav="image"],
+    .wrap[data-sheet="colour"] .panel section[data-nav="colour"],
+    .wrap[data-sheet="engine"] .panel section[data-nav="engine"],
+    .wrap[data-sheet="look"] .panel section[data-nav="look"],
+    .wrap[data-sheet="export"] .panel section[data-nav="export"]{display:block}
+    /* Export = Size, then Output: a hairline between the two sections that share the sheet */
+    .wrap[data-sheet="export"] .panel section[data-nav="export"] ~ section[data-nav="export"]{border-top:1px solid var(--line);margin-top:6px;padding-top:14px}
+    /* Look: caption, track and value share one row — a stacked caption per slider spent a
+       third of a short sheet on words. The caption is display:contents, so its text and its
+       <output> become grid items beside the range: name | track | value. */
+    .panel .knobgrid.sliderGrid{grid-template-columns:1fr 1fr;gap:2px 14px}
+    .panel .sliderGrid .knobctl{display:grid;grid-template-columns:46px minmax(0,1fr) 30px;align-items:center;gap:0 6px;min-height:36px}
+    .panel .sliderGrid .knoblabel{display:contents;font-size:8px;letter-spacing:.06em}
+    .panel .sliderGrid .knoblabel output{grid-column:3;grid-row:1;text-align:right;font-size:9px}
+    /* the row stays 36px so the target is a thumb's worth even though the dot is small */
+    .panel .sliderGrid .knobctl input[type=range]{grid-column:2;grid-row:1;height:36px;margin:0}
+    .panel .sliderGrid input[type=range]::-webkit-slider-thumb{width:16px;height:16px;margin-top:-7px}
+    .panel .sliderGrid input[type=range]::-moz-range-thumb{width:16px;height:16px}
+    /* one column is right for the layer mix (it shares its row with the blend select) */
+    .panel #layerMixRow .knobgrid.sliderGrid{grid-template-columns:1fr}
+    /* Colour: eight small palette squares and the four stops, nothing else (Danial: "reduce the
+       height, 8 small squares, no labels, the 4-part colour box that opens the colour pointer,
+       remove the sliders"). The editor's body shows IN PLACE — not as its own sheet — with only
+       the palette grid and the swatch row; a swatch is the OS colour picker, and editing one
+       already turns a preset into Custom, so the Custom tile is not needed. The sheet is only
+       as tall as that. The ramp line and MORE are gone here; nothing else is rewired. */
+    html:not(.embed) .wrap[data-sheet="colour"] .panel{height:auto;max-height:var(--sheetH)}
+    .wrap[data-sheet="colour"] #rampLine{display:none}
+    .wrap[data-sheet="colour"] #colourMore{display:flex !important;position:static;width:auto;max-height:none;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;z-index:auto}
+    .wrap[data-sheet="colour"] .cmHead,.wrap[data-sheet="colour"] .cmFoot{display:none}
+    .wrap[data-sheet="colour"] .panelScroll{padding-bottom:8px}
+    /* one row: the four stops and a shuffle. The preset squares went — with a custom or
+       shuffled palette none of them was lit, and a row of colours that did not match the
+       four under it read as a bug (Danial). A swatch is the OS colour picker; shuffle deals
+       a new palette; the shuffle sits OUTSIDE #swatchRow so Chrome's disabled row cannot
+       take it with it. */
+    .wrap[data-sheet="colour"] .cmBody{display:flex;align-items:center;gap:8px;padding:10px 0 4px;overflow:visible}
+    .wrap[data-sheet="colour"] .cmBody > :not(#swatchRow):not(#palShuffle){display:none}
+    .wrap[data-sheet="colour"] #swatchRow{flex:1 1 auto;min-width:0;margin:0;gap:7px;flex-wrap:nowrap}
+    .wrap[data-sheet="colour"] .swatch{max-width:none;min-width:0;height:40px;flex:1;border-radius:9px}
+    .wrap[data-sheet="colour"] #palShuffle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:40px;padding:0;font-size:18px;line-height:1;letter-spacing:0;border-radius:9px}
+    /* Engine: content-sized, 64px tiles, tighter rows (Danial: "this section is too high,
+       reduce the size of the squares") */
+    html:not(.embed) .wrap[data-sheet="engine"] .panel{height:auto;max-height:var(--sheetH)}
+    .wrap[data-sheet="engine"] .panel section{padding-top:12px}
+    .wrap[data-sheet="engine"] .layerTabs{margin-bottom:8px;gap:5px}
+    .wrap[data-sheet="engine"] button.layerTab{padding:8px 12px}
+    .wrap[data-sheet="engine"] .striprow{margin-bottom:8px}
+    /* the action row never wraps (Danial: "maximum of 3 rows"): three equal thirds, tighter
+       type, and a label that cannot fit is clipped rather than pushed to a new line */
+    .wrap[data-sheet="engine"] #randBtn,.wrap[data-sheet="engine"] #addLayerBtn,.wrap[data-sheet="engine"] #removeLayerBtn{
+      flex:1 1 0;min-width:0;min-height:36px;padding:8px 4px;font-size:8.5px;letter-spacing:.08em;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .wrap[data-sheet="engine"] .panel section .row.gap{flex-wrap:nowrap;gap:6px}
+    /* editing layer 2 or 3: blend and mix share ONE row (select | Mix ——●—— 45%) */
+    .wrap[data-sheet="engine"] #layerMixRow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .wrap[data-sheet="engine"] #layerMixRow[hidden]{display:none}
+    .wrap[data-sheet="engine"] #layerMixRow > .row.gap{flex:0 0 auto;margin:0}
+    .wrap[data-sheet="engine"] #layerMixRow .layerSel{flex:0 0 auto;width:auto;padding:6px 6px;font-size:10px}
+    .wrap[data-sheet="engine"] #layerMixRow .knobgrid{flex:1 1 auto;min-width:0;margin:0}
+    .wrap[data-sheet="engine"] #layerMixRow .sliderGrid .knobctl{grid-template-columns:30px minmax(0,1fr) 34px}
+    .wrap[data-sheet="engine"] .panelScroll{padding-bottom:10px}
+    /* a sheet is never a collapsed section: the JS expands it (for inert); this is the belt */
+    .wrap[data-sheet] .panel section.collapsed .sec-body{grid-template-rows:1fr}
+    .wrap[data-sheet] .panel section.collapsed .sec-inner{opacity:1;pointer-events:auto}
+    /* the frosted pane: fixed, sized to the open sheet by the shell each frame; the canvas is
+       drawn 20% oversize so the blur has no transparent fringe; ::after is the tint */
+    #glass{position:fixed;z-index:34;overflow:hidden;border-radius:14px 14px 0 0;pointer-events:none;display:none}
+    /* url(#fluidGlassFilter) first (the lensed edge + colour fringe, built below), blur(16px)
+       after — softening the already-warped result reads more like real frosted glass than a
+       crisp warp inside a soft field, and hides the coarseness of the 48px mirror underneath */
+    #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:url(#fluidGlassFilter) blur(16px);-webkit-filter:url(#fluidGlassFilter) blur(16px);transform:translateZ(0)}
+    #glass::after{content:'';position:absolute;inset:0;background:rgba(226,226,222,.5)}
+    #appNav{
+      display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
+      height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
+      background:rgba(17,18,22,.55);border-top:1px solid rgba(255,255,255,.10);
+      -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+    }
+    .navBtn{
+      position:relative;flex:1 1 0;min-width:0;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      padding:6px 2px;border:0;border-radius:14px;
+      background:transparent;background-image:none;box-shadow:none;text-shadow:none;
+      color:rgba(232,232,228,.55);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+      cursor:pointer;touch-action:manipulation;
+    }
+    /* pressed: a scale dip, not a fill — see the note below on why a fill has no clean edge
+       to give on a tab this tall */
+    .navBtn:active{transform:scale(.94);background-color:transparent;background-image:none;box-shadow:none}
+    /* the global metal button hover was landing here first: a hard white slab with square
+       corners cutting straight through the pill (Danial: "on hover looks ugly"). Fixed with a
+       rounded 10% tint in the tab's own box — which then showed its OWN edge (Danial: "the
+       edges show, I want it clean"): align-items:stretch makes each tab the pill's full ~64px
+       height, so a 14px border-radius only rounds the top and bottom of that — the two long
+       sides in between are a dead straight line at any fill opacity. No inset/rectangle can be
+       clean here without either shrinking the hit target or fighting the pill's own shape. So
+       there is no fill at all: a tab lifts out of the dark by colour alone, exactly like the
+       active tab already does with just its colour and underline — nothing with an edge to see. */
+    @media (hover:hover) and (pointer:fine){
+      .navBtn:hover{
+        background-color:transparent;background-image:none;box-shadow:none;
+        color:#e8e8e4;text-shadow:none;transform:none;
+      }
+    }
+    .navBtn:focus-visible{outline:2px solid rgba(232,232,228,.7);outline-offset:-3px;border-radius:14px}
+    .navBtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    /* the global button.on (a pressed, ink-filled key) must not reach the nav: an active tab is
+       a lit icon and a bar, not a filled block */
+    .navBtn.on{color:#e8e8e4;background-color:transparent;background-image:none;box-shadow:none;transform:none;text-shadow:none}
+    .navBtn.on::before{content:'';position:absolute;top:-1px;left:50%;width:28px;margin-left:-14px;height:2px;background:#e8e8e4;border-radius:0 0 2px 2px}
+    html.embed #appNav{display:none}
+    /* the docks and the colour editor sit on the nav, not under it */
+    #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
+      bottom:var(--navH);
+      max-height:min(50vh, calc(100vh - var(--navH) - 80px));
+      max-height:min(50dvh, calc(100dvh - var(--navH) - 80px));
+    }
+    #colourMore{bottom:calc(var(--navH) + 8px)}
+    /* ---------- wide screens: the same shell, in furniture that suits the room ----------
+       The nav stops being a bar across the bottom and becomes a pill in the middle of it; the
+       sheets stop being slabs and become cards of the same width, floating above it; and the
+       stage tray — which a phone has no room for — comes back as a shelf in that column. */
+    @media (min-width:880px){
+      .wrap{--navH:84px;--sheetH:min(46vh,520px);--sheetH:min(46dvh,520px);--shellW:min(760px, calc(100vw - 64px))}
+      #appNav{
+        left:0;right:0;width:var(--shellW);margin:0 auto;bottom:20px;height:64px;
+        padding:0 20px;justify-content:space-between;
+        border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden;
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
+      html:not(.embed) .wrap:not([data-sheet]) #appNav{
+        border-top-left-radius:0;border-top-right-radius:0;border-top:0;
+      }
+      .navBtn{flex:0 0 auto;min-width:92px;padding:8px 14px;gap:5px;font-size:9px}
+      .navBtn svg{width:21px;height:21px}
+      .navBtn.on::before{top:0;width:34px;margin-left:-17px;border-radius:0 0 2px 2px}
+      html:not(.embed) .wrap .panel,
+      #cursorDock,#frameDock,#textDock,#designDock,#moreDock{
+        left:0;right:0;width:var(--shellW);margin:0 auto;
+        bottom:calc(var(--navH) + 8px);border-radius:16px;border:1px solid var(--line);
+      }
+      html:not(.embed) .wrap .panel{padding:0 22px}
+      #glass{border-radius:16px}
+      #cursorDock,#frameDock,#textDock,#designDock,#moreDock{max-height:min(52vh,560px);max-height:min(52dvh,560px)}
+      #colourMore{left:0;right:0;width:var(--shellW);margin:0 auto;bottom:calc(var(--navH) + 8px);border-radius:16px}
+      /* the shelf a phone had no room for: Layers, Recent, Saved and Explore, out of the way
+         while a sheet is open. It sits flush on the nav now (Danial: "have the top, longer bar
+         merge into the top nav") rather than floating above it as its own separately-shadowed
+         pill with a gap — same width, same fill, one shape; only the outer corners stay
+         rounded, tray on top and nav below. Nav's own :not([data-sheet]) rule above squares
+         its top corners to match ONLY while the tray is actually merged flush above it — the
+         moment a sheet opens and the tray fades (unchanged, below), nav's base border-radius
+         (all four corners) applies again, so it is never a pill with a corner cut off for no
+         reason. */
+      html:not(.embed) .wrap #stageTray{
+        display:flex;position:fixed;left:0;right:0;width:var(--shellW);margin:0 auto;
+        bottom:var(--navH);z-index:33;border-radius:16px 16px 0 0;
+        background:rgba(17,18,22,.55);
+        -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+        border:1px solid rgba(255,255,255,.12);border-bottom:0;box-shadow:none;
+        transition:opacity .2s ease,transform .2s ease;
+      }
+      html:not(.embed) .wrap[data-sheet]:not([data-closing]) #stageTray{opacity:0;transform:translateY(10px);pointer-events:none}
+      /* the bar becomes the nav's twin up here too: not a row spanning the window, but its
+         own floating pill, the same distance from the top that the nav sits from the bottom */
+      html:not(.embed) .wrap #canvasChips{
+        justify-content:center;gap:9px;top:20px;left:0;right:0;width:max-content;margin:0 auto;
+        padding:10px 16px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:visible;
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
+      /* the toast is a child of the bar now (below), sitting outside its box — overflow has
+         to let it through, so the pill's own rounding rides on ::before's matching radius
+         instead (already border-radius:inherit, so nothing was ever clipped by this). */
+      html:not(.embed) .wrap #canvasChips:has(#toast.show){border-bottom-left-radius:0;border-bottom-right-radius:0}
+      /* Shuffle leaves the bar entirely up here: its own circle, parked in the screen's own
+         top-right corner rather than the bar's, so it stays a fixed size and a fixed spot no
+         matter how the pill above it grows or shrinks. Independent, not lined up with anything.
+         Sized to the bar's own height (50px, measured) rather than a guess, so the two read as
+         a matched pair despite sitting apart. The #canvasChips prefix isn't decorative: the
+         compact-bar rule below (#canvasChips #refreshChip{width:32px...}) is two IDs deep, and
+         without matching that here this whole rule loses on specificity and the circle never
+         actually resizes. The gradient and glow need !important for the same reason, against
+         the flat-canvas-chrome reset further down — this is the one canvas button meant to
+         shine rather than go flat, Danial's call for the one action-button apart from the rest. */
+      html:not(.embed) .wrap #canvasChips #refreshChip{
+        position:fixed;top:calc(20px + env(safe-area-inset-top, 0px));right:20px;z-index:32;
+        margin:0;width:50px;height:50px;padding:0;gap:0;border-radius:50%;
+        justify-content:center;
+        background-image:radial-gradient(circle at 30% 24%, rgba(255,255,255,.92), rgba(255,255,255,.22) 36%, rgba(255,255,255,0) 62%) !important;
+        box-shadow:
+          0 14px 40px rgba(0,0,0,.42),
+          0 0 22px rgba(255,255,255,.3),
+          inset 0 1px 2px rgba(255,255,255,.7),
+          inset 0 -8px 14px rgba(0,0,0,.16) !important;
+      }
+      html:not(.embed) .wrap #canvasChips #refreshChip span:not(.ricon){display:none}
+      html:not(.embed) .wrap #canvasChips #refreshChip .ricon{font-size:22px}
+      .chipsBrand{margin-right:0}
+      .stageInner::before,.stageInner::after{display:none}
+      #moreChip{display:none}          /* the bar has room for every tool up here */
+      #imageChip{display:inline-flex}
+      /* the status line becomes the bar's own second row up here: same outer width as the
+         pill (it's a child of #canvasChips now, so that's automatic — Record showing or not
+         changes the bar's width and the row just follows), flush underneath with no gap,
+         square where the two meet so it reads as one shape rather than two stacked pills. */
+      html:not(.embed) .wrap #canvasChips #toast{
+        position:absolute;left:-1px;right:-1px;top:100%;margin:0;width:auto;
+        border-radius:0 0 18px 18px;border:1px solid rgba(255,255,255,.12);border-top:0;
+        background:rgba(17,18,22,.55);color:#e8e8e4;
+        -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
+      /* a big screen can carry the picker tiles and type it always had */
+      .panel .fieldstrip .fieldBtn{flex:0 0 84px;width:84px}
+      .panel .fieldstrip .fieldBtn span{font-size:8px}
+      .panel .sliderGrid .knobctl{grid-template-columns:64px minmax(0,1fr) 40px;min-height:38px}
+      .panel .exGroupLabel{font-size:10px}
+    }
+    #toast{
+      display:block;position:absolute;left:8px;right:8px;top:calc(54px + env(safe-area-inset-top, 0px));z-index:6;pointer-events:none;
+      text-align:center;font-size:9px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;
+      background:rgba(6,6,10,.84);color:#e8e8e4;padding:7px 10px;border-radius:7px;
+      opacity:0;transform:translateY(-4px);transition:opacity .18s ease,transform .18s ease;
+    }
+    #toast.show{opacity:1;transform:none}
+    @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+  }
   /* ---------- panel themes: METAL (default, above) + carbon/phosphor/paper/neon.
      A theme is a personal preference (localStorage fluid:theme), never part of the
      share hash. Each theme re-scopes the .panel palette variables and flattens the
@@ -1677,7 +2080,9 @@
      The DOCK PANELS keep their drop shadow — like the colour editor, they float over the
      artwork and that shadow is separation, not decoration. Only their controls flatten.
      #refreshChip.asking is exempt: its first-run pulse IS a box-shadow, and !important beats
-     a keyframe, so including it here would silently kill the animation. */
+     a keyframe, so including it here would silently kill the animation. #refreshChip stays
+     IN this reset (its phone-width pill is meant flat) — the wide-screen circle's own shine
+     further down uses !important with a 2-ID selector to win back over this rule there. */
   #canvasChips button:not(.asking), #canvasChips .filebtn,
   #designDock button, #cursorDock button, #embedDock button,
   #frameDock button, #textDock button,
@@ -1868,6 +2273,15 @@
     <canvas id="glowCanvas" aria-hidden="true"></canvas>
     <div class="stageInner">
       <div id="canvasChips">
+        <!-- app shell: the bar is its own opaque pill now (like the nav below it), so it reads
+             as a piece of chrome rather than a scrim over the art — which meant it needed a
+             name. The real wordmark lives in the header, display:none for good in the shell;
+             this is the same pattern as .mobTitle above: a second, bar-sized copy of the same
+             title + GitHub link, not a re-wire of either. -->
+        <div class="chipsBrand">
+          <span class="chipsBrandName">Fluid</span>
+          <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+        </div>
         <!-- Sits at the far left, apart from the art controls, because it changes the room
              rather than the piece — and because it has to stay put: once the panel is gone
              this button is the only way back to it. -->
@@ -1884,6 +2298,12 @@
         </button>
         <button id="redoChip" class="chipIcon" title="Redo" aria-label="Redo">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 14l5-5-5-5"></path><path d="M20 9H10a6 6 0 0 0 0 12h3"></path></svg>
+        </button>
+        <!-- app shell (portrait phones): Source has no nav tab — a photo is something you put ON
+             the canvas, like Text or a Frame, so it sits here with them and opens the Image sheet.
+             display:none outside the shell, where Source is a panel section. -->
+        <button id="imageChip" class="chipIcon" title="Insert an image" aria-label="Insert an image" aria-expanded="false" aria-controls="panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 16l-5-5-8 8"></path></svg>
         </button>
         <button id="saveChip" class="chipIcon" title="Save design" aria-label="Save design">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5z"></path><path d="M8 3v6h8V3"></path><path d="M8 21v-7h8v7"></path></svg>
@@ -2022,11 +2442,28 @@
           </div>
           <div id="designList" class="designList"></div>
         </div>
+        <!-- app shell (portrait phones): everything the bar cannot hold lives behind this.
+             The chips are MOVED here (not copied) when the shell is on, so every one keeps the
+             wiring it was born with; they go back to the bar on a desktop or in landscape. -->
+        <button id="moreChip" class="chipIcon" title="More tools" aria-label="More tools" aria-expanded="false" aria-controls="moreDock">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        </button>
+        <div id="moreDock" role="dialog" aria-label="More tools">
+          <div class="designDockHead">
+            <div class="designDockTitle">Tools</div>
+            <button id="closeMore" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div id="moreGrid"></div>
+        </div>
         <div id="modePill" role="group" aria-label="Still or live">
           <button id="liveBtn" class="modeOpt" aria-pressed="false">Live</button>
           <button id="stillBtn" class="modeOpt on" aria-pressed="true">Still</button>
         </div>
         <button id="recChip" aria-pressed="false" aria-label="Record clip" title="Record clip"><span class="dot">&#9679;</span><span id="recChipText"></span></button>
+        <!-- app shell: a child of the bar now, not a floating pill of its own — so its width
+             is just the bar's own width, whatever that happens to be (Record showing or not),
+             with no JS measuring to keep the two in sync. -->
+        <div id="toast" role="status" aria-live="polite"></div>
       </div>
       <div class="card">
         <canvas id="cv" aria-label="Generative fluid artwork. Tap to reseed the field."></canvas>
@@ -2083,6 +2520,13 @@
   <!-- ---------- panel markup: header, status line, theme dots and the scrolling list of edit sections ---------- -->
   <div class="panel" id="panel">
   <div id="panelHandle" role="separator" aria-orientation="horizontal" aria-label="Drag up or down to resize the artwork"><span class="grip"></span><span class="phlabel">↕ Drag to resize</span></div>
+  <!-- app shell (portrait phones): the sheet's own head — title of the open section, a grip
+       to pull it shut, and a close. Hidden everywhere else; see the app shell CSS + JS. -->
+  <div class="sheetHead" id="sheetHead">
+    <span class="sheetGrip" aria-hidden="true"></span>
+    <span class="sheetTitle" id="sheetTitle">Section</span>
+    <button type="button" id="sheetClose" aria-label="Close section">&times;</button>
+  </div>
   <header>
     <h1>Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
@@ -2133,7 +2577,7 @@
 
   <!-- ---------- Source section: an optional photo, camera frame or drop melted into the field ---------- -->
   <!-- optional image source: collapsed by default; melts a photo/built-in into the field -->
-  <section>
+  <section data-nav="image">
     <div class="sec-title">00 — Source</div>
     <button id="sourceToggle" aria-expanded="false">+ Insert image</button>
     <div id="sourcePanel">
@@ -2169,7 +2613,7 @@
   </section>
 
   <!-- ---------- Size section: the aspect fader, portrait through landscape ---------- -->
-  <section>
+  <section data-nav="export">
     <div class="sec-title">01 — Size</div>
     <div class="ardial">
       <input id="arSlider" type="range" min="0" max="5" step="1" value="2" aria-label="Aspect ratio">
@@ -2180,7 +2624,7 @@
   </section>
 
   <!-- ---------- Colours section: the palette strip plus the custom two, three or four stop swatches ---------- -->
-  <section>
+  <section data-nav="colour">
     <div class="sec-title">02 — Colours</div>
     <!-- the basic line: the ramp itself. Most colour decisions are "is this right?", which
          you answer by looking at it, not by opening anything. Everything that edits it lives
@@ -2228,6 +2672,9 @@
       <input class="swatch" id="c2" type="color" aria-label="Gradient stop 3">
       <input class="swatch" id="c3" type="color" aria-label="Gradient stop 4 (lightest)">
     </div>
+    <!-- app shell (portrait phones): a new palette in one tap, beside the four stops. Hidden
+         everywhere else — the desktop has the palette grid for this. -->
+    <button type="button" id="palShuffle" aria-label="Shuffle colours" title="Shuffle colours">&#8635;</button>
     <div class="cnote" id="cnote"></div>
 
     <!-- ---------- colour editor markup: pick one stop and work it in HSB, RGB or hex ---------- -->
@@ -2270,7 +2717,7 @@
   </section>
 
   <!-- ---------- Stack section: the layer tabs and the engine strip they select for ---------- -->
-  <section>
+  <section data-nav="engine">
     <div class="sec-title">03 — Stack</div>
     <!-- One card for the whole stack. The tabs pick which layer the engine strip below is
          editing, so adding a layer opens a tab here rather than sending you to a separate
@@ -2360,7 +2807,7 @@
        controls belonged to a layer and which to the piece. Only engine, blend and mix are per-layer;
        every control in this card is a single shader uniform shared by all three engines. Grouping
        them under one heading says that without a paragraph of explanation. ---------- -->
-  <section>
+  <section data-nav="look">
     <div class="sec-title">04 — Look</div>
     <div class="exGroupLabel">Motion &amp; space — the whole piece</div>
     <div class="knobgrid sliderGrid">
@@ -2469,7 +2916,7 @@
 
 
   <!-- ---------- Output section: share, embed, export target, format and clip length ---------- -->
-  <section data-collapsed>
+  <section data-collapsed data-nav="export">
     <div class="sec-title">05 — Output</div>
     <div class="exGroupLabel">Share</div>
     <div class="actiongrid" style="grid-template-columns:repeat(2,1fr)">
@@ -2515,7 +2962,63 @@
   <footer>Free forever — all computation happens on your device.
     <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
   </div>
+  <!-- app shell: a thin scroll-position indicator, standing in for whatever the browser's own
+       scrollbar would draw (Danial: "I don't wanna see the grey border when I scroll — just one
+       background colour, with a thin scroll line on the right"). A sibling of .panelScroll, not
+       a child of it — inside it, position:absolute would scroll away with the content; out
+       here it stays put while its height/position (JS below) tracks scroll progress. -->
+  <div id="panelScrollBar" class="panelScrollBar" aria-hidden="true"><i></i></div>
   </div>
+  <!-- app shell (portrait phones + small tablets): five doors, one open at a time, floating
+       over the bottom of the art. Colour/Engine/Look/Export open their panel section as a sheet
+       (Export carries Size too — the frame is an export decision here). Source is behind the
+       image chip on the chip bar; the stage tray has no tab (Browse came and went — "nothing
+       there" on a phone). Hidden above 880px and in landscape. -->
+  <nav id="appNav" aria-label="Studio sections">
+    <button type="button" class="navBtn" data-nav="colour" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg><span>Colour</span></button>
+    <button type="button" class="navBtn" data-nav="engine" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c2.5 0 2.5-6 5-6s2.5 12 5 12 2.5-6 5-6 2.5 0 3 0"></path></svg><span>Engine</span></button>
+    <button type="button" class="navBtn" data-nav="look" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>Look</span></button>
+    <button type="button" class="navBtn" data-nav="export" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"></path><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path></svg><span>Export</span></button>
+  </nav>
+  <!-- app shell: the frosted pane behind an open sheet. WebKit's backdrop-filter does not
+       sample the WebGL canvas (the sheet came out flat grey on an iPhone), so the glass is
+       made by hand: a small canvas that mirrors the slice of art under the sheet each frame,
+       blurred by CSS, with the sheet's tint laid over it. The sheets themselves are transparent. -->
+  <div id="glass" aria-hidden="true"><canvas width="48" height="48"></canvas></div>
+  <!-- liquid glass: the lensed edge + colour fringe from rdev/liquid-glass-react (MIT,
+       https://github.com/rdev/liquid-glass-react) — that library drives the look through
+       backdrop-filter, which is exactly the piece iOS Safari would not sample from our WebGL
+       canvas (see the note above #glass), so it is ported onto the mirror canvas instead: an
+       feDisplacementMap fed a generated map (JS below), independent of backdrop-filter, works
+       everywhere the mirror does. Structure is static; JS only ever rewrites #glassMap's href
+       and the three feDisplacementMap scales, whenever the open pane's size changes. -->
+  <svg id="glassSvg" aria-hidden="true" xmlns:xlink="http://www.w3.org/1999/xlink" style="position:absolute;width:0;height:0;overflow:hidden">
+    <filter id="fluidGlassFilter" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feImage id="glassMap" x="0" y="0" width="100%" height="100%" result="MAP" preserveAspectRatio="none"></feImage>
+      <!-- luminance of the map reads as "how far from the flat centre" — thresholded into a mask
+           so the colour-fringed edge composites only over the rim, and the clean centre (below)
+           only over the untouched middle -->
+      <feColorMatrix in="MAP" type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 1 0" result="EDGE_L"></feColorMatrix>
+      <feComponentTransfer in="EDGE_L" result="EDGE_MASK"><feFuncA type="discrete" tableValues="0 0.1 1"></feFuncA></feComponentTransfer>
+      <feOffset in="SourceGraphic" dx="0" dy="0" result="CENTER"></feOffset>
+      <!-- three copies of the same warp, each a slightly different strength (JS sets the three
+           scales) — screen-blended, this is the chromatic aberration: real glass bends red,
+           green and blue by very slightly different amounts at a refracting edge -->
+      <feDisplacementMap id="glassDispR" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DR"></feDisplacementMap>
+      <feColorMatrix in="DR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="DRC"></feColorMatrix>
+      <feDisplacementMap id="glassDispG" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DG"></feDisplacementMap>
+      <feColorMatrix in="DG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="DGC"></feColorMatrix>
+      <feDisplacementMap id="glassDispB" in="SourceGraphic" in2="MAP" xChannelSelector="R" yChannelSelector="B" scale="0" result="DB"></feDisplacementMap>
+      <feColorMatrix in="DB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="DBC"></feColorMatrix>
+      <feBlend in="DGC" in2="DBC" mode="screen" result="GB"></feBlend>
+      <feBlend in="DRC" in2="GB" mode="screen" result="FRINGE_RGB"></feBlend>
+      <feGaussianBlur in="FRINGE_RGB" stdDeviation="0.3" result="FRINGE_SOFT"></feGaussianBlur>
+      <feComposite in="FRINGE_SOFT" in2="EDGE_MASK" operator="in" result="FRINGE"></feComposite>
+      <feComponentTransfer in="EDGE_MASK" result="INV_MASK"><feFuncA type="table" tableValues="1 0"></feFuncA></feComponentTransfer>
+      <feComposite in="CENTER" in2="INV_MASK" operator="in" result="CLEAR_CENTER"></feComposite>
+      <feComposite in="FRINGE" in2="CLEAR_CENTER" operator="over"></feComposite>
+    </filter>
+  </svg>
 </div>
 
 <script>
@@ -3633,6 +4136,17 @@ var gl = canvas.getContext('webgl', { preserveDrawingBuffer:true }) ||
 var fallback2d = gl ? null : canvas.getContext('2d');
 var statusEl = document.getElementById('status');
 var statusElM = document.querySelector('.panelMobileMeta .status');   /* the phone copy — the header one is display:none there */
+/* app shell (portrait phones): there is no status row on screen, so a NEW message shows once
+   as a toast over the art and fades. Only on a key change — a slider drag would otherwise
+   flicker it on every value. Costs nothing where the toast is display:none. */
+var toastEl = document.getElementById('toast'), toastTimer = 0;
+function showToast(s){
+  if (!toastEl || getComputedStyle(toastEl).display === 'none'){ return; }
+  toastEl.textContent = s;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2400);
+}
 
 /* fade only when the state label (text before '—') changes, so live slider
    drags stay smooth but switching controls gets a clean cross-fade */
@@ -3641,6 +4155,7 @@ function setStatus(s){
   var key = String(s).split('—')[0];
   if (key !== lastStatusKey){
     lastStatusKey = key;
+    showToast(s);
     statusEl.style.opacity = '0';
     requestAnimationFrame(function(){ requestAnimationFrame(function(){
       statusEl.textContent = s; statusEl.style.opacity = '1';
@@ -4739,6 +5254,8 @@ function revealSection(el, inPlace){
     var title = sec.querySelector('.sec-title');
     if (title){ title.click(); }
   }
+  /* app shell: the section is behind a nav tab — open that sheet, then scroll within it */
+  if (typeof openSheetFor === 'function'){ openSheetFor(sec); }
   /* inPlace: the request came from a press inside the section itself, so it is scrolled to
      only if it is not on screen at all — block:'start' here would move the very control the
      finger is still resting on (and on a phone, out of the viewport) */
@@ -5269,6 +5786,25 @@ Array.prototype.forEach.call(document.querySelectorAll('.palBtn'), function(b){
     syncControls();
   });
 });
+/* app shell: one tap deals a new palette for the piece — a preset most of the time, a
+   procedural gradient some of the time, never the one already showing. Same housekeeping
+   as a palette tile tap. */
+var palShuffle = document.getElementById('palShuffle');
+if (palShuffle){
+  palShuffle.addEventListener('click', function(){
+    var was = state.pal;
+    if (Math.random() < 0.3){ state.pal = 8; state.cols = randomGradient(); }
+    else {
+      var n = Math.floor(Math.random() * 7);
+      if (n === was){ n = (n + 1) % 7; }
+      state.pal = n;
+    }
+    resetCustomMode();
+    markLook(null);
+    syncControls();
+    setStatus('COLOURS SHUFFLED — tap a swatch to tune one');
+  });
+}
 /* ---------- custom gradient: derive the 4 shader stops from 2 or 3 colours the user picked ----------
    The engine always runs on 4 stops (share-hash slots [20..23] unchanged); in
    2- or 3-colour mode the extra stops are derived by blending, so a designer can
@@ -6020,6 +6556,8 @@ var trayReady = false, trayPaneOpen = 'layers';
 /* initTray hands out its markTray here, so the mobile sheet can fold the shelf when the
    screen is too short to show it AND a usable artwork (phones on their side, split screens) */
 var setTrayCollapsed = null;
+var openSheetFor = null;   /* the app shell (portrait phones) sets this: open the sheet that holds an element */
+var closeOpenSheet = null; /* …and this: a tap on the art puts an open sheet away; returns true if it did */
 function fillTrayPane(which){
   if (!trayReady){ return; }
   /* An embed is a canvas on somebody's page, not the studio: the tray is hidden there, and
@@ -6609,6 +7147,9 @@ canvas.addEventListener('pointerup', function(e){
     if (panMoved){ persist(); }   /* save the new image position */
   }
   if (dismissTap){ dismissTap = false; ptrDown = false; return; }   /* the tap closed a sheet — that was its job */
+  /* app shell: a clean tap on the art with a sheet open puts the sheet away — that is the
+     tap's whole job (a drag still ripples; panMoved guards it) */
+  if (ptrDown && !panMoved && !EMBED && typeof closeOpenSheet === 'function' && closeOpenSheet()){ ptrDown = false; return; }
   if (ptrDown && !panMoved && !EMBED && !state.hasTex){ reseed(); }  /* a tap on a loaded photo must not reseed the hidden field */
   ptrDown = false;
 });
@@ -6976,6 +7517,23 @@ sourceToggle.addEventListener('click', function(){
 });
 
 /* ---------- mobile panel sheet: drag the grip to trade panel height for artwork ---------- */
+(function(){
+  var bar = document.getElementById('canvasChips');
+  if (!bar){ return; }
+  function edges(){
+    var max = bar.scrollWidth - bar.clientWidth - 1;
+    bar.classList.toggle('atStart', bar.scrollLeft <= 1);
+    bar.classList.toggle('atEnd', bar.scrollLeft >= max);
+  }
+  bar.addEventListener('scroll', edges, { passive: true });
+  window.addEventListener('resize', edges);
+  if (window.ResizeObserver){
+    var ro = new ResizeObserver(edges);
+    ro.observe(bar);
+    Array.prototype.forEach.call(bar.children, function(c){ ro.observe(c); });
+  }
+  edges();
+})();
 var panelHandle = document.getElementById('panelHandle');
 /* not in an embed: the stage IS the window there, and an inline height meant for the
    studio's split would crop the canvas (the class is set pre-paint, see the head) */
@@ -7018,6 +7576,11 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
      CSS — this is that rule's query, verbatim): no grip, and a split height means nothing */
   var landQ = window.matchMedia ? window.matchMedia('(orientation:landscape) and (min-aspect-ratio:4/3)') : null;
   function isLandscapeMobile(){ return isMobileLayout() && !!(landQ && landQ.matches); }
+  /* the app shell's query — the CSS block of the same name uses this string verbatim (a test
+     pins them equal). It is every screen now; only the furniture changes with width. */
+  var APP_Q = 'screen';
+  var appQ = window.matchMedia ? window.matchMedia(APP_Q) : null;
+  function isAppShell(){ return !!(appQ && appQ.matches); }
   /* the tray's share of the card budget — the sum trayHeightFeedback writes to --trayH,
      read live because clampH needs the new number the moment the shelf folds */
   function trayBudget(){ var h = trayEl ? trayEl.offsetHeight : 0; return h ? h + 8 : 0; }
@@ -7082,6 +7645,12 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   function syncSheet(mayFold, fromBoot){
     if (!stageEl || dragging || !isMobileLayout()){ return; }
     var cur = parseFloat(stageEl.style.height) || 0, h;
+    if (isAppShell()){
+      /* the shell's CSS owns the stage (the art is the screen); an inline px from a stacked-
+         layout session would shrink it. Clear it. The tray is a sheet here, never folded. */
+      if (cur){ clearStageH(); if (typeof resize === 'function'){ resize(); } requestRender(); }
+      return;
+    }
     if (isLandscapeMobile()){
       if (cur){ clearStageH(); }
       foldTrayIfNeeded(stageEl.getBoundingClientRect().height, mayFold);
@@ -7109,7 +7678,7 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   var wasMobile = isMobileLayout();
   if (wasMobile){ syncSheet(true, true); }
   panelHandle.addEventListener('pointerdown', function(e){
-    if (!stageEl){ return; }
+    if (!stageEl || isAppShell()){ return; }
     dragging = true; startY = e.clientY; startH = stageEl.getBoundingClientRect().height;
     try { panelHandle.setPointerCapture(e.pointerId); } catch (err){}
     e.preventDefault();
@@ -7152,28 +7721,338 @@ if (panelHandle && !document.documentElement.classList.contains('embed')){
   /* the tray's height is part of the floor: a shelf opening under a stage dragged to the
      floor lifts the stage rather than eating the art, and a closing one gives the room back */
   if (trayEl && window.ResizeObserver){ new ResizeObserver(function(){ syncSheet(false, false); }).observe(trayEl); }
+
+  /* ---------- app shell: bottom nav + one section at a time over full-bleed art on portrait phones ----------
+     Pure state: `data-sheet` on .wrap names the open section (CSS shows it and sizes the stage
+     and sheet); the nav buttons mirror it. Nothing is re-wired — every control keeps its boot
+     binding — the shell only toggles the attribute, expands the section if it was collapsed
+     (inert is not a CSS matter), closes the chip-bar docks so one sheet shows at a time, and
+     tells the canvas the stage changed size. With a sheet open the art is still live to drag
+     (ripple, pan); a clean TAP on it puts the sheet away (Danial) — so does the same tab. */
+  var wrapEl = document.querySelector('.wrap');
+  var navEl = document.getElementById('appNav');
+  var sheetHead = document.getElementById('sheetHead');
+  var sheetTitle = document.getElementById('sheetTitle');
+  var sheetClose = document.getElementById('sheetClose');
+  var imageChip = document.getElementById('imageChip');
+  var SHEET_LABEL = { image: 'Image' };   /* sheets opened from a chip, not a tab */
+  function currentSheet(){ return wrapEl ? wrapEl.getAttribute('data-sheet') : null; }
+  /* the chips the bar hands over to the tools menu, in the order they read there */
+  var MORE_IDS = ['undoChip', 'redoChip', 'imageChip', 'saveChip', 'frameChip', 'textChip',
+    'cursorChip', 'embedChip', 'designsChip', 'modePill'];
+  var moreChip = document.getElementById('moreChip');
+  var moreDock = document.getElementById('moreDock');
+  var moreGrid = document.getElementById('moreGrid');
+  var moreHome = [];                       /* where each chip came from, so it can go back */
+  Array.prototype.forEach.call(MORE_IDS, function(id){
+    var el = document.getElementById(id);
+    if (el && el.parentNode){ moreHome.push({ el: el, parent: el.parentNode, next: el.nextSibling }); }
+  });
+  function setMoreDock(open){
+    if (!moreDock){ return; }
+    if (open){ closeDocks(); openSheet(null); }
+    moreDock.className = open ? 'open' : '';
+    if (moreChip){ moreChip.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+  }
+  var narrowQ = window.matchMedia ? window.matchMedia('(max-width:879px)') : null;
+  function isNarrow(){ return !narrowQ || narrowQ.matches; }
+  function syncChipOverflow(){
+    var shell = isNarrow();        /* the tools menu is for a bar too narrow to hold them */
+    for (var i = 0; i < moreHome.length; i++){
+      var h = moreHome[i];
+      if (shell){ if (h.el.parentNode !== moreGrid){ moreGrid.appendChild(h.el); } }
+      else if (h.el.parentNode !== h.parent){ h.parent.insertBefore(h.el, h.next); }
+    }
+    if (!shell){ setMoreDock(false); }
+  }
+  if (moreChip && moreDock){
+    moreChip.addEventListener('click', function(){ setMoreDock(moreDock.className !== 'open'); });
+    document.getElementById('closeMore').addEventListener('click', function(){ setMoreDock(false); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ setMoreDock(false); } });
+    document.addEventListener('pointerdown', function(e){
+      if (moreDock.className !== 'open'){ return; }
+      if (moreDock.contains(e.target) || moreChip.contains(e.target)){ return; }
+      dismissTap = true;
+      setMoreDock(false);
+    });
+    /* a tool that opens its own dock takes the menu's place */
+    moreGrid.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('button') : null;
+      if (b && b.id !== 'liveBtn' && b.id !== 'stillBtn'){ setMoreDock(false); }
+    });
+  }
+  function closeDocks(){
+    if (typeof setDesignDock === 'function'){ setDesignDock(false); }
+    if (typeof setEmbedDock === 'function'){ setEmbedDock(false); }
+    if (typeof setTextDock === 'function'){ setTextDock(false); }
+    if (typeof setFrameDock === 'function'){ setFrameDock(false); }
+    if (typeof setCursorDock === 'function'){ setCursorDock(false); }
+    if (moreDock && moreDock.className === 'open'){ moreDock.className = ''; if (moreChip){ moreChip.setAttribute('aria-expanded', 'false'); } }
+  }
+  function closeColourEditor(){
+    var more = document.getElementById('colourMore'), x = document.getElementById('cmClose');
+    if (more && !more.hidden && x){ x.click(); }
+  }
+  /* the custom thin scroll indicator that stands in for the browser's own scrollbar (see the
+     CSS note by .panelScrollBar). Height = the visible fraction of the content, position =
+     scroll fraction — the two numbers a scrollbar has always shown, nothing more. */
+  var panelScrollBarEl = document.getElementById('panelScrollBar');
+  var panelScrollThumb = panelScrollBarEl ? panelScrollBarEl.querySelector('i') : null;
+  function syncPanelScrollbar(){
+    if (!panelScrollBarEl || !panelScrollThumb || !panelScrollEl){ return; }
+    var sh = panelScrollEl.scrollHeight, ch = panelScrollEl.clientHeight;
+    if (ch <= 0 || sh - ch <= 2){ panelScrollBarEl.style.display = 'none'; return; }
+    panelScrollBarEl.style.display = 'block';
+    var trackH = panelScrollBarEl.clientHeight;
+    var thumbH = Math.max(24, Math.round(trackH * (ch / sh)));
+    var thumbY = Math.round((trackH - thumbH) * (panelScrollEl.scrollTop / (sh - ch)));
+    panelScrollThumb.style.height = thumbH + 'px';
+    panelScrollThumb.style.transform = 'translateY(' + thumbY + 'px)';
+  }
+  if (panelScrollEl){ panelScrollEl.addEventListener('scroll', syncPanelScrollbar, { passive: true }); }
+  function relayout(){
+    /* a sheet just showed or hid: the strips inside measure themselves on resize (initStrip),
+       and the canvas re-checks its backing store. The stage itself never changes size here —
+       the art is the screen and the sheets float over it. */
+    if (typeof resize === 'function'){ resize(); }
+    requestRender();
+    window.dispatchEvent(new Event('resize'));
+    syncPanelScrollbar();
+  }
+  var closeTimer = 0;
+  function isClosing(){ return !!(wrapEl && wrapEl.hasAttribute('data-closing')); }
+  function openSheet(key){
+    if (!wrapEl){ return; }
+    if (key && !isAppShell()){ return; }
+    var prev = currentSheet();
+    if (closeTimer){ clearTimeout(closeTimer); closeTimer = 0; wrapEl.removeAttribute('data-closing'); }
+    if (key){
+      wrapEl.setAttribute('data-sheet', key);
+      Array.prototype.forEach.call(document.querySelectorAll('.panel section[data-nav="' + key + '"]'), function(sec){
+        if (sec.classList.contains('collapsed')){
+          var t = sec.querySelector('.sec-title');
+          if (t){ t.click(); }
+        }
+      });
+      if (sheetTitle){
+        var b = navEl ? navEl.querySelector('.navBtn[data-nav="' + key + '"]') : null;
+        sheetTitle.textContent = b ? b.textContent.trim() : (SHEET_LABEL[key] || key);
+      }
+      if (panelScrollEl){ panelScrollEl.scrollTop = 0; }
+      closeDocks();
+      if (key !== 'colour'){ closeColourEditor(); }
+    } else if (prev){
+      /* leave the section on screen while the sheet slides out; the attributes go when the
+         transition has run (320ms ≥ the CSS 280ms) */
+      wrapEl.setAttribute('data-closing', '');
+      closeColourEditor();
+      closeTimer = setTimeout(function(){
+        closeTimer = 0;
+        wrapEl.removeAttribute('data-closing');
+        wrapEl.removeAttribute('data-sheet');
+        if (glassEl){ glassEl.style.display = 'none'; }
+      }, 320);
+    }
+    if (navEl){
+      Array.prototype.forEach.call(navEl.querySelectorAll('.navBtn'), function(b){
+        var on = !!key && b.getAttribute('data-nav') === key;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    if (imageChip){ imageChip.setAttribute('aria-expanded', key === 'image' ? 'true' : 'false'); }
+    if (key){ glassStart(); }
+    if (prev !== key){ relayout(); }
+  }
+  /* the frosted pane: mirror the slice of art under the open sheet into a 48px-wide canvas
+     (CSS blurs it) at ~15fps while a sheet is open; stops itself when none is */
+  var glassEl = document.getElementById('glass');
+  var glassCv = glassEl ? glassEl.querySelector('canvas') : null;
+  var glassCtx = glassCv ? glassCv.getContext('2d') : null;
+  var glassRAF = 0, glassLast = 0;
+  function glassTarget(){ return currentSheet() ? panelEl : null; }
+  /* the SDF + smoothstep displacement is rdev/liquid-glass-react's (MIT) — see the markup
+     note above #glassSvg. Ported to plain math with one change: the library's box is a fixed
+     0.3/0.2 FRACTION of the container, tuned for one pill-shaped demo. Our sheets range from a
+     97px strip to a full-height column, and a fractional box would go flat on the strip and
+     vanish on the column — so the box here is inset from each edge by a constant PHYSICAL rim
+     (a real glass bevel does not get proportionally thicker on a bigger pane), and the
+     transition band runs from just inside that box out to the element's own edge. */
+  function glassSDF(x, y, hw, hh, r){
+    var qx = Math.abs(x) - hw + r, qy = Math.abs(y) - hh + r;
+    return Math.min(Math.max(qx, qy), 0) + Math.sqrt(Math.pow(Math.max(qx, 0), 2) + Math.pow(Math.max(qy, 0), 2)) - r;
+  }
+  function glassSmooth(a, b, t){ t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
+  var glassMapCv = null, glassMapCtx = null;
+  var GLASS_ABERRATION = 2;                /* 0 = a plain lensed edge with no colour fringe */
+  function buildGlassMap(pxW, pxH){
+    var longSide = Math.max(pxW, pxH), k = Math.min(1, 72 / longSide);
+    var mw = Math.max(8, Math.round(pxW * k)), mh = Math.max(8, Math.round(pxH * k));
+    if (!glassMapCv){ glassMapCv = document.createElement('canvas'); glassMapCtx = glassMapCv.getContext('2d'); }
+    glassMapCv.width = mw; glassMapCv.height = mh;
+    var short = Math.min(pxW, pxH);
+    /* a real glass bevel is a few px deep regardless of how big the pane is — margin/reach are
+       capped SMALL constants, not a fraction of the panel that keeps growing with it. Scaling
+       the rim to the panel's short side (the first cut of this) gave a full-height sheet a
+       ~55px band from EACH edge — a third of the sheet under warp, reading as one diagonal
+       smear rather than a lensed rim. */
+    var margin = Math.max(4, Math.min(10, short * 0.06));    /* the clear box's inset from each edge */
+    var reach = Math.max(8, Math.min(22, short * 0.16));     /* how far the warp band reaches beyond that */
+    var radius = Math.min(short * 0.5, 10 + short * 0.05);
+    var hw = pxW / 2 - margin, hh = pxH / 2 - margin;
+    /* the actual lens pull, in px. A first cut of this map encoded the raw pull-toward-centre
+       vector and normalised every pixel by the single largest one — which sits in the FAR
+       CORNER of a wide, short sheet (clipped by the panel's own rounded corner anyway), miles
+       beyond the actual rim. Dividing by that corner's huge value rounded the real, visible
+       edge down to nothing. Direction and strength are kept separate now: strength is a
+       bounded 0..1 curve, direction is a unit vector, and dispPx is the one number both scale
+       by — so nothing off-screen can wash out what is actually on screen. */
+    var dispPx = Math.max(4, Math.min(14, reach * 0.6));
+    var n = mw * mh, i = 0;
+    var x, y, px, py, ix, iy, d, mag, dist, ux, uy;
+    var img = glassMapCtx.createImageData(mw, mh), data = img.data;
+    for (y = 0; y < mh; y++){
+      py = (y + 0.5) / mh * pxH;
+      for (x = 0; x < mw; x++){
+        px = (x + 0.5) / mw * pxW;
+        ix = px - pxW / 2; iy = py - pxH / 2;
+        d = glassSDF(ix, iy, hw, hh, radius);
+        /* 0 (no pull) from deep inside the box out to just past its edge; 1 (full pull, toward
+           the centre — the lens bulge) by the time d reaches the element's own outer edge */
+        mag = 1 - glassSmooth(margin + reach, -2, d);
+        dist = Math.sqrt(ix * ix + iy * iy) || 1;
+        ux = -ix / dist; uy = -iy / dist;
+        var p = i * 4;
+        data[p] = Math.max(0, Math.min(255, ux * mag * 127.5 + 127.5));
+        data[p + 1] = Math.max(0, Math.min(255, uy * mag * 127.5 + 127.5));
+        data[p + 2] = data[p + 1];
+        data[p + 3] = 255;
+        i++;
+      }
+    }
+    glassMapCtx.putImageData(img, 0, 0);
+    return { url: glassMapCv.toDataURL(), scale: dispPx };
+  }
+  var glassMapEl = null, glassDispR = null, glassDispG = null, glassDispB = null;
+  var glassLastW = 0, glassLastH = 0;
+  function updateGlassFilter(pxW, pxH){
+    if (pxW < 4 || pxH < 4){ return; }
+    if (Math.abs(pxW - glassLastW) < 3 && Math.abs(pxH - glassLastH) < 3){ return; }
+    if (!glassMapEl){
+      glassMapEl = document.getElementById('glassMap');
+      glassDispR = document.getElementById('glassDispR');
+      glassDispG = document.getElementById('glassDispG');
+      glassDispB = document.getElementById('glassDispB');
+    }
+    if (!glassMapEl || !glassDispR || !glassDispG || !glassDispB){ return; }
+    glassLastW = pxW; glassLastH = pxH;
+    var m = buildGlassMap(pxW, pxH);
+    glassMapEl.setAttribute('href', m.url);
+    glassMapEl.setAttributeNS('http://www.w3.org/1999/xlink', 'href', m.url);
+    glassDispR.setAttribute('scale', m.scale);
+    glassDispG.setAttribute('scale', m.scale * (1 - GLASS_ABERRATION * 0.05));
+    glassDispB.setAttribute('scale', m.scale * (1 - GLASS_ABERRATION * 0.10));
+  }
+  function glassTick(ts){
+    glassRAF = 0;
+    var t = glassTarget();
+    if (!t || !glassCtx || !isAppShell()){ if (glassEl){ glassEl.style.display = 'none'; } return; }
+    syncPanelScrollbar();
+    var r = t.getBoundingClientRect();
+    glassEl.style.display = 'block';
+    glassEl.style.left = r.left + 'px'; glassEl.style.top = r.top + 'px';
+    glassEl.style.width = r.width + 'px'; glassEl.style.height = r.height + 'px';
+    /* the canvas that actually gets warped is 120% of #glass (drawn oversize so the blur has
+       no transparent fringe — see its CSS) — the filter's math has to run in ITS pixel space */
+    updateGlassFilter(r.width * 1.2, r.height * 1.2);
+    if (ts - glassLast > 66 && r.width > 0 && r.height > 0){
+      glassLast = ts;
+      var src = canvas;
+      var sx = src.width / (window.innerWidth || 1), sy = src.height / (window.innerHeight || 1);
+      var mw = 48, mh = Math.max(8, Math.round(mw * r.height / r.width));
+      if (glassCv.width !== mw || glassCv.height !== mh){ glassCv.width = mw; glassCv.height = mh; }
+      try { glassCtx.drawImage(src, r.left * sx, r.top * sy, r.width * sx, r.height * sy, 0, 0, mw, mh); } catch (e){}
+    }
+    glassRAF = requestAnimationFrame(glassTick);
+  }
+  function glassStart(){ if (!glassRAF && glassCtx){ glassRAF = requestAnimationFrame(glassTick); } }
+  closeOpenSheet = function(){
+    if (!isAppShell() || !currentSheet() || isClosing()){ return false; }
+    openSheet(null);
+    return true;
+  };
+  openSheetFor = function(el){
+    if (!isAppShell() || !el || !el.getAttribute){ return false; }
+    var key = el.getAttribute('data-nav');
+    if (!key){ return false; }
+    if (currentSheet() !== key || isClosing()){ openSheet(key); }
+    return true;
+  };
+  if (navEl){
+    navEl.addEventListener('click', function(e){
+      var b = e.target.closest ? e.target.closest('.navBtn') : null;
+      if (!b){ return; }
+      var key = b.getAttribute('data-nav');
+      openSheet((!isClosing() && currentSheet() === key) ? null : key);
+    });
+  }
+  if (imageChip){ imageChip.addEventListener('click', function(){ setMoreDock(false); openSheet((!isClosing() && currentSheet() === 'image') ? null : 'image'); }); }
+  /* close by ✕ (click for the mouse, touchend for fingers — preventDefault so one tap closes
+     once and never also re-fires through the synthetic click) and by a pull on the grip */
+  if (sheetClose){
+    sheetClose.addEventListener('click', function(){ openSheet(null); });
+    sheetClose.addEventListener('touchend', function(e){ e.preventDefault(); openSheet(null); }, { passive:false });
+  }
+  if (sheetHead){
+    var pullY = null;
+    sheetHead.addEventListener('pointerdown', function(e){
+      if (e.target.closest && e.target.closest('#sheetClose')){ return; }
+      pullY = e.clientY;
+    });
+    function endPull(e){
+      if (pullY === null){ return; }
+      var dy = (e && isFinite(e.clientY)) ? e.clientY - pullY : 0;
+      pullY = null;
+      if (dy > 40){ openSheet(null); }
+    }
+    sheetHead.addEventListener('pointerup', endPull);
+    sheetHead.addEventListener('pointercancel', endPull);
+  }
+  /* a chip-bar dock opening takes the sheet's place — one sheet at a time */
+  if (window.MutationObserver){
+    var dockMo = new MutationObserver(function(muts){
+      for (var i = 0; i < muts.length; i++){
+        var d = muts[i].target;
+        if (d.className === 'open' && currentSheet()){ openSheet(null); return; }
+      }
+    });
+    ['designDock', 'embedDock', 'textDock', 'frameDock', 'cursorDock', 'moreDock'].forEach(function(id){
+      var d = document.getElementById(id);
+      if (d){ dockMo.observe(d, { attributes:true, attributeFilter:['class'] }); }
+    });
+  }
+  /* rotating or resizing out of the shell: every section is a panel section again, so the
+     attribute must go (the sheet CSS would otherwise hide all but one); coming back in, the
+     art starts full-screen, as on boot */
+  if (appQ){
+    var onAppQ = function(){ syncChipOverflow(); if (!isAppShell()){ openSheet(null); } else { relayout(); } };
+    if (appQ.addEventListener){ appQ.addEventListener('change', onAppQ); }
+    else if (appQ.addListener){ appQ.addListener(onAppQ); }
+    if (narrowQ){
+      /* crossing 880px moves the tools between the bar and the menu and reshapes the sheet —
+         the canvas has to re-measure either way */
+      var onNarrow = function(){ syncChipOverflow(); relayout(); };
+      if (narrowQ.addEventListener){ narrowQ.addEventListener('change', onNarrow); }
+      else if (narrowQ.addListener){ narrowQ.addListener(onNarrow); }
+    }
+  }
+  syncChipOverflow();
+  if (isAppShell()){ openSheet(null); }
 }
 /* The chip bar scrolls sideways on phones (see the mobile CSS): atStart/atEnd drive its edge
    fades, the same way initStrip does for the picker strips. Desktop never styles the
    classes, so this is inert there. Children are observed too — a chip being shown or
    hidden changes the overflow without changing the bar's own box. */
-(function(){
-  var bar = document.getElementById('canvasChips');
-  if (!bar){ return; }
-  function edges(){
-    var max = bar.scrollWidth - bar.clientWidth - 1;
-    bar.classList.toggle('atStart', bar.scrollLeft <= 1);
-    bar.classList.toggle('atEnd', bar.scrollLeft >= max);
-  }
-  bar.addEventListener('scroll', edges, { passive: true });
-  window.addEventListener('resize', edges);
-  if (window.ResizeObserver){
-    var ro = new ResizeObserver(edges);
-    ro.observe(bar);
-    Array.prototype.forEach.call(bar.children, function(c){ ro.observe(c); });
-  }
-  edges();
-})();
 
 /* ---------- share links: #p= is comma-joined numbers in an EXACT, append-only order ----------
    [0] speed [1] scale [2] warp [3] grain [4] pixel [5] dot [6] dots
@@ -9279,6 +10158,14 @@ function thumbSpecs(){
     jobs.push({ el: dots, ov: { field:0, screen:0, pixel:1, dots:1, dot:9, scale:1.5, warp:5.0,
       grain:0.02, seed:60, t:1.1, hasTex:0 } });
   }
+  /* finish tiles: the SAME soft field rendered with each material, so the strip is a row of
+     surfaces. They had no spec at all — every Finish square was a bare black card with a
+     label, which read as six broken images (Danial: "why is there no image for these"). */
+  var mb = document.querySelectorAll('.materialBtn');
+  for (i = 0; i < mb.length; i++){
+    jobs.push({ el: mb[i], ov: { material: parseInt(mb[i].getAttribute('data-material'), 10),
+      field:3, pixel:1, dots:0, screen:0, hasTex:0, scale:1.6, warp:4.0, grain:0.02, seed:28, t:1.35 } });
+  }
   /* palette buttons get a vivid CSS gradient swatch (set in syncControls), not a noise render —
      the noise field is mid/dark-biased so the old previews read dark. */
   return jobs;
@@ -9295,7 +10182,7 @@ function renderOneThumb(job){
        halftone dots — so Hex, ASCII, Dither and Glitch all rendered as plain smooth fields,
        each showing the opposite of what clicking it does. Anything the job states for itself
        now stands; only what it leaves unsaid is cleared. */
-    state.material = 0;
+    if (job.ov.material == null){ state.material = 0; }   /* the finish tiles preview a material */
     if (job.ov.dots == null){ state.dots = 0; }
     if (job.ov.pixel == null){ state.pixel = 1; }
     if (job.ov.screen == null){ state.screen = 0; }
