@@ -27,7 +27,7 @@ The app draws one full-screen triangle into a canvas. The fragment shader:
 2. Builds a scalar field using one of the field engines: noise, flow, cellular,
    gyroid, truchet, interfere, kaleido, lines, grid, golden, smoke, crystal,
    honeycomb, bloom, sweep, marble, plaid, curtain, stitch, pursuit, chladni,
-   or cassini.
+   cassini, topo, or eddy.
 3. Optionally uses an uploaded image texture as luminance input for the field.
 4. Maps the scalar field through a preset palette or a custom four-stop gradient.
 5. Applies the selected surface mode and optional halftone dots.
@@ -62,10 +62,19 @@ append-only; new parameters must be appended at the end.
 | 15 | surface mode |
 | 16 | image pan X |
 | 17 | image pan Y |
-| 18 | reserved |
+| 18 | symmetry (kaleidoscope fold) |
 | 19 | reserved |
 | 20-23 | packed custom gradient colors |
 | 24 | dither threshold offset from `0.5` |
+| 25 | layer 2 field engine |
+| 26 | layer 2 blend mode |
+| 27 | layer 2 mix × 100 |
+| 28 | material finish |
+| 29 | math lens |
+| 30 | lens amount × 100 |
+| 31 | layer 3 field engine |
+| 32 | layer 3 blend mode |
+| 33 | layer 3 mix × 100 |
 
 Defaults are trimmed from the end so older links stay short and continue to
 parse correctly.

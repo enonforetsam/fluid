@@ -33,12 +33,16 @@ if(u_field == N) return fieldMyEngine(p, t);
 **Step 3 — add the UI button.** In `index.html`, copy an existing `.fieldBtn` and give it the next index:
 
 ```html
-<button class="fieldBtn" data-f="N">myengine</button>
+<button class="fieldBtn" data-field="N">myengine</button>
 ```
 
-**Step 4 — extend the hash parser.** Find the field clamp in `parseHash` and raise the maximum index to `N`.
+**Step 4 — extend the hash parser.** Raise `FIELD_MAX` (in `index.html`) to `N` — `parseHash` and the
+shuffle bag both clamp against it, so a hardcoded literal here would leave the newest engine
+unreachable from a link and never shuffled into a piece.
 
-**Step 5 — mirror in `worker.js`.** Add the name to the `FIELDS` array at index `N`.
+**Step 5 — mirror in `worker.js`.** Nothing to hand-edit: `worker.js` imports its field list from
+`worker-data.js`, which is generated from `index.html`. Run `node fluid-core/build.mjs` to
+regenerate it, then commit the result — `npm test` fails on drift if you forget.
 
 **Step 6 — add looks.** Add 1–2 entries to the `LOOKS` table that show off what the engine does best.
 A look is `{name, tip, p}` where `p` is a `buildHash(0)` string for that parameter set.
@@ -50,8 +54,9 @@ of what the math does (it goes in `manual.html` under `04 — Field`).
 
 ### New palette preset
 
-Palettes are 4 RGB stops (dark → light) in `PALETTES_RGB` in `index.html` and a name in `PALETTES`
-in `worker.js`. Also add a `.palBtn` in the UI and a name in `SECTION_TIPS`.
+Palettes are 4 RGB stops (dark → light) in `PALETTES_RGB` in `index.html`. Also add a `.palBtn` in
+the UI and a name in `SECTION_TIPS`. Run `node fluid-core/build.mjs` afterward to regenerate
+`worker-data.js` — that's where `worker.js` gets its `PALETTES` list; it's never hand-edited.
 
 Custom palettes (pal=8) already work — this is only for built-in named presets.
 
