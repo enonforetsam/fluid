@@ -236,7 +236,9 @@
     border-radius:8px;padding:6px 12px;cursor:pointer;
   }
   /* hover looks are gated to hover-capable pointers throughout — see the note on .panel section:hover */
-  @media (hover:hover) and (pointer:fine){ #refreshChip:hover{opacity:1;background:var(--ink-c);color:var(--ink);border-color:var(--ink)} }
+  /* background-color, not the background shorthand: the shorthand resets background-image
+     to none, which would strip the shine gradient the wide-screen circle carries on hover */
+  @media (hover:hover) and (pointer:fine){ #refreshChip:hover{opacity:1;background-color:var(--ink-c);color:var(--ink);border-color:var(--ink)} }
   #refreshChip .ricon{font-weight:400;font-size:11px;display:inline-block;transition:transform .3s cubic-bezier(.4,0,.2,1)}
   #refreshChip:active .ricon{transform:rotate(180deg)}
   /* The chip is the one control that makes something happen with no decisions first, so it
@@ -295,14 +297,22 @@
     font-size:8px;letter-spacing:0;font-weight:700;
   }
   .chipCount.on{display:flex}
-  #modePill{display:inline-flex;align-items:stretch;border:1px solid var(--ink);border-radius:8px;overflow:hidden}
+  /* flat toggle: no pill, no fill — Live/Still are just two words, dim for the one you're
+     not on, full ink and bold for the one you are. The boxed segmented-control look read as
+     an iOS switch next to the rest of the bar's plain icons, which is the opposite of flat. */
+  #modePill{display:inline-flex;align-items:center;gap:14px}
   .modeOpt{
-    font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--ink);background:transparent;border:0;border-radius:0;padding:6px 12px;cursor:pointer;
+    font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    color:var(--soft);background:transparent;border:0;border-radius:0;padding:2px 0;cursor:pointer;
   }
-  .modeOpt + .modeOpt{border-left:1px solid var(--ink)}
-  @media (hover:hover) and (pointer:fine){ .modeOpt:not(.on):hover{background:rgba(232,232,228,.18)} }
-  .modeOpt.on,.modeOpt.on:active{background:var(--ink);color:var(--ink-c);font-weight:700}
+  /* background-color:transparent here too: the generic button:hover skin (further down)
+     fills any hovered button with a pale grey, which is the raised-key look this whole
+     rule exists to remove — omitting it just left that fill unopposed on hover. */
+  @media (hover:hover) and (pointer:fine){ .modeOpt:not(.on):hover{color:var(--ink);background-color:transparent} }
+  /* background-color:transparent, explicitly: the generic button.on skin (further down)
+     fills any .on button with --ink by default, which is exactly the boxed look this
+     rule exists to remove — .modeOpt.on has to say so itself, not just omit a fill. */
+  .modeOpt.on,.modeOpt.on:active{color:var(--ink);background-color:transparent;transform:none}
   #recChip{
     font-family:inherit;font-size:9px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--ink);background:transparent;border:1px solid var(--ink);
@@ -1319,11 +1329,6 @@
     }
     /* the chip bar's 6px of padding (mobile CSS above) is exactly the room these halos need */
     .chipIcon::after,#refreshChip::after,#recChip::after,.modeOpt::after{content:'';position:absolute;inset:-6px -4px}
-    /* the pill clips its children, so the halo has to be let out — the fills keep their
-       rounded ends by carrying the pill's inner radius themselves */
-    #modePill{overflow:visible}
-    #modePill .modeOpt:first-child{border-radius:7px 0 0 7px}
-    #modePill .modeOpt:last-child{border-radius:0 7px 7px 0}
   }
 
   /* ---------- app shell layout: portrait phones + small tablets — full-bleed art, a bottom nav, one section as a sheet over it ----------
@@ -1414,8 +1419,11 @@
     #moreGrid .chipIcon::before{content:attr(aria-label);order:2;color:var(--soft);font-size:8px;letter-spacing:.08em;text-align:center;line-height:1.2}
     #moreGrid .chipIcon::after{content:none}          /* the tile is already thumb-sized */
     #moreGrid .chipCount{top:6px;right:6px}
-    #moreGrid #modePill{grid-column:1 / -1;height:40px}
-    #moreGrid .modeOpt{flex:1;font-size:9px}
+    /* flex:1 (each half of the old bordered pill) is why this needs justify-content:center
+       now — the border it used to fill is gone, so two lone words stretched to the tile's
+       full width read as unrelated settings, not a live/still choice, sitting a tile apart. */
+    #moreGrid #modePill{grid-column:1 / -1;height:40px;justify-content:center}
+    #moreGrid .modeOpt{flex:0 0 auto;font-size:9px}
     #moreGrid #modePill .modeOpt::after{content:none}
     /* outlined chips vanished over a near-white pattern: a faint dark fill keeps them legible
        on any art (the scrim alone was not enough at the pale end) */
@@ -1645,17 +1653,51 @@
          own floating pill, the same distance from the top that the nav sits from the bottom */
       html:not(.embed) .wrap #canvasChips{
         justify-content:center;gap:9px;top:20px;left:0;right:0;width:max-content;margin:0 auto;
-        padding:10px 16px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;
+        padding:10px 16px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:visible;
         box-shadow:0 14px 40px rgba(0,0,0,.42);
       }
-      /* Shuffle's auto margin was there to pin it to the left of a bar that spanned the
-         window; the brand mark took over that job when the bar got a name (Fluid + GitHub) */
-      html:not(.embed) .wrap #refreshChip{margin-right:0}
+      /* the toast is a child of the bar now (below), sitting outside its box — overflow has
+         to let it through, so the pill's own rounding rides on ::before's matching radius
+         instead (already border-radius:inherit, so nothing was ever clipped by this). */
+      html:not(.embed) .wrap #canvasChips:has(#toast.show){border-bottom-left-radius:0;border-bottom-right-radius:0}
+      /* Shuffle leaves the bar entirely up here: its own circle, parked in the screen's own
+         top-right corner rather than the bar's, so it stays a fixed size and a fixed spot no
+         matter how the pill above it grows or shrinks. Independent, not lined up with anything.
+         Sized to the bar's own height (50px, measured) rather than a guess, so the two read as
+         a matched pair despite sitting apart. The #canvasChips prefix isn't decorative: the
+         compact-bar rule below (#canvasChips #refreshChip{width:32px...}) is two IDs deep, and
+         without matching that here this whole rule loses on specificity and the circle never
+         actually resizes. The gradient and glow need !important for the same reason, against
+         the flat-canvas-chrome reset further down — this is the one canvas button meant to
+         shine rather than go flat, Danial's call for the one action-button apart from the rest. */
+      html:not(.embed) .wrap #canvasChips #refreshChip{
+        position:fixed;top:calc(20px + env(safe-area-inset-top, 0px));right:20px;z-index:32;
+        margin:0;width:50px;height:50px;padding:0;gap:0;border-radius:50%;
+        justify-content:center;
+        background-image:radial-gradient(circle at 30% 24%, rgba(255,255,255,.92), rgba(255,255,255,.22) 36%, rgba(255,255,255,0) 62%) !important;
+        box-shadow:
+          0 14px 40px rgba(0,0,0,.42),
+          0 0 22px rgba(255,255,255,.3),
+          inset 0 1px 2px rgba(255,255,255,.7),
+          inset 0 -8px 14px rgba(0,0,0,.16) !important;
+      }
+      html:not(.embed) .wrap #canvasChips #refreshChip span:not(.ricon){display:none}
+      html:not(.embed) .wrap #canvasChips #refreshChip .ricon{font-size:22px}
       .chipsBrand{margin-right:0}
       .stageInner::before,.stageInner::after{display:none}
       #moreChip{display:none}          /* the bar has room for every tool up here */
       #imageChip{display:inline-flex}
-      #toast{left:0;right:0;width:var(--shellW);margin:0 auto;top:64px}
+      /* the status line becomes the bar's own second row up here: same outer width as the
+         pill (it's a child of #canvasChips now, so that's automatic — Record showing or not
+         changes the bar's width and the row just follows), flush underneath with no gap,
+         square where the two meet so it reads as one shape rather than two stacked pills. */
+      html:not(.embed) .wrap #canvasChips #toast{
+        position:absolute;left:-1px;right:-1px;top:100%;margin:0;width:auto;
+        border-radius:0 0 18px 18px;border:1px solid rgba(255,255,255,.12);border-top:0;
+        background:rgba(17,18,22,.55);color:#e8e8e4;
+        -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+        box-shadow:0 14px 40px rgba(0,0,0,.42);
+      }
       /* a big screen can carry the picker tiles and type it always had */
       .panel .fieldstrip .fieldBtn{flex:0 0 84px;width:84px}
       .panel .fieldstrip .fieldBtn span{font-size:8px}
@@ -2038,7 +2080,9 @@
      The DOCK PANELS keep their drop shadow — like the colour editor, they float over the
      artwork and that shadow is separation, not decoration. Only their controls flatten.
      #refreshChip.asking is exempt: its first-run pulse IS a box-shadow, and !important beats
-     a keyframe, so including it here would silently kill the animation. */
+     a keyframe, so including it here would silently kill the animation. #refreshChip stays
+     IN this reset (its phone-width pill is meant flat) — the wide-screen circle's own shine
+     further down uses !important with a 2-ID selector to win back over this rule there. */
   #canvasChips button:not(.asking), #canvasChips .filebtn,
   #designDock button, #cursorDock button, #embedDock button,
   #frameDock button, #textDock button,
@@ -2228,8 +2272,6 @@
   <div class="stage">
     <canvas id="glowCanvas" aria-hidden="true"></canvas>
     <div class="stageInner">
-      <!-- app shell: the status line has no panel to live in, so it speaks once, briefly, over the art -->
-      <div id="toast" role="status" aria-live="polite"></div>
       <div id="canvasChips">
         <!-- app shell: the bar is its own opaque pill now (like the nav below it), so it reads
              as a piece of chrome rather than a scrim over the art — which meant it needed a
@@ -2418,6 +2460,10 @@
           <button id="stillBtn" class="modeOpt on" aria-pressed="true">Still</button>
         </div>
         <button id="recChip" aria-pressed="false" aria-label="Record clip" title="Record clip"><span class="dot">&#9679;</span><span id="recChipText"></span></button>
+        <!-- app shell: a child of the bar now, not a floating pill of its own — so its width
+             is just the bar's own width, whatever that happens to be (Record showing or not),
+             with no JS measuring to keep the two in sync. -->
+        <div id="toast" role="status" aria-live="polite"></div>
       </div>
       <div class="card">
         <canvas id="cv" aria-label="Generative fluid artwork. Tap to reseed the field."></canvas>
