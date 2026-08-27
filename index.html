@@ -5013,11 +5013,12 @@ function frame(now){
   }
   /* recording: render only the captured frames, at the final clip size, to avoid
      realtime encoder pressure and random browser stream sampling. */
-  if (recorder && recCtx && (now - recLastCap >= REC_FRAME_MS)){
-    recLastCap = now;
-    captureRecorderFrame();
-  } else if (wcEncoder && !wcErr && recCtx && (now - wcLastCap >= REC_FRAME_MS)){
-    captureWebCodecsFrame(now);
+  if (recorder && recCtx){
+    var rc = recNextCap(recLastCap, now);
+    if (rc >= 0){ recLastCap = rc; captureRecorderFrame(); }
+  } else if (wcEncoder && !wcErr && recCtx){
+    var wc = recNextCap(wcLastCap, now);
+    if (wc >= 0){ captureWebCodecsFrame(wc); }
   } else if (wcEncoder && wcErr && !recStopping){
     stopRecording();   /* encoder died mid-clip: finish now and salvage what's encoded */
   }
@@ -5026,6 +5027,19 @@ function frame(now){
 
 function flushGlFrame(){
   if (gl && gl.flush){ try { gl.flush(); } catch(e){} }
+}
+/* Capture cadence. The schedule steps forward one frame interval at a time; it is NOT reset
+   to `now`. rAF fires every 16.7ms, and "at least 33.3ms since the last capture" measured
+   from the capture itself lands on alternating 2- and 3-frame gaps — 33.3 rounds under the
+   bar as often as over it — which is ~24 uneven frames a second: the judder you see on
+   screen while recording, and in the clip. Stepping the schedule keeps it at every second
+   frame (every fourth at 120Hz). A real stall resyncs rather than bursting to catch up.
+   Returns the capture's scheduled time, or -1 if this frame is not due. */
+function recNextCap(lastCap, now){
+  if (now - lastCap < REC_FRAME_MS - 2){ return -1; }     /* 2ms of slack for rAF jitter */
+  var next = lastCap + REC_FRAME_MS;
+  if (now - next > REC_FRAME_MS){ next = now; }
+  return next;
 }
 function renderRecordingSource(){
   state.t = recBaseT + (recFrame / REC_FPS) * state.speed;
@@ -6756,6 +6770,11 @@ function trayPostBoot(){
      way — matches the breakpoint the stylesheet uses. */
   var narrow = window.matchMedia ? window.matchMedia('(max-width:879px)') : null;
   function isNarrow(){ return !!(narrow && narrow.matches); }
+  /* the app shell's own query (APP_Q, further down — kept verbatim here because that closure
+     is not reachable from this one). Wherever the shell is on, the panel is a sheet, and a
+     sheet has no closed state: it IS the only way to the controls. */
+  var shell = window.matchMedia ? window.matchMedia('screen') : null;
+  function isShell(){ return !!(shell && shell.matches); }
   /* Read from the stylesheet rather than restated here: the track and the slide have to run
      for the same time or the panel crosses the artwork, and two numbers in two files is how
      that stops being true. */
@@ -6777,7 +6796,15 @@ function trayPostBoot(){
        from a wide window (or from localStorage) survive the trip: inert is a DOM attribute,
        so the media query alone cannot lift it. Not persisted, so rotating a tablet does not
        quietly discard the choice made on the desktop. */
-    if (isNarrow() && !open){ open = true; persist = false; }
+    /* Same for the shell, at any width. This bit: a `fluid:panelOpen=0` left behind by the
+       old collapsible sidebar made boot call setPanel(false), which put `inert` on the panel —
+       and inert takes the whole subtree out of hit-testing, so every sheet drew fine and was
+       dead to the mouse: wheel, drag and click all fell through to the canvas underneath.
+       The stale key is cleared so it cannot do it again. */
+    if ((isNarrow() || isShell()) && !open){
+      open = true; persist = false;
+      try { localStorage.removeItem(PANEL_LS); } catch(e){}
+    }
     /* The colour editor is a DOM child of the panel but position:fixed, so it does not travel
        with the column when it closes — it would sit over the artwork, visibly, while inert made
        it dead to the pointer. Closing it is the honest outcome: it belongs to the controls that
@@ -9235,11 +9262,21 @@ function avcLevelHex(w, h){
    latencyMode/hwAccel outright in isConfigSupported, so the tuning flags peel off one
    by one; the codec string carries the level the resolution needs (1080p→4.2, 2K→5.0,
    4K→5.1). Shared by live recording and the offline export so both negotiate the same. */
-function wcConfigOpts(safe){
+function wcConfigOpts(safe, live){
   var common = { width:safe.w, height:safe.h, bitrate:REC_BITRATE, framerate:REC_FPS, avc:{ format:'avc' } };
   var lvl = avcLevelHex(safe.w, safe.h);
   var codecs = [ 'avc1.6400' + lvl, 'avc1.4D00' + lvl, 'avc1.42E0' + lvl ];
-  var tuning = [
+  /* live recording asks for realtime latency first: the encoder is fed a frame every 33ms
+     while the GPU is also drawing the piece at clip resolution, and in quality mode it
+     takes its time per frame, the queue backs up, and the loop starts dropping captures —
+     a held frame on screen and a hitch in the clip. The offline export has no clock to
+     keep, so it still asks for quality. */
+  var tuning = live ? [
+    { hardwareAcceleration:'prefer-hardware', latencyMode:'realtime', bitrateMode:'constant' },
+    { hardwareAcceleration:'prefer-hardware', latencyMode:'realtime' },
+    { hardwareAcceleration:'prefer-hardware' },
+    {}
+  ] : [
     { hardwareAcceleration:'prefer-hardware', latencyMode:'quality', bitrateMode:'constant' },
     { hardwareAcceleration:'prefer-hardware', latencyMode:'quality' },
     { hardwareAcceleration:'prefer-hardware' },
@@ -9258,8 +9295,8 @@ function wcConfigOpts(safe){
   return opts;
 }
 /* walk the candidates until one is supported: ok(cfg), else fail() */
-function negotiateWcConfig(safe, ok, fail){
-  var opts = wcConfigOpts(safe);
+function negotiateWcConfig(safe, ok, fail, live){
+  var opts = wcConfigOpts(safe, live);
   var tryNext = function(i){
     if (i >= opts.length){ fail(); return; }
     VideoEncoder.isConfigSupported(opts[i]).then(function(s){
@@ -9546,7 +9583,8 @@ function toggleRecording(){
   if (window.VideoEncoder && window.VideoFrame && !isiOS()){
     negotiateWcConfig(safe,
       function(cfg){ startWebCodecs(safe, cfg, fallbackSafe); },
-      function(){ startMediaRecorder(fallbackSafe); });   /* nothing negotiated — MediaRecorder it is */
+      function(){ startMediaRecorder(fallbackSafe); },    /* nothing negotiated — MediaRecorder it is */
+      true);                                              /* live: realtime latency, see wcConfigOpts */
     return;
   }
   startMediaRecorder(fallbackSafe);

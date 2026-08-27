@@ -40,14 +40,16 @@ function extractVar(src, name) {
 const REC_FPS = extractVar(indexSrc, 'REC_FPS');
 const REC_BITRATE = extractVar(indexSrc, 'REC_BITRATE');
 const CLIP_DURS = extractVar(indexSrc, 'CLIP_DURS');
+const REC_FRAME_MS = 1000 / REC_FPS;   /* index.html derives it the same way from REC_FPS */
 const sandbox = new Function(
-  'REC_FPS', 'REC_BITRATE',
+  'REC_FPS', 'REC_BITRATE', 'REC_FRAME_MS',
   extractFn(indexSrc, 'avcLevelHex') + '\n' +
   extractFn(indexSrc, 'wcConfigOpts') + '\n' +
   extractFn(indexSrc, 'recSizeForMax') + '\n' +
-  'return { avcLevelHex:avcLevelHex, wcConfigOpts:wcConfigOpts, recSizeForMax:recSizeForMax };'
-)(REC_FPS, REC_BITRATE);
-const { avcLevelHex, wcConfigOpts, recSizeForMax } = sandbox;
+  extractFn(indexSrc, 'recNextCap') + '\n' +
+  'return { avcLevelHex:avcLevelHex, wcConfigOpts:wcConfigOpts, recSizeForMax:recSizeForMax, recNextCap:recNextCap };'
+)(REC_FPS, REC_BITRATE, REC_FRAME_MS);
+const { avcLevelHex, wcConfigOpts, recSizeForMax, recNextCap } = sandbox;
 
 describe('clip export helpers', () => {
   describe('avcLevelHex', () => {
@@ -99,6 +101,52 @@ describe('clip export helpers', () => {
     it('encodes the level the resolution needs', () => {
       const uhd = wcConfigOpts(recSizeForMax(1.7778, 3840));
       for (const cfg of uhd) { assert.ok(cfg.codec.endsWith('33'), '4K must negotiate level 5.1: ' + cfg.codec); }
+    });
+
+    it('live recording asks for realtime latency first, the offline export for quality', () => {
+      /* a live take feeds the encoder a frame every 33ms while the GPU draws the piece at clip
+         size; in quality mode the queue backs up and captures get dropped — the lag Danial saw */
+      const live = wcConfigOpts(size, true);
+      assert.strictEqual(live[0].latencyMode, 'realtime');
+      assert.strictEqual(live[0].hardwareAcceleration, 'prefer-hardware');
+      assert.strictEqual(opts[0].latencyMode, 'quality', 'the offline export must keep quality mode');
+      assert.strictEqual(live.length, opts.length, 'live must have the same depth of fallbacks');
+      const last = live[live.length - 1];
+      assert.ok(!('latencyMode' in last) && !('hardwareAcceleration' in last), 'live must still end on a bare candidate');
+      assert.ok(!live.some((c) => c.latencyMode === 'quality' && live.indexOf(c) === 0), 'realtime must come before any quality candidate');
+    });
+  });
+
+  describe('recNextCap — the live capture cadence', () => {
+    /* rAF at 60Hz is 16.667ms; "at least 33.33ms since the last capture" measured from the
+       capture itself alternates 2- and 3-frame gaps. The schedule must step, not reset. */
+    function simulate(rafMs, frames) {
+      const caps = [];
+      let last = 0;
+      for (let i = 1; i <= frames; i++) {
+        const now = i * rafMs;
+        const next = recNextCap(last, now);
+        if (next >= 0) { caps.push(now); last = next; }
+      }
+      return caps;
+    }
+    it('captures every second frame at 60Hz, evenly', () => {
+      const caps = simulate(1000 / 60, 120);
+      const gaps = caps.slice(1).map((t, i) => t - caps[i]);
+      assert.ok(gaps.length > 40, 'too few captures: ' + caps.length);
+      for (const g of gaps) { assert.ok(Math.abs(g - 2 * (1000 / 60)) < 0.01, 'uneven gap ' + g); }
+    });
+    it('captures every fourth frame at 120Hz and every frame at 30Hz', () => {
+      const g120 = simulate(1000 / 120, 240).slice(1).map((t, i, a) => t - (i ? a[i - 1] : 0));
+      for (const g of g120.slice(1)) { assert.ok(Math.abs(g - 4 * (1000 / 120)) < 0.01, '120Hz gap ' + g); }
+      const c30 = simulate(1000 / 30, 60);
+      assert.strictEqual(c30.length, 60, 'at 30Hz every frame is due');
+    });
+    it('resyncs after a stall instead of bursting to catch up', () => {
+      const t0 = 1000;
+      const next = recNextCap(t0, t0 + 500);              /* half a second of nothing */
+      assert.strictEqual(next, t0 + 500, 'the schedule must jump to now');
+      assert.strictEqual(recNextCap(next, next + 10), -1, 'and the very next frame is not due');
     });
   });
 
