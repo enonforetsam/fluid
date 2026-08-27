@@ -171,7 +171,7 @@ Zones, in file order:
 | glsl colour ramps | the four-stop designer gradient and the procedural chrome ramp | `---------- glsl colour ramps:` |
 | glsl engines 13-21 | bloom, sweep, marble, plaid, curtain, stitch, pursuit, chladni, cassini | `---------- glsl engines 13-21:` |
 | glsl dispatch | the Bayer table, fieldOf by index, and the layer blend modes | `---------- glsl dispatch:` |
-| glsl materials | the field read as a height map, re-lit as glass, metal, sand, liquid or molten | `---------- glsl materials:` |
+| glsl materials | the field read as a height map, re-lit as glass, metal, sand, liquid, molten or paint | `---------- glsl materials:` |
 | glsl main | the numbered pipeline, from the before/after split through to the text mask | `---------- glsl main:` |
 | glsl lenses | named transforms of the complex plane, applied to the domain both layers sample | `---------- glsl lenses:` |
 | glsl screens | halftone, ascii glyphs, ordered dither and the glitch channel split | `---------- glsl screens:` |

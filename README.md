@@ -28,7 +28,7 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 - Kaleidoscope symmetry modifier: fold any field into an N-fold radial mandala.
 - Layers: stack up to three engines, each blending onto everything under it with multiply / screen / add / difference / overlay.
 - Math lenses: bend the plane through 12 conformal maps — z², 1/z, Möbius, Droste, hyperbolic, Julia, z³, e^z, sin z, Joukowski, Newton basins, and the SL(2,ℤ) modular fold — plus Ground, which is a camera rather than a map: it tips the plane away so any engine recedes to a horizon.
-- Material finishes: glass, metal, sand, liquid, and molten relighting.
+- Material finishes: glass, metal, sand, liquid, and molten relighting, plus paint — impasto oil, dabs laid along the field's contours with bristle ridges, lit as thick paint on a toned canvas.
 - Square, hex, ASCII, halftone, ordered-dither, and glitch surface modes.
 - Preset palettes plus shareable custom four-stop gradients, with a draggable colour editor: saturation/brightness pad, hue strip, HSB and RGB sliders, hex, and harmony schemes that rebuild the whole ramp from one hue.
 - Optional image melt: uploaded image luminance drives the field.

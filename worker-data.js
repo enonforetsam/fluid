@@ -4,7 +4,7 @@
 export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo","eddy"];
 export const SCREENS = ["square","hex","ascii","dither","glitch"];
 /* material finishes — share-hash slot [28] */
-export const FINISHES = ["none","glass","metal","sand","liquid","molten"];
+export const FINISHES = ["none","glass","metal","sand","liquid","molten","paint"];
 /* math lenses — share-hash slots [29][30] */
 export const LENSES = ["none","square","invert","mobius","droste","hyperbolic","julia","cube","exp","sine","joukowski","newton","modular","ground"];
 /* layer blend modes — share-hash slots [26] and [32] */
@@ -43,6 +43,7 @@ export const LOOKS = {
   "smoke": {"field":10,"cols":["#040414","#0a3a7a","#0484fc","#c2dbdc"],"p":[0.38,1.3,3,0.015,1,10,0,0,30,0,0,1]},
   "gilded": {"field":0,"material":5,"cols":["#0a0602","#6b3a05","#e8940f","#ffdf8a"],"p":[0.28,0.6,3.5,0.015,1,10,0,0,47,0,0,1]},
   "mercury": {"field":0,"material":5,"cols":["#020204","#1c1a2e","#5a5670","#e8e0f2"],"p":[0.28,0.7,4,0.015,1,10,0,0,61,0,0,1]},
+  "impasto": {"field":1,"material":6,"cols":["#1a0f2e","#7a2a4a","#e8763a","#f6e3b4"],"p":[0.22,1.3,4.2,0,1,10,0,0,38,0,0,1]},
   "bloom": {"field":13,"cols":["#c2b830","#e04a12","#e8489a","#f2ead8"],"p":[0.35,0.95,2.5,0.14,1,10,0,0,24,0,0,1]},
   "horizon": {"field":14,"cols":["#0d0b2e","#552a8a","#f27059","#ffd9a0"],"p":[0.3,1.2,3.2,0.05,1,10,0,0,33,0,0,1]},
   "sumi": {"field":15,"p":[0.3,1.5,5,0.02,1,10,0,6,41,0,0,1]},

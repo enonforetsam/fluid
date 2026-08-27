@@ -37,7 +37,7 @@ test('fluid-core registry shape', async () => {
     for (const stop of p){ assert.strictEqual(stop.length, 3, 'stop is RGB'); }
   }
   assert.deepStrictEqual(data.SCREENS, ['square', 'hex', 'ascii', 'dither', 'glitch']);
-  assert.strictEqual(data.MATERIALS.length, 6, 'none + 5 finishes');
+  assert.strictEqual(data.MATERIALS.length, 7, 'none + 6 finishes');
   assert.strictEqual(data.MATERIALS[0], 'none');
   assert.strictEqual(data.BLENDS.length, 6);
   assert.ok(data.LOOKS.length >= 25, 'curated looks present');

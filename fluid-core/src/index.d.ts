@@ -25,7 +25,7 @@ export interface FluidParams {
   layer2?: FluidLayerParams | false;
   /** 'square' | 'hex' | 'ascii' | 'dither' | 'glitch' or index 0..4; 'none' = square-at-rest */
   screen?: string | number;
-  /** 'none' | 'glass' | 'metal' | 'sand' | 'liquid' | 'molten' or index 0..5 */
+  /** 'none' | 'glass' | 'metal' | 'sand' | 'liquid' | 'molten' | 'paint' or index 0..6 */
   material?: string | number;
   lens?: string | number;
   lensAmt?: number;

@@ -69,7 +69,7 @@ createFluid(el, {
   // a third engine, blended onto layer 2's result — it needs `layer` to do anything
   layer2: { field: 'topo', blend: 'multiply', mix: 0.3 },
   screen: 'hex',            // square | hex | ascii | dither | glitch
-  material: 'molten',       // none | glass | metal | sand | liquid | molten
+  material: 'molten',       // none | glass | metal | sand | liquid | molten | paint
   lens: 'mobius',           // math lens: square | invert | mobius | droste | hyperbolic |
                             //   julia | cube | exp | sine | joukowski | newton | modular | ground
   lensAmt: 0.8              // lens strength 0-1 (default 1)

@@ -184,8 +184,8 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     for (let s = 0; s <= 4; s++) assert.strictEqual(roundtrip({ screen: s }).after.screen, s, 'screen ' + s);
   });
 
-  it('every material finish 0..4 round-trips via slot [28]', () => {
-    for (let m = 0; m <= 4; m++) assert.strictEqual(roundtrip({ material: m }).after.material, m, 'material ' + m);
+  it('every material finish 0..6 round-trips via slot [28]', () => {
+    for (let m = 0; m <= 6; m++) assert.strictEqual(roundtrip({ material: m }).after.material, m, 'material ' + m);
     // no finish (material 0) is the default and must trim away — no hash bloat
     assert.ok(roundtrip({ material: 0 }).hash.split(',').length <= 16, 'material=0 must not pad the hash');
   });

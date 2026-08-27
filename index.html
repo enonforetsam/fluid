@@ -2906,6 +2906,7 @@
       <button class="fieldBtn materialBtn" data-material="3" title="Sand" aria-label="Sand" aria-pressed="false"><span>Sand</span></button>
       <button class="fieldBtn materialBtn" data-material="4" title="Liquid" aria-label="Liquid" aria-pressed="false"><span>Liquid</span></button>
       <button class="fieldBtn materialBtn" data-material="5" title="Molten" aria-label="Molten" aria-pressed="false"><span>Molten</span></button>
+      <button class="fieldBtn materialBtn" data-material="6" title="Paint — impasto oil, strokes follow the form" aria-label="Paint" aria-pressed="false"><span>Paint</span></button>
     </div>
     <button id="matNext" class="stripBtn" aria-label="Scroll finishes right">&#8250;</button>
     </div>
@@ -3100,6 +3101,7 @@ var LOOKS = [
   { label:'SMOKE',    field:10, cols:['#040414','#0a3a7a','#0484fc','#c2dbdc'], p:[0.38, 1.3, 3.0, 0.015, 1, 10, 0, 0, 30, 0, 0, 1] },
   { label:'GILDED',   field:0, material:5, cols:['#0a0602','#6b3a05','#e8940f','#ffdf8a'], p:[0.28, 0.6, 3.5, 0.015, 1, 10, 0, 0, 47, 0, 0, 1] },
   { label:'MERCURY',  field:0, material:5, cols:['#020204','#1c1a2e','#5a5670','#e8e0f2'], p:[0.28, 0.7, 4.0, 0.015, 1, 10, 0, 0, 61, 0, 0, 1] },
+  { label:'IMPASTO',  field:1, material:6, cols:['#1a0f2e','#7a2a4a','#e8763a','#f6e3b4'], p:[0.22, 1.3, 4.2, 0.0, 1, 10, 0, 0, 38, 0, 0, 1] },
   { label:'BLOOM',    field:13, cols:['#c2b830','#e04a12','#e8489a','#f2ead8'], p:[0.35, 0.95, 2.5, 0.14, 1, 10, 0, 0, 24, 0, 0, 1] },
   { label:'HORIZON',  field:14, cols:['#0d0b2e','#552a8a','#f27059','#ffd9a0'], p:[0.30, 1.2, 3.2, 0.05, 1, 10, 0, 0, 33, 0, 0, 1] },
   { label:'SUMI',     field:15,           p:[0.30, 1.5, 5.0, 0.02, 1, 10, 0, 6, 41, 0, 0, 1] },
@@ -3788,9 +3790,9 @@ var FSRC = [
   '  else { r = b; }                                                        /* 0 = normal */',
   '  return mix(a, r, amt);',
   '}',
-  /* ---------- glsl materials: the field read as a height map, re-lit as glass, metal, sand, liquid or molten ---------- */
+  /* ---------- glsl materials: the field read as a height map, re-lit as glass, metal, sand, liquid, molten or paint ---------- */
   '/* material finish: treat the field as a height map (screen-space gradient -> normal) and',
-  '   re-light the palette colour as glass / metal / sand / liquid / molten. mat 0 = off.',
+  '   re-light the palette colour as glass / metal / sand / liquid / molten / paint. mat 0 = off.',
   '   fv = the raw field value — molten draws its ribbons on its level sets. */',
   'vec3 shadeMaterial(int mat, vec3 base, vec3 N, float fv){',
   '  vec3 L = normalize(vec3(0.4, 0.7, 0.6));',
@@ -3822,6 +3824,91 @@ var FSRC = [
   '        + tint * (bands + sheen) * (0.75 + 0.25 * ndl)',
   '        + tint * pow(ndh, 60.0) * 1.6',
   '        + fres * tint * 0.15;',
+  '  } else if (mat == 6){   /* paint — impasto oil. Dabs of thick paint laid ALONG the field',
+  '                             contours (a painter follows the form), each with its own load',
+  '                             and bristle ridges, lit as glossy paint standing off a toned',
+  '                             canvas. Screen-space and height-normalised, so an export at any',
+  '                             size gets the same brushwork as the live canvas. */',
+  '    vec2 g = N.xy;                                   /* points down the field gradient */',
+  '    float gm = length(g);',
+  '    vec2 q = gl_FragCoord.xy / u_res.y;',
+  '    /* stroke direction: tangent to the contour where the field has form; where it is flat',
+  '       (gm ~ 0) there is nothing to follow, so a slow noise field decides — otherwise the',
+  '       tangent is undefined there and the dabs break into per-pixel confetti */',
+  '    float da = fbm(q * 1.4 + 3.1) * 6.2832;',
+  '    vec2 tng = vec2(-g.y, g.x) / max(gm, 1e-4);',
+  '    vec2 dir = normalize(mix(vec2(cos(da), sin(da)), tng, smoothstep(0.03, 0.18, gm)));',
+  '    vec2 prp = vec2(-dir.y, dir.x);',
+  '    /* Dabs hang off a jittered grid — two grids, the finer laid over the coarser — and',
+  '       each is measured in a frame anchored at ITS OWN centre. That anchoring is the whole',
+  '       trick: measured from the screen origin instead, a one-degree turn of the stroke',
+  '       direction slides the pattern by a whole stroke width, and a direction that follows',
+  '       the form turns everywhere, so the dabs dissolved into per-pixel grain. Anchored,',
+  '       the direction can only bend a dab across its own length. The pixel walks the 3x3',
+  '       cells around it, since a neighbour\'s dab may reach over. */',
+  '    float h = 0.0, id = 0.0, rim = 0.0;',
+  '    vec2 hgl = vec2(0.0);                              /* slope of the winning dab, its own frame */',
+  '    for (int lyr = 0; lyr < 2; lyr++){',
+  '      /* the under-layer is long strokes (so it walks 5x5 — they reach two cells), the',
+  '         over-layer short dabs on a finer grid (3x3 is enough) */',
+  '      float cs = lyr == 0 ? 0.060 : 0.040;                      /* dab spacing, per layer */',
+  '      vec2 cq = q / cs + float(lyr) * 0.37;',
+  '      vec2 ci = floor(cq);',
+  '      for (int j = -2; j <= 2; j++){',
+  '        for (int i = -2; i <= 2; i++){',
+  '          if (lyr == 1 && (i < -1 || i > 1 || j < -1 || j > 1)){ continue; }',
+  '          vec2 cell = ci + vec2(float(i), float(j));',
+  '          vec2 rn = hash22(cell + float(lyr) * 71.0);',
+  '          vec2 d = q - (cell + 0.25 + 0.5 * rn) * cs;         /* to this dab\'s centre */',
+  '          float x = dot(d, dir), y = dot(d, prp);',
+  '          float hl = lyr == 0 ? cs * (1.3 + 0.7 * rn.x) : cs * (0.8 + 0.3 * rn.x);',
+  '          float hw = cs * (0.34 + 0.14 * rn.y);',
+  '          float ex = abs(x) / hl, ey = abs(y) / hw;',
+  '          if (ex > 1.0 || ey > 1.0){ continue; }',
+  '          float di = hash(cell * 1.7 + float(lyr) * 13.0);',
+  '          /* a dab is a rounded mound of paint: an elliptical profile across, tapered ends,',
+  '             and a few soft bristle ridges along its length (noise-wobbled so they never',
+  '             read as a ruler). The mound is what the light catches — one lit edge, one',
+  '             shadowed — and that is what makes a stroke read as a stroke. */',
+  '          float ends = 1.0 - smoothstep(0.7, 1.0, ex);',
+  '          float prof = sqrt(max(1.0 - ey * ey, 0.0));',
+  '          float wob = vnoise(vec2(x / cs * 3.0 + di * 50.0, y / cs * 6.0 + di * 20.0));',
+  '          float rph = (y / hw * 1.5 + wob * 1.2) * 6.2832;',
+  '          float rid = 0.5 + 0.5 * sin(rph);',
+  '          float amp = 0.6 + 0.7 * di;                            /* thin dab, thick dab */',
+  '          float tex = 0.8 + 0.2 * rid;',
+  '          float hc = ends * prof * tex * amp;',
+  '          if (hc > h){',
+  '            h = hc; id = di; rim = max(ex, ey);',
+  '            /* the slope by hand: dFdx of a max() over overlapping dabs spikes at every',
+  '               overlap edge, and every spike caught the specular as a white speck */',
+  '            float te = ex > 0.7 ? -222.2 * (ex - 0.7) * (1.0 - ex) : 0.0;',
+  '            float dEdx = te * sign(x) / hl;',
+  '            float dPdy = -ey / max(prof, 0.15) * sign(y) / hw;',
+  '            float dRdy = 0.2 * 0.5 * cos(rph) * 6.2832 * 1.5 / hw;',
+  '            hgl = amp * vec2(dEdx * prof * tex, ends * (dPdy * tex + prof * dRdy));',
+  '          }',
+  '        }',
+  '      }',
+  '    }',
+  '    vec2 hg = (hgl.x * dir + hgl.y * prp) * 0.012;      /* back into screen space */',
+  '    vec3 Np = normalize(vec3(-hg, 1.0));',
+  '    float pdl = max(dot(Np, L), 0.0);',
+  '    float pdh = max(dot(Np, H), 0.0);',
+  '    float cover = smoothstep(0.04, 0.22, h);',
+  '    /* the ground between dabs: the palette colour toned down over a canvas weave */',
+  '    vec2 wv = q * u_res.y * 0.38;',
+  '    float weave = 0.5 + 0.25 * (sin(wv.x * 6.2832) + sin(wv.y * 6.2832)) * (0.7 + 0.3 * vnoise(wv));',
+  '    vec3 ground = base * (0.30 + 0.16 * weave) + 0.015;',
+  '    /* each dab is its own load of paint: a little lighter or darker, tilted a little warm',
+  '       or cool, and shadowed at its rim where it stands off its neighbours — that rim is',
+  '       what lets the eye separate one stroke from the next */',
+  '    float id2 = fract(id * 57.3);',
+  '    vec3 pc = base * (0.74 + 0.5 * id) * vec3(1.0 + 0.12 * (id2 - 0.5), 1.0 - 0.05 * (id2 - 0.5), 1.0 - 0.12 * (id2 - 0.5));',
+  '    float ao = 1.0 - 0.32 * smoothstep(0.55, 1.0, rim);',
+  '    col = mix(ground, pc, cover) * ao;',
+  '    col = col * (0.62 + 0.42 * pdl) * (0.85 + 0.15 * ndl) * (0.72 + 0.28 * min(h * 1.6, 1.0))',
+  '        + cover * pow(pdh, 30.0) * 0.34 * ao + fres * 0.04;',
   '  }',
   '  return col;',
   '}',
@@ -4025,6 +4112,7 @@ var FSRC = [
   '     (Layers). Each blends onto the accumulated result, not onto the base, so the stack',
   '     reads top-down exactly as the tray draws it. */',
   '  f = fieldOf(u_field, p, u_time, disp);',
+  '  float fb = f;                                    /* the base engine alone — paint reads its slope */',
   '  if (u_layerMix > 0.001){',
   '    vec2 disp2;',
   '    f = blendField(f, fieldOf(u_field2, p, u_time, disp2), u_blend, u_layerMix);',
@@ -4067,9 +4155,22 @@ var FSRC = [
   '  else           { col = ramp4(f, u_c0, u_c1, u_c2, u_c3); }',
   '  /* soft highlight bloom for a premium glow */',
   '  col += smoothstep(0.72, 1.0, f) * 0.12;',
-  '  /* 4b - material finish: field gradient -> normal, re-light as glass/metal/sand/liquid */',
+  '  /* 4b - material finish: field gradient -> normal, re-light as glass/metal/sand/liquid/molten/paint */',
   '  if (u_material > 0){',
   '    vec2 grd = vec2(dFdx(f), dFdy(f)) * u_res.y * 0.06;',
+  '    if (u_material == 6){',
+  '      /* paint needs a direction that holds across a whole dab. The per-pixel dFdx gradient',
+  '         of a warped field turns every few pixels and shreds the strokes into confetti, so',
+  '         the base engine is re-read on a wide stencil (~1% of the frame): a low-pass',
+  '         gradient that follows the FORM of the piece, not its grain. Base engine only —',
+  '         the layers add detail, not shape. Behind the uniform, so every other finish pays',
+  '         nothing for it. Forward differences off the value the main pass already has, so',
+  '         it is two extra engine reads, not four. */',
+  '      vec2 dd; float pe = 0.05 * u_scale;',
+  '      float fx1 = fieldOf(u_field, p + vec2(pe, 0.0), u_time, dd);',
+  '      float fy1 = fieldOf(u_field, p + vec2(0.0, pe), u_time, dd);',
+  '      grd = vec2(fx1 - fb, fy1 - fb) * 6.0;',
+  '    }',
   '    col = shadeMaterial(u_material, col, normalize(vec3(-grd, 1.0)), f);',
   '  }',
   '',
@@ -6800,7 +6901,7 @@ Array.prototype.forEach.call(document.querySelectorAll('.materialBtn'), function
     state.material = parseInt(b.getAttribute('data-material'), 10);
     markLook(null);
     syncControls();
-    setStatus(['NO FINISH — flat colour','GLASS — refractive rim + sheen','METAL — chrome reflection','SAND — matte grain','LIQUID — wet gloss','MOLTEN — liquid metal, palette-tinted'][state.material]);
+    setStatus(['NO FINISH — flat colour','GLASS — refractive rim + sheen','METAL — chrome reflection','SAND — matte grain','LIQUID — wet gloss','MOLTEN — liquid metal, palette-tinted','PAINT — impasto oil, strokes follow the form'][state.material]);
   });
 });
 Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
@@ -7006,7 +7107,7 @@ function randomPattern(){
   state.dot = 5 + Math.floor(q[7] * 17);
   /* #2b two dimensions the shuffle never touched at all, so every shuffled piece came out
      with no finish and no fold no matter how many times you pressed it */
-  state.material = rnd() < 0.28 ? 1 + Math.floor(rnd() * 5) : 0;
+  state.material = rnd() < 0.28 ? 1 + Math.floor(rnd() * 6) : 0;
   state.sym = rnd() < 0.18 ? 2 * (1 + Math.floor(rnd() * 6)) : 0;   /* even folds read as symmetry, odd ones as damage */
   /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend,
      moderate mix — and 1 in 4 of those goes on to a 3rd. Stacking three at full strength
@@ -8099,7 +8200,7 @@ function buildHash(embedFlag){
     while (a.length < 25){ a.push(0); }
     a.push(state.field2 || 0, state.blend || 0, Math.round((state.layerMix || 0) * 100));
   }
-  /* [28] material finish (1 glass / 2 metal / 3 sand / 4 liquid / 5 molten) — only when set; pads [19..27] */
+  /* [28] material finish (1 glass / 2 metal / 3 sand / 4 liquid / 5 molten / 6 paint) — only when set; pads [19..27] */
   if ((state.material || 0) > 0){
     while (a.length < 28){ a.push(0); }
     a.push(Math.round(state.material));
@@ -8171,7 +8272,7 @@ function parseHash(src){
   state.field2 = n.length > 25 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
-  state.material = n.length > 28 ? Math.min(5, Math.max(0, Math.round(n[28]))) : 0;
+  state.material = n.length > 28 ? Math.min(6, Math.max(0, Math.round(n[28]))) : 0;
   state.lens = n.length > 29 ? Math.min(LENS_MAX, Math.max(0, Math.round(n[29]))) : 0;
   state.lensAmt = n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1;
   state.field3 = n.length > 31 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[31]))) : 0;
