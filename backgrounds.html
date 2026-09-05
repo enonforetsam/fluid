@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FLUID — live backgrounds for your website</title>
-<meta name="description" content="Calm, live generative backgrounds for landing pages: ten ambient presets, a blur and a dim you can tune, one script tag. This page is the example — the engine is running behind it right now.">
+<meta name="description" content="Calm, live generative backgrounds for landing pages: ten ambient presets, a blur and a dim you can tune, four page templates to see them behind, one script tag. The engine is running behind this page right now.">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <meta property="og:title" content="FLUID — live backgrounds for your website">
@@ -99,6 +99,36 @@
   .bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:var(--s2)}
   .bar i{display:block;height:100%;width:64%;background:var(--ink);border-radius:999px}
 
+  /* the other templates share the tokens; only the furniture changes */
+  .hero.centered{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .hero.centered h1{max-width:20ch}
+  .hero.centered .lede{margin-left:auto;margin-right:auto}
+  .hero[hidden]{display:none}
+  .links{display:flex;gap:var(--s3);justify-content:center;font:500 13px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+  .links a{text-decoration:none;padding-bottom:4px;border-bottom:1px solid var(--line-2)}
+  .links a:hover{border-color:var(--ink)}
+  .mark{width:44px;height:44px;border-radius:12px;background:var(--ink);margin:0 auto var(--s3);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .waitlist{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .waitlist input{
+    font:15px var(--sans);color:var(--ink);background:var(--glass-solid);border:1px solid var(--line-2);
+    border-radius:999px;padding:11px 18px;min-width:260px;
+  }
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .waitlist input{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+  }
+  .serif h1{font-family:ui-serif,"Iowan Old Style","Palatino Linotype",Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.02em;font-size:clamp(2.6rem,6vw,5rem);max-width:15ch}
+  .services{display:grid;gap:var(--s2)}
+  .services div{border-top:1px solid var(--line-2);padding:var(--s2) 0 var(--s1)}
+  .services span{font:500 11px/1 var(--mono);letter-spacing:.14em;color:var(--ink-3)}
+  .services b{display:block;font-size:17px;font-weight:600;margin:6px 0 4px}
+  .services p{color:var(--ink-2);font-size:14px;max-width:34ch}
+  .templates{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .templates button{
+    font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:7px 11px;
+    background:transparent;color:inherit;border:1px solid var(--panel-line);border-radius:999px;cursor:pointer;
+  }
+  .templates button[aria-pressed="true"]{background:var(--panel-ink);color:var(--panel);border-color:transparent}
+
   /* ---------- the controls: this is what the page is for ---------- */
   .panel{
     position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10;
@@ -168,12 +198,12 @@
 <div class="foot" aria-label="Fluid links"><a href="/">studio</a><a href="/explore">explore</a><a href="/dev">docs</a></div>
 
 <header class="nav" aria-label="Example site navigation">
-  <a class="brand" href="#"><i></i>Ledgerline</a>
-  <nav><a href="#">Product</a><a href="#">Pricing</a><a href="#">Changelog</a><a href="#">Docs</a></nav>
-  <a class="cta" href="#">Start free</a>
+  <a class="brand" href="#"><i></i><span id="brandName">Ledgerline</span></a>
+  <nav id="navLinks"><a href="#">Product</a><a href="#">Pricing</a><a href="#">Changelog</a><a href="#">Docs</a></nav>
+  <a class="cta" id="navCta" href="#">Start free</a>
 </header>
 
-<main class="hero">
+<main class="hero" data-template="saas">
   <section>
     <p class="eyebrow">Invoicing for small studios</p>
     <h1>Get paid without chasing anyone.</h1>
@@ -193,6 +223,37 @@
     <div class="row" style="border-top:0;padding-top:10px"><span>64% of invoices paid within a week</span></div>
   </aside>
 </main>
+<main class="hero centered" data-template="portfolio" hidden>
+  <section>
+    <p class="eyebrow">Designer · Kuala Lumpur</p>
+    <h1>Aisyah Rahman makes interfaces people stop noticing.</h1>
+    <p class="lede">Product design for small teams that ship. Previously at two studios you have heard of and one you have not.</p>
+    <div class="links"><a href="#">Work</a><a href="#">Writing</a><a href="#">Email</a><a href="#">CV</a></div>
+  </section>
+</main>
+<main class="hero centered" data-template="launch" hidden>
+  <section>
+    <div class="mark" aria-hidden="true"></div>
+    <p class="eyebrow">Coming this spring</p>
+    <h1>The notebook that files itself.</h1>
+    <p class="lede">Write anywhere. Everything lands in the right place by morning. Join the list and we will send one email when it is ready.</p>
+    <div class="waitlist"><input type="email" placeholder="you@studio.com" aria-label="Email"><button type="button" class="cta">Join the list</button></div>
+    <p class="trust">2,140 ON THE LIST · NO SPAM, ONE EMAIL</p>
+  </section>
+</main>
+<main class="hero" data-template="agency" hidden>
+  <section class="serif">
+    <p class="eyebrow">Studio Larik — brand &amp; digital</p>
+    <h1>We make quiet things that get noticed.</h1>
+    <p class="lede">Identity, sites and the occasional building. Six people, one room, no account managers.</p>
+    <div class="actions"><a class="cta" href="#">Start a project</a><a class="ghost" href="#">Recent work</a></div>
+  </section>
+  <aside class="services" aria-label="Services">
+    <div><span>01</span><b>Identity</b><p>Names, marks, systems that survive a decade.</p></div>
+    <div><span>02</span><b>Websites</b><p>Fast, hand-built, and easy for you to edit.</p></div>
+    <div><span>03</span><b>Spaces</b><p>Interiors and signage for the places you work.</p></div>
+  </aside>
+</main>
 
 <aside class="panel" aria-label="Background controls">
   <div class="panelHead">
@@ -201,6 +262,12 @@
       <button type="button" data-tone="dark" aria-pressed="true">Dark</button>
       <button type="button" data-tone="light" aria-pressed="false">Light</button>
     </div>
+  </div>
+  <div class="templates" role="group" aria-label="Template">
+    <button type="button" data-template="saas" aria-pressed="true">SaaS</button>
+    <button type="button" data-template="portfolio" aria-pressed="false">Portfolio</button>
+    <button type="button" data-template="launch" aria-pressed="false">Launch</button>
+    <button type="button" data-template="agency" aria-pressed="false">Agency</button>
   </div>
   <div class="swatches" id="swatches" role="group" aria-label="Preset"></div>
   <div class="sliders">
@@ -222,7 +289,22 @@
   var PRESETS = (window.FluidBg && window.FluidBg.PRESETS) || {};
   var names = Object.keys(PRESETS);
   var bg = document.getElementById('bg');
-  var state = { preset: 'mist', blur: 24, dim: 0.4, tone: 'dark' };
+  var state = { preset: 'mist', blur: 24, dim: 0.4, tone: 'dark', template: 'saas' };
+  var TEMPLATES = ['saas', 'portfolio', 'launch', 'agency'];
+  /* the nav is part of the example too: it should belong to the page it sits on */
+  var NAV = {
+    saas:      { brand: 'Ledgerline',    links: ['Product', 'Pricing', 'Changelog', 'Docs'], cta: 'Start free' },
+    portfolio: { brand: 'Aisyah Rahman', links: ['Work', 'Writing', 'About'],                 cta: 'Email me' },
+    launch:    { brand: 'Notebook',      links: [],                                          cta: 'Join the list' },
+    agency:    { brand: 'Studio Larik',  links: ['Work', 'Studio', 'Journal', 'Contact'],    cta: 'Start a project' }
+  };
+  function applyNav(){
+    var n = NAV[state.template] || NAV.saas;
+    document.getElementById('brandName').textContent = n.brand;
+    var links = document.getElementById('navLinks'); links.textContent = '';
+    n.links.forEach(function(t){ var a = document.createElement('a'); a.href = '#'; a.textContent = t; links.appendChild(a); });
+    document.getElementById('navCta').textContent = n.cta;
+  }
   var swatches = document.getElementById('swatches');
   var status = document.getElementById('status');
 
@@ -242,6 +324,9 @@
     bg.setAttribute('dim', String(state.dim));
     bg.setAttribute('dim-color', dimColor());
     document.documentElement.setAttribute('data-tone', state.tone);
+    Array.prototype.forEach.call(document.querySelectorAll('main[data-template]'), function(m){ m.hidden = m.getAttribute('data-template') !== state.template; });
+    applyNav();
+    Array.prototype.forEach.call(document.querySelectorAll('.templates button'), function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-template') === state.template ? 'true' : 'false'); });
     document.getElementById('code').textContent = snippet();
     var p = PRESETS[state.preset];
     document.getElementById('studio').href = '/' + (p ? p.hash : '');
@@ -251,7 +336,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('.tone button'), function(b){
       b.setAttribute('aria-pressed', b.getAttribute('data-tone') === state.tone ? 'true' : 'false');
     });
-    try { history.replaceState(null, '', '#' + state.preset + '/' + state.blur + '/' + state.dim + '/' + state.tone); } catch(e){}
+    try { history.replaceState(null, '', '#' + state.preset + '/' + state.blur + '/' + state.dim + '/' + state.tone + '/' + state.template); } catch(e){}
   }
   function swatch(name){
     var p = PRESETS[name];
@@ -294,6 +379,9 @@
       apply();
     });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('.templates button'), function(b){
+    b.addEventListener('click', function(){ state.template = b.getAttribute('data-template'); apply(); });
+  });
   document.getElementById('copy').addEventListener('click', function(){
     var text = snippet();
     function done(ok){ status.textContent = ok ? 'COPIED — paste it anywhere in your page' : 'SELECT THE CODE AND COPY IT'; }
@@ -302,10 +390,10 @@
   });
 
   /* a shared link restores the exact treatment: #preset/blur/dim/tone */
-  var m = /^#([a-z]+)\/(\d+)\/([\d.]+)\/(dark|light)$/.exec(location.hash);
+  var m = /^#([a-z]+)\/(\d+)\/([\d.]+)\/(dark|light)(?:\/(saas|portfolio|launch|agency))?$/.exec(location.hash);
   if (m && PRESETS[m[1]]){
     state.preset = m[1]; state.blur = Math.min(80, parseInt(m[2], 10) || 0);
-    state.dim = Math.min(0.8, parseFloat(m[3]) || 0); state.tone = m[4];
+    state.dim = Math.min(0.8, parseFloat(m[3]) || 0); state.tone = m[4]; if (m[5]){ state.template = m[5]; }
     document.getElementById('blur').value = state.blur; document.getElementById('blurOut').textContent = String(state.blur);
     document.getElementById('dim').value = state.dim; document.getElementById('dimOut').textContent = String(state.dim);
   }
