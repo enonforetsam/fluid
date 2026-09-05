@@ -737,6 +737,18 @@ function api(req, url){
   });
 }
 
+/* The embed script, self-hosted: fluid-bg's IIFE build, copied into assets/ by its build step.
+   The /backgrounds snippets point here so a new attribute is live the moment the site deploys,
+   with npm and the CDN pin catching up on their own schedule. */
+async function fluidBgScript(env, url){
+  var asset = await env.ASSETS.fetch(new Request(new URL('/assets/fluid-bg.iife.js', url.origin)));
+  var h = new Headers(asset.headers);
+  h.set('content-type', 'text/javascript; charset=utf-8');
+  h.set('cache-control', 'public, max-age=3600');
+  h.set('access-control-allow-origin', '*');
+  return new Response(asset.body, { status: asset.status, headers: h });
+}
+
 /* Static social-share image. Crawlers cannot run the app or inspect #p= fragments,
    so /og.jpg serves one checked-in image without server-side rendering. */
 async function ogImage(req, env, url){
@@ -818,6 +830,7 @@ export default {
     if (url.pathname === '/mcp'){ resp = await mcp(req); }
     else if (url.pathname === '/llms.txt'){ resp = llmsTxt(url.origin); }
     else if (url.pathname === '/og.jpg'){ resp = await ogImage(req, env, url); }
+    else if (url.pathname === '/fluid-bg.js'){ resp = await fluidBgScript(env, url); }
     else if (url.pathname === '/favicon.ico'){
       resp = fluidFavicon();
     }

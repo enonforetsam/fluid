@@ -6,6 +6,8 @@
 // pauses offscreen and in hidden tabs. The old iframe embed remains as an
 // automatic fallback when WebGL is unavailable, or on request (mode:"iframe").
 import { createFluid, parseShareHash } from "../../fluid-core/src/index.js";
+import { PRESETS } from "./presets";
+export { PRESETS, type FluidBgPreset } from "./presets";
 
 /**
  * Public surface of a native mount (fluid-core's FluidMount, bundled at build
@@ -45,10 +47,21 @@ export interface FluidBgOptions {
    * Native automatically falls back to the iframe when WebGL is unavailable.
    */
   mode?: "native" | "iframe";
+  /**
+   * A built-in ambient preset by name (`"mist"`, `"ember"`, …) — looks tuned to sit
+   * behind a page: slow, soft, one accent. `hash` wins when both are given.
+   */
+  preset?: string;
+  /** Soften the picture: a CSS blur in px (0–120). The canvas over-scans so no edge shows. */
+  blur?: number;
+  /** Darken (or lighten, with `dimColor`) toward legibility: 0–1 overlay opacity. */
+  dim?: number;
+  /** The overlay colour `dim` uses. Default `#000`; use `#fff` for light pages. */
+  dimColor?: string;
 }
 
 /** Default Fluid origin. */
-export const DEFAULT_BASE = "https://fluid.krackeddevs.com";
+export const DEFAULT_BASE = "https://befluid.xyz";
 /** Aurora Flow, embed flag set — a calm default background. */
 export const DEFAULT_HASH = "#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778,0,1,1";
 /** Share-hash slot 13 is the embed (canvas-only) flag — Fluid's format is append-only. */
@@ -69,11 +82,44 @@ export function ensureEmbed(hash?: string): string {
   return "#p=" + a.join(",");
 }
 
+/** The hash an options object resolves to: an explicit hash, else the named preset, else the default. */
+export function resolveHash(opts: FluidBgOptions = {}): string {
+  if (opts.hash) return opts.hash;
+  const p = opts.preset ? PRESETS[String(opts.preset).toLowerCase()] : undefined;
+  return p ? p.hash : DEFAULT_HASH;
+}
+
 /** Build the full embed URL for an options object (iframe mode). */
 export function buildSrc(opts: FluidBgOptions = {}): string {
   let base = (opts.base || DEFAULT_BASE).replace(/\/+$/, "");
   if (!/^https?:\/\//i.test(base)) base = DEFAULT_BASE.replace(/\/+$/, "");   // only http(s) origins — reject javascript:/data: etc.
-  return base + "/" + ensureEmbed(opts.hash);
+  return base + "/" + ensureEmbed(resolveHash(opts));
+}
+
+/* the treatment: blur over-scans the canvas so the blurred edge never shows, dim lays a
+   colour over it. Both are plain CSS on the container, so a treated background costs the
+   same to render as an untreated one. */
+function clamp(v: unknown, lo: number, hi: number, d: number): number {
+  const n = Number(v);
+  return isNaN(n) ? d : Math.min(hi, Math.max(lo, n));
+}
+function safeColor(c?: string): string {
+  return c && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c) ? c : "#000";
+}
+function applyTreatment(inner: HTMLElement, layer: HTMLElement, opts: FluidBgOptions): void {
+  const blur = clamp(opts.blur, 0, 120, 0);
+  const dim = clamp(opts.dim, 0, 1, 0);
+  const bleed = Math.ceil(blur * 2);
+  layer.style.cssText =
+    "position:absolute;top:-" + bleed + "px;left:-" + bleed + "px;right:-" + bleed + "px;bottom:-" + bleed + "px;" +
+    (blur > 0 ? "filter:blur(" + blur + "px);" : "");
+  let veil = inner.querySelector(":scope > [data-fluid-dim]") as HTMLElement | null;
+  if (dim > 0) {
+    if (!veil) { veil = document.createElement("div"); veil.setAttribute("data-fluid-dim", ""); inner.appendChild(veil); }
+    veil.style.cssText = "position:absolute;inset:0;pointer-events:none;background:" + safeColor(opts.dimColor) + ";opacity:" + dim + ";";
+  } else if (veil) {
+    veil.remove();
+  }
 }
 
 /** True if an element paints an opaque background colour (a non-zero alpha). */
@@ -145,25 +191,32 @@ export interface FluidBgHandle {
   pause?: () => void;
   /** Resume the animation. Native mode only (undefined on the iframe fallback). */
   play?: () => void;
+  /** Retune blur / dim / dimColor in place, without re-creating the picture. */
+  treat: (opts: Pick<FluidBgOptions, "blur" | "dim" | "dimColor">) => void;
 }
 
 /** Fill `inner` with the chosen renderer; returns handle pieces. */
 function renderInto(
   inner: HTMLElement,
   opts: FluidBgOptions
-): { mode: "native" | "iframe"; cleanup: () => void; mount?: FluidBgMount } {
+): { mode: "native" | "iframe"; cleanup: () => void; mount?: FluidBgMount; treat: (o: FluidBgOptions) => void } {
+  /* the picture lives on its own layer inside the container, so blur can over-scan it
+     and the dim veil can sit above it without touching the host page */
+  const layer = document.createElement("div");
+  inner.appendChild(layer);
+  applyTreatment(inner, layer, opts);
   if (opts.mode !== "iframe") {
     try {
-      const mount = mountNative(inner, opts.hash);
-      return { mode: "native", cleanup: () => mount.destroy(), mount };
+      const mount = mountNative(layer, resolveHash(opts));
+      return { mode: "native", cleanup: () => mount.destroy(), mount, treat: (o) => applyTreatment(inner, layer, o) };
     } catch (e) {
       /* WebGL unavailable (or blocked) — fall back to the hosted embed, which
          has its own 2D fallback. Never leave a blank hole. */
     }
   }
   const iframe = makeIframe(buildSrc(opts));
-  inner.appendChild(iframe);
-  return { mode: "iframe", cleanup: () => iframe.remove() };
+  layer.appendChild(iframe);
+  return { mode: "iframe", cleanup: () => iframe.remove(), treat: (o) => applyTreatment(inner, layer, o) };
 }
 
 /**
@@ -189,6 +242,7 @@ export function fluidBackground(
       destroy: () => { r.cleanup(); host.remove(); },
       pause: r.mount ? () => { r.mount!.pause(); } : undefined,
       play: r.mount ? () => { r.mount!.play(); } : undefined,
+      treat: r.treat,
     };
   }
 
@@ -205,5 +259,6 @@ export function fluidBackground(
     destroy: () => { r.cleanup(); inner.remove(); },
     pause: r.mount ? () => { r.mount!.pause(); } : undefined,
     play: r.mount ? () => { r.mount!.play(); } : undefined,
+    treat: r.treat,
   };
 }

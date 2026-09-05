@@ -15,10 +15,11 @@ One HTML file. No build step. No backend state. No runtime dependencies.
 &nbsp;[![npm: fluid-bg](https://img.shields.io/npm/v/fluid-bg?label=fluid-bg)](https://www.npmjs.com/package/fluid-bg)
 &nbsp;[![npm: fluid-core](https://img.shields.io/npm/v/fluid-core?label=fluid-core)](https://www.npmjs.com/package/fluid-core)
 
-[Studio](https://fluid.krackeddevs.com) ·
-[Gallery](https://fluid.krackeddevs.com/gallery) ·
-[Manual](https://fluid.krackeddevs.com/manual) ·
-[Dev/API](https://fluid.krackeddevs.com/dev)
+[Studio](https://befluid.xyz) ·
+[Backgrounds](https://befluid.xyz/backgrounds) ·
+[Gallery](https://befluid.xyz/gallery) ·
+[Manual](https://befluid.xyz/manual) ·
+[Dev/API](https://befluid.xyz/dev)
 
 </div>
 
@@ -74,6 +75,19 @@ reloads, writes again, and reloads about once every four seconds forever, which 
 hang mid-reload. The script keeps that state outside the repo with `--persist-to`.
 
 ## Embed
+
+Want a calm background rather than a piece? [befluid.xyz/backgrounds](https://befluid.xyz/backgrounds)
+is a live landing page over the engine: pick one of ten ambient presets, set blur and dim,
+copy the tag.
+
+```html
+<script src="https://befluid.xyz/fluid-bg.js"></script>
+<fluid-bg fixed preset="mist" blur="24" dim="0.4"></fluid-bg>
+```
+
+`preset` names one of `mist ember dusk ink glow aurora deep paper lilac shore`; `blur` is px,
+`dim` an overlay opacity (`dim-color="#fff"` on light pages). The script at `/fluid-bg.js` is
+the current `fluid-bg` build, self-hosted so it never waits on npm.
 
 Two npm packages ship from this repo. [`fluid-bg`](https://www.npmjs.com/package/fluid-bg)
 is the drop-in background — it renders natively on a canvas in your page (~15 KB gz, no iframe):

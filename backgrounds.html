@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" data-tone="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLUID — live backgrounds for your website</title>
+<meta name="description" content="Calm, live generative backgrounds for landing pages: ten ambient presets, a blur and a dim you can tune, one script tag. This page is the example — the engine is running behind it right now.">
+<meta name="theme-color" content="#0b0d12">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta property="og:title" content="FLUID — live backgrounds for your website">
+<meta property="og:description" content="Ten ambient presets, blur and dim to taste, one script tag. The engine renders on the visitor's GPU.">
+<meta property="og:image" content="https://befluid.xyz/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<script src="assets/fluid-bg.iife.js"></script>
+<style>
+  /* ---------- tokens: one source of truth, swapped per tone ---------- */
+  :root{
+    --ink:#f3f2ee;--ink-2:rgba(243,242,238,.84);--ink-3:rgba(243,242,238,.56);
+    --line:rgba(255,255,255,.14);--line-2:rgba(255,255,255,.26);
+    --glass:rgba(12,14,20,.58);--glass-solid:#10131a;
+    --btn:#f3f2ee;--btn-ink:#0b0d12;
+    --panel:rgba(10,11,15,.78);--panel-ink:#e9e8e3;--panel-line:rgba(255,255,255,.12);
+    --scrim:rgba(0,0,0,.42);
+    --s1:8px;--s2:16px;--s3:24px;--s4:32px;--s5:48px;--s6:64px;--s7:96px;
+    --r:14px;--r-sm:8px;
+    --sans:ui-sans-serif,-apple-system,"Inter","Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  }
+  html[data-tone="light"]{
+    --ink:#15161c;--ink-2:rgba(21,22,28,.8);--ink-3:rgba(21,22,28,.56);
+    --line:rgba(21,22,28,.14);--line-2:rgba(21,22,28,.28);
+    --glass:rgba(255,255,255,.55);--glass-solid:#f7f6f2;
+    --btn:#15161c;--btn-ink:#f7f6f2;
+    --panel:rgba(252,251,248,.84);--panel-ink:#1a1b21;--panel-line:rgba(21,22,28,.12);
+    --scrim:rgba(255,255,255,.42);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:transparent}          /* the rule every fixed background needs */
+  body{
+    color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;
+    min-height:100vh;min-height:100dvh;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:4px}
+
+  /* ---------- the example page: a nav and a hero, the way a real landing page sits on it ---------- */
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;gap:var(--s3);
+    padding:var(--s3) clamp(20px,5vw,64px);
+  }
+  .brand{font-weight:700;letter-spacing:-.01em;text-decoration:none;display:flex;align-items:center;gap:10px}
+  .brand i{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+  .nav nav{display:flex;gap:var(--s3);font-size:14px;color:var(--ink-2)}
+  .nav nav a{text-decoration:none}
+  .nav nav a:hover{color:var(--ink)}
+  .cta{
+    font:600 14px/1 var(--sans);color:var(--btn-ink);background:var(--btn);
+    border:0;border-radius:999px;padding:11px 18px;text-decoration:none;cursor:pointer;
+  }
+  .hero{
+    display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:var(--s6);align-items:center;
+    padding:clamp(24px,6vh,80px) clamp(20px,5vw,64px) 260px;max-width:1240px;margin:0 auto;
+  }
+  /* a soft scrim behind the copy — the thing every page over a live background needs, and
+     what makes the hero pass the contrast gate over the brightest stop of every preset */
+  .hero section{position:relative}
+  .hero section::before{
+    content:"";position:absolute;inset:-48px -64px -48px -64px;z-index:-1;border-radius:32px;
+    background:radial-gradient(closest-side,var(--scrim) 0%,transparent 100%);
+  }
+  .eyebrow{font:500 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:var(--s3)}
+  h1{
+    font-size:clamp(2.4rem,5.6vw,4.5rem);line-height:.98;letter-spacing:-.03em;font-weight:600;
+    text-wrap:balance;max-width:18ch;
+  }
+  .lede{font-size:clamp(1rem,1.3vw,1.15rem);color:var(--ink-2);max-width:46ch;margin:var(--s3) 0 var(--s3)}
+  .actions{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+  .ghost{
+    font:600 14px/1 var(--sans);color:var(--ink);background:transparent;border:1px solid var(--line-2);
+    border-radius:999px;padding:11px 18px;text-decoration:none;cursor:pointer;
+  }
+  .ghost:hover,.cta:hover{filter:brightness(1.08)}
+  .trust{font:500 11px/1.6 var(--mono);letter-spacing:.06em;color:var(--ink-3);margin-top:var(--s3)}
+
+  /* the glass card: legible solid first, translucent only when blur is confirmed */
+  .card{
+    background:var(--glass-solid);border:1px solid var(--line);border-radius:var(--r);
+    padding:var(--s4);box-shadow:0 30px 80px rgba(0,0,0,.28);
+  }
+  @supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .card{background:var(--glass);-webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2)}
+  }
+  .card h2{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--ink-2);margin-bottom:var(--s3)}
+  .row{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:1px solid var(--line);gap:var(--s2)}
+  .row:first-of-type{border-top:0}
+  .row b{font-size:15px;font-weight:600}
+  .row span{font:500 12px/1 var(--mono);color:var(--ink-3)}
+  .row em{font-style:normal;font-variant-numeric:tabular-nums;font-size:15px}
+  .bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:var(--s2)}
+  .bar i{display:block;height:100%;width:64%;background:var(--ink);border-radius:999px}
+
+  /* ---------- the controls: this is what the page is for ---------- */
+  .panel{
+    position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:10;
+    width:min(880px,calc(100vw - 24px));
+    background:var(--panel);color:var(--panel-ink);border:1px solid var(--panel-line);
+    border-radius:var(--r);padding:var(--s2) var(--s3);
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    font-family:var(--mono);
+  }
+  .panelHead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin-bottom:12px}
+  .panelHead b{font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .panelHead .tone{display:flex;border:1px solid var(--panel-line);border-radius:999px;overflow:hidden}
+  .tone button{
+    font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;
+    background:transparent;color:inherit;border:0;cursor:pointer;
+  }
+  .tone button[aria-pressed="true"]{background:var(--panel-ink);color:var(--panel)}
+  .swatches{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .swatches::-webkit-scrollbar{display:none}
+  .sw{
+    flex:0 0 auto;width:72px;border:0;background:transparent;color:inherit;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:6px;padding:0;
+  }
+  .sw i{display:block;width:72px;height:44px;border-radius:var(--r-sm);border:2px solid transparent;box-shadow:inset 0 0 0 1px var(--panel-line)}
+  .sw span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+  .sw[aria-pressed="true"] i{border-color:var(--panel-ink)}
+  .sw[aria-pressed="true"] span{opacity:1}
+  .sliders{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3);margin:12px 0}
+  .sliders label{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .sliders label span{min-width:52px}
+  .sliders input{flex:1;accent-color:var(--panel-ink);min-width:0}
+  .sliders output{min-width:34px;text-align:right;font-size:11px}
+  .code{display:flex;gap:10px;align-items:stretch}
+  .code pre{
+    flex:1;min-width:0;margin:0;padding:10px 12px;font:12px/1.5 var(--mono);white-space:pre;overflow-x:auto;
+    background:rgba(127,127,127,.12);border-radius:var(--r-sm);border:1px solid var(--panel-line);
+  }
+  .code .btns{display:flex;flex-direction:column;gap:6px}
+  .code button,.code a{
+    font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;text-align:center;
+    background:var(--panel-ink);color:var(--panel);border:1px solid transparent;border-radius:var(--r-sm);padding:9px 12px;cursor:pointer;
+  }
+  .code a{background:transparent;color:inherit;border-color:var(--panel-line)}
+  .status{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-top:8px;min-height:1.2em}
+  .foot{position:fixed;right:16px;top:14px;z-index:10;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+  .foot a{text-decoration:none;margin-left:14px}
+  .foot a:hover{color:var(--ink)}
+
+  @media (max-width:880px){
+    .hero{grid-template-columns:1fr;gap:var(--s4);padding-bottom:360px}
+    .nav nav{display:none}
+    .foot{display:none}
+    .sliders{grid-template-columns:1fr}
+    .code{flex-direction:column}
+    .code .btns{flex-direction:row}
+    .code .btns button,.code .btns a{flex:1}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ghost:hover,.cta:hover{filter:none}
+  }
+</style>
+</head>
+<body>
+<fluid-bg id="bg" fixed preset="mist" blur="24" dim="0.4"></fluid-bg>
+
+<div class="foot" aria-label="Fluid links"><a href="/">studio</a><a href="/explore">explore</a><a href="/dev">docs</a></div>
+
+<header class="nav" aria-label="Example site navigation">
+  <a class="brand" href="#"><i></i>Ledgerline</a>
+  <nav><a href="#">Product</a><a href="#">Pricing</a><a href="#">Changelog</a><a href="#">Docs</a></nav>
+  <a class="cta" href="#">Start free</a>
+</header>
+
+<main class="hero">
+  <section>
+    <p class="eyebrow">Invoicing for small studios</p>
+    <h1>Get paid without chasing anyone.</h1>
+    <p class="lede">Ledgerline sends the invoice, nudges politely, reconciles the payment and files the receipt. You do the work; it does the asking.</p>
+    <div class="actions">
+      <a class="cta" href="#">Start free</a>
+      <a class="ghost" href="#">See how it works</a>
+    </div>
+    <p class="trust">NO CARD NEEDED · 14 DAYS · CANCEL IN ONE CLICK</p>
+  </section>
+  <aside class="card" aria-label="Example product card">
+    <h2>This month</h2>
+    <div class="row"><b>Collected</b><em>RM 48,200</em></div>
+    <div class="row"><b>Outstanding</b><em>RM 12,400</em></div>
+    <div class="row"><b>Average days to paid</b><em>9</em></div>
+    <div class="bar" aria-hidden="true"><i></i></div>
+    <div class="row" style="border-top:0;padding-top:10px"><span>64% of invoices paid within a week</span></div>
+  </aside>
+</main>
+
+<aside class="panel" aria-label="Background controls">
+  <div class="panelHead">
+    <b>Fluid · background</b>
+    <div class="tone" role="group" aria-label="Page tone">
+      <button type="button" data-tone="dark" aria-pressed="true">Dark</button>
+      <button type="button" data-tone="light" aria-pressed="false">Light</button>
+    </div>
+  </div>
+  <div class="swatches" id="swatches" role="group" aria-label="Preset"></div>
+  <div class="sliders">
+    <label><span>Blur</span><input id="blur" type="range" min="0" max="80" step="2" value="24"><output id="blurOut">24</output></label>
+    <label><span>Dim</span><input id="dim" type="range" min="0" max="0.8" step="0.05" value="0.4"><output id="dimOut">0.4</output></label>
+  </div>
+  <div class="code">
+    <pre id="code"></pre>
+    <div class="btns">
+      <button type="button" id="copy">Copy</button>
+      <a id="studio" href="/">Studio</a>
+    </div>
+  </div>
+  <div class="status" id="status">One script tag. Renders on the visitor's GPU, pauses off-screen.</div>
+</aside>
+
+<script>
+(function(){
+  var PRESETS = (window.FluidBg && window.FluidBg.PRESETS) || {};
+  var names = Object.keys(PRESETS);
+  var bg = document.getElementById('bg');
+  var state = { preset: 'mist', blur: 24, dim: 0.4, tone: 'dark' };
+  var swatches = document.getElementById('swatches');
+  var status = document.getElementById('status');
+
+  function dimColor(){ return state.tone === 'light' ? '#fff' : '#000'; }
+  function snippet(){
+    var attrs = ' fixed preset="' + state.preset + '"';
+    if (state.blur > 0){ attrs += ' blur="' + state.blur + '"'; }
+    if (state.dim > 0){ attrs += ' dim="' + state.dim + '"'; }
+    if (state.dim > 0 && state.tone === 'light'){ attrs += ' dim-color="#fff"'; }
+    return '<script src="https://befluid.xyz/fluid-bg.js"><\/script>\n' +
+      '<fluid-bg' + attrs + '></fluid-bg>\n' +
+      '<style>html, body { background: transparent }</style>';
+  }
+  function apply(){
+    bg.setAttribute('preset', state.preset);
+    bg.setAttribute('blur', String(state.blur));
+    bg.setAttribute('dim', String(state.dim));
+    bg.setAttribute('dim-color', dimColor());
+    document.documentElement.setAttribute('data-tone', state.tone);
+    document.getElementById('code').textContent = snippet();
+    var p = PRESETS[state.preset];
+    document.getElementById('studio').href = '/' + (p ? p.hash : '');
+    Array.prototype.forEach.call(swatches.children, function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-preset') === state.preset ? 'true' : 'false');
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.tone button'), function(b){
+      b.setAttribute('aria-pressed', b.getAttribute('data-tone') === state.tone ? 'true' : 'false');
+    });
+    try { history.replaceState(null, '', '#' + state.preset + '/' + state.blur + '/' + state.dim + '/' + state.tone); } catch(e){}
+  }
+  function swatch(name){
+    var p = PRESETS[name];
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw'; b.setAttribute('data-preset', name); b.setAttribute('aria-pressed', 'false');
+    b.title = p.tip;
+    var i = document.createElement('i');
+    i.style.background = 'linear-gradient(135deg,' + p.colors.join(',') + ')';
+    var s = document.createElement('span'); s.textContent = name;
+    b.appendChild(i); b.appendChild(s);
+    b.addEventListener('click', function(){
+      state.preset = name;
+      if (p.tone !== state.tone){ state.tone = p.tone; }
+      apply();
+      status.textContent = name.toUpperCase() + ' — ' + p.tip;
+    });
+    return b;
+  }
+  names.forEach(function(n){ swatches.appendChild(swatch(n)); });
+
+  document.getElementById('blur').addEventListener('input', function(e){
+    state.blur = parseInt(e.target.value, 10) || 0;
+    document.getElementById('blurOut').textContent = String(state.blur);
+    apply();
+  });
+  document.getElementById('dim').addEventListener('input', function(e){
+    state.dim = Math.round(parseFloat(e.target.value) * 100) / 100;
+    document.getElementById('dimOut').textContent = String(state.dim);
+    apply();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.tone button'), function(b){
+    b.addEventListener('click', function(){
+      var tone = b.getAttribute('data-tone');
+      if (tone === state.tone){ return; }
+      state.tone = tone;
+      /* a preset made for the other tone would fight the text: pick that tone's first */
+      if (PRESETS[state.preset] && PRESETS[state.preset].tone !== tone){
+        for (var i = 0; i < names.length; i++){ if (PRESETS[names[i]].tone === tone){ state.preset = names[i]; break; } }
+      }
+      apply();
+    });
+  });
+  document.getElementById('copy').addEventListener('click', function(){
+    var text = snippet();
+    function done(ok){ status.textContent = ok ? 'COPIED — paste it anywhere in your page' : 'SELECT THE CODE AND COPY IT'; }
+    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); }); }
+    else { done(false); }
+  });
+
+  /* a shared link restores the exact treatment: #preset/blur/dim/tone */
+  var m = /^#([a-z]+)\/(\d+)\/([\d.]+)\/(dark|light)$/.exec(location.hash);
+  if (m && PRESETS[m[1]]){
+    state.preset = m[1]; state.blur = Math.min(80, parseInt(m[2], 10) || 0);
+    state.dim = Math.min(0.8, parseFloat(m[3]) || 0); state.tone = m[4];
+    document.getElementById('blur').value = state.blur; document.getElementById('blurOut').textContent = String(state.blur);
+    document.getElementById('dim').value = state.dim; document.getElementById('dimOut').textContent = String(state.dim);
+  }
+  apply();
+})();
+</script>
+</body>
+</html>

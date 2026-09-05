@@ -26,6 +26,7 @@ unavailable (or on request with `mode="iframe"`).
 <script src="https://cdn.jsdelivr.net/npm/fluid-bg"></script>
 
 <fluid-bg fixed></fluid-bg>     <!-- full-viewport background, behind everything -->
+<fluid-bg fixed preset="mist" blur="24" dim="0.4"></fluid-bg>   <!-- calm: an ambient preset, softened and dimmed -->
 ```
 
 That's it. Put your content anywhere with `position: relative; z-index: 1` and it sits on top.
@@ -102,6 +103,10 @@ const bg = fluidBackground(document.querySelector("#hero"), {
 | Attribute / prop | Type | Default | What it does |
 |---|---|---|---|
 | `hash` | string | a calm built-in look | A Fluid share hash (`#p=…`). Embed flag is applied automatically. |
+| `preset` | string | — | One of the ambient presets tuned to sit behind a page: `mist ember dusk ink glow aurora deep` (dark) · `paper lilac shore` (light). `hash` wins when both are set. Try them live at [befluid.xyz/backgrounds](https://befluid.xyz/backgrounds). |
+| `blur` | number | `0` | Soften the picture, in px (0–120). The canvas over-scans so no blurred edge shows. |
+| `dim` | number | `0` | Lay a colour over it toward legibility: overlay opacity 0–1. |
+| `dim-color` | string | `#000` | The overlay colour (`dimColor` in JS/React). Use `#fff` on a light page. |
 | `fixed` | boolean | `false` | Pin as a fixed, full-viewport background (`z-index:-1`, `pointer-events:none`). Otherwise fills the parent element. |
 | `z` | number | `-1` | `z-index` when `fixed`. |
 | `mode` | `"native"` \| `"iframe"` | `"native"` | `native` draws on a canvas in your page (bundled engines). `iframe` embeds the hosted studio like 0.1.x. Native falls back to the iframe automatically when WebGL is unavailable. |
