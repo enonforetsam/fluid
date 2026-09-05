@@ -1,0 +1,4 @@
+- [ ] `npm test` passes (registries regenerate from index.html: `node fluid-core/build.mjs`)
+- [ ] `index.html` still boots from `file://` with no network
+- [ ] Share link showing the change:
+- [ ] If the share hash changed: fields appended at the end only, `docs/ARCHITECTURE.md` table updated, `worker.js` mirror updated

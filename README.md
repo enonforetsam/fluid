@@ -103,6 +103,15 @@ No npm at all? A plain iframe still works:
 
 The embed flag makes the canvas fill the iframe without the studio UI.
 
+## What is open, what is hosted
+
+Everything in this repo is MIT. What is not in the repo is befluid.xyz's data: the
+published pieces, their authors, the media and the admin secrets. Clone it and you have
+the whole studio; run the Worker with your own bindings and you have your own instance.
+
+The share-hash contract (the `#p=` fields, append-only) is the project's real API and is
+specified in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#share-hash-contract).
+
 ## API
 
 ```sh
