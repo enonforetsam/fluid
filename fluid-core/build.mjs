@@ -91,6 +91,7 @@ const PRESETS = extractArray(studio, 'PRESETS');
 const FIELDS = buttonSlugs('field', TITLED);
 const SCREENS = buttonSlugs('screen', TITLED);
 const MATERIALS = buttonSlugs('material', SPANNED);
+const SUBSTRATES = buttonSlugs('substrate', SPANNED);
 /* lens buttons spell the map out ("Square z²", "Invert 1/z"); the slug is the name */
 const LENSES = buttonSlugs('lens', SPANNED).map((s) => s.split(' ')[0]);
 /* the last palette button is the custom-stops slot (hash palette index 8), which
@@ -104,7 +105,7 @@ const PALETTES = PAL_BUTTONS.slice(0, -1);
 /* worker-shaped looks: the studio array keyed by lowercase name. Only the keys the
    worker actually reads are carried over — a new studio-side key would otherwise be
    dropped in silence and the API would render something else, so it hard-fails. */
-const LOOK_KEYS = ['field', 'screen', 'thresh', 'material', 'lens', 'lensAmt', 'preset', 'cols'];
+const LOOK_KEYS = ['field', 'screen', 'thresh', 'material', 'lens', 'lensAmt', 'substrate', 'materialAmt', 'textureScale', 'relief', 'substrateAmt', 'preset', 'cols'];
 const WORKER_LOOKS = {};
 for (const lk of LOOKS){
   const name = slugify(lk.label || '');
@@ -171,6 +172,7 @@ export function emitData(){
     'export const PALETTES_RGB = ' + j(PALETTES_RGB) + ';\n' +
     'export const SCREENS = ' + j(SCREENS) + ';\n' +
     'export const MATERIALS = ' + j(MATERIALS) + ';\n' +
+    'export const SUBSTRATES = ' + j(SUBSTRATES) + ';\n' +
     '/* math lens slugs by index — share-hash slot [29]. Exported so the decoder can clamp\n' +
     '   against the real list instead of a literal, which is what let `ground` decode as\n' +
     '   `modular`; the worker registry has had this for longer. */\n' +
@@ -194,6 +196,7 @@ export function emitWorkerData(){
     'export const SCREENS = ' + j(SCREENS) + ';\n' +
     '/* material finishes — share-hash slot [28] */\n' +
     'export const FINISHES = ' + j(MATERIALS) + ';\n' +
+    'export const SUBSTRATES = ' + j(SUBSTRATES) + ';\n' +
     '/* math lenses — share-hash slots [29][30] */\n' +
     'export const LENSES = ' + j(LENSES) + ';\n' +
     '/* layer blend modes — share-hash slots [26] and [32] */\n' +

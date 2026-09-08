@@ -25,7 +25,7 @@ test('fluid-core generated files match the studio (no drift)', async () => {
 
 test('fluid-core registry shape', async () => {
   const data = await import('../fluid-core/src/generated/data.js');
-  assert.strictEqual(data.FIELDS.length, 24, 'expected 24 field engines');
+  assert.strictEqual(data.FIELDS.length, 30, 'expected 30 field engines');
   assert.strictEqual(data.FIELDS[0], 'noise');
   assert.strictEqual(data.FIELDS[21], 'cassini');
   assert.strictEqual(data.FIELDS[23], 'eddy');
@@ -37,7 +37,7 @@ test('fluid-core registry shape', async () => {
     for (const stop of p){ assert.strictEqual(stop.length, 3, 'stop is RGB'); }
   }
   assert.deepStrictEqual(data.SCREENS, ['square', 'hex', 'ascii', 'dither', 'glitch']);
-  assert.strictEqual(data.MATERIALS.length, 7, 'none + 6 finishes');
+  assert.strictEqual(data.MATERIALS.length, 13, 'none + 12 finishes');
   assert.strictEqual(data.MATERIALS[0], 'none');
   assert.strictEqual(data.BLENDS.length, 6);
   assert.ok(data.LOOKS.length >= 25, 'curated looks present');

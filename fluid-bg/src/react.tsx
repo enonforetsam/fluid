@@ -13,17 +13,20 @@ export interface FluidBgProps extends FluidBgOptions {
  * the viewport. SSR-safe: the canvas mounts in an effect, so the server renders
  * an empty positioned div.
  */
-export function FluidBg({ hash, fixed, z, base, mode, className, style }: FluidBgProps): React.ReactElement {
+export function FluidBg({ hash, preset, blur, dim, dimColor, fixed, z, base, mode, className, style }: FluidBgProps): React.ReactElement {
   const ref = React.useRef<HTMLDivElement | null>(null);
+  const handleRef = React.useRef<FluidBgHandle | null>(null);
   React.useEffect(() => {
     if (fixed) warnIfBackgroundHidden(z ?? -1);
   }, [fixed, z]);
   React.useEffect(() => {
     if (!ref.current) return;
     /* the wrapper div handles fixed/relative layout — the mount just fills it */
-    const handle: FluidBgHandle = fluidBackground(ref.current, { hash, base, mode });
+    const handle: FluidBgHandle = fluidBackground(ref.current, { hash, preset, blur, dim, dimColor, base, mode });
+    handleRef.current = handle;
     return () => handle.destroy();
-  }, [hash, base, mode]);
+  }, [hash, preset, base, mode]);
+  React.useEffect(() => { handleRef.current?.treat({ blur, dim, dimColor }); }, [blur, dim, dimColor]);
   const layout: React.CSSProperties = fixed
     ? {
         position: "fixed",

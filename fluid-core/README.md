@@ -2,7 +2,7 @@
 
 Fluid's field engines as a **zero-dependency native canvas library**. No iframe,
 no build step, no framework — one ES module that draws the same art the
-[studio](https://fluid.krackeddevs.com) draws, straight onto a canvas in your page.
+[studio](https://befluid.xyz) draws, straight onto a canvas in your page.
 
 ## How it stays honest
 
@@ -20,18 +20,18 @@ index.html  ──(node fluid-core/build.mjs)──▶  src/generated/{shader,da
 After changing engines/palettes/looks in `index.html`, re-run
 `node fluid-core/build.mjs` and commit — the drift test enforces it.
 
-## Install
+## Install v3.3.0
+
+The release archive contains the new engine. Older npm versions do not include these materials.
 
 ```sh
-npm install fluid-core
+npm install https://github.com/enonforetsam/fluid/releases/download/v3.3.0/fluid-core-3.3.0.tgz
 ```
 
 …or import it with no npm at all — the module is pure ESM with zero dependencies:
 
 ```js
-import { createFluid } from 'https://cdn.jsdelivr.net/npm/fluid-core@0.3/src/index.js';
-// or straight from the studio's own deployment:
-import { createFluid } from 'https://fluid.krackeddevs.com/fluid-core/src/index.js';
+import { createFluid } from 'https://befluid.xyz/fluid-core/src/index.js';
 ```
 
 TypeScript types ship with the package. Want a drop-in `<fluid-bg>` element or React
@@ -69,7 +69,13 @@ createFluid(el, {
   // a third engine, blended onto layer 2's result — it needs `layer` to do anything
   layer2: { field: 'topo', blend: 'multiply', mix: 0.3 },
   screen: 'hex',            // square | hex | ascii | dither | glitch
-  material: 'molten',       // none | glass | metal | sand | liquid | molten | paint
+  material: 'watercolor',   // also glass, metal, sand, liquid, molten, paint, graffiti,
+                            // charcoal, pastel, ink, ceramic, or none
+  substrate: 'paper',       // none | canvas | paper | concrete | stone | wood | plaster
+  materialAmt: 0.9,         // 0–1, default 1
+  textureScale: 1.4,        // 0.25–4, larger = larger texture features
+  relief: 0.8,              // 0–2, default 1
+  substrateAmt: 0.55,       // 0–1, default 0.55
   lens: 'mobius',           // math lens: square | invert | mobius | droste | hyperbolic |
                             //   julia | cube | exp | sine | joukowski | newton | modular | ground
   lensAmt: 0.8              // lens strength 0-1 (default 1)
@@ -90,6 +96,13 @@ Instance API: `set(params)`, `play()`, `pause()`, `seed`, `toDataURL()`,
 
 ## Scope
 
-Pure field pieces: all 24 engines, up to three stacked layers, screens, materials, math lenses,
+Pure field pieces: all 30 engines, up to three stacked layers, screens, materials, math lenses,
 kaleidoscope symmetry, palettes + custom gradients. Studio-only features (image melt, text
 masks, cursor effects, recording) intentionally stay in the studio.
+
+## Material Studio
+
+New field names: `wash`, `spray`, `brushwork`, `strata`, `terrazzo`, `woodgrain`.
+`FIELDS`, `MATERIALS`, `SUBSTRATES`, `LENSES`, `LOOKS`, and `VERSION` are exported for custom UIs.
+Selecting a `look` replaces the previous layers and material settings; pass overrides in the
+same call to customize it. See the [complete material guide](../docs/MATERIALS.md).

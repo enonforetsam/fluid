@@ -69,6 +69,10 @@
     --tile-ink:#f5bdc9;
     --scroll-thumb:#202027;
     --panel-metal:#101116;
+    --space-sm:8px; --space-md:12px; --space-lg:16px;
+    --material-label:100px; --material-value:40px;
+    --text-caption:12px; --target-size:44px; --radius-control:8px;
+    --panel-frost:rgba(226,226,222,.62);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--ink);overflow-x:hidden}
@@ -1129,6 +1133,13 @@
   }
   input[type=text]::placeholder{color:var(--soft)}
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .materialHint{font-size:var(--text-caption);line-height:1.5;letter-spacing:0;color:var(--ink);margin:0 0 var(--space-md);max-width:60ch}
+  .artistRecipes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-sm);margin-top:var(--space-sm)}
+  .artistRecipes button{min-height:var(--target-size);padding:var(--space-sm);font:inherit;font-size:var(--text-caption);letter-spacing:0;border-radius:var(--radius-control);color:var(--ink);background:transparent;border:1px solid var(--line);cursor:pointer}
+  .artistRecipes button:hover,.artistRecipes button.on{background:var(--ink);color:var(--ink-c)}
+  .artistRecipes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .artistRecipes button:active{transform:translateY(1px)}
+  @media(max-width:480px){.artistRecipes{grid-template-columns:repeat(2,minmax(0,1fr))}}
   /* ---------- shelves and footer: the look shelf, status line, signature and credits ---------- */
   .shelf{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .shelf button{
@@ -1557,7 +1568,7 @@
        after — softening the already-warped result reads more like real frosted glass than a
        crisp warp inside a soft field, and hides the coarseness of the 48px mirror underneath */
     #glass canvas{position:absolute;left:-10%;top:-10%;width:120%;height:120%;filter:url(#fluidGlassFilter) blur(16px);-webkit-filter:url(#fluidGlassFilter) blur(16px);transform:translateZ(0)}
-    #glass::after{content:'';position:absolute;inset:0;background:rgba(226,226,222,.5)}
+    #glass::after{content:'';position:absolute;inset:0;background:var(--panel-frost)}
     #appNav{
       display:flex;align-items:stretch;position:fixed;left:0;right:0;bottom:0;z-index:35;
       height:var(--navH);padding:0 4px env(safe-area-inset-bottom, 0px);
@@ -2264,6 +2275,13 @@
   html[data-ptheme] .panel input[type=range]::-moz-range-thumb{
     box-shadow:none;border:0;
   }
+
+  .panel .stripBtn{min-width:var(--target-size)}
+  .panel .materialControls .knobctl{grid-template-columns:var(--material-label) minmax(0,1fr) var(--material-value);min-height:var(--target-size)}
+  .panel .materialControls .knoblabel,.panel .materialControls .knoblabel label,.panel .materialControls .knoblabel output{font-size:var(--text-caption);letter-spacing:0;color:var(--ink)}
+  .panel .materialControls .knobctl input[type=range]{height:var(--target-size)}
+  .panel .materialControls input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  @media(max-width:600px){.panel .knobgrid.materialControls{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -2428,7 +2446,7 @@
             </div>
             <pre id="embedSnippet" class="embedCode"></pre>
             <button id="copyEmbed" type="button">Copy</button>
-            <p class="cnote" style="margin:8px 0 0">Or <code>npm i fluid-bg</code> &middot; React <code>&lt;FluidBg/&gt;</code></p>
+            <p class="cnote" style="margin:8px 0 0"><a href="https://github.com/enonforetsam/fluid/releases/tag/v3.3.0" target="_blank" rel="noopener">v3.3 packages</a> &middot; React <code>&lt;FluidBg/&gt;</code></p>
           </div>
         </div>
         <button id="designsChip" class="chipIcon" title="My designs" aria-label="My designs" aria-expanded="false" aria-controls="designDock">
@@ -2528,7 +2546,7 @@
     <button type="button" id="sheetClose" aria-label="Close section">&times;</button>
   </div>
   <header>
-    <h1>Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
+    <h1>Fluid <span class="vbadge">v3.3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
     <!-- a chevron pointing the way it goes -->
     <button type="button" id="panelMin" class="panelMinBtn" title="Minimise the controls" aria-label="Minimise the controls" aria-expanded="true" aria-controls="panel">
@@ -2540,17 +2558,17 @@
   </header>
 
   <div class="status" id="status" role="status" aria-live="polite">RANDOM PATTERN — move your cursor over it to ripple</div>
-  <div class="metaLine">Fluid v3 · updated 23 Aug 2026</div>
+  <div class="metaLine">Fluid v3.3 · Material Studio</div>
   <div class="signature">Made by <a href="https://themasterofnone.xyz" target="_blank" rel="noopener">TheMasterOfNone</a></div>
 
   <div class="panelScroll">
   <!-- mobile only (display:none above 880px): the same title as the header, inside the scroller
        so the band under the grip scrolls the controls instead of doing nothing -->
-  <h1 class="mobTitle">Fluid <span class="vbadge">v3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
+  <h1 class="mobTitle">Fluid <span class="vbadge">v3.3</span> <a class="ghLink" href="https://github.com/enonforetsam/fluid" target="_blank" rel="noopener" aria-label="View source on GitHub" title="View source on GitHub"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a></h1>
   <div class="panelMobileMeta" aria-hidden="true">
     <div class="tag">Generative backgrounds, wallpapers &amp; OG images. Design, export, or embed.</div>
     <div class="status">RANDOM PATTERN — move your cursor over it to ripple</div>
-    <div class="metaLine">Fluid v3 · updated 23 Aug 2026</div>
+    <div class="metaLine">Fluid v3.3 · Material Studio</div>
     <div class="signature">Made by <a href="https://themasterofnone.xyz" target="_blank" rel="noopener">TheMasterOfNone</a></div>
   </div>
   <!-- Vibe (Pro · BYOK) — HIDDEN 2026-06-26: reworking as the keyless browser-based vibe
@@ -2750,6 +2768,12 @@
       <button class="fieldBtn" data-field="21" title="Cassini" aria-label="Cassini" aria-pressed="false"><span>Cassini</span></button>
       <button class="fieldBtn" data-field="22" title="Topo" aria-label="Topo" aria-pressed="false"><span>Topo</span></button>
       <button class="fieldBtn" data-field="23" title="Eddy" aria-label="Eddy" aria-pressed="false"><span>Eddy</span></button>
+      <button class="fieldBtn" data-field="24" title="Wash" aria-label="Wash" aria-pressed="false"><span>Wash</span></button>
+      <button class="fieldBtn" data-field="25" title="Spray" aria-label="Spray" aria-pressed="false"><span>Spray</span></button>
+      <button class="fieldBtn" data-field="26" title="Brushwork" aria-label="Brushwork" aria-pressed="false"><span>Brushwork</span></button>
+      <button class="fieldBtn" data-field="27" title="Strata" aria-label="Strata" aria-pressed="false"><span>Strata</span></button>
+      <button class="fieldBtn" data-field="28" title="Terrazzo" aria-label="Terrazzo" aria-pressed="false"><span>Terrazzo</span></button>
+      <button class="fieldBtn" data-field="29" title="Woodgrain" aria-label="Woodgrain" aria-pressed="false"><span>Woodgrain</span></button>
     </div>
     <button id="fieldNext" class="stripBtn" aria-label="Scroll fields right">&#8250;</button>
     </div>
@@ -2809,6 +2833,9 @@
        them under one heading says that without a paragraph of explanation. ---------- -->
   <section data-nav="look">
     <div class="sec-title">04 — Look</div>
+    <div class="exGroupLabel">Artist recipes</div>
+    <p class="materialHint">A complete starting point: composition, palette, finish and surface.</p>
+    <div id="artistRecipes" class="artistRecipes" aria-label="Artist recipes"></div>
     <div class="exGroupLabel">Motion &amp; space — the whole piece</div>
     <div class="knobgrid sliderGrid">
       <div class="knobctl">
@@ -2907,9 +2934,53 @@
       <button class="fieldBtn materialBtn" data-material="4" title="Liquid" aria-label="Liquid" aria-pressed="false"><span>Liquid</span></button>
       <button class="fieldBtn materialBtn" data-material="5" title="Molten" aria-label="Molten" aria-pressed="false"><span>Molten</span></button>
       <button class="fieldBtn materialBtn" data-material="6" title="Paint — impasto oil, strokes follow the form" aria-label="Paint" aria-pressed="false"><span>Paint</span></button>
+      <button class="fieldBtn materialBtn" data-material="7" title="Watercolor — Pigment blooms and pooled edges" aria-label="Watercolor" aria-pressed="false"><span>Watercolor</span></button>
+      <button class="fieldBtn materialBtn" data-material="8" title="Graffiti — Spray paint, overspray and drips" aria-label="Graffiti" aria-pressed="false"><span>Graffiti</span></button>
+      <button class="fieldBtn materialBtn" data-material="9" title="Charcoal — Broken charcoal on a dry tooth" aria-label="Charcoal" aria-pressed="false"><span>Charcoal</span></button>
+      <button class="fieldBtn materialBtn" data-material="10" title="Pastel — Soft chalk with granular pigment" aria-label="Pastel" aria-pressed="false"><span>Pastel</span></button>
+      <button class="fieldBtn materialBtn" data-material="11" title="Ink — Deep ink, broken edges and pooled blacks" aria-label="Ink" aria-pressed="false"><span>Ink</span></button>
+      <button class="fieldBtn materialBtn" data-material="12" title="Ceramic — Glazed colour with fine crazing" aria-label="Ceramic" aria-pressed="false"><span>Ceramic</span></button>
     </div>
     <button id="matNext" class="stripBtn" aria-label="Scroll finishes right">&#8250;</button>
     </div>
+    <div class="exGroupLabel">Surface</div>
+    <p class="materialHint">Put any finish on a different surface. Texture stays with your artwork at every export size.</p>
+    <div class="striprow">
+      <button id="subPrev" class="stripBtn" aria-label="Scroll surfaces left">&#8249;</button>
+      <div class="fieldstrip" id="substrateStrip">
+      <button class="fieldBtn substrateBtn on" data-substrate="0" title="None" aria-label="None surface" aria-pressed="true"><span>None</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="1" title="Canvas" aria-label="Canvas surface" aria-pressed="false"><span>Canvas</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="2" title="Paper" aria-label="Paper surface" aria-pressed="false"><span>Paper</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="3" title="Concrete" aria-label="Concrete surface" aria-pressed="false"><span>Concrete</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="4" title="Stone" aria-label="Stone surface" aria-pressed="false"><span>Stone</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="5" title="Wood" aria-label="Wood surface" aria-pressed="false"><span>Wood</span></button>
+      <button class="fieldBtn substrateBtn" data-substrate="6" title="Plaster" aria-label="Plaster surface" aria-pressed="false"><span>Plaster</span></button>
+      </div>
+      <button id="subNext" class="stripBtn" aria-label="Scroll surfaces right">&#8250;</button>
+    </div>
+    <div class="knobgrid sliderGrid materialControls">
+      <div class="knobctl">
+        <div class="knob" data-for="materialAmt" role="slider" aria-label="Finish strength"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+        <div class="knoblabel"><label for="materialAmt">Finish strength</label> <output id="materialAmtOut">1</output></div>
+        <input id="materialAmt" aria-label="Finish strength" type="range" min="0" max="1" step="0.01" value="1">
+      </div>
+      <div class="knobctl">
+        <div class="knob" data-for="textureScale" role="slider" aria-label="Texture size"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+        <div class="knoblabel"><label for="textureScale">Texture size</label> <output id="textureScaleOut">1</output></div>
+        <input id="textureScale" aria-label="Texture size" type="range" min="0.25" max="4" step="0.01" value="1">
+      </div>
+      <div class="knobctl">
+        <div class="knob" data-for="relief" role="slider" aria-label="Relief"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+        <div class="knoblabel"><label for="relief">Relief</label> <output id="reliefOut">1</output></div>
+        <input id="relief" aria-label="Relief" type="range" min="0" max="2" step="0.01" value="1">
+      </div>
+      <div class="knobctl">
+        <div class="knob" data-for="substrateAmt" role="slider" aria-label="Surface strength"><span class="knob-ticks"></span><span class="knob-body"></span><span class="knob-dial"></span></div>
+        <div class="knoblabel"><label for="substrateAmt">Surface strength</label> <output id="substrateAmtOut">0.55</output></div>
+        <input id="substrateAmt" aria-label="Surface strength" type="range" min="0" max="1" step="0.01" value="0.55">
+      </div>
+    </div>
+
   </section>
 
 
@@ -2961,7 +3032,7 @@
 
 
   <footer>Free forever — all computation happens on your device.
-    <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV — embed in your site</a></footer>
+    <a href="backgrounds.html" style="color:inherit">BACKGROUNDS — for your site</a> · <a href="gallery.html" style="color:inherit">GALLERY</a> · <a href="manual.html" style="color:inherit">MANUAL</a> · <a href="dev.html" style="color:inherit">DEV</a></footer>
   </div>
   <!-- app shell: a thin scroll-position indicator, standing in for whatever the browser's own
        scrollbar would draw (Danial: "I don't wanna see the grey border when I scroll — just one
@@ -3117,7 +3188,23 @@ var LOOKS = [
   { label:'FILIGREE', field:11, lens:6,  cols:['#07030e','#22084a','#6a2a9c','#f5c34e'], p:[0.30, 1.45, 3.5, 0.02, 1, 10, 0, 0, 71, 0, 0, 1] },
   { label:'SHORELINE',field:1,  lens:11, cols:['#03121c','#0e4664','#4fb3a8','#f2e2b6'], p:[0.35, 2.2, 6.0, 0.02, 1, 10, 0, 0, 18, 0, 0, 1] },
   { label:'ROSETTE',  field:12, lens:12, cols:['#0b0d14','#2f3648','#8a8f99','#efe6d0'], p:[0.30, 0.9, 4.0, 0.02, 1, 10, 0, 0, 63, 0, 0, 1] },
-  { label:'RELIEF',   field:22, cols:['#0b0709','#3d1c2a','#c2557e','#f6d5e2'], p:[0.45, 1.6, 4.0, 0.02, 1, 10, 0, 0, 34, 0, 0, 1] }
+  { label:'RELIEF',   field:22, cols:['#0b0709','#3d1c2a','#c2557e','#f6d5e2'], p:[0.45, 1.6, 4.0, 0.02, 1, 10, 0, 0, 34, 0, 0, 1] },
+  {"label":"MONSOON","field":24,"material":7,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#183b56","#537c91","#b0b9ae","#f1dfba"],"p":[0.18,1.2,4,0.015,1,10,0,0,18,0,0,1]},
+  {"label":"WILDFLOWER","field":24,"material":7,"substrate":2,"textureScale":1.4,"substrateAmt":0.65,"cols":["#462944","#a84e66","#da9977","#f4e8c5"],"p":[0.18,1.4,3,0.015,1,10,0,0,21,0,0,1]},
+  {"label":"BACK ALLEY","field":25,"material":8,"substrate":3,"textureScale":1,"substrateAmt":0.65,"cols":["#182735","#bb3e5a","#ffc64b","#75e1c9"],"p":[0.18,1.1,5,0.015,1,10,0,0,24,0,0,1]},
+  {"label":"NEON WALL","field":25,"material":8,"substrate":3,"textureScale":1.4,"substrateAmt":0.65,"cols":["#15132e","#792eb1","#f75d8c","#fae574"],"p":[0.18,1.3,3,0.015,1,10,0,0,27,0,0,1]},
+  {"label":"OIL STUDY","field":26,"material":6,"substrate":1,"textureScale":1.3,"substrateAmt":0.65,"cols":["#182c30","#376a64","#c88343","#f1d6a5"],"p":[0.18,1.3,4,0.015,1,10,0,0,30,0,0,1]},
+  {"label":"COBALT CANVAS","field":26,"material":6,"substrate":1,"textureScale":1,"substrateAmt":0.65,"cols":["#17244c","#2859a8","#73a3b2","#e5d4a2"],"p":[0.18,1.1,6,0.015,1,10,0,0,33,0,0,1]},
+  {"label":"CHARCOAL STUDY","field":24,"material":9,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#202322","#585c55","#a9aaa0","#eee9d9"],"p":[0.18,1.1,4,0.015,1,10,0,0,36,0,0,1]},
+  {"label":"SOFT CHALK","field":13,"material":10,"substrate":2,"textureScale":1.5,"substrateAmt":0.65,"cols":["#53656d","#b18783","#d9b79c","#efe0be"],"p":[0.18,1.2,3,0.015,1,10,0,0,39,0,0,1]},
+  {"label":"SUMI PAPER","field":15,"material":11,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#121b1b","#304346","#8b9a8d","#f0e9d3"],"p":[0.18,1.5,5,0.015,1,10,0,0,42,0,0,1]},
+  {"label":"CANYON","field":27,"material":0,"substrate":4,"textureScale":1.4,"substrateAmt":0.65,"cols":["#352527","#924d3e","#d39a67","#f1d9b4"],"p":[0.18,1,6,0.015,1,10,0,0,45,0,0,1]},
+  {"label":"TERRAZZO CLUB","field":28,"material":0,"substrate":4,"textureScale":1,"substrateAmt":0.65,"cols":["#254f51","#b75f5b","#d4ac76","#f3ebd5"],"p":[0.18,1.4,3,0.015,1,10,0,0,48,0,0,1]},
+  {"label":"CEDAR","field":29,"material":0,"substrate":5,"textureScale":1,"substrateAmt":0.65,"cols":["#30231e","#78513a","#b88b57","#e8c99a"],"p":[0.18,1.2,4,0.015,1,10,0,0,51,0,0,1]},
+  {"label":"CELADON","field":3,"material":12,"substrate":6,"textureScale":1.3,"substrateAmt":0.65,"cols":["#153e3a","#457d72","#98bbaa","#e7dfbe"],"p":[0.18,1.5,4,0.015,1,10,0,0,54,0,0,1]},
+  {"label":"FRESCO","field":27,"material":10,"substrate":6,"textureScale":1.8,"substrateAmt":0.65,"cols":["#5e5348","#9c7e68","#c8b196","#ede2ce"],"p":[0.18,1.4,3,0.015,1,10,0,0,57,0,0,1]},
+  {"label":"TERRA INK","field":27,"material":11,"substrate":4,"textureScale":1,"substrateAmt":0.65,"cols":["#26212b","#6f4443","#b87659","#e4c49b"],"p":[0.18,1.2,6,0.015,1,10,0,0,60,0,0,1]},
+  {"label":"GALLERY LINEN","field":14,"material":0,"substrate":1,"textureScale":1.8,"substrateAmt":0.65,"cols":["#6f7064","#a4a18c","#d3c8ad","#f2e9d4"],"p":[0.18,1.2,3,0.015,1,10,0,0,63,0,0,1]}
 ];
 
 /* the 4 gradient stops (dark->light) for each preset palette, RGB 0-1. Indices
@@ -3164,6 +3251,7 @@ var state = {
   ar:1,
   field:0, screen:0, sym:0, material:0,
   lens:0, lensAmt:1,
+  substrate:0, materialAmt:1, textureScale:1, relief:1, substrateAmt:0.55,
   field2:0, blend:0, layerMix:0,
   field3:0, blend2:0, layerMix2:0,
   hasTex:0, texAspect:1,
@@ -3220,6 +3308,12 @@ var FSRC = [
   'uniform float u_layerMix2;',
   'uniform int   u_screen;',
   'uniform int   u_material;',
+  'uniform int u_substrate;',
+  'uniform float u_materialAmt;',
+  'uniform float u_textureScale;',
+  'uniform float u_relief;',
+  'uniform float u_substrateAmt;',
+
   'uniform sampler2D u_glyph;',
   'uniform sampler2D u_mask;',    /* text/logo mask — field shows inside white, u_maskBg outside */
   'uniform float u_hasMask;',
@@ -3736,6 +3830,64 @@ var FSRC = [
   '  return clamp(mix(streams, striae, 0.30), 0.0, 1.0);',
   '}',
   '',
+  'float fieldWash(vec2 p, float t){',
+  '  vec2 q=p*0.85+vec2(t*0.035,0.0);',
+  '  q+=vec2(fbm(q+4.1),fbm(q+17.3))*u_warp*0.32;',
+  '  float water=fbm(q*1.4);',
+  '  float pool=0.5+0.5*sin(water*13.0+fbm(q*3.0)*1.5);',
+  '  return clamp(mix(water,pool,0.55)+0.10*(fbm(q*8.0)-0.5),0.0,1.0);',
+  '}',
+  'float fieldSpray(vec2 p, float t){',
+  '  vec2 q=p*0.65;',
+  '  float paint=0.0;',
+  '  for(int i=0;i<9;i++){',
+  '    float fi=float(i);vec2 r=hash22(vec2(fi+u_seed,9.7));',
+  '    vec2 c=(r-0.5)*3.6;',
+  '    vec2 d=q-c;float angle=r.y*6.2832;',
+  '    d=mat2(cos(angle),-sin(angle),sin(angle),cos(angle))*d;',
+  '    float curve=sin(d.x*(1.8+r.x)+fi+t*0.06)*(0.22+u_warp*0.07);',
+  '    float stroke=exp(-pow((d.y-curve)/(0.10+r.y*0.16),2.0))*',
+  '      (1.0-smoothstep(0.5,1.8,abs(d.x)));',
+  '    paint=mix(paint,0.24+0.74*r.x,smoothstep(0.04,0.55,stroke));',
+  '  }',
+  '  return clamp(paint+0.07*fbm(q*3.0),0.0,1.0);',
+  '}',
+  'float fieldBrushwork(vec2 p,float t){',
+  '  vec2 q=p*2.8;vec2 cell=floor(q);float best=0.0;float colour=0.0;',
+  '  for(int j=-1;j<=1;j++){for(int i=-1;i<=1;i++){',
+  '    vec2 id=cell+vec2(float(i),float(j));vec2 r=hash22(id+u_seed);',
+  '    vec2 d=q-id-0.2-r*0.6;float a=r.x*3.1416+u_warp*0.14+sin(t*0.05)*0.12;',
+  '    d=mat2(cos(a),-sin(a),sin(a),cos(a))*d;',
+  '    float bristle=0.9+0.1*sin(d.y*110.0+r.y*15.0);',
+  '    float mark=(1.0-smoothstep(0.28,0.78,abs(d.x)))*(1.0-smoothstep(0.09,0.22,abs(d.y)))*bristle;',
+  '    if(mark>best){best=mark;colour=0.14+0.82*r.y;}',
+  '  }}',
+  '  return mix(0.06,colour,smoothstep(0.02,0.50,best));',
+  '}',
+  'float fieldStrata(vec2 p,float t){',
+  '  vec2 q=p;float fold=fbm(q*0.65+vec2(t*0.025,0.0));',
+  '  float height=q.y*2.4+fold*u_warp*0.9+sin(q.x*1.1)*0.5;',
+  '  float bands=0.5+0.5*sin(height*5.0+vnoise(q*3.0)*0.5);',
+  '  return clamp(bands*0.72+fbm(q*4.0)*0.28,0.0,1.0);',
+  '}',
+  'float fieldTerrazzo(vec2 p,float t){',
+  '  vec2 q=p*4.0+vec2(t*0.02,0.0);q+=vec2(vnoise(q*0.4),vnoise(q*0.4+8.0))*u_warp*0.12;',
+  '  vec2 cell=floor(q);float first=10.0,second=10.0,value=0.0;',
+  '  for(int j=-1;j<=1;j++){for(int i=-1;i<=1;i++){',
+  '    vec2 id=cell+vec2(float(i),float(j));vec2 r=hash22(id+u_seed);',
+  '    vec2 d=q-id-0.2-0.6*r;float dist=dot(d,d);',
+  '    if(dist<first){second=first;first=dist;value=r.x;}else{second=min(second,dist);}',
+  '  }}',
+  '  float chip=smoothstep(0.10,0.22,second-first)*(1.0-smoothstep(0.26,0.46,first));',
+  '  return mix(0.96,0.05+0.77*value,chip);',
+  '}',
+  'float fieldWoodgrain(vec2 p,float t){',
+  '  vec2 q=p+vec2(t*0.018,0.0);',
+  '  q.x+=sin(q.y*0.8+u_seed)*0.32+fbm(q*0.65)*u_warp*0.30;',
+  '  float rings=length(q*vec2(1.5,0.25))*11.0;',
+  '  float grain=0.5+0.5*sin(rings+fbm(q*2.5)*2.5);',
+  '  return clamp(0.15+grain*0.68+vnoise(q*vec2(40.0,2.0))*0.14,0.0,1.0);',
+  '}',
   /* ---------- glsl dispatch: the Bayer table, fieldOf by index, and the layer blend modes ---------- */
   '/* ordered (Bayer) dither thresholds, recursive 2x2 -> 4x4 -> 8x8, WebGL1-safe */',
   'float bayer2(vec2 a){ a = floor(a); return fract(a.x * 0.5 + a.y * a.y * 0.75); }',
@@ -3770,6 +3922,12 @@ var FSRC = [
   '  else if (eng == 21){ return fieldCassini(p, t); }',
   '  else if (eng == 22){ return fieldTopo(p, t); }',
   '  else if (eng == 23){ return fieldEddy(p, t); }',
+  'else if (eng == 24){ return fieldWash(p, t); }',
+  '  else if (eng == 25){ return fieldSpray(p, t); }',
+  '  else if (eng == 26){ return fieldBrushwork(p, t); }',
+  '  else if (eng == 27){ return fieldStrata(p, t); }',
+  '  else if (eng == 28){ return fieldTerrazzo(p, t); }',
+  '  else if (eng == 29){ return fieldWoodgrain(p, t); }',
   '  vec2 m1 = vec2(d1, d2);',
   '  vec2 m2 = vec2(d2, -d1);',
   '  vec2 q = vec2(fbm(p + m1 * 0.5), fbm(p + vec2(5.2, 1.3) + m2 * 0.5));',
@@ -3790,6 +3948,81 @@ var FSRC = [
   '  else { r = b; }                                                        /* 0 = normal */',
   '  return mix(a, r, amt);',
   '}',
+  'vec2 artCoord(){ return gl_FragCoord.xy / u_res.y / max(u_textureScale,0.25); }',
+  'float artTooth(vec2 q){return vnoise(q*340.0)*0.55+vnoise(q*710.0+17.0)*0.45;}',
+  'float artCracks(vec2 q){',
+  '  vec2 cell=floor(q);float a=8.0,b=8.0;',
+  '  for(int j=-1;j<=1;j++){for(int i=-1;i<=1;i++){',
+  '    vec2 id=cell+vec2(float(i),float(j));vec2 r=hash22(id+u_seed);',
+  '    vec2 d=q-id-r;float v=dot(d,d);',
+  '    if(v<a){b=a;a=v;}else{b=min(b,v);}',
+  '  }}',
+  '  return b-a;',
+  '}',
+  'vec3 shadeArt(int mat,vec3 base,vec3 N,float fv){',
+  '  vec2 q=artCoord();float tooth=artTooth(q);float broad=fbm(q*9.0+u_seed);',
+  '  vec3 paper=vec3(0.96,0.94,0.87);vec3 col=base;',
+  '  if(mat==7){',
+  '    float wet=fbm(q*5.0+fv*3.0);float edge=pow(0.5+0.5*sin(fv*27.0+broad*1.8),14.0);',
+  '    float bloom=smoothstep(0.50,0.79,wet)*0.28;',
+  '    col=mix(paper,base,0.58+0.30*tooth);',
+  '    col=mix(col,paper,bloom)*(1.0-edge*0.28*u_relief);',
+  '    col+=vec3((tooth-0.5)*0.09);',
+  '  }else if(mat==8){',
+  '    float mist=vnoise(q*540.0+u_seed);float fleck=smoothstep(0.76,0.88,vnoise(q*270.0));',
+  '    float edge=pow(0.5+0.5*sin(fv*24.0),10.0);',
+  '    float coverage=smoothstep(0.09,0.25,fv);',
+  '    col=base*(0.92+0.16*mist);col=mix(col,paper,fleck*coverage*0.16);',
+  '    vec2 dc=vec2(q.x*48.0,q.y);float id=floor(dc.x);float r=hash(vec2(id,u_seed));',
+  '    float line=(1.0-smoothstep(0.025,0.12,abs(fract(dc.x)-r)))*step(0.70,r);',
+  '    float fall=smoothstep(r*0.7,r*0.7+0.08,q.y)*(1.0-smoothstep(r*0.7+0.13,r*0.7+0.4,q.y));',
+  '    col=mix(col,base*0.28,line*fall*0.68*u_relief);col*=1.0-edge*0.13;',
+  '  }else if(mat==9){',
+  '    float lum=dot(base,vec3(0.299,0.587,0.114));',
+  '    float hatch=0.5+0.5*sin((q.x+q.y*0.36)*580.0+broad*13.0);',
+  '    float pigment=smoothstep(0.10,0.83,(1.0-lum)*0.9+tooth*0.36+hatch*0.12);',
+  '    col=mix(paper,base*0.22+vec3(0.035),pigment);',
+  '  }else if(mat==10){',
+  '    float chalk=smoothstep(0.28,0.78,tooth);float drag=vnoise(q*vec2(40.0,500.0));',
+  '    col=mix(paper,mix(base,paper,0.10),0.58+0.38*chalk);',
+  '    col*=0.92+0.12*drag;col+=vec3((tooth-0.5)*0.06);',
+  '  }else if(mat==11){',
+  '    float edge=pow(0.5+0.5*sin(fv*19.0+broad*0.9),18.0);',
+  '    float dry=smoothstep(0.68,0.86,tooth)*0.32;',
+  '    col=mix(base*base*0.88,paper,dry);col*=1.0-edge*0.45*u_relief;',
+  '  }else if(mat==12){',
+  '    float crack=1.0-smoothstep(0.007,0.026,artCracks(q*23.0));',
+  '    vec3 L=normalize(vec3(0.4,0.7,0.6));vec3 H=normalize(L+vec3(0.0,0.0,1.0));',
+  '    col=base*(0.72+max(dot(N,L),0.0)*0.30)+pow(max(dot(N,H),0.0),42.0)*0.46;',
+  '    col*=1.0-crack*0.32*u_relief;col+=vec3((tooth-0.5)*0.035);',
+  '  }',
+  '  return col;',
+  '}',
+  'vec3 shadeSubstrate(int surface,vec3 col){',
+  '  vec2 q=artCoord();float h=0.0;vec3 tint=vec3(0.94,0.92,0.85);',
+  '  float tooth=artTooth(q);',
+  '  if(surface==1){',
+  '    vec2 w=q*230.0;float sx=sin(w.x*6.2832),sy=sin(w.y*6.2832);',
+  '    h=(sx+sy)*0.18+sx*sy*0.10+(tooth-0.5)*0.18;',
+  '  }else if(surface==2){',
+  '    h=(tooth-0.5)*0.42+(fbm(q*32.0)-0.5)*0.23;',
+  '  }else if(surface==3){',
+  '    float pores=smoothstep(0.71,0.91,vnoise(q*190.0));',
+  '    h=(fbm(q*18.0)-0.5)*0.5+(tooth-0.5)*0.24-pores*0.5;tint=vec3(0.72,0.73,0.71);',
+  '  }else if(surface==4){',
+  '    float veins=pow(0.5+0.5*sin(q.x*17.0+fbm(q*5.0)*14.0),18.0);',
+  '    h=(fbm(q*42.0)-0.5)*0.33-veins*0.40;tint=vec3(0.86,0.84,0.79);',
+  '  }else if(surface==5){',
+  '    float grain=sin(q.x*260.0+fbm(q*vec2(12.0,2.0))*18.0);',
+  '    h=grain*0.16+(tooth-0.5)*0.13;tint=vec3(0.78,0.60,0.39);',
+  '  }else{',
+  '    h=(fbm(q*8.0)-0.5)*0.60+(vnoise(q*76.0)-0.5)*0.20;tint=vec3(0.94,0.91,0.86);',
+  '  }',
+  '  float amount=u_substrateAmt;',
+  '  vec3 finish=col*(0.96+h*(0.6+u_relief*0.7))+tint*0.035;',
+  '  finish=mix(finish,finish*tint,0.14);',
+  '  return mix(col,finish,amount);',
+  '}',
   /* ---------- glsl materials: the field read as a height map, re-lit as glass, metal, sand, liquid, molten or paint ---------- */
   '/* material finish: treat the field as a height map (screen-space gradient -> normal) and',
   '   re-light the palette colour as glass / metal / sand / liquid / molten / paint. mat 0 = off.',
@@ -3801,6 +4034,7 @@ var FSRC = [
   '  float ndh = max(dot(N, H), 0.0);',
   '  float fres = pow(1.0 - max(N.z, 0.0), 2.5);',
   '  vec3 col = base;',
+  '  if (mat >= 7){ return shadeArt(mat,base,N,fv); }',
   '  if (mat == 1){          /* glass — dark refractive body, bright fresnel rim + sharp spec */',
   '    col = base * (0.35 + 0.25 * ndl) + fres * (base + 0.7) + pow(ndh, 80.0) * 1.5;',
   '  } else if (mat == 2){   /* metal — chrome: env reflection (sky/ground by N.y) + hot spec */',
@@ -3831,7 +4065,7 @@ var FSRC = [
   '                             size gets the same brushwork as the live canvas. */',
   '    vec2 g = N.xy;                                   /* points down the field gradient */',
   '    float gm = length(g);',
-  '    vec2 q = gl_FragCoord.xy / u_res.y;',
+  '    vec2 q = artCoord();',
   '    /* stroke direction: tangent to the contour where the field has form; where it is flat',
   '       (gm ~ 0) there is nothing to follow, so a slow noise field decides — otherwise the',
   '       tangent is undefined there and the dabs break into per-pixel confetti */',
@@ -3891,13 +4125,13 @@ var FSRC = [
   '        }',
   '      }',
   '    }',
-  '    vec2 hg = (hgl.x * dir + hgl.y * prp) * 0.012;      /* back into screen space */',
+  '    vec2 hg = (hgl.x * dir + hgl.y * prp) * 0.012 * u_relief;      /* back into screen space */',
   '    vec3 Np = normalize(vec3(-hg, 1.0));',
   '    float pdl = max(dot(Np, L), 0.0);',
   '    float pdh = max(dot(Np, H), 0.0);',
   '    float cover = smoothstep(0.04, 0.22, h);',
   '    /* the ground between dabs: the palette colour toned down over a canvas weave */',
-  '    vec2 wv = q * u_res.y * 0.38;',
+  '    vec2 wv = q * 380.0;',
   '    float weave = 0.5 + 0.25 * (sin(wv.x * 6.2832) + sin(wv.y * 6.2832)) * (0.7 + 0.3 * vnoise(wv));',
   '    vec3 ground = base * (0.30 + 0.16 * weave) + 0.015;',
   '    /* each dab is its own load of paint: a little lighter or darker, tilted a little warm',
@@ -3905,7 +4139,7 @@ var FSRC = [
   '       what lets the eye separate one stroke from the next */',
   '    float id2 = fract(id * 57.3);',
   '    vec3 pc = base * (0.74 + 0.5 * id) * vec3(1.0 + 0.12 * (id2 - 0.5), 1.0 - 0.05 * (id2 - 0.5), 1.0 - 0.12 * (id2 - 0.5));',
-  '    float ao = 1.0 - 0.32 * smoothstep(0.55, 1.0, rim);',
+  '    float ao = 1.0 - 0.32 * u_relief * smoothstep(0.55, 1.0, rim);',
   '    col = mix(ground, pc, cover) * ao;',
   '    col = col * (0.62 + 0.42 * pdl) * (0.85 + 0.15 * ndl) * (0.72 + 0.28 * min(h * 1.6, 1.0))',
   '        + cover * pow(pdh, 30.0) * 0.34 * ao + fres * 0.04;',
@@ -4156,7 +4390,7 @@ var FSRC = [
   '  /* soft highlight bloom for a premium glow */',
   '  col += smoothstep(0.72, 1.0, f) * 0.12;',
   '  /* 4b - material finish: field gradient -> normal, re-light as glass/metal/sand/liquid/molten/paint */',
-  '  if (u_material > 0){',
+  '  if (u_material > 0 && u_materialAmt > 0.0){',
   '    vec2 grd = vec2(dFdx(f), dFdy(f)) * u_res.y * 0.06;',
   '    if (u_material == 6){',
   '      /* paint needs a direction that holds across a whole dab. The per-pixel dFdx gradient',
@@ -4171,7 +4405,7 @@ var FSRC = [
   '      float fy1 = fieldOf(u_field, p + vec2(0.0, pe), u_time, dd);',
   '      grd = vec2(fx1 - fb, fy1 - fb) * 6.0;',
   '    }',
-  '    col = shadeMaterial(u_material, col, normalize(vec3(-grd, 1.0)), f);',
+  '    col = mix(col,shadeMaterial(u_material,col,normalize(vec3(-grd*u_relief,1.0)),f),u_materialAmt);',
   '  }',
   '',
   /* ---------- glsl screens: halftone, ascii glyphs, ordered dither and the glitch channel split ---------- */
@@ -4212,6 +4446,7 @@ var FSRC = [
   '    );',
   '  }',
   '',
+  '  if (u_substrate > 0 && u_substrateAmt > 0.0){ col=shadeSubstrate(u_substrate,col); }',
   '  /* 6 - grain + vignette */',
   '  float grPhase = mix(mod(floor(u_time * 10.0), 61.0) * 1.7, 23.0, u_rec);',
   '  float gr = hash(gl_FragCoord.xy * 0.731 + grPhase) - 0.5;',
@@ -4309,7 +4544,7 @@ if (gl){
 
   ['u_res','u_time','u_seed','u_scale','u_warp','u_lens','u_lensAmt','u_sym','u_pixel','u_dots','u_dot','u_dither','u_grain',
    'u_pal','u_c0','u_c1','u_c2','u_c3','u_tex','u_hasTex','u_texAspect','u_liq','u_mix','u_split',
-   'u_field','u_field2','u_blend','u_layerMix','u_field3','u_blend2','u_layerMix2','u_screen','u_material','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg','u_maskBg2','u_maskGrad'].forEach(function(n){
+   'u_field','u_field2','u_blend','u_layerMix','u_field3','u_blend2','u_layerMix2','u_screen','u_material','u_substrate','u_materialAmt','u_textureScale','u_relief','u_substrateAmt','u_glyph','u_pan','u_mouse','u_mouseAmt','u_mouseMode','u_rec','u_mask','u_hasMask','u_maskBg','u_maskBg2','u_maskGrad'].forEach(function(n){
     U[n] = gl.getUniformLocation(prog, n);
   });
 
@@ -4931,6 +5166,11 @@ function render(k, tgt){
   gl.uniform1f(U.u_layerMix2, (state.layerMix || 0) > 0.001 ? (state.layerMix2 || 0) : 0);
   gl.uniform1i(U.u_screen, state.screen);
   gl.uniform1i(U.u_material, state.material || 0);
+  gl.uniform1i(U.u_substrate, state.substrate);
+  gl.uniform1f(U.u_materialAmt, state.materialAmt);
+  gl.uniform1f(U.u_textureScale, state.textureScale);
+  gl.uniform1f(U.u_relief, state.relief);
+  gl.uniform1f(U.u_substrateAmt, state.substrateAmt);
   gl.uniform2f(U.u_pan, tex ? state.panX : 0, tex ? state.panY : 0);
   gl.uniform2f(U.u_mouse, mouse.x, mouse.y);
   var _im = mouse.impacts[mouse.mode]; if (_im == null || isNaN(_im)){ _im = 1; }   /* 0 is a valid impact (disables the effect), so don't || it away */
@@ -5239,6 +5479,10 @@ bindSlider('warp', 'warp');
 bindSlider('grain', 'grain');
 bindSlider('sym', 'sym');
 bindSlider('lensAmt', 'lensAmt');
+bindSlider('materialAmt','materialAmt');
+bindSlider('textureScale','textureScale');
+bindSlider('relief','relief');
+bindSlider('substrateAmt','substrateAmt');
 bindSlider('layerMix', 'layerMix');
 bindSlider('layerMix2', 'layerMix2');
 /* ---------- layers UI: the blend mode and strength for whichever layer's tab is open ----------
@@ -5251,7 +5495,9 @@ var blend2Sel = document.getElementById('blend2Sel');
    run in a sandbox by tests/hash, with no DOM — so this is a literal rather than a count of
    the picker. tests/hash pins it to the markup, so adding a 24th engine fails loudly here
    instead of silently clamping the new engine out of every share link. */
-var FIELD_MAX = 23;
+var FIELD_MAX = 29;
+var MATERIAL_MAX = 12;
+var SUBSTRATE_MAX = 6;
 /* Same job as FIELD_MAX, and added for the same reason: the lens count was written out as a
    literal 12 in three places — the hash clamp, the shuffle roll and fluid-core's decoder — so
    a new lens decoded as Modular, was never shuffled into a piece, and silently changed shape
@@ -5751,11 +5997,15 @@ Array.prototype.forEach.call(document.querySelectorAll('.knob[data-for]'), makeK
 
 /* ---------- control sync: push the whole state back into every widget after a load, look or shuffle ---------- */
 function syncControls(){
+  Array.prototype.forEach.call(document.querySelectorAll('.substrateBtn'),function(b){
+    var on=parseInt(b.getAttribute('data-substrate'),10)===state.substrate;
+    b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');
+  });
   /* layerMix2 belongs here for the same reason layerMix does: without it the Layer 3 slider,
      its readout, its knob dial and its aria-valuenow all read 0 while the shader composites
      at whatever the hash actually says — and one arrow key on the focused slider then writes
      that visible 0 back over the real value. */
-  ['speed','scale','warp','grain','sym','lensAmt','layerMix','layerMix2','pixel','dot','thresh','liq','mix'].forEach(function(k){
+  ['materialAmt','textureScale','relief','substrateAmt','speed','scale','warp','grain','sym','lensAmt','layerMix','layerMix2','pixel','dot','thresh','liq','mix'].forEach(function(k){
     var el = document.getElementById(k);
     el.value = state[k];
     document.getElementById(k + 'Out').value = el.value;
@@ -6394,7 +6644,13 @@ var FIELD_STATUS = [
   'CHLADNI FIELD — vibrating-plate nodal figures; warp sets mode order',
   'CASSINI FIELD — lemniscate ovals, equipotential contours',
   'TOPO FIELD — elevation contours of a drifting landmass; warp = ruggedness',
-  'EDDY FIELD — von Karman vortex street; warp = circulation'
+  'EDDY FIELD — von Karman vortex street; warp = circulation',
+  "WASH — pigment pools, blooms and translucent tides",
+  "SPRAY — looping gestures, overspray and hanging drips",
+  "BRUSHWORK — overlapping bristled strokes",
+  "STRATA — folded mineral bands and sediment",
+  "TERRAZZO — irregular stone chips in pale mortar",
+  "WOODGRAIN — growth rings, knots and flowing fibres"
 ];
 /* The picker edits whichever layer's tab is open, not always the base — one engine strip
    serving all three, because three copies of 23 tiles would be three sets of thumbnails to
@@ -6926,9 +7182,10 @@ Array.prototype.forEach.call(document.querySelectorAll('.screenBtn'), function(b
 Array.prototype.forEach.call(document.querySelectorAll('.materialBtn'), function(b){
   b.addEventListener('click', function(){
     state.material = parseInt(b.getAttribute('data-material'), 10);
+    if(state.material>0 && state.materialAmt===0){state.materialAmt=1;}
     markLook(null);
     syncControls();
-    setStatus(['NO FINISH — flat colour','GLASS — refractive rim + sheen','METAL — chrome reflection','SAND — matte grain','LIQUID — wet gloss','MOLTEN — liquid metal, palette-tinted','PAINT — impasto oil, strokes follow the form'][state.material]);
+    setStatus(b.title || b.textContent);
   });
 });
 Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'), function(b){
@@ -6940,6 +7197,14 @@ Array.prototype.forEach.call(document.querySelectorAll('#cursorGrid .fieldBtn'),
     requestRender();
   });
 });
+Array.prototype.forEach.call(document.querySelectorAll('.substrateBtn'),function(b){
+  b.addEventListener('click',function(){
+    state.substrate=parseInt(b.getAttribute('data-substrate'),10);
+    if(state.substrate && state.substrateAmt===0){state.substrateAmt=0.55;}
+    markLook(null);syncControls();setStatus(b.title+' surface — tune its strength and texture size');
+  });
+});
+initStrip('substrateStrip','subPrev','subNext');
 /* ---------- cursor impact: how hard the pointer pushes the field, remembered per mode ---------- */
 function syncCursorImpact(){
   var sl = document.getElementById('cursorImpact'), o = document.getElementById('cursorImpactOut');
@@ -7074,7 +7339,13 @@ var FIELD_TUNE = [
   [0.8, 2.0, 1.5, 9.0],  /* chladni — warp = eigenmode order */
   [0.8, 1.8, 2.5, 9.0],  /* cassini — warp = contour density */
   [0.9, 2.2, 2.0, 7.0],  /* topo — warp = domain-warp ruggedness */
-  [0.7, 1.6, 2.0, 8.0]   /* eddy — low zoom keeps several sheddings in frame; warp = circulation */
+  [0.7, 1.6, 2.0, 8.0],   /* eddy — low zoom keeps several sheddings in frame; warp = circulation */
+  [0.7, 2.2, 1, 6],
+  [0.7, 1.8, 1, 7],
+  [0.8, 2.2, 1, 7],
+  [0.6, 2.0, 1, 8],
+  [0.7, 2.2, 1, 7],
+  [0.7, 2.0, 1, 7]
 ];
 /* #3 procedural palette: a harmonious dark->light 4-stop ramp around a random hue (analogous
    or complementary), so the shuffle occasionally invents a colourway instead of a preset. */
@@ -7134,7 +7405,7 @@ function randomPattern(){
   state.dot = 5 + Math.floor(q[7] * 17);
   /* #2b two dimensions the shuffle never touched at all, so every shuffled piece came out
      with no finish and no fold no matter how many times you pressed it */
-  state.material = rnd() < 0.28 ? 1 + Math.floor(rnd() * 6) : 0;
+  state.material = rnd() < 0.28 ? 1 + Math.floor(rnd() * MATERIAL_MAX) : 0;
   state.sym = rnd() < 0.18 ? 2 * (1 + Math.floor(rnd() * 6)) : 0;   /* even folds read as symmetry, odd ones as damage */
   /* ~1 in 4 shuffles composites a 2nd engine (Layers) — different engine, a visible blend,
      moderate mix — and 1 in 4 of those goes on to a 3rd. Stacking three at full strength
@@ -7165,6 +7436,8 @@ function randomPattern(){
   }
   /* the seed rides the same walk as everything else now — it was already low-discrepancy on
      its own, but on a separate sequence, so it could repeat a pairing with the rest */
+  state.substrate = rnd() < 0.35 ? 1 + Math.floor(rnd()*SUBSTRATE_MAX) : 0;
+  state.materialAmt=1; state.textureScale=0.7+rnd()*1.3; state.relief=0.8; state.substrateAmt=0.55;
   state.seed = 3 + q[4] * 89;
   state.hasTex = 0; state.userSource = false; fallbackSource = null;
   canvas.style.touchAction = '';   /* photo gone → allow page scroll past the canvas */
@@ -7382,23 +7655,14 @@ function addUserSource(srcObj, bgUrl, aspect){
   selectUserSource(entry, b);
 }
 
-/* ---------- looks shelf: the looks outlived their shelf ----------
-   The Templates section is gone from the panel — Explore generates a fresh shelf and Shuffle
-   reaches the whole space, so a fixed list of 41 starting points was the least interesting
-   way into the app. The LOOKS data stays exactly where it is: fluid-core/build.mjs extracts
-   it into worker-data.js, which is what /api/piece?look=, /api/looks, seed of the day and
-   the MCP tools all serve. Removing the data would empty the public API.
-
-   markLook still runs from twenty call sites — it clears the active-look highlight whenever
-   an edit makes the piece no longer that look. With no shelf there is no button to clear,
-   so it keeps the bookkeeping and does nothing visible. */
+/* ---------- looks shelf: shared data powers the API and the artist recipe shelf ---------- */
 var activeLookBtn = null;
 function markLook(b){
   if (activeLookBtn){ activeLookBtn.classList.remove('on'); activeLookBtn.setAttribute('aria-pressed', 'false'); }
   activeLookBtn = b || null;
   if (b){ b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
 }
-/* still reachable: a look arrives as a share link or from the API, never as a panel button */
+/* A selected recipe resets its material defaults before controls are synchronized. */
 function applyLook(lk, btn){
   var p = lk.p;
   state.speed = p[0]; state.scale = p[1]; state.warp = p[2]; state.grain = p[3];
@@ -7412,6 +7676,11 @@ function applyLook(lk, btn){
   state.thresh = lk.thresh != null ? lk.thresh : 0.5;
   /* a look is a complete recipe: it sets (or clears) the material finish and math lens too */
   state.material = lk.material || 0;
+  state.substrate = lk.substrate == null ? 0 : lk.substrate;
+  state.materialAmt = lk.materialAmt == null ? 1 : lk.materialAmt;
+  state.textureScale = lk.textureScale == null ? 1 : lk.textureScale;
+  state.relief = lk.relief == null ? 1 : lk.relief;
+  state.substrateAmt = lk.substrateAmt == null ? 0.55 : lk.substrateAmt;
   state.lens = lk.lens || 0;
   state.lensAmt = lk.lensAmt != null ? lk.lensAmt : 1;
   /* a look may ship its own gradient: load it into the custom palette (pal 8) */
@@ -7425,6 +7694,18 @@ function applyLook(lk, btn){
   setStatus('LOOK ' + lk.label + ' — tweak anything, it stays yours');
 }
 
+
+(function(){
+  var shelf=document.getElementById('artistRecipes');
+  LOOKS.forEach(function(lk){
+    if(lk.substrate==null){return;}
+    var b=document.createElement('button');b.type='button';b.textContent=lk.label;
+    b.setAttribute('aria-pressed','false');b.setAttribute('data-recipe',lk.label);
+    b.addEventListener('click',function(){
+      state.layerMix=0;state.layerMix2=0;state.sym=0;applyLook(lk,b);requestRender();
+    });shelf.appendChild(b);
+  });
+})();
 /* ---------- own photo: file picker, paste, drag-and-drop ---------- */
 function loadImageFile(f){
   if (!f || !f.type || f.type.indexOf('image') !== 0){
@@ -8254,6 +8535,11 @@ function buildHash(embedFlag){
     if (a.length === 29){ a.push(0, 100); }
     a.push(state.field3 || 0, state.blend2 || 0, Math.round((state.layerMix2 || 0) * 100));
   }
+  var artSlots=[Math.round(state.substrate||0),Math.round(((state.materialAmt==null?1:state.materialAmt)-1)*100),Math.round(((state.textureScale==null?1:state.textureScale)-1)*100),Math.round(((state.relief==null?1:state.relief)-1)*100),Math.round(((state.substrateAmt==null?0.55:state.substrateAmt)-0.55)*100)];
+  if(artSlots.some(function(v){return v!==0;})){
+    while(a.length<34){a.push(a.length===30?100:0);}
+    a=a.concat(artSlots);
+  }
   var minLen = state.pal === 8 ? 24 : 12;
   while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
   return '#p=' + a.join(',');
@@ -8299,7 +8585,12 @@ function parseHash(src){
   state.field2 = n.length > 25 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[25]))) : 0;
   state.blend = n.length > 26 ? Math.min(5, Math.max(0, Math.round(n[26]))) : 0;
   state.layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
-  state.material = n.length > 28 ? Math.min(6, Math.max(0, Math.round(n[28]))) : 0;
+  state.material = n.length > 28 ? Math.min(MATERIAL_MAX, Math.max(0, Math.round(n[28]))) : 0;
+  state.substrate=n.length>34?Math.min(SUBSTRATE_MAX,Math.max(0,Math.round(n[34]))):0;
+  state.materialAmt=n.length>35?Math.max(0,Math.min(1,1+n[35]/100)):1;
+  state.textureScale=n.length>36?Math.max(0.25,Math.min(4,1+n[36]/100)):1;
+  state.relief=n.length>37?Math.max(0,Math.min(2,1+n[37]/100)):1;
+  state.substrateAmt=n.length>38?Math.max(0,Math.min(1,0.55+n[38]/100)):0.55;
   state.lens = n.length > 29 ? Math.min(LENS_MAX, Math.max(0, Math.round(n[29]))) : 0;
   state.lensAmt = n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1;
   state.field3 = n.length > 31 ? Math.min(FIELD_MAX, Math.max(0, Math.round(n[31]))) : 0;
@@ -8721,14 +9012,15 @@ var embedChip = document.getElementById('embedChip');
 var embedDock = document.getElementById('embedDock');
 var embedTab = 'code';
 function embedSnippetText(){
+  var origin=/^https?:$/.test(location.protocol)?location.origin:'https://befluid.xyz';
   /* split the closing script tag so it doesn't end THIS inline script */
-  return '<script src="https://cdn.jsdelivr.net/npm/fluid-bg"><\/script>\n<fluid-bg fixed hash="' + buildHash(0) + '"></fluid-bg>';
+  return '<scr' + 'ipt src="' + origin + '/fluid-bg.js"><\/script>\n<fluid-bg fixed hash="' + buildHash(0) + '"></fluid-bg>';
 }
 /* a ready-to-paste prompt for Claude Code / Cursor, with the snippet baked in */
 function embedClaudeText(){
-  return 'Build a single-file index.html landing page that uses the "fluid-bg" npm package for a live, animated generative background. fluid-bg is a web component (no build step) — add the background with exactly these two tags:\n\n'
+  return 'Build a single-file index.html landing page that uses the Fluid v3.3 web component for a live, animated generative background. fluid-bg is a web component (no build step) — add the background with exactly these two tags:\n\n'
     + embedSnippetText() + '\n\n'
-    + 'Then put the page content — a hero headline, a line of subtext, and a CTA button — on top of it with position:relative and z-index:1. The <fluid-bg> tag renders a live Fluid background served from fluid.krackeddevs.com, so there is nothing to self-host. Note: fluid-bg is a brand-new npm package, so if it is not in your training data, use the CDN snippet above exactly as written (or run "npm i fluid-bg" and add import "fluid-bg"). Open the page in my browser when you are done.';
+    + 'Then put the page content — a hero headline, a line of subtext, and a CTA button — on top of it with position:relative and z-index:1. Use the script URL above so the renderer matches the share link. The canvas renders locally on the visitor’s GPU; no account or backend is needed. Open the page in my browser when you are done.';
 }
 /* a COMPLETE, dependency-free HTML file that renders THIS exact piece with the live shaders
    inlined — no <fluid-bg>, no iframe, no fluid.krackeddevs.com. Save as index.html, open/host
@@ -8746,7 +9038,7 @@ function buildStandaloneHTML(){
     field3:state.field3 || 0, blend2:state.blend2 || 0,
     /* mirrors the render path: layer 3 only composites when layer 2 does */
     layerMix2:+((state.layerMix || 0) > 0.001 ? (state.layerMix2 || 0) : 0).toFixed(3),
-    screen:state.screen, material:state.material || 0, seed:+state.seed.toFixed(2),
+    screen:state.screen, material:state.material || 0, substrate:state.substrate, materialAmt:state.materialAmt, textureScale:state.textureScale, relief:state.relief, substrateAmt:state.substrateAmt, seed:+state.seed.toFixed(2),
     lens:Math.round(state.lens || 0), lensAmt:+(state.lensAmt == null ? 1 : state.lensAmt).toFixed(2)
   };
   var boot =
@@ -8755,14 +9047,14 @@ function buildStandaloneHTML(){
     "gl.getExtension('OES_standard_derivatives');var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);gl.useProgram(pr);" +
     "var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);" +
     "var al=gl.getAttribLocation(pr,'a_pos');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);var U={};" +
-    "'u_res u_time u_seed u_scale u_warp u_lens u_lensAmt u_sym u_pixel u_dots u_dot u_dither u_grain u_pal u_c0 u_c1 u_c2 u_c3 u_hasTex u_texAspect u_liq u_mix u_split u_field u_field2 u_blend u_layerMix u_field3 u_blend2 u_layerMix2 u_screen u_material u_glyph u_pan u_mouse u_mouseAmt u_rec u_mask u_hasMask u_maskBg'.split(' ').forEach(function(n){U[n]=gl.getUniformLocation(pr,n);});" +
+    "'u_res u_time u_seed u_scale u_warp u_lens u_lensAmt u_sym u_pixel u_dots u_dot u_dither u_grain u_pal u_c0 u_c1 u_c2 u_c3 u_hasTex u_texAspect u_liq u_mix u_split u_field u_field2 u_blend u_layerMix u_field3 u_blend2 u_layerMix2 u_screen u_material u_substrate u_materialAmt u_textureScale u_relief u_substrateAmt u_glyph u_pan u_mouse u_mouseAmt u_rec u_mask u_hasMask u_maskBg'.split(' ').forEach(function(n){U[n]=gl.getUniformLocation(pr,n);});" +
     "function dt(u){var t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+u);gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array([0,0,0,255]));gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);}dt(0);dt(2);" +
     "(function(){var ch=' .:-=+*#%@',ce=28;var c=document.createElement('canvas');c.width=ce*ch.length;c.height=ce;var x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);x.fillStyle='#fff';x.font='bold '+Math.round(ce*0.82)+'px monospace';x.textAlign='center';x.textBaseline='middle';for(var i=0;i<ch.length;i++)x.fillText(ch.charAt(i),i*ce+ce/2,ce/2+1);var t=gl.createTexture();gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,t);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);})();" +
     "gl.activeTexture(gl.TEXTURE0);gl.uniform1i(U.u_glyph,1);gl.uniform1i(U.u_mask,2);" +
     "gl.uniform1f(U.u_seed,P.seed);gl.uniform1f(U.u_scale,P.scale);gl.uniform1f(U.u_warp,P.warp);gl.uniform1f(U.u_sym,P.sym);gl.uniform1f(U.u_dots,P.dots);gl.uniform1f(U.u_dither,P.thresh);gl.uniform1f(U.u_grain,P.grain);gl.uniform1i(U.u_pal,P.pal);" +
     "gl.uniform3f(U.u_c0,P.cols[0][0],P.cols[0][1],P.cols[0][2]);gl.uniform3f(U.u_c1,P.cols[1][0],P.cols[1][1],P.cols[1][2]);gl.uniform3f(U.u_c2,P.cols[2][0],P.cols[2][1],P.cols[2][2]);gl.uniform3f(U.u_c3,P.cols[3][0],P.cols[3][1],P.cols[3][2]);" +
     "gl.uniform1f(U.u_hasTex,0);gl.uniform1f(U.u_texAspect,1);gl.uniform1f(U.u_liq,0);gl.uniform1f(U.u_mix,0);gl.uniform1f(U.u_split,0);" +
-    "gl.uniform1i(U.u_field,P.field);gl.uniform1i(U.u_field2,P.field2);gl.uniform1i(U.u_blend,P.blend);gl.uniform1f(U.u_layerMix,P.layerMix);gl.uniform1i(U.u_field3,P.field3);gl.uniform1i(U.u_blend2,P.blend2);gl.uniform1f(U.u_layerMix2,P.layerMix2);gl.uniform1i(U.u_screen,P.screen);gl.uniform1i(U.u_material,P.material);gl.uniform1i(U.u_lens,P.lens||0);gl.uniform1f(U.u_lensAmt,P.lensAmt==null?1:P.lensAmt);" +
+    "gl.uniform1i(U.u_field,P.field);gl.uniform1i(U.u_field2,P.field2);gl.uniform1i(U.u_blend,P.blend);gl.uniform1f(U.u_layerMix,P.layerMix);gl.uniform1i(U.u_field3,P.field3);gl.uniform1i(U.u_blend2,P.blend2);gl.uniform1f(U.u_layerMix2,P.layerMix2);gl.uniform1i(U.u_screen,P.screen);gl.uniform1i(U.u_material,P.material);gl.uniform1i(U.u_substrate,P.substrate);gl.uniform1f(U.u_materialAmt,P.materialAmt);gl.uniform1f(U.u_textureScale,P.textureScale);gl.uniform1f(U.u_relief,P.relief);gl.uniform1f(U.u_substrateAmt,P.substrateAmt);gl.uniform1i(U.u_lens,P.lens||0);gl.uniform1f(U.u_lensAmt,P.lensAmt==null?1:P.lensAmt);" +
     "gl.uniform2f(U.u_pan,0,0);gl.uniform2f(U.u_mouse,0.5,0.5);gl.uniform1f(U.u_mouseAmt,0);gl.uniform1f(U.u_rec,0);gl.uniform1f(U.u_hasMask,0);gl.uniform3f(U.u_maskBg,0.05,0.05,0.06);" +
     "var dpr=Math.min(window.devicePixelRatio||1,2);function rs(){var w=Math.round(cv.clientWidth*dpr),h=Math.round(cv.clientHeight*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}gl.viewport(0,0,cv.width,cv.height);gl.uniform2f(U.u_res,cv.width,cv.height);gl.uniform1f(U.u_pixel,P.pixel<=1.5?1.0:P.pixel*dpr);gl.uniform1f(U.u_dot,P.dot*dpr);}window.addEventListener('resize',rs);rs();" +
     "var st=null;function fr(now){if(st===null)st=now;gl.uniform1f(U.u_time,(now-st)*0.001*P.speed);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(fr);}requestAnimationFrame(fr);";
@@ -10234,7 +10526,7 @@ var thumbFB = null, thumbTex = null, thumbPixels = null, thumbCv = null, thumbCt
    previewed — it leaks in from whatever the user is currently looking at, and the tile stops
    matching the hash it loads. sym and thresh were missing: set a kaleidoscope fold and every
    Explore tile rendered folded, while the pieces behind them mostly had no fold at all. */
-var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','lens','lensAmt','hasTex','t','cols','dot',
+var THUMB_KEYS = ['field','scale','warp','grain','seed','pal','pixel','dots','screen','material','substrate','materialAmt','textureScale','relief','substrateAmt','lens','lensAmt','hasTex','t','cols','dot',
   'field2','blend','layerMix','field3','blend2','layerMix2','sym','thresh'];
 function palSig(){ return state.pal===8 ? '8:'+state.cols.join(',') : String(state.pal); }
 function ensureThumbGL(){
@@ -10305,6 +10597,10 @@ function thumbSpecs(){
     jobs.push({ el: mb[i], ov: { material: parseInt(mb[i].getAttribute('data-material'), 10),
       field:3, pixel:1, dots:0, screen:0, hasTex:0, scale:1.6, warp:4.0, grain:0.02, seed:28, t:1.35 } });
   }
+  var sb=document.querySelectorAll('.substrateBtn');
+  for(i=0;i<sb.length;i++){
+    jobs.push({el:sb[i],ov:{substrate:parseInt(sb[i].getAttribute('data-substrate'),10),field:14,pixel:1,dots:0,screen:0,hasTex:0,scale:1.2,warp:2,grain:0,seed:28,t:0}});
+  }
   /* palette buttons get a vivid CSS gradient swatch (set in syncControls), not a noise render —
      the noise field is mid/dark-biased so the old previews read dark. */
   return jobs;
@@ -10321,6 +10617,7 @@ function renderOneThumb(job){
        halftone dots — so Hex, ASCII, Dither and Glitch all rendered as plain smooth fields,
        each showing the opposite of what clicking it does. Anything the job states for itself
        now stands; only what it leaves unsaid is cleared. */
+    state.substrate=job.ov.substrate||0; state.materialAmt=1; state.textureScale=1; state.relief=1; state.substrateAmt=0.55;
     if (job.ov.material == null){ state.material = 0; }   /* the finish tiles preview a material */
     if (job.ov.dots == null){ state.dots = 0; }
     if (job.ov.pixel == null){ state.pixel = 1; }

@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Fluid GPU verification</title>
+<style>body{margin:24px;font:16px system-ui;background:#14151a;color:#eee}#mount{width:320px;height:320px}pre{white-space:pre-wrap}</style>
+<h1>Fluid GPU verification</h1><div id="mount"></div><pre id="result">Running…</pre>
+<script type="module">
+import {createFluid,parseShareHash,FIELDS,MATERIALS,SUBSTRATES,LOOKS,VERSION} from '../fluid-core/src/index.js';
+window.artQA=(async()=>{
+ const report={version:VERSION,checks:[],timings:{},failures:[]};
+ const box=document.querySelector('#mount');let art=createFluid(box,{field:'flow',seed:28,grain:0,paused:true});
+ const ext=art.gl.getExtension('WEBGL_debug_renderer_info');report.renderer=ext?art.gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):art.gl.getParameter(art.gl.RENDERER);
+ function check(name,condition){report.checks.push({name,pass:!!condition});if(!condition)report.failures.push(name);}
+ function pixels(){art._resize();art._render();art.gl.finish();if(art.gl.isContextLost())throw new Error('WebGL context lost during verification');const p=new Uint8Array(art.canvas.width*art.canvas.height*4);art.gl.readPixels(0,0,art.canvas.width,art.canvas.height,art.gl.RGBA,art.gl.UNSIGNED_BYTE,p);return p;}
+ function spread(p){let min=255,max=0;for(let i=0;i<p.length;i+=4){const l=(p[i]+p[i+1]+p[i+2])/3;min=Math.min(min,l);max=Math.max(max,l);}return max-min;}
+ for(const field of FIELDS){art.set({field,material:0,substrate:0});check('engine '+field,spread(pixels())>2&&art.gl.getError()===0);}
+ for(const material of MATERIALS){art.set({field:'flow',material,substrate:0});check('finish '+material,spread(pixels())>2&&art.gl.getError()===0);}
+ for(const substrate of SUBSTRATES){art.set({material:0,substrate});check('surface '+substrate,spread(pixels())>2&&art.gl.getError()===0);}
+ for(const screen of ['square','hex','ascii','dither','glitch']){art.set({screen,field:'wash',material:'watercolor',substrate:'paper',pixel:6});check('art materials with screen '+screen,spread(pixels())>2&&art.gl.getError()===0);}
+ art.set({screen:'square',pixel:1});
+ art.set({field:'flow',material:'graffiti',materialAmt:0,substrate:0});const bypass=pixels();art.set({material:'none'});const plain=pixels();check('zero finish strength is an exact bypass',bypass.every((n,i)=>n===plain[i]));
+ art.set({substrate:'canvas',substrateAmt:0});const noSurface=pixels();check('zero surface strength is an exact bypass',noSurface.every((n,i)=>n===plain[i]));
+ for(const look of LOOKS.filter(l=>l.substrate!=null)){
+   art.set({look:look.label});art.t=0;const original=pixels();const params=parseShareHash(art.shareUrl());art.destroy();await new Promise(r=>setTimeout(r,20));art=createFluid(box,{...params,paused:true});const restored=pixels();
+   check('native share round-trip '+look.label,spread(restored)>2&&original.length===restored.length&&original.every((v,i)=>v===restored[i]));
+ }
+ art.set({field:'flow',layer:{field:'terrazzo',mix:.5},layer2:{field:'spray',mix:.4}});art.set({look:'MONSOON'});check('recipe clears previous layers',art.state.layerMix===0&&art.state.layerMix2===0);
+ for(const look of ['MONSOON','BACK ALLEY','OIL STUDY','CELADON']){
+   art.set({look});art.t=0;box.style.width='600px';box.style.height='600px';pixels();const times=[];
+   for(let i=0;i<8;i++){const t=performance.now();pixels();times.push(performance.now()-t);}
+   times.sort((a,b)=>a-b);report.timings[look]={width:art.canvas.width,height:art.canvas.height,medianMs:+times[4].toFixed(2)};
+ }
+ check('all rendering leaves WebGL error-free',art.gl.getError()===0);art.destroy();
+ report.passed=report.checks.length-report.failures.length;document.querySelector('#result').textContent=JSON.stringify(report,null,2);document.body.dataset.result=report.failures.length?'fail':'pass';return report;
+})().catch(error=>{document.body.dataset.result='fail';document.querySelector('#result').textContent=error.stack;throw error;});
+</script></html>

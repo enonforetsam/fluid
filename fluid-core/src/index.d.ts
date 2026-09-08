@@ -1,7 +1,7 @@
 /* Hand-written types for fluid-core (the implementation is plain ES modules). */
 
 export interface FluidLayerParams {
-  /** engine slug (e.g. 'crystal') or index 0..22 */
+  /** engine slug (e.g. 'crystal') or index 0..29 */
   field?: string | number;
   /** 'normal' | 'multiply' | 'screen' | 'add' | 'difference' | 'overlay' or index 0..5 */
   blend?: string | number;
@@ -10,7 +10,7 @@ export interface FluidLayerParams {
 }
 
 export interface FluidParams {
-  /** engine slug (e.g. 'flow') or index 0..22 */
+  /** engine slug (e.g. 'flow') or index 0..29 */
   field?: string | number;
   /** preset palette slug (e.g. 'sunset') or index 0..7 */
   palette?: string | number;
@@ -25,8 +25,18 @@ export interface FluidParams {
   layer2?: FluidLayerParams | false;
   /** 'square' | 'hex' | 'ascii' | 'dither' | 'glitch' or index 0..4; 'none' = square-at-rest */
   screen?: string | number;
-  /** 'none' | 'glass' | 'metal' | 'sand' | 'liquid' | 'molten' | 'paint' or index 0..6 */
+  /** Finish slug from MATERIALS or its stable numeric index. */
   material?: string | number;
+  /** Surface independent of finish: none, canvas, paper, concrete, stone, wood, plaster. */
+  substrate?: string | number;
+  /** Finish mix 0..1; 0 bypasses it. Default 1. */
+  materialAmt?: number;
+  /** Texture size 0.25..4, relative to artwork height. Default 1. */
+  textureScale?: number;
+  /** Relief strength 0..2. Default 1. */
+  relief?: number;
+  /** Surface mix 0..1. Default 0.55. */
+  substrateAmt?: number;
   lens?: string | number;
   lensAmt?: number;
   speed?: number;
@@ -73,6 +83,8 @@ export declare const PALETTES: string[];
 export declare const PALETTES_RGB: number[][][];
 export declare const SCREENS: string[];
 export declare const MATERIALS: string[];
+export declare const SUBSTRATES: string[];
+export declare const LENSES: string[];
 export declare const BLENDS: string[];
-export declare const LOOKS: Array<{ label: string; field?: number; screen?: number; material?: number; lens?: number; lensAmt?: number; thresh?: number; cols?: string[]; p: number[] }>;
+export declare const LOOKS: Array<{ label: string; field?: number; screen?: number; material?: number; substrate?: number; materialAmt?: number; textureScale?: number; relief?: number; substrateAmt?: number; lens?: number; lensAmt?: number; thresh?: number; cols?: string[]; p: number[] }>;
 export declare const VERSION: string;

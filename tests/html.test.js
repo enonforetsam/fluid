@@ -7,7 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const HTML_FILES = ['index.html', 'dev.html', 'manual.html', 'gallery.html'];
+const HTML_FILES = ['index.html', 'dev.html', 'manual.html', 'gallery.html', 'backgrounds.html'];
 
 describe('HTML pages', () => {
   for (const file of HTML_FILES) {

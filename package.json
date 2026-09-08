@@ -1,6 +1,6 @@
 {
   "name": "fluid",
-  "version": "0.1.0",
+  "version": "3.3.0",
   "private": true,
   "description": "Generative art backgrounds \u2014 renders on the visitor's GPU",
   "scripts": {

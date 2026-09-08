@@ -49,8 +49,8 @@ describe('/llms.txt', () => {
     assert.match(body, /^# Fluid/);
     for (const needle of [
       '/mcp', 'create_piece', 'get_embed_code', 'list_looks', 'decode_link',
-      'fluid-bg', 'cdn.jsdelivr.net/npm/fluid-bg', '<fluid-bg fixed',
-      'npm i fluid-core', '/api/piece', 'Share-hash contract', '[13] embed flag',
+      'fluid-bg', 'https://fluid.test/fluid-bg.js', '<fluid-bg fixed',
+      'fluid-core archive', '/api/piece', 'Share-hash contract', '[13] embed flag',
       'custom connector', 'transparent'
     ]) {
       assert.ok(body.includes(needle), 'llms.txt should mention ' + needle);
@@ -73,7 +73,7 @@ describe('get_embed_code', () => {
 
     /* native + react carry the SHARE hash (flag 0) — fluid-bg applies the embed flag itself */
     const shareHash = piece.share_url.slice(piece.share_url.indexOf('#'));
-    assert.ok(out.html.includes('cdn.jsdelivr.net/npm/fluid-bg'), 'html should load fluid-bg from CDN');
+    assert.ok(out.html.includes('https://fluid.test/fluid-bg.js'), 'HTML must load the renderer from the same deployment');
     assert.ok(out.html.includes('<fluid-bg fixed hash="' + shareHash + '"'), 'html should use the share hash');
     assert.ok(out.react.includes("import FluidBg from 'fluid-bg/react'"), 'react import');
     assert.ok(out.react.includes('<FluidBg fixed hash="' + shareHash + '"'), 'react share hash');

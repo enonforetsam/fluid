@@ -8,9 +8,9 @@
    palettes, presets, looks — is GENERATED from index.html by fluid-core/build.mjs.
    The worker keeps no copy of its own, so app and API cannot drift apart.
    After changing the studio's pickers or LOOKS: node fluid-core/build.mjs */
-import { FIELDS, SCREENS, FINISHES, LENSES, BLENDS, PALETTES, PRESETS, LOOKS } from './worker-data.js';
+import { FIELDS, SCREENS, FINISHES, SUBSTRATES, LENSES, BLENDS, PALETTES, PRESETS, LOOKS } from './worker-data.js';
 
-var BASE = 'https://fluid.krackeddevs.com';
+var BASE = 'https://befluid.xyz';
 
 var ASPECTS = { '1:1': 1, '4:5': 0.8, '5:4': 1.25, '3:2': 1.5, '16:9': 1.7778, '9:16': 0.5625 };
 function aspectName(v){
@@ -24,7 +24,7 @@ var DEFAULTS = {
   pixel: 6, dot: 10, halftone: true, palette: 'aurora',
   seed: null, liquify: 0.8, blend: 0.85, aspect: '1:1', preset: 'none',
   field: 'noise', screen: 'square', threshold: 0.5, finish: 'none',
-  lens: 'none', lensAmount: 1
+  lens: 'none', lensAmount: 1, substrate:'none', materialAmt:1, textureScale:1, relief:1, substrateAmt:0.55
 };
 
 function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
@@ -136,6 +136,8 @@ function buildPiece(input, base){
     p.screen = SCREENS[lk.screen || 0];
     p.threshold = lk.thresh != null ? lk.thresh : 0.5;
     p.finish = FINISHES[lk.material || 0];
+    p.substrate=SUBSTRATES[lk.substrate||0];
+    ['materialAmt','textureScale','relief','substrateAmt'].forEach(function(k){if(lk[k]!=null){p[k]=lk[k];}});
     p.lens = LENSES[lk.lens || 0];
     p.lensAmount = lk.lensAmt != null ? lk.lensAmt : 1;
     if (lk.cols){ p.palette = 'custom'; p.lookCols = lk.cols; }
@@ -176,6 +178,18 @@ function buildPiece(input, base){
     if (FINISHES.indexOf(fn) < 0){ throw new Error('unknown finish — valid: ' + FINISHES.join(', ')); }
     p.finish = fn;
   }
+  if(typeof input.substrate==='string'){
+    var sub=input.substrate.toLowerCase();
+    if(SUBSTRATES.indexOf(sub)<0){throw new Error('unknown substrate — valid: '+SUBSTRATES.join(', '));}
+    p.substrate=sub;
+  }
+  [['materialAmt',0,1],['textureScale',0.25,4],['relief',0,2],['substrateAmt',0,1]].forEach(function(spec){
+    var k=spec[0];
+    if(input[k]!=null){
+      if(typeof input[k]!=='number'||!isFinite(input[k])){throw new Error(k+' must be a finite number');}
+      p[k]=round2(clamp(input[k],spec[1],spec[2]));
+    }
+  });
   if (typeof input.lens === 'string'){
     var ln = input.lens.toLowerCase();
     if (LENSES.indexOf(ln) < 0){ throw new Error('unknown lens — valid: ' + LENSES.join(', ')); }
@@ -241,6 +255,11 @@ function buildPiece(input, base){
       while (a.length < 29){ a.push(0); }
       a.push(lnIdx, Math.round(p.lensAmount * 100));
     }
+    var artSlots=[SUBSTRATES.indexOf(p.substrate),Math.round((p.materialAmt-1)*100),Math.round((p.textureScale-1)*100),Math.round((p.relief-1)*100),Math.round((p.substrateAmt-0.55)*100)];
+    if(artSlots.some(function(v){return v!==0;})){
+      while(a.length<34){a.push(a.length===30?100:0);}
+      a=a.concat(artSlots);
+    }
     var minLen = customPacked ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
     return base + '/#p=' + a.join(',');
@@ -291,6 +310,11 @@ function decodeLink(url){
     lensAmount: n.length > 30 ? clamp(n[30] / 100, 0, 1) : 1,
     /* the stacked engines, if any: [25..27] is layer 2, [31..33] layer 3. Each blends onto
        everything below it, so a 3rd without a 2nd is not a state and is reported as absent. */
+    substrate:SUBSTRATES[clamp(n.length>34?Math.round(n[34]):0,0,SUBSTRATES.length-1)],
+    materialAmt:n.length>35?clamp(1+n[35]/100,0,1):1,
+    textureScale:n.length>36?clamp(1+n[36]/100,0.25,4):1,
+    relief:n.length>37?clamp(1+n[37]/100,0,2):1,
+    substrateAmt:n.length>38?clamp(0.55+n[38]/100,0,1):0.55,
     layers: decodeLayers(n)
   };
 }
@@ -335,21 +359,14 @@ function withEmbedFlag(nums, on){
   return a;
 }
 
-/* Pinned to a MINOR range, so patches arrive but a breaking major never does on its own.
-   Bump this only in the same change as the matching `npm publish` — a range that resolves to
-   nothing 404s every embed snippet this string appears in. Mirrored in README.md.
-   0.3 is the first release with all 23 engines, the math lenses and the third layer; 0.2
-   silently rendered Topo as Cassini.
-   AHEAD OF THE PIN: the studio now ships 24 engines — eddy (23) landed after 0.3.0 was
-   published. fluid-core clamps unknown engine ids down to its own highest, so until the
-   packages are republished a share link using eddy renders as topo through the CDN embed,
-   the same silent substitution 0.2 made. The studio and the iframe embed are unaffected;
-   they run this deploy's shader. Publish, then bump this pin in the same change. */
-var FLUID_BG_CDN = 'https://cdn.jsdelivr.net/npm/fluid-bg@0.3';
+/* The website serves its own matching engine build. Package consumers can install the
+   release archive without waiting for npm; otherwise new hashes would hit an older decoder. */
+var FLUID_BG_PACKAGE = 'https://github.com/enonforetsam/fluid/releases/download/v3.3.0/fluid-bg-3.3.0.tgz';
 
 function embedCode(input, base){
   input = input || {};
   base = base || BASE;
+  var scriptUrl=base.replace(/\/$/,'')+'/fluid-bg.js';
   var nums;
   if (typeof input.url === 'string' && input.url){
     var m = /p=([0-9.,-]+)/.exec(input.url);
@@ -368,14 +385,14 @@ function embedCode(input, base){
   var fixed = input.target !== 'element';
 
   var html = fixed
-    ? '<script src="' + FLUID_BG_CDN + '"></script>\n' +
+    ? '<script src="' + scriptUrl + '"></script>\n' +
       '<fluid-bg fixed hash="' + shareHash + '"></fluid-bg>'
-    : '<script src="' + FLUID_BG_CDN + '"></script>\n' +
+    : '<script src="' + scriptUrl + '"></script>\n' +
       '<div style="position:relative;height:420px">\n' +
       '  <fluid-bg hash="' + shareHash + '"></fluid-bg>\n' +
       '</div>';
 
-  var react = 'npm install fluid-bg\n\n' +
+  var react = 'npm install '+FLUID_BG_PACKAGE+'\n\n' +
     "import FluidBg from 'fluid-bg/react';\n\n" +
     (fixed
       ? '<FluidBg fixed hash="' + shareHash + '" />'
@@ -398,7 +415,7 @@ function embedCode(input, base){
     react: react,
     iframe_html: iframe,
     notes: 'html/react use the fluid-bg npm package: it renders NATIVELY on a canvas in the page ' +
-      '(~15 KB gz, engines bundled, no iframe) and falls back to a hosted iframe only when WebGL is ' +
+      '(engines bundled, no iframe) and falls back to a hosted iframe only when WebGL is ' +
       'unavailable. FOOTGUN: a fixed background sits at z-index:-1, so the page/body background must ' +
       'stay transparent or it paints over the art. Non-fixed instances fill their parent — give the ' +
       'parent a size. iframe_html needs no npm dependency at all. Static images are exported in the ' +
@@ -409,6 +426,7 @@ function embedCode(input, base){
 /* ---------- llms.txt (agent-readable site guide) ---------- */
 
 function llmsTxt(base){
+  var scriptUrl=(base||BASE).replace(/\/$/,'')+'/fluid-bg.js';
   var text = [
     '# Fluid',
     '',
@@ -420,7 +438,7 @@ function llmsTxt(base){
     'Key facts:',
     '',
     '- Design in the studio at ' + base + '/, or programmatically via MCP or REST — both return share and embed URLs.',
-    '- Embed on any site with the `fluid-bg` npm package (native canvas in the page, ~15 KB gz) or a plain iframe.',
+    '- Embed on any site with the `fluid-bg` npm package (native canvas in the page) or a plain iframe.',
     '- Static images (PNG/JPG/WebP at any size) are exported client-side from the studio\'s Export panel. There is NO image-render API — never promise a server-rendered file.',
     '',
     '## Connect (AI agents)',
@@ -439,12 +457,12 @@ function llmsTxt(base){
     '## Embed on a site (fluid-bg)',
     '',
     '```html',
-    '<script src="' + FLUID_BG_CDN + '"></script>',
+    '<script src="' + scriptUrl + '"></script>',
     '<fluid-bg fixed hash="#p=0.5,1.5,5.5,0.03,1,10,0,0,18,0,0,1.7778"></fluid-bg>',
     '```',
     '',
-    '- React: `npm i fluid-bg`, then `import FluidBg from \'fluid-bg/react\'` and `<FluidBg fixed hash="#p=…" />`.',
-    '- Raw engine library: `npm i fluid-core` — `createFluid(el, {field, palette|colors, look, …})` + `parseShareHash()`; zero deps, ~21 KB, TypeScript types included. fluid-bg is built on it.',
+    '- React: install the fluid-bg archive from the v3.3.0 GitHub release, then `import FluidBg from \'fluid-bg/react\'` and `<FluidBg fixed hash="#p=…" />`.',
+    '- Raw engine library: install the fluid-core archive from the v3.3.0 GitHub release — `createFluid(el, {field, palette|colors, look, …})` + `parseShareHash()`; zero deps, TypeScript types included. fluid-bg is built on it.',
     '- Native by default (canvas in the page, engines bundled); falls back to a hosted iframe automatically when WebGL is unavailable. `mode="iframe"` forces the old behaviour.',
     '- FOOTGUN: `fixed` sits at z-index -1 — keep the html/body background TRANSPARENT or the page paints over the art.',
     '- A non-fixed `<fluid-bg>` fills its parent: give the parent a size.',
@@ -463,6 +481,8 @@ function llmsTxt(base){
     '[8] seed [9] liquify [10] blend [11] aspect [12] preset [13] embed flag (1 = chrome-less canvas)',
     '[14] field [15] screen [16-17] pan [18] symmetry [20-23] packed custom RGB stops',
     '[24] dither-threshold offset [25-27] layer [28] material finish [29][30] math lens + amount×100.',
+    '[31-33] third layer; [34] substrate; [35] (finish strength-1)×100; [36] (texture scale-1)×100;',
+    '[37] (relief-1)×100; [38] (substrate strength-0.55)×100. All five new slots default to zero.',
     'Values are numeric only; parsers must clamp and reject NaN.',
     ''
   ].join('\n');
@@ -487,9 +507,14 @@ var TOOLS = [
       type: 'object',
       properties: {
         look: { type: 'string', enum: Object.keys(LOOKS), description: 'curated starting point' },
-        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours), topo (topographic contour map — elevation isolines of a drifting landmass), eddy (von Karman vortex street — the staggered counter-rotating eddies shed behind a cylinder)' },
+        field: { type: 'string', enum: FIELDS, description: 'generator: noise (domain-warp), flow (curl/fluid swirl), cellular (Voronoi), gyroid (woven bands), truchet (maze/circuit), interfere (moire rings), kaleido (mandala), lines (rotated bands), grid (lattice), golden (phyllotaxis sunflower spiral), smoke (billowing domain-warped clouds), crystal (quasicrystal plane-waves), honeycomb (hex lattice), bloom (soft colour blobs — a living mesh gradient), sweep (corner-to-corner colour gradient, edges alive), marble (combed ink swirls — paper marbling), plaid (woven tartan bands), curtain (aurora curtains — luminous vertical streaks), stitch (curve-stitching string art — epicycloid caustic), pursuit (whirling polygons — nested spiral chase), chladni (vibrating-plate nodal figures), cassini (lemniscate ovals — equipotential contours), topo (topographic contour map — elevation isolines of a drifting landmass), eddy (von Karman vortex street — the staggered counter-rotating eddies shed behind a cylinder), wash (pigment clouds), spray (aerosol strokes), brushwork (directional brush marks), strata (sediment bands), terrazzo (stone chips), woodgrain (growth rings)' },
         screen: { type: 'string', enum: SCREENS, description: 'pixel geometry: square, hex (honeycomb), ascii (glyph ramp), dither (Bayer 2-tone)' },
-        finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks), paint (impasto oil — brush dabs along the field contours, bristle ridges, glossy on a toned canvas)' },
+        substrate:{type:'string',enum:SUBSTRATES,description:'Independent surface texture: canvas, paper, concrete, stone, wood or plaster'},
+        materialAmt:{type:'number',minimum:0,maximum:1,description:'Finish strength; 0 bypasses, default 1'},
+        textureScale:{type:'number',minimum:0.25,maximum:4,description:'Texture size, relative to artwork; default 1'},
+        relief:{type:'number',minimum:0,maximum:2,description:'Relief strength; default 1'},
+        substrateAmt:{type:'number',minimum:0,maximum:1,description:'Surface strength; default 0.55'},
+        finish: { type: 'string', enum: FINISHES, description: 'material relight: glass, metal (chrome), sand (matte), liquid (wet gloss), molten (liquid metal, palette-tinted — gold/chrome logo looks), paint (impasto oil), watercolor (pigment pools), graffiti (spray and drips), charcoal (hatching), pastel (chalk), ink (wash), ceramic (glaze)' },
         lens: { type: 'string', enum: LENSES, description: 'math lens — a named transform of the complex plane the engine is sampled through: square (conformal z^2), invert (circle inversion 1/z), mobius (disk automorphism, orbiting pole), droste (log-polar Escher spiral), hyperbolic (Poincare rim compression), julia (z^2+c orbit sampling), cube (conformal z^3), exp (e^z strip-to-fan), sine (sin z mirror lattice), joukowski (z + 1/z airfoil map), newton (Newton-fractal basins of z^3=1), modular (SL(2,Z) fundamental-domain fold), ground (tips the plane away from the camera so the piece recedes to a horizon \u2014 a floor rather than a flat field)' },
         lensAmount: { type: 'number', description: 'lens strength 0-1 (default 1): blends flat space toward the transformed domain' },
         preset: { type: 'string', enum: ['none'].concat(PRESETS), description: 'built-in source image to melt' },
@@ -647,7 +672,7 @@ function handleRpc(msg, base){
     return rpcResult(id, {
       protocolVersion: pv,
       capabilities: { tools: {} },
-      serverInfo: { name: 'fluid', version: '1.0.0' },
+      serverInfo: { name: 'fluid', version: '3.3.0' },
       instructions: 'Designs Fluid generative backgrounds / wallpapers / OG images as share links and ' +
         'live embeds. create_piece designs one, get_embed_code turns its share_url into copy-paste ' +
         'site code (native <fluid-bg> web component, React, or iframe), list_looks gives curated ' +
@@ -712,10 +737,10 @@ function api(req, url){
   if (url.pathname === '/api/piece'){
     var q = url.searchParams;
     var input = {};
-    ['look', 'preset', 'palette', 'aspect', 'field', 'screen', 'finish', 'lens'].forEach(function(k){
+    ['look', 'preset', 'palette', 'aspect', 'field', 'screen', 'finish', 'substrate', 'lens'].forEach(function(k){
       if (q.has(k)){ input[k] = q.get(k); }
     });
-    ['seed', 'speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'threshold', 'liquify', 'blend', 'lensAmount'].forEach(function(k){
+    ['seed', 'speed', 'zoom', 'warp', 'grain', 'pixel', 'dot', 'threshold', 'liquify', 'blend', 'lensAmount', 'materialAmt', 'textureScale', 'relief', 'substrateAmt'].forEach(function(k){
       if (q.has(k)){ input[k] = parseFloat(q.get(k)); }
     });
     if (q.has('halftone')){ input.halftone = q.get('halftone') !== '0' && q.get('halftone') !== 'false'; }
@@ -726,7 +751,7 @@ function api(req, url){
   return json({
     name: 'fluid api',
     endpoints: {
-      'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish, lens, lensAmount',
+      'GET /api/piece': 'query params: look, preset, palette, colors (2-4 hex, comma-separated — 2 or 3 blend into a full gradient), seed, speed, zoom, warp, grain, pixel, dot, threshold, halftone, liquify, blend, aspect, field, screen, finish, substrate, materialAmt, textureScale, relief, substrateAmt, lens, lensAmount',
       'GET /api/looks': 'curated looks with links',
       'GET /api/today': "the day's piece as JSON; ?date=YYYY-MM-DD replays any other day",
       'GET /today': "permalink that opens the day's piece in the studio",
@@ -735,6 +760,18 @@ function api(req, url){
     },
     docs: base + '/dev'
   });
+}
+
+/* The embed script, self-hosted: fluid-bg's IIFE build, copied into assets/ by its build step.
+   The /backgrounds snippets point here so a new attribute is live the moment the site deploys,
+   with npm and the CDN pin catching up on their own schedule. */
+async function fluidBgScript(env, url){
+  var asset = await env.ASSETS.fetch(new Request(new URL('/assets/fluid-bg.iife.js', url.origin)));
+  var h = new Headers(asset.headers);
+  h.set('content-type', 'text/javascript; charset=utf-8');
+  h.set('cache-control', 'public, max-age=3600');
+  h.set('access-control-allow-origin', '*');
+  return new Response(asset.body, { status: asset.status, headers: h });
 }
 
 /* Static social-share image. Crawlers cannot run the app or inspect #p= fragments,
@@ -818,6 +855,7 @@ export default {
     if (url.pathname === '/mcp'){ resp = await mcp(req); }
     else if (url.pathname === '/llms.txt'){ resp = llmsTxt(url.origin); }
     else if (url.pathname === '/og.jpg'){ resp = await ogImage(req, env, url); }
+    else if (url.pathname === '/fluid-bg.js'){ resp = await fluidBgScript(env, url); }
     else if (url.pathname === '/favicon.ico'){
       resp = fluidFavicon();
     }

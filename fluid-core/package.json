@@ -1,7 +1,7 @@
 {
   "name": "fluid-core",
-  "version": "0.4.0",
-  "description": "Fluid's engines as a zero-dependency native canvas library — generated from the studio, never drifting from it",
+  "version": "3.3.0",
+  "description": "Fluid's engines as a zero-dependency native canvas library \u2014 generated from the studio, never drifting from it",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -24,7 +24,7 @@
     "url": "git+https://github.com/enonforetsam/fluid.git",
     "directory": "fluid-core"
   },
-  "homepage": "https://fluid.krackeddevs.com",
+  "homepage": "https://befluid.xyz",
   "bugs": "https://github.com/enonforetsam/fluid/issues",
   "keywords": [
     "generative-art",

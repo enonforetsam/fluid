@@ -121,7 +121,7 @@ Zones, in file order:
 | canvas pointer | hover ripples the field, drag pans a loaded image, a tap reseeds | `---------- canvas pointer:` |
 | preset shelf | the built-in source thumbnails, inert while PRESETS is empty | `---------- preset shelf:` |
 | user sources | uploaded photos / frozen frames become thumbnails | `---------- user sources:` |
-| looks shelf | the looks outlived their shelf | `---------- looks shelf:` |
+| looks shelf | shared data powers the API and the artist recipe shelf | `---------- looks shelf:` |
 | own photo | file picker, paste, drag-and-drop | `---------- own photo:` |
 | camera | selfie-first, flip facing, freeze a frame | `---------- camera:` |
 | before/after split | clamped so the effect never fully hides | `---------- before/after split:` |

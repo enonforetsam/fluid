@@ -1,11 +1,11 @@
 {
   "name": "fluid-bg",
-  "version": "0.4.0",
-  "description": "Drop a live Fluid generative-art background into any page — native WebGL canvas, no iframe. A <fluid-bg> web component, a React wrapper, and a CDN one-liner. Engines generated from the Fluid studio (fluid.krackeddevs.com) with a CI drift guard.",
+  "version": "3.3.0",
+  "description": "Drop a live Fluid generative-art background into any page \u2014 native WebGL canvas, no iframe. A <fluid-bg> web component, a React wrapper, and a CDN one-liner. Engines generated from the Fluid studio (befluid.xyz) with a CI drift guard.",
   "type": "module",
   "license": "MIT",
   "author": "KrackedDevs",
-  "homepage": "https://fluid.krackeddevs.com",
+  "homepage": "https://befluid.xyz",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/enonforetsam/fluid.git",
