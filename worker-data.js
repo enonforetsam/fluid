@@ -1,10 +1,11 @@
 /* GENERATED from index.html by fluid-core/build.mjs — DO NOT EDIT.
    Regenerate with: node fluid-core/build.mjs */
 /* engine slugs by index — index = the #p= hash field id */
-export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo","eddy"];
+export const FIELDS = ["noise","flow","cellular","gyroid","truchet","interfere","kaleido","lines","grid","golden","smoke","crystal","honeycomb","bloom","sweep","marble","plaid","curtain","stitch","pursuit","chladni","cassini","topo","eddy","wash","spray","brushwork","strata","terrazzo","woodgrain"];
 export const SCREENS = ["square","hex","ascii","dither","glitch"];
 /* material finishes — share-hash slot [28] */
-export const FINISHES = ["none","glass","metal","sand","liquid","molten","paint"];
+export const FINISHES = ["none","glass","metal","sand","liquid","molten","paint","watercolor","graffiti","charcoal","pastel","ink","ceramic"];
+export const SUBSTRATES = ["none","canvas","paper","concrete","stone","wood","plaster"];
 /* math lenses — share-hash slots [29][30] */
 export const LENSES = ["none","square","invert","mobius","droste","hyperbolic","julia","cube","exp","sine","joukowski","newton","modular","ground"];
 /* layer blend modes — share-hash slots [26] and [32] */
@@ -57,5 +58,21 @@ export const LOOKS = {
   "filigree": {"field":11,"lens":6,"cols":["#07030e","#22084a","#6a2a9c","#f5c34e"],"p":[0.3,1.45,3.5,0.02,1,10,0,0,71,0,0,1]},
   "shoreline": {"field":1,"lens":11,"cols":["#03121c","#0e4664","#4fb3a8","#f2e2b6"],"p":[0.35,2.2,6,0.02,1,10,0,0,18,0,0,1]},
   "rosette": {"field":12,"lens":12,"cols":["#0b0d14","#2f3648","#8a8f99","#efe6d0"],"p":[0.3,0.9,4,0.02,1,10,0,0,63,0,0,1]},
-  "relief": {"field":22,"cols":["#0b0709","#3d1c2a","#c2557e","#f6d5e2"],"p":[0.45,1.6,4,0.02,1,10,0,0,34,0,0,1]}
+  "relief": {"field":22,"cols":["#0b0709","#3d1c2a","#c2557e","#f6d5e2"],"p":[0.45,1.6,4,0.02,1,10,0,0,34,0,0,1]},
+  "monsoon": {"field":24,"material":7,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#183b56","#537c91","#b0b9ae","#f1dfba"],"p":[0.18,1.2,4,0.015,1,10,0,0,18,0,0,1]},
+  "wildflower": {"field":24,"material":7,"substrate":2,"textureScale":1.4,"substrateAmt":0.65,"cols":["#462944","#a84e66","#da9977","#f4e8c5"],"p":[0.18,1.4,3,0.015,1,10,0,0,21,0,0,1]},
+  "back alley": {"field":25,"material":8,"substrate":3,"textureScale":1,"substrateAmt":0.65,"cols":["#182735","#bb3e5a","#ffc64b","#75e1c9"],"p":[0.18,1.1,5,0.015,1,10,0,0,24,0,0,1]},
+  "neon wall": {"field":25,"material":8,"substrate":3,"textureScale":1.4,"substrateAmt":0.65,"cols":["#15132e","#792eb1","#f75d8c","#fae574"],"p":[0.18,1.3,3,0.015,1,10,0,0,27,0,0,1]},
+  "oil study": {"field":26,"material":6,"substrate":1,"textureScale":1.3,"substrateAmt":0.65,"cols":["#182c30","#376a64","#c88343","#f1d6a5"],"p":[0.18,1.3,4,0.015,1,10,0,0,30,0,0,1]},
+  "cobalt canvas": {"field":26,"material":6,"substrate":1,"textureScale":1,"substrateAmt":0.65,"cols":["#17244c","#2859a8","#73a3b2","#e5d4a2"],"p":[0.18,1.1,6,0.015,1,10,0,0,33,0,0,1]},
+  "charcoal study": {"field":24,"material":9,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#202322","#585c55","#a9aaa0","#eee9d9"],"p":[0.18,1.1,4,0.015,1,10,0,0,36,0,0,1]},
+  "soft chalk": {"field":13,"material":10,"substrate":2,"textureScale":1.5,"substrateAmt":0.65,"cols":["#53656d","#b18783","#d9b79c","#efe0be"],"p":[0.18,1.2,3,0.015,1,10,0,0,39,0,0,1]},
+  "sumi paper": {"field":15,"material":11,"substrate":2,"textureScale":1,"substrateAmt":0.65,"cols":["#121b1b","#304346","#8b9a8d","#f0e9d3"],"p":[0.18,1.5,5,0.015,1,10,0,0,42,0,0,1]},
+  "canyon": {"field":27,"material":0,"substrate":4,"textureScale":1.4,"substrateAmt":0.65,"cols":["#352527","#924d3e","#d39a67","#f1d9b4"],"p":[0.18,1,6,0.015,1,10,0,0,45,0,0,1]},
+  "terrazzo club": {"field":28,"material":0,"substrate":4,"textureScale":1,"substrateAmt":0.65,"cols":["#254f51","#b75f5b","#d4ac76","#f3ebd5"],"p":[0.18,1.4,3,0.015,1,10,0,0,48,0,0,1]},
+  "cedar": {"field":29,"material":0,"substrate":5,"textureScale":1,"substrateAmt":0.65,"cols":["#30231e","#78513a","#b88b57","#e8c99a"],"p":[0.18,1.2,4,0.015,1,10,0,0,51,0,0,1]},
+  "celadon": {"field":3,"material":12,"substrate":6,"textureScale":1.3,"substrateAmt":0.65,"cols":["#153e3a","#457d72","#98bbaa","#e7dfbe"],"p":[0.18,1.5,4,0.015,1,10,0,0,54,0,0,1]},
+  "fresco": {"field":27,"material":10,"substrate":6,"textureScale":1.8,"substrateAmt":0.65,"cols":["#5e5348","#9c7e68","#c8b196","#ede2ce"],"p":[0.18,1.4,3,0.015,1,10,0,0,57,0,0,1]},
+  "terra ink": {"field":27,"material":11,"substrate":4,"textureScale":1,"substrateAmt":0.65,"cols":["#26212b","#6f4443","#b87659","#e4c49b"],"p":[0.18,1.2,6,0.015,1,10,0,0,60,0,0,1]},
+  "gallery linen": {"field":14,"material":0,"substrate":1,"textureScale":1.8,"substrateAmt":0.65,"cols":["#6f7064","#a4a18c","#d3c8ad","#f2e9d4"],"p":[0.18,1.2,3,0.015,1,10,0,0,63,0,0,1]}
 };

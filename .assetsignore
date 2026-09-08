@@ -16,3 +16,5 @@ package.json
 .DS_Store
 fluid-bg
 fluid-vibe
+
+CHANGELOG.md

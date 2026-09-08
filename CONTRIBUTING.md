@@ -24,10 +24,10 @@ float fieldMyEngine(vec2 p, float t) {
 }
 ```
 
-**Step 2 — dispatch it.** In `getField(p, t)`, add a branch:
+**Step 2 — dispatch it.** In `fieldOf(p, t, which)`, add a branch:
 
 ```glsl
-if(u_field == N) return fieldMyEngine(p, t);
+if(which == N) return fieldMyEngine(p, t);
 ```
 
 **Step 3 — add the UI button.** In `index.html`, copy an existing `.fieldBtn` and give it the next index:
@@ -45,7 +45,10 @@ unreachable from a link and never shuffled into a piece.
 regenerate it, then commit the result — `npm test` fails on drift if you forget.
 
 **Step 6 — add looks.** Add 1–2 entries to the `LOOKS` table that show off what the engine does best.
-A look is `{name, tip, p}` where `p` is a `buildHash(0)` string for that parameter set.
+A look is `{label, field, screen, p}`. Its `p` array is
+`[speed, zoom, warp, grain, pixel, dot, dots, palette, seed, liquify, imageMix, aspect]`.
+Optional `material`, `substrate`, `materialAmt`, `textureScale`, `relief`, `substrateAmt`, `cols`, and
+`lens`/`lensAmt` complete the recipe. Copy a nearby entry in `LOOKS` as the current schema.
 
 **Include in your PR:** a screenshot or share link from the live site, and a one-sentence description
 of what the math does (it goes in `manual.html` under `04 — Field`).
@@ -105,3 +108,15 @@ npm run dev              # full stack including worker, on :8787
 ```
 
 No install step needed for the app. `wrangler` is the only dev dependency.
+
+## Finishes and substrates
+
+Keep these independent: a finish describes pigment or shading; a substrate describes what it
+sits on. Append registry IDs, add picker buttons and descriptions, and extend the relevant GLSL
+function in `index.html`. Use artwork-relative coordinates for texture details. A strength of
+zero must exactly bypass the corresponding stage. Do not repurpose share-hash slots.
+
+Regenerate with `node fluid-core/build.mjs`, then rebuild `fluid-bg` with `npm run build --prefix
+fluid-bg` (install that directory’s dev dependencies first). Commit generated source and
+`assets/fluid-bg.iife.js`. Run `npm test` and the browser checks described in
+[the architecture guide](docs/ARCHITECTURE.md#regeneration-and-gpu-verification).

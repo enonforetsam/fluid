@@ -8,6 +8,6 @@ export { parseShareHash } from './hash.js';
 export { VSRC, FSRC } from './generated/shader.js';
 export {
   FIELDS, FIELD_TUNE, FIELD_STATUS,
-  PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LOOKS
+  PALETTES, PALETTES_RGB, SCREENS, MATERIALS, SUBSTRATES, LENSES, BLENDS, LOOKS
 } from './generated/data.js';
-export const VERSION = '0.4.0';
+export const VERSION = '3.3.0';

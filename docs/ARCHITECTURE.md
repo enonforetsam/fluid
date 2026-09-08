@@ -16,8 +16,8 @@ Streamable HTTP MCP endpoint.
 | `dev.html` | Embed, MCP, and JSON API reference |
 | `assets/fluid-favicon.js` | Low-rate animated favicon for browser tabs |
 
-There is no package manifest, build step, framework, database, account system,
-or server-side renderer.
+The studio needs no build step, framework, database, account system, or server-side renderer.
+Package manifests provide verification and the optional native-library/background builds.
 
 ## Render Pipeline
 
@@ -27,11 +27,16 @@ The app draws one full-screen triangle into a canvas. The fragment shader:
 2. Builds a scalar field using one of the field engines: noise, flow, cellular,
    gyroid, truchet, interfere, kaleido, lines, grid, golden, smoke, crystal,
    honeycomb, bloom, sweep, marble, plaid, curtain, stitch, pursuit, chladni,
-   cassini, topo, or eddy.
+   cassini, topo, eddy, wash, spray, brushwork, strata, terrazzo, or woodgrain.
 3. Optionally uses an uploaded image texture as luminance input for the field.
 4. Maps the scalar field through a preset palette or a custom four-stop gradient.
-5. Applies the selected surface mode and optional halftone dots.
-6. Adds grain and vignette.
+5. Shades the finish (including procedural pigment, bristles, overspray, and glaze) and mixes it with the palette using finish strength.
+6. Applies the selected screen mode and optional halftone dots.
+7. Applies the independent substrate texture, then grain and vignette.
+
+Artistic detail uses height-normalized artwork coordinates, divided by `textureScale`, so a
+larger export retains the material’s composition rather than multiplying its texture frequency.
+These are procedural visual models, not a simulation of pigment drying or physical paint flow.
 
 Every screen-space shader size is multiplied by the render scale `k` passed to
 `render(k)`. This keeps high-resolution exports visually aligned with the live
@@ -75,9 +80,17 @@ append-only; new parameters must be appended at the end.
 | 31 | layer 3 field engine |
 | 32 | layer 3 blend mode |
 | 33 | layer 3 mix × 100 |
+| 34 | substrate: 0 none, 1 canvas, 2 paper, 3 concrete, 4 stone, 5 wood, 6 plaster |
+| 35 | (finish strength − 1) × 100 |
+| 36 | (texture scale − 1) × 100 |
+| 37 | (relief − 1) × 100 |
+| 38 | (substrate strength − 0.55) × 100 |
 
 Defaults are trimmed from the end so older links stay short and continue to
-parse correctly.
+parse correctly. Slots 34–38 use offsets so default values remain zero; a strength of
+zero is explicit, not mistaken for an absent setting. When padding beyond a missing lens
+block, slot 30 must be 100 (the historic full-strength lens default). Existing engine and
+finish IDs are never reordered; v3.3 appends fields 24–29 and finishes 7–12.
 
 ## Worker Mirror
 
@@ -98,7 +111,7 @@ When adding an app feature that appears in a link or API response, update both
 Local app-only testing can use `open index.html`. Full Worker behavior uses:
 
 ```sh
-npx wrangler dev
+npm run dev
 ```
 
 Production deploy:
@@ -129,3 +142,19 @@ node --check assets/fluid-favicon.js
 For UI or rendering changes, verify at desktop and mobile sizes that the canvas
 is nonblank, field and surface switches update immediately, share links
 round-trip, and image export still matches the live canvas.
+
+## Regeneration and GPU verification
+
+```sh
+node fluid-core/build.mjs
+npm install --prefix fluid-bg
+npm run build --prefix fluid-bg
+npm test
+python3 -m http.server 8103
+# Open http://localhost:8103/tests/browser-art.html in a WebGL-capable browser.
+```
+
+The unit suite checks mirror drift, old links, zero-strength controls, recipe/API parity,
+and the self-hosted bundle’s source checksum. The browser page checks every engine, finish,
+substrate, and screen combination with art materials; it compares each artist recipe with
+its share-hash reconstruction pixel-for-pixel. Timings include readback and are hardware-specific.

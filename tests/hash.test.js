@@ -48,7 +48,7 @@ const LENS_MAX = extractNumber('LENS_MAX');
 function makeCtx() {
   const sandbox = {
     PRESETS: [], activePresetId: null, pendingPreset: 0, EMBED: false,
-    FIELD_MAX, LENS_MAX,
+    FIELD_MAX, LENS_MAX, MATERIAL_MAX:extractNumber('MATERIAL_MAX'), SUBSTRATE_MAX:extractNumber('SUBSTRATE_MAX'),
     Math, parseFloat, parseInt, isNaN, String, Number,
     window: { location: { hash: '' } },
     state: {}
@@ -83,7 +83,7 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
   });
 
   it('every field index 0..22 round-trips (incl. stitch, pursuit, chladni, cassini + topo)', () => {
-    for (let f = 0; f <= 22; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
+    for (let f = 0; f <= FIELD_MAX; f++) assert.strictEqual(roundtrip({ field: f }).after.field, f, 'field ' + f);
   });
 
   it('symmetry (kaleido fold) round-trips via the reserved slot [18]', () => {
@@ -185,7 +185,7 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
   });
 
   it('every material finish 0..6 round-trips via slot [28]', () => {
-    for (let m = 0; m <= 6; m++) assert.strictEqual(roundtrip({ material: m }).after.material, m, 'material ' + m);
+    for (let m = 0; m <= extractNumber('MATERIAL_MAX'); m++) assert.strictEqual(roundtrip({ material: m }).after.material, m, 'material ' + m);
     // no finish (material 0) is the default and must trim away — no hash bloat
     assert.ok(roundtrip({ material: 0 }).hash.split(',').length <= 16, 'material=0 must not pad the hash');
   });
@@ -222,5 +222,34 @@ describe('share-hash round-trip (buildHash <-> parseHash)', () => {
     for (const bad of ['', '#p=', '#p=1,2,3', '#x=1,2,3,4,5,6,7,8,9,10,11,12', '#p=a,b,c,d,e,f,g,h,i,j,k,l']) {
       assert.strictEqual(vm.runInContext('parseHash(' + JSON.stringify(bad) + ')', dec), false, 'should reject ' + JSON.stringify(bad));
     }
+  });
+});
+
+describe('v3.3 artistic material and substrate contract', () => {
+  it('all surfaces and finishes survive alongside a three-layer stack', async () => {
+    const { parseShareHash } = await import('../fluid-core/src/hash.js');
+    for (let substrate=0;substrate<=6;substrate++) {
+      for (let material=0;material<=12;material++) {
+        const {hash,after}=roundtrip({field:29,field2:25,blend:2,layerMix:.6,field3:28,blend2:4,layerMix2:.3,material,substrate,materialAmt:.73,textureScale:1.64,relief:1.27,substrateAmt:.81});
+        assert.equal(after.substrate,substrate);assert.equal(after.material,material);
+        const lib=parseShareHash(hash);
+        for(const k of ['materialAmt','textureScale','relief','substrateAmt'])assert.ok(Math.abs(lib[k]-after[k])<1e-9,k);
+        assert.equal(lib.layer2.field,28);assert.equal(lib.lensAmt,1);
+      }
+    }
+  });
+  it('explicit zero strength survives trailing-zero trimming', () => {
+    const {hash,after}=roundtrip({material:8,substrate:3,materialAmt:0,textureScale:.25,relief:0,substrateAmt:0});
+    assert.equal(after.materialAmt,0);assert.equal(after.relief,0);assert.equal(after.substrateAmt,0);
+    assert.equal(after.textureScale,.25);assert.ok(!hash.includes('NaN'));
+  });
+  it('new controls at defaults do not lengthen legacy links', () => {
+    const old=roundtrip({field:1}).hash;
+    const current=roundtrip({field:1,substrate:0,materialAmt:1,textureScale:1,relief:1,substrateAmt:.55}).hash;
+    assert.equal(current,old);assert.ok(current.split(',').length<=16);
+  });
+  it('a substrate-only link preserves the absent lens default', () => {
+    const {after}=roundtrip({substrate:2});
+    assert.equal(after.lens,0);assert.equal(after.lensAmt,1);assert.equal(after.substrateAmt,.55);
   });
 });

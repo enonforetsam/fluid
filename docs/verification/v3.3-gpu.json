@@ -1,0 +1,330 @@
+{
+  "version": "3.3.0",
+  "checks": [
+    {
+      "name": "engine noise",
+      "pass": true
+    },
+    {
+      "name": "engine flow",
+      "pass": true
+    },
+    {
+      "name": "engine cellular",
+      "pass": true
+    },
+    {
+      "name": "engine gyroid",
+      "pass": true
+    },
+    {
+      "name": "engine truchet",
+      "pass": true
+    },
+    {
+      "name": "engine interfere",
+      "pass": true
+    },
+    {
+      "name": "engine kaleido",
+      "pass": true
+    },
+    {
+      "name": "engine lines",
+      "pass": true
+    },
+    {
+      "name": "engine grid",
+      "pass": true
+    },
+    {
+      "name": "engine golden",
+      "pass": true
+    },
+    {
+      "name": "engine smoke",
+      "pass": true
+    },
+    {
+      "name": "engine crystal",
+      "pass": true
+    },
+    {
+      "name": "engine honeycomb",
+      "pass": true
+    },
+    {
+      "name": "engine bloom",
+      "pass": true
+    },
+    {
+      "name": "engine sweep",
+      "pass": true
+    },
+    {
+      "name": "engine marble",
+      "pass": true
+    },
+    {
+      "name": "engine plaid",
+      "pass": true
+    },
+    {
+      "name": "engine curtain",
+      "pass": true
+    },
+    {
+      "name": "engine stitch",
+      "pass": true
+    },
+    {
+      "name": "engine pursuit",
+      "pass": true
+    },
+    {
+      "name": "engine chladni",
+      "pass": true
+    },
+    {
+      "name": "engine cassini",
+      "pass": true
+    },
+    {
+      "name": "engine topo",
+      "pass": true
+    },
+    {
+      "name": "engine eddy",
+      "pass": true
+    },
+    {
+      "name": "engine wash",
+      "pass": true
+    },
+    {
+      "name": "engine spray",
+      "pass": true
+    },
+    {
+      "name": "engine brushwork",
+      "pass": true
+    },
+    {
+      "name": "engine strata",
+      "pass": true
+    },
+    {
+      "name": "engine terrazzo",
+      "pass": true
+    },
+    {
+      "name": "engine woodgrain",
+      "pass": true
+    },
+    {
+      "name": "finish none",
+      "pass": true
+    },
+    {
+      "name": "finish glass",
+      "pass": true
+    },
+    {
+      "name": "finish metal",
+      "pass": true
+    },
+    {
+      "name": "finish sand",
+      "pass": true
+    },
+    {
+      "name": "finish liquid",
+      "pass": true
+    },
+    {
+      "name": "finish molten",
+      "pass": true
+    },
+    {
+      "name": "finish paint",
+      "pass": true
+    },
+    {
+      "name": "finish watercolor",
+      "pass": true
+    },
+    {
+      "name": "finish graffiti",
+      "pass": true
+    },
+    {
+      "name": "finish charcoal",
+      "pass": true
+    },
+    {
+      "name": "finish pastel",
+      "pass": true
+    },
+    {
+      "name": "finish ink",
+      "pass": true
+    },
+    {
+      "name": "finish ceramic",
+      "pass": true
+    },
+    {
+      "name": "surface none",
+      "pass": true
+    },
+    {
+      "name": "surface canvas",
+      "pass": true
+    },
+    {
+      "name": "surface paper",
+      "pass": true
+    },
+    {
+      "name": "surface concrete",
+      "pass": true
+    },
+    {
+      "name": "surface stone",
+      "pass": true
+    },
+    {
+      "name": "surface wood",
+      "pass": true
+    },
+    {
+      "name": "surface plaster",
+      "pass": true
+    },
+    {
+      "name": "art materials with screen square",
+      "pass": true
+    },
+    {
+      "name": "art materials with screen hex",
+      "pass": true
+    },
+    {
+      "name": "art materials with screen ascii",
+      "pass": true
+    },
+    {
+      "name": "art materials with screen dither",
+      "pass": true
+    },
+    {
+      "name": "art materials with screen glitch",
+      "pass": true
+    },
+    {
+      "name": "zero finish strength is an exact bypass",
+      "pass": true
+    },
+    {
+      "name": "zero surface strength is an exact bypass",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip MONSOON",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip WILDFLOWER",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip BACK ALLEY",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip NEON WALL",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip OIL STUDY",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip COBALT CANVAS",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip CHARCOAL STUDY",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip SOFT CHALK",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip SUMI PAPER",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip CANYON",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip TERRAZZO CLUB",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip CEDAR",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip CELADON",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip FRESCO",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip TERRA INK",
+      "pass": true
+    },
+    {
+      "name": "native share round-trip GALLERY LINEN",
+      "pass": true
+    },
+    {
+      "name": "recipe clears previous layers",
+      "pass": true
+    },
+    {
+      "name": "all rendering leaves WebGL error-free",
+      "pass": true
+    }
+  ],
+  "timings": {
+    "MONSOON": {
+      "width": 600,
+      "height": 600,
+      "medianMs": 8.5
+    },
+    "BACK ALLEY": {
+      "width": 600,
+      "height": 600,
+      "medianMs": 4.9
+    },
+    "OIL STUDY": {
+      "width": 600,
+      "height": 600,
+      "medianMs": 11.2
+    },
+    "CELADON": {
+      "width": 600,
+      "height": 600,
+      "medianMs": 3.2
+    }
+  },
+  "failures": [],
+  "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version)",
+  "passed": 75
+}

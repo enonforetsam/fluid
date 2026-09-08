@@ -7,7 +7,7 @@
  * [9,10], aspect [11]) don't affect a mounted piece and are not returned,
  * except `ar`, which callers may use to size their container.
  */
-import { PALETTES_RGB, FIELDS, LENSES } from './generated/data.js';
+import { PALETTES_RGB, FIELDS, LENSES, MATERIALS, SUBSTRATES } from './generated/data.js';
 
 function unpackCol(v){
   v = Math.max(0, Math.round(v));
@@ -53,9 +53,14 @@ export function parseShareHash(hash){
     screen: n.length > 15 ? clampInt(n[15], 0, 4) : 0,
     sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
     thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
-    material: n.length > 28 ? clampInt(n[28], 0, 6) : 0,
+    material: n.length > 28 ? clampInt(n[28], 0, MATERIALS.length - 1) : 0,
     lens: n.length > 29 ? clampInt(n[29], 0, LENS_MAX) : 0,
-    lensAmt: n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1
+    lensAmt: n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1,
+    substrate: n.length > 34 ? clampInt(n[34],0,SUBSTRATES.length-1) : 0,
+    materialAmt: n.length > 35 ? Math.max(0,Math.min(1,1+n[35]/100)) : 1,
+    textureScale: n.length > 36 ? Math.max(0.25,Math.min(4,1+n[36]/100)) : 1,
+    relief: n.length > 37 ? Math.max(0,Math.min(2,1+n[37]/100)) : 1,
+    substrateAmt: n.length > 38 ? Math.max(0,Math.min(1,0.55+n[38]/100)) : 0.55
   };
 
   const pal = clampInt(n[7], 0, 8);

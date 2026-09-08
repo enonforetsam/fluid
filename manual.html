@@ -42,7 +42,7 @@
 
   <section>
     <div class="sec-title">What it is</div>
-    <p>A generative art instrument. Up to three stacked fields — chosen from twenty-four engines —
+    <p>A generative art instrument. Up to three stacked fields — chosen from thirty engines —
     are bent through a lens, coloured through a gradient you control, quantized into pixels, screened
     with halftone dots and finished with grain. Load a photo and its luminance drives the structure
     while the palette drives the colour, so anything melts into glowing chromatic imagery. Everything
@@ -147,7 +147,7 @@
   <section>
     <div class="sec-title">03b — Engines</div>
     <dl>
-      <dt>Twenty-four engines</dt><dd>the generator. NOISE is domain-warped value noise (the default).
+      <dt>Thirty engines</dt><dd>the generator. NOISE is domain-warped value noise (the default).
       FLOW is the curl of a noise potential — divergence-free, so it swirls like fluid and smoke.
       CELLULAR is Voronoi noise — crystalline cells whose edges vs centers are blended by Warp.
       GYROID slices a 3D gyroid through time for interwoven organic bands. TRUCHET draws random corner
@@ -170,7 +170,7 @@
       through hexagon); CHLADNI draws the nodal sand figures of a vibrating plate, sweeping between
       resonances (Warp = eigenmode order); CASSINI contours the potential of four drifting foci into
       nested Cassini ovals that pinch through figure-eights (Warp = contour density); TOPO draws the
-      elevation contours of a drifting landmass, like a survey map (Warp = ruggedness); EDDY is a von Kármán vortex street — the staggered double row of counter-rotating eddies that sheds behind a cylinder. The vortex rows are exact, and rather than drawing them directly it traces every pixel backwards through their velocity field to find the dye it started as, so the fluid is genuinely stretched and wound into the cores the way it is in a dye photograph (Warp = circulation, so the eddies roll tighter without the spacing changing).</dd>
+      elevation contours of a drifting landmass, like a survey map (Warp = ruggedness); EDDY is a von Kármán vortex street — the staggered double row of counter-rotating eddies that sheds behind a cylinder. The vortex rows are exact, and rather than drawing them directly it traces every pixel backwards through their velocity field to find the dye it started as, so the fluid is genuinely stretched and wound into the cores the way it is in a dye photograph (Warp = circulation, so the eddies roll tighter without the spacing changing). WASH pools translucent pigment; SPRAY draws overlapping aerosol marks; BRUSHWORK layers broad directional strokes; STRATA exposes sediment bands; TERRAZZO scatters stone chips; WOODGRAIN builds warped growth rings.</dd>
     </dl>
   </section>
 
@@ -220,8 +220,11 @@
       the cell size.</dd>
       <dt>Pixelate</dt><dd>mosaic / hex / glyph cell size. 1 is off (square only); 48 is brutalist.</dd>
       <dt>Halftone + dot size</dt><dd>CMYK-style dot screen over a square field — dots over pixels is the signature look.</dd>
-      <dt>Finish</dt><dd>re-lights the palette colour as a material: GLASS, METAL, SAND, LIQUID, MOLTEN or PAINT — impasto oil, the strokes following the form of the field.
+      <dt>Finish</dt><dd>re-lights the palette colour as a material: GLASS, METAL, SAND, LIQUID, MOLTEN, PAINT, WATERCOLOR, GRAFFITI, CHARCOAL, PASTEL, INK or CERAMIC. PAINT adds impasto bristles, WATERCOLOR pools pigment at edges, GRAFFITI adds overspray and drips, and CERAMIC adds a glazed crackle.
       NONE leaves the flat colour alone.</dd>
+      <dt>Surface</dt><dd>Choose CANVAS, PAPER, CONCRETE, STONE, WOOD or PLASTER independently of the finish. NONE leaves the substrate off.</dd>
+      <dt>Material controls</dt><dd>Finish strength blends the finish with the original colour (0–100%). Texture size scales artistic details (0.25–4×). Relief adjusts the apparent depth (0–2×). Surface strength controls substrate texture (0–100%).</dd>
+      <dt>Artist recipes</dt><dd>Sixteen complete combinations at the top of Look: try MONSOON for watercolor, BACK ALLEY for spray paint, OIL STUDY for impasto on canvas, or CELADON for glazed ceramic. Choosing one replaces the previous layers and settings; customize it from there.</dd>
     </dl>
   </section>
 

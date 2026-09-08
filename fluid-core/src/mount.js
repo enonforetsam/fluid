@@ -7,7 +7,7 @@
  * static, pixel-count cap, context-loss recovery).
  */
 import { VSRC, FSRC } from './generated/shader.js';
-import { FIELDS, PALETTES, PALETTES_RGB, SCREENS, MATERIALS, BLENDS, LENSES, LOOKS } from './generated/data.js';
+import { FIELDS, PALETTES, PALETTES_RGB, SCREENS, MATERIALS, SUBSTRATES, BLENDS, LENSES, LOOKS } from './generated/data.js';
 
 /* hard cap on physical pixels rendered (a 4K frame); DPR is scaled down past it */
 const MAX_PIXEL_COUNT = 3840 * 2160;
@@ -24,13 +24,14 @@ function packCol(c){ return Math.round(c[0] * 255) * 65536 + Math.round(c[1] * 2
 
 /* accept a slug ('flow') or an index; -1 = not found */
 function slugIndex(list, v){
-  if (typeof v === 'number'){ return (v >= 0 && v < list.length) ? Math.round(v) : -1; }
+  if (typeof v === 'number'){ const n=Math.round(v); return Number.isFinite(v)&&n>=0&&n<list.length?n:-1; }
   return list.indexOf(String(v).toLowerCase());
 }
 
 /* studio defaults (state block in index.html) minus studio-only concerns */
 const DEFAULTS = {
   field: 0, field2: 0, blend: 0, layerMix: 0, field3: 0, blend2: 0, layerMix2: 0,
+  substrate:0, materialAmt:1, textureScale:1, relief:1, substrateAmt:0.55,
   screen: 0, material: 0, sym: 0, lens: 0, lensAmt: 1,
   pal: 0, cols: null,
   speed: 0.6, zoom: 1.6, warp: 4.5, grain: 0.06,
@@ -125,7 +126,7 @@ export class FluidMount {
   get playing(){ return this._playing; }
 
   /** studio share link for the current piece — append-only #p= contract */
-  shareUrl(base = 'https://fluid.krackeddevs.com/', embed = false){
+  shareUrl(base = 'https://befluid.xyz/', embed = false){
     const s = this.state;
     const ar = this.canvas.clientHeight > 0 ? this.canvas.clientWidth / this.canvas.clientHeight : 1;
     const a = [
@@ -166,6 +167,11 @@ export class FluidMount {
       if (a.length === 29){ a.push(0, 100); }
       a.push(s.field3 || 0, s.blend2 || 0, Math.round(s.layerMix2 * 100));
     }
+    const artSlots=[s.substrate,Math.round((s.materialAmt-1)*100),Math.round((s.textureScale-1)*100),Math.round((s.relief-1)*100),Math.round((s.substrateAmt-0.55)*100)];
+    if(artSlots.some(v=>v!==0)){
+      while(a.length<34){a.push(a.length===30?100:0);}
+      a.push(...artSlots);
+    }
     const minLen = s.pal === 8 ? 24 : 12;
     while (a.length > minLen && a[a.length - 1] === 0){ a.pop(); }
     return base + '#p=' + a.join(',');
@@ -201,8 +207,14 @@ export class FluidMount {
       s.speed = v[0]; s.zoom = v[1]; s.warp = v[2]; s.grain = v[3];
       s.pixel = v[4]; s.dot = v[5]; s.dots = v[6]; s.pal = v[7]; s.seed = v[8];
       s.field = lk.field || 0;
+      s.field2=0;s.blend=0;s.layerMix=0;s.field3=0;s.blend2=0;s.layerMix2=0;s.sym=0;
       s.screen = lk.screen || 0;
       s.material = lk.material || 0;
+      s.substrate=lk.substrate==null?0:lk.substrate;
+      s.materialAmt=lk.materialAmt==null?1:lk.materialAmt;
+      s.textureScale=lk.textureScale==null?1:lk.textureScale;
+      s.relief=lk.relief==null?1:lk.relief;
+      s.substrateAmt=lk.substrateAmt==null?0.55:lk.substrateAmt;
       s.lens = lk.lens || 0;
       s.lensAmt = lk.lensAmt != null ? lk.lensAmt : 1;
       s.thresh = lk.thresh != null ? lk.thresh : 0.5;
@@ -247,6 +259,18 @@ export class FluidMount {
       const mt = slugIndex(MATERIALS, p.material);
       if (mt < 0){ throw new Error('fluid-core: unknown material — valid: ' + MATERIALS.join(', ')); }
       s.material = mt;
+    }
+    if(p.substrate!=null){
+      const sub=slugIndex(SUBSTRATES,p.substrate);
+      if(sub<0){throw new Error('fluid-core: unknown substrate — valid: '+SUBSTRATES.join(', '));}
+      s.substrate=sub;
+    }
+    for(const [key,min,max] of [['materialAmt',0,1],['textureScale',0.25,4],['relief',0,2],['substrateAmt',0,1]]){
+      if(p[key]!=null){
+        const value=Number(p[key]);
+        if(!Number.isFinite(value)){throw new Error('fluid-core: '+key+' must be finite');}
+        s[key]=Math.max(min,Math.min(max,value));
+      }
     }
     if (p.lens != null){
       const ln = slugIndex(LENSES, p.lens);
@@ -296,7 +320,7 @@ export class FluidMount {
     this.U = {};
     ['u_res', 'u_time', 'u_seed', 'u_scale', 'u_warp', 'u_sym', 'u_pixel', 'u_dots', 'u_dot', 'u_dither', 'u_grain',
      'u_pal', 'u_c0', 'u_c1', 'u_c2', 'u_c3', 'u_tex', 'u_hasTex', 'u_texAspect', 'u_liq', 'u_mix', 'u_split',
-     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_field3', 'u_blend2', 'u_layerMix2', 'u_screen', 'u_material', 'u_lens', 'u_lensAmt', 'u_glyph', 'u_pan', 'u_mouse',
+     'u_field', 'u_field2', 'u_blend', 'u_layerMix', 'u_field3', 'u_blend2', 'u_layerMix2', 'u_screen', 'u_material', 'u_substrate', 'u_materialAmt', 'u_textureScale', 'u_relief', 'u_substrateAmt', 'u_lens', 'u_lensAmt', 'u_glyph', 'u_pan', 'u_mouse',
      'u_mouseAmt', 'u_mouseMode', 'u_rec', 'u_mask', 'u_hasMask', 'u_maskBg', 'u_maskBg2', 'u_maskGrad'
     ].forEach((n) => { this.U[n] = gl.getUniformLocation(prog, n); });
 
@@ -382,6 +406,11 @@ export class FluidMount {
     gl.uniform1f(U.u_layerMix2, (s.layerMix || 0) > 0.001 ? (s.layerMix2 || 0) : 0);
     gl.uniform1i(U.u_screen, s.screen);
     gl.uniform1i(U.u_material, s.material || 0);
+    gl.uniform1i(U.u_substrate,s.substrate);
+    gl.uniform1f(U.u_materialAmt,s.materialAmt);
+    gl.uniform1f(U.u_textureScale,s.textureScale);
+    gl.uniform1f(U.u_relief,s.relief);
+    gl.uniform1f(U.u_substrateAmt,s.substrateAmt);
     gl.uniform2f(U.u_pan, 0, 0);
     gl.uniform2f(U.u_mouse, 0.5, 0.5);
     gl.uniform1f(U.u_mouseAmt, 0);

@@ -2,28 +2,28 @@
 
 # fluid-bg
 
-**Drop a live [Fluid](https://fluid.krackeddevs.com) generative background into any page.**
+**Drop a live [Fluid](https://befluid.xyz) generative background into any page.**
 
 A `<fluid-bg>` web component, a React wrapper, and a CDN one-liner — one tag, zero setup, GPU-rendered.
 
 **Renders natively on a canvas in your page — no iframe.** Every engine is bundled
-(~15 KB gzipped), generated straight from the studio with a CI drift guard. Zero animation
+(all 30 fields and 12 finishes), generated straight from the studio with a CI drift guard. Zero animation
 frames when static, pauses offscreen and in hidden tabs, respects `prefers-reduced-motion`,
 works offline. The 0.1.x iframe embed remains as an automatic fallback when WebGL is
 unavailable (or on request with `mode="iframe"`).
 
 [![npm](https://img.shields.io/npm/v/fluid-bg.svg)](https://www.npmjs.com/package/fluid-bg)
 &nbsp;[![License: MIT](https://img.shields.io/badge/license-MIT-3a1f7a.svg)](LICENSE)
-&nbsp;[![Studio](https://img.shields.io/badge/design%20a%20look-fluid.krackeddevs.com-c84fe0.svg)](https://fluid.krackeddevs.com)
+&nbsp;[![Studio](https://img.shields.io/badge/design%20a%20look-fluid.krackeddevs.com-c84fe0.svg)](https://befluid.xyz)
 
 </div>
 
 ---
 
-## CDN — the one-liner
+## Script — the one-liner
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/fluid-bg"></script>
+<script src="https://befluid.xyz/fluid-bg.js"></script>
 
 <fluid-bg fixed></fluid-bg>     <!-- full-viewport background, behind everything -->
 <fluid-bg fixed preset="mist" blur="24" dim="0.4"></fluid-bg>   <!-- calm: an ambient preset, softened and dimmed -->
@@ -48,10 +48,12 @@ That's it. Put your content anywhere with `position: relative; z-index: 1` and i
 > **No studio flash on load.** Native mode never had one; the `mode="iframe"` fallback
 > gets its chrome-less mode decided server-side before first paint, so it doesn't either.
 
-## npm
+## Install v3.3.0
+
+Use the GitHub release archive for the current material engine; the npm registry may contain an older version.
 
 ```sh
-npm install fluid-bg
+npm install https://github.com/enonforetsam/fluid/releases/download/v3.3.0/fluid-bg-3.3.0.tgz
 ```
 
 ```js
@@ -62,14 +64,14 @@ import "fluid-bg";            // registers the <fluid-bg> element
 <fluid-bg hash="#p=0.4,1.9,8,0.03,1,10,0,4,60,0,0,1.7778,0,0,2"></fluid-bg>
 ```
 
-Design any look in the [studio](https://fluid.krackeddevs.com), hit **Copy share link**, and paste the
-hash into `hash`. Or browse the [gallery](https://fluid.krackeddevs.com/gallery) and grab one. The
+Design any look in the [studio](https://befluid.xyz), hit **Copy share link**, and paste the
+hash into `hash`. Or browse the [gallery](https://befluid.xyz/gallery) and grab one. The
 embed flag is set for you, so a plain share link works.
 
 ## React
 
 ```sh
-npm install fluid-bg react
+npm install https://github.com/enonforetsam/fluid/releases/download/v3.3.0/fluid-bg-3.3.0.tgz react
 ```
 
 ```jsx
@@ -110,7 +112,7 @@ const bg = fluidBackground(document.querySelector("#hero"), {
 | `fixed` | boolean | `false` | Pin as a fixed, full-viewport background (`z-index:-1`, `pointer-events:none`). Otherwise fills the parent element. |
 | `z` | number | `-1` | `z-index` when `fixed`. |
 | `mode` | `"native"` \| `"iframe"` | `"native"` | `native` draws on a canvas in your page (bundled engines). `iframe` embeds the hosted studio like 0.1.x. Native falls back to the iframe automatically when WebGL is unavailable. |
-| `base` | string | `https://fluid.krackeddevs.com` | Point at your own [self-hosted Fluid](https://github.com/enonforetsam/fluid) instance (`iframe` mode). |
+| `base` | string | `https://befluid.xyz` | Point at your own [self-hosted Fluid](https://github.com/enonforetsam/fluid) instance (`iframe` mode). |
 
 Filling a parent (not `fixed`)? Give the parent a size — the background fills it edge to edge:
 

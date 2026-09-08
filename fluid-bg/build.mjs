@@ -32,7 +32,15 @@ await build({
   outfile: "dist/fluid-bg.iife.js",
 });
 
-import { copyFileSync } from "node:fs";
+import { copyFileSync, readFileSync, appendFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 // befluid.xyz serves this copy at /fluid-bg.js, so the site and its snippets never wait on npm
+const sourceDigest = createHash("sha256")
+  .update(readFileSync("../fluid-core/src/generated/shader.js"))
+  .update(readFileSync("../fluid-core/src/generated/data.js"))
+  .update(readFileSync("../fluid-core/src/mount.js"))
+  .update(readFileSync("../fluid-core/src/hash.js"))
+  .digest("hex");
+appendFileSync("dist/fluid-bg.iife.js", "\n/* fluid-source-sha256:" + sourceDigest + " */\n");
 copyFileSync("dist/fluid-bg.iife.js", "../assets/fluid-bg.iife.js");
 console.log("built → dist/ (+ ../assets/fluid-bg.iife.js)");
