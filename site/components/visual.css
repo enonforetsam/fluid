@@ -18,7 +18,7 @@
 .fv-logo,.fv-texture{padding:36px 7%;background:#eee7d9;position:relative;min-height:360px}.fv-logo-stage{position:relative;height:240px}.fv-logo .fv-caption,.fv-texture .fv-caption{text-align:center}
 .fv-texture{background:#203b33;color:#f9f3e8}.fv-texture-canvas{width:100%;height:280px;display:block}
 .fv-reveal,.fv-lens{margin:0;background:#e9dbc6;padding:16px;display:flex;flex-direction:column;gap:14px}.fv-reveal-frame,.fv-lens-frame{height:360px;position:relative;overflow:hidden;background:#21483d}
-.fv-lens-frame{touch-action:pan-y;cursor:crosshair}.fv-lens-frame:active{touch-action:none}
+.fv-lens-frame{touch-action:pan-y;cursor:crosshair}
 .fv-reveal .fv-caption,.fv-lens .fv-caption{padding:0 4px 2px}
 .fv-media-message{position:absolute;inset:20px;display:grid;place-items:center;color:#fff9ed;text-align:center;font-size:13px}
 .fv-border-demo{min-height:380px;padding:48px 8%;background:#f3eddf;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
@@ -37,3 +37,9 @@
 @media(prefers-reduced-motion:reduce){.fv-root .fv-border-track{animation:none}.fv-root *{scroll-behavior:auto}}
 
 .fv-link,.fv-action{max-width:100%;overflow-wrap:anywhere}.fv-link>span,.fv-action>span{flex-shrink:0}.fv-border-inner{min-width:0}
+
+/* Keep phone text entry readable without focus-triggered viewport zoom. */
+@media(max-width:560px){.fv-border-field{font-size:12px}.fv-border-input input{font-size:16px;min-width:0}}
+
+/* The bounded lens is a two-axis touch control. Decide before the gesture starts. */
+@media(hover:none) and (pointer:coarse){.fv-lens-frame{touch-action:none}}
