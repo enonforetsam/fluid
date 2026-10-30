@@ -204,13 +204,14 @@
   .panel button:active,.panel .btns a:active{transform:translateY(1px)}
   @media(max-width:880px){.hero section::before{inset:-32px -20px}.panel{max-height:58dvh;overflow-y:auto}.hero{padding-bottom:540px}.fluidNav span{display:none}}
   @media(max-width:420px){.fluidNav{font-size:11px}.fluidNav a{min-width:44px;padding:0 8px}}
+  @media(max-width:360px){body{padding-top:104px}.fluidNav{flex-wrap:wrap}.fluidNav a{flex:1 1 calc(33.333% - 4px)}}
   @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}}
 </style>
 </head>
 <body>
 <fluid-bg id="bg" base="studio.html" fixed preset="mist" blur="24" dim="0.4"></fluid-bg>
 
-<nav class="fluidNav" aria-label="Fluid pages"><a href="index.html">← Explore</a><a href="studio.html">Studio</a><a href="dither.html">Dither</a><a href="developers.html">Developers</a><span>Backgrounds</span></nav>
+<nav class="fluidNav" aria-label="Fluid pages"><a href="index.html">← Explore</a><a href="studio.html">Studio</a><a href="dither.html">Dither</a><a href="components.html">Components</a><a href="developers.html">Developers</a><span>Backgrounds</span></nav>
 <div class="templateLabel">WEBSITE TEMPLATE PREVIEW</div>
 
 <header class="nav" aria-label="Example site navigation">

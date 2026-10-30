@@ -17,5 +17,6 @@
 
 @media(max-width:500px){.site-header{gap:var(--s4)}.site-header .nav-links{gap:var(--s3)}.site-header .nav-links a{font-size:var(--text-xs)}}
 
-/* Four main destinations keep their full touch targets on small screens. */
-@media(max-width:600px){.site-header{height:auto;min-height:78px;flex-wrap:wrap;gap:0 var(--s4);padding-block:var(--s3)}.site-header .nav-links{order:2;width:100%;height:44px;justify-content:space-between;gap:var(--s2);margin:0}.site-header .nav-links [aria-current]{height:44px}.site-header .studio-link{display:inline-flex;margin-left:auto}}
+/* Main destinations keep their full touch targets as the navigation grows. */
+@media(max-width:1100px){.site-header{gap:var(--s5)}.site-header .nav-links{gap:var(--s4)}}
+@media(max-width:760px){.site-header{height:auto;min-height:78px;flex-wrap:wrap;gap:0 var(--s4);padding-block:var(--s3)}.site-header .nav-links,.explore-page .site-header .nav-links{order:2;width:100%;height:auto;min-height:44px;flex-wrap:wrap;justify-content:space-between;gap:0 var(--s2);margin:0}.site-header .nav-links [aria-current]{height:44px}.site-header .studio-link{display:inline-flex;margin-left:auto}}

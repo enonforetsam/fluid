@@ -2302,11 +2302,12 @@
   html:not(.embed) .wrap:has(#canvasChips [role="dialog"].open) #stageTray{visibility:hidden;pointer-events:none}
   html:not(.embed) .wrap:has(#canvasChips [role="dialog"].open) #appNav{border-radius:16px;border-top:1px solid rgba(255,255,255,.12)}
   @media(max-width:1280px){#studioGlobalNav{top:0;left:0;right:0;border:0;border-bottom:1px solid rgba(255,255,255,.14);border-radius:0;justify-content:center;padding:env(safe-area-inset-top,0px) 4px 0;min-height:48px}html:not(.embed) .wrap #canvasChips{top:calc(54px + env(safe-area-inset-top,0px))}html:not(.embed) .wrap #canvasChips #refreshChip{top:calc(68px + env(safe-area-inset-top,0px))}}
-  @media(max-width:420px){#studioGlobalNav{font-size:11px}#studioGlobalNav a{padding:0 10px}}
+  @media(max-width:420px){#studioGlobalNav{font-size:11px}#studioGlobalNav a{padding:0 8px}}
+  @media(max-width:360px){#studioGlobalNav{flex-wrap:wrap}#studioGlobalNav a{flex:1 1 calc(33.333% - 4px)}html:not(.embed) .wrap #canvasChips{top:calc(98px + env(safe-area-inset-top,0px))}html:not(.embed) .wrap #canvasChips #refreshChip{top:calc(112px + env(safe-area-inset-top,0px))}}
 </style>
 </head>
 <body>
-<nav id="studioGlobalNav" aria-label="Fluid pages"><a href="index.html" aria-label="Fluid — explore collections">← Explore</a><a href="photo.html">Photo fire</a><a href="dither.html">Dither</a><a href="developers.html">Developers</a></nav>
+<nav id="studioGlobalNav" aria-label="Fluid pages"><a href="index.html" aria-label="Fluid — explore collections">← Explore</a><a href="photo.html">Photo fire</a><a href="dither.html">Dither</a><a href="components.html">Components</a><a href="developers.html">Developers</a></nav>
 <!-- ---------- stage markup: glow canvas, the chip bar with its docks, and the card the artwork sits in ---------- -->
 <div class="wrap">
   <div class="stage">

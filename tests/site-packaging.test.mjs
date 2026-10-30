@@ -28,6 +28,8 @@ async function fixture() {
   await write(root, 'site/PROJECT.md', 'private source context /Users/example/project');
   await write(root, 'site/qa/private.json', '{"path":"/opt/private"}');
   await write(root, 'site/scripts/private.js', 'const source = "/root/private";');
+  await write(root, 'site/components/gallery.jsx', 'private gallery tooling source');
+  await write(root, 'site/components/qa/private.json', '{"path":"/opt/private"}');
   return root;
 }
 async function digest(root, names) {
@@ -50,6 +52,12 @@ test('explicit packaging keeps new runtime, public guides and legacy URLs, and e
       const text = await readFile(path.join(result.directory, file), 'utf8');
       assert.ok(!/\/Users\/|\/opt\/|\/root\//.test(text), file);
     }
+    // Copyable component sources are intentional public assets; gallery tooling is not.
+    for (const file of ['components/gallery.jsx', 'components/qa/private.json']) {
+      assert.ok(!result.files.includes(file), file);
+    }
+    assert.equal(await readFile(path.join(result.directory, 'components/src/SplitReveal.jsx'), 'utf8'), 'site components/src/SplitReveal.jsx');
+    assert.equal(await readFile(path.join(result.directory, 'components/gallery.js.LEGAL.txt'), 'utf8'), 'site components/gallery.js.LEGAL.txt');
     assert.equal(await readFile(path.join(result.directory, 'fluid-core/src/index.js'), 'utf8'), 'site vendor/fluid-core/src/index.js');
     const first = await digest(result.directory, result.files);
     await write(result.directory, 'stale.js', 'stale output');
@@ -66,6 +74,16 @@ test('invalid public input preserves the previous output', async () => {
     await write(root, '.public/previous.txt', 'keep previous build');
     await write(root, 'site/dither.js', 'const leaked = "/Users/example/private";');
     await assert.rejects(buildSite({ rootDir: root }), /Private filesystem reference/);
+    assert.equal(await readFile(path.join(root, '.public/previous.txt'), 'utf8'), 'keep previous build');
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('private references in downloadable JSX are rejected before replacing a public build', async () => {
+  const root = await fixture();
+  try {
+    await write(root, '.public/previous.txt', 'keep previous build');
+    await write(root, 'site/components/src/SplitReveal.jsx', 'export const privatePath = "/opt/private";');
+    await assert.rejects(buildSite({ rootDir: root }), /Private filesystem reference in public input: components\/src\/SplitReveal\.jsx/);
     assert.equal(await readFile(path.join(root, '.public/previous.txt'), 'utf8'), 'keep previous build');
   } finally { await rm(root, { recursive: true, force: true }); }
 });

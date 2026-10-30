@@ -202,3 +202,8 @@ MIT. See [LICENSE](LICENSE).
 The public collection explorer, integrated 3.3 Studio, Photo → Fire, background builder and image dither generator live in `site/`. Run `npm run build:site` to prepare the explicit `.public/` asset package, then `npm run dev` for the complete Worker locally. The build keeps QA, internal project notes, scripts and repository metadata out of public assets, while retaining `/manual`, `/gallery`, `/dev`, social images and native package URLs. Root artwork share/embed hashes continue into `/studio` with their settings preserved.
 
 Publishing follows the existing master-branch GitHub Action, which builds assets and runs engine, dither and packaging tests before deployment. The original root studio remains the source for the existing 42-look API and offline engine tests; the bundled 58-look browser studio is served at `/studio`. This website release does not expand the API/MCP registry or deploy the separate hosted/community experiment.
+
+
+## Fluid Components
+
+The Components library at `/components` has six original React + CSS components with live previews, controls, source/usage tabs, and copy/download. The previews import the same JSX files that visitors receive. Run `npm run build:components` after editing `site/components/`, then `npm run build:site` and `npm test`. Browser checks can run with `node scripts/test-components-browser.mjs`; the optional `FLUID_COMPONENTS_QA_URL`, dependency paths and output settings describe an existing VPS test lane. See `docs/verification/components-library.md` for checks and limits.

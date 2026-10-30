@@ -5,6 +5,11 @@ import { fileURLToPath } from 'node:url';
 const DEFAULT_ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const SITE_FILES = Object.freeze([
   'index.html', 'studio.html', 'photo.html', 'backgrounds.html', 'developers.html', 'dither.html',
+  'components.html', 'components.css',
+  'components/gallery.js', 'components/gallery.js.LEGAL.txt', 'components/components.css',
+  'components/catalogue.json', 'components/LICENSE',
+  'components/src/SplitReveal.jsx', 'components/src/WaveText.jsx', 'components/src/MagneticButton.jsx',
+  'components/src/SpotlightCard.jsx', 'components/src/TiltCard.jsx', 'components/src/LoopMarquee.jsx',
   'styles.css', 'explore.css', 'dither.css',
   'app.js', 'engine.js', 'explore.js', 'catalogue.js', 'studio-bridge.js',
   'dither.js', 'dither-worker.js', 'dither-core.js', 'legacy-links.js',
@@ -25,7 +30,7 @@ const PUBLIC_ASSET_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.svg
 const PRIVATE_REFERENCE = /(?:\/Users\/|\/opt\/|\/root\/|\.codex\/|\.claude\/)/;
 
 function publicText(name) {
-  return /\.(?:html|css|js|json|md|txt|ts)$/i.test(name) || path.basename(name) === 'LICENSE';
+  return /\.(?:html|css|js|jsx|json|md|txt|ts)$/i.test(name) || path.basename(name) === 'LICENSE';
 }
 async function safeRead(root, relative) {
   const input = path.join(root, relative);
