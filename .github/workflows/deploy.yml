@@ -15,6 +15,10 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - name: Install pinned build dependencies
+        run: npm ci
+      - name: Build component gallery
+        run: npm run build:components
       - name: Build public assets
         run: npm run build:site
       - name: Verify engine, dither and release packaging

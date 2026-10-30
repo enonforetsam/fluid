@@ -160,7 +160,7 @@ AI agents without MCP can read the whole integration surface from
 
 Important invariants:
 
-- Keep the app dependency-free: no bundler, framework, or install step.
+- Keep the original WebGL Studio dependency-free. The separate React component gallery uses the pinned development toolchain below.
 - Keep the shader source as joined string arrays.
 - Preserve the append-only `#p=` share-hash field order.
 - Keep mirrored constants in `index.html` and `worker.js` in sync.
@@ -199,11 +199,15 @@ MIT. See [LICENSE](LICENSE).
 
 ## Published app
 
-The public collection explorer, integrated 3.3 Studio, Photo → Fire, background builder and image dither generator live in `site/`. Run `npm run build:site` to prepare the explicit `.public/` asset package, then `npm run dev` for the complete Worker locally. The build keeps QA, internal project notes, scripts and repository metadata out of public assets, while retaining `/manual`, `/gallery`, `/dev`, social images and native package URLs. Root artwork share/embed hashes continue into `/studio` with their settings preserved.
+The public collection explorer, integrated 3.3 Studio, Photo → Fire, background builder and image dither generator live in `site/`. Run `npm ci` on a fresh checkout, then `npm run build:site` to prepare the explicit `.public/` asset package, then `npm run dev` for the complete Worker locally. The build keeps QA, internal project notes, scripts and repository metadata out of public assets, while retaining `/manual`, `/gallery`, `/dev`, social images and native package URLs. Root artwork share/embed hashes continue into `/studio` with their settings preserved.
 
 Publishing follows the existing master-branch GitHub Action, which builds assets and runs engine, dither and packaging tests before deployment. The original root studio remains the source for the existing 42-look API and offline engine tests; the bundled 58-look browser studio is served at `/studio`. This website release does not expand the API/MCP registry or deploy the separate hosted/community experiment.
 
 
 ## Fluid Components
 
-The Components library at `/components` has six original React + CSS components with live previews, controls, source/usage tabs, and copy/download. The previews import the same JSX files that visitors receive. Run `npm run build:components` after editing `site/components/`, then `npm run build:site` and `npm test`. Browser checks can run with `node scripts/test-components-browser.mjs`; the optional `FLUID_COMPONENTS_QA_URL`, dependency paths and output settings describe an existing VPS test lane. See `docs/verification/components-library.md` for checks and limits.
+The library at `/components` contains 39 creative pieces: 22 React components, eight browser-local tools, four complete page sections and five experiments. It offers live previews, controls, source/usage tabs, complete source ZIPs and supported image, vector, HTML, CSS, JSON or JSX exports. Phone browsing is compact and touch-friendly; editing state survives Code, Replay and palette changes. The previews import the exact JSX files and relative helpers visitors receive.
+
+Run `npm ci` on a fresh checkout, `npm run build:components` after editing source or portable CSS, then `npm run build:site` and `npm test`. Both GitHub Actions install locked dependencies and rebuild the gallery before packaging. The explicit public allowlist includes reusable sources, helpers, CSS and full MIT notices, and excludes authoring gallery/registry/manifests, tests, QA and project notes.
+
+Current browser harnesses are `scripts/qa-creative-suite.mjs`, `scripts/qa-creative-worker.mjs` and `scripts/qa-fluid-mobile.mjs`; `FLUID_QA_BASE`, `FLUID_QA_PLAYWRIGHT` and `FLUID_QA_CHROME` can target an existing test installation. The new Canvas2D/CSS materials are independent of the 58-look native engine. Local media stays in the browser; preset links omit images/audio. The suite does not add video recording or change the existing 42-look/five-tool API/MCP boundary. Physical devices and Safari remain untested. The earlier six-component verification is retained historically in `docs/verification/components-library.md`.
