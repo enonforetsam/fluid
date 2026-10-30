@@ -10,6 +10,8 @@ let motion = !media.matches;
 let selection = 'curated';
 let query = '';
 let hero;
+let heroVisible = false;
+let heroId = 'monsoon';
 let hover;
 let hoverTarget;
 const hoverHost = document.createElement('div');
@@ -58,7 +60,7 @@ function drawCollections() {
 }
 function stopHover() {
   hover?.pause(); hoverHost.remove(); hoverTarget = null;
-  if (motion) hero?.play();
+  if (motion && heroVisible) hero?.play();
 }
 function previewCard(target, look) {
   if (!motion || matchMedia('(hover: none)').matches) return;
@@ -105,6 +107,7 @@ function renderLooks() {
 }
 function setHero(id) {
   const look = lookById.get(id); if (!look) return;
+  heroId = id;
   $('heroStill').src = look.thumbnail; $('heroStill').alt = `${title(look)} — ${look.description}`;
   $('heroTitle').textContent = title(look); $('heroLink').href = $('heroTitle').href = studioUrl(look);
   $('heroLink').setAttribute('aria-label', `Open ${title(look)} in the studio`);
@@ -113,10 +116,11 @@ function setHero(id) {
     button.setAttribute('aria-pressed', String(button.dataset.hero === id));
     if (button.dataset.hero === id) $('heroNumber').textContent = String(index + 1).padStart(2, '0');
   });
+  if (!heroVisible && !hero) return;
   try {
-    const params = { look: look.name, seed: look.seed ?? 42, paused: !motion };
+    const params = { look: look.name, seed: look.seed ?? 42, paused: !motion || !heroVisible };
     if (hero) hero.set(params); else hero = createFluid($('heroCanvas'), params);
-    if (motion && !hoverTarget) hero.play(); else hero.pause();
+    if (motion && heroVisible && !hoverTarget) hero.play(); else hero.pause();
   } catch {
     $('heroCanvas').hidden = true; $('motionToggle').hidden = true;
     $('libraryStatus').textContent = 'Showing still previews. The studio needs a browser with WebGL support.';
@@ -126,7 +130,7 @@ function setMotion(enabled) {
   motion = enabled; $('motionToggle').setAttribute('aria-pressed', String(!motion));
   $('motionToggle').setAttribute('aria-label', motion ? 'Pause artwork previews' : 'Play artwork previews');
   $('motionSymbol').textContent = motion ? 'Ⅱ' : '▷'; $('motionLabel').textContent = motion ? 'Pause' : 'Play';
-  if (motion) hero?.play(); else { hero?.pause(); stopHover(); }
+  if (motion && heroVisible) hero?.play(); else { hero?.pause(); stopHover(); }
 }
 function syncLocation() {
   const url = new URL(location.href);
@@ -154,4 +158,13 @@ document.addEventListener('keydown', event => {
 media.addEventListener('change', event => setMotion(!event.matches));
 window.addEventListener('popstate', () => { readLocation(); renderLooks(); });
 window.addEventListener('pagehide', event => { if (!event.persisted) { hero?.destroy(); hover?.destroy(); } });
+import('./pixel-hero.js').then(({ mountPixelHero }) => mountPixelHero($('pixelHero'))).catch(() => { $('pixelHeroStatus').textContent = 'Enjoy the still artwork, or explore the collections below.'; });
+if ('IntersectionObserver' in window) {
+  const studyObserver = new IntersectionObserver(entries => {
+    heroVisible = entries.some(entry => entry.isIntersecting);
+    if (heroVisible) setHero(heroId); else hero?.pause();
+  });
+  studyObserver.observe($('heroLink'));
+  window.addEventListener('pagehide', event => { if (!event.persisted) studyObserver.disconnect(); });
+} else heroVisible = true;
 readLocation(); drawCollections(); renderLooks(); setHero('monsoon'); setMotion(motion);
