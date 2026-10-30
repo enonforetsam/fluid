@@ -37,3 +37,10 @@
 @media(max-width:760px){.pixel-hero{min-height:0;padding-block:var(--s5) var(--s6)}.pixel-hero-top{align-items:flex-start;gap:var(--s4)}.pixel-hero-top .eyebrow{font-size:var(--text-xs);max-width:23ch}.pixel-hero-invitation{max-width:13ch;text-align:right}.pixel-hero-stage{margin-block:var(--s6) var(--s3)}.pixel-hero-bottom{flex-direction:column;align-items:flex-start;gap:var(--s5);margin-top:var(--s6)}.pixel-hero-bottom h2{font-size:var(--text-xl)}.pixel-hero-actions{width:100%;gap:var(--s3)}.pixel-hero-actions .button{flex:1}.pixel-hero-actions .text-button{padding-inline:var(--s2)}.pixel-hero-controls button{min-width:60px;padding-inline:var(--s3)}}
 @media(max-width:360px){.pixel-hero-controls{gap:var(--s2)}.pixel-hero-controls button{flex:1;min-width:0;padding-inline:var(--s2)}.pixel-hero-actions{flex-direction:column;align-items:stretch}.pixel-hero-actions .text-button{justify-content:center}}
 @media(forced-colors:active){.pixel-hero-controls button[aria-pressed="true"]{outline:2px solid Highlight;outline-offset:2px}}
+
+/* The primary artwork can move continuously; its quiet path is always available. */
+.pixel-hero-meta{display:flex;align-items:center;justify-content:center;gap:var(--s3);min-height:44px;margin-top:var(--s2)}
+.pixel-hero-meta .pixel-hero-status{margin:0;min-width:0;text-align:left}
+.pixel-motion-button{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;gap:var(--s2);min-width:76px;min-height:44px;padding:var(--s2) var(--s3);border:1px solid var(--line);border-radius:var(--pill);background:transparent;color:var(--muted);font-size:var(--text-xs)}
+.pixel-motion-button:hover:not(:disabled){border-color:var(--subtle);opacity:1}.pixel-motion-button[aria-pressed=true]{background:var(--surface-raised)}
+@media(max-width:760px){.pixel-hero-meta{gap:var(--s2)}.pixel-hero-meta .pixel-hero-status{max-width:24ch}}
