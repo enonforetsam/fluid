@@ -2,7 +2,7 @@
   "name": "fluid",
   "main": "worker.js",
   "compatibility_date": "2026-06-01",
-  "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
+  "assets": { "directory": ".public", "binding": "ASSETS", "run_worker_first": true, "html_handling": "drop-trailing-slash" },
   "vars": { "STAGE": "production" },
   "routes": [
     { "pattern": "fluid.krackeddevs.com", "custom_domain": true },
@@ -11,7 +11,7 @@
   "env": {
     "staging": {
       "main": "worker.js",
-      "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
+      "assets": { "directory": ".public", "binding": "ASSETS", "run_worker_first": true, "html_handling": "drop-trailing-slash" },
       "vars": { "STAGE": "staging" },
       "routes": [
         { "pattern": "staging.fluid.krackeddevs.com", "custom_domain": true }
@@ -21,7 +21,7 @@
     // free for master candidates: `npx wrangler deploy --env preview` from the branch checkout
     "preview": {
       "main": "worker.js",
-      "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
+      "assets": { "directory": ".public", "binding": "ASSETS", "run_worker_first": true, "html_handling": "drop-trailing-slash" },
       "vars": { "STAGE": "preview" },
       "routes": [
         { "pattern": "preview.fluid.krackeddevs.com", "custom_domain": true }

@@ -1,4 +1,4 @@
-# Auto-deploy on push → Cloudflare Worker (fluid). Vanilla — no build step.
+# Build the reviewed public app and deploy the existing Fluid Worker.
 # KrackedDevs deploy framework. Requires secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
 name: Deploy
 
@@ -15,8 +15,12 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+      - name: Build public assets
+        run: npm run build:site
+      - name: Verify engine, dither and release packaging
+        run: npm test
       - name: Deploy to Cloudflare Workers
-        run: npx --yes wrangler deploy
+        run: npx --yes wrangler@4.129.0 deploy --env=""
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

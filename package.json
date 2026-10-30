@@ -4,8 +4,9 @@
   "private": true,
   "description": "Generative art backgrounds \u2014 renders on the visitor's GPU",
   "scripts": {
-    "dev": "npx wrangler dev --port 8787 --persist-to ../.fluid-dev-state",
-    "deploy": "npx wrangler deploy",
-    "test": "node --test tests/*.test.js"
+    "dev": "npm run build:site && npx wrangler dev --port 8787 --persist-to ../.fluid-dev-state",
+    "deploy": "npm run build:site && npm test && npx wrangler@4.129.0 deploy --env=\"\"",
+    "test": "node --test tests/*.test.js tests/*.test.mjs",
+    "build:site": "node scripts/build-site.mjs"
   }
 }

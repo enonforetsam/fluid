@@ -13,5 +13,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+      - name: Build public assets
+        run: npm run build:site
       - name: Run test suite
-        run: node --test tests/*.test.js
+        run: npm test

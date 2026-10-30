@@ -1,0 +1,94 @@
+/* Share-hash decoder: a studio `#p=` link -> createFluid() params.
+ *
+ * Mirrors the studio's parseHash() accept rules and clamps exactly
+ * (append-only contract — see docs/ARCHITECTURE.md). The inverse of
+ * FluidMount.shareUrl(); tests/fluid-core-hash.test.js round-trips both.
+ * Studio-only slots (preset [12], embed [13], pan [16,17], image liq/mix
+ * [9,10], aspect [11]) don't affect a mounted piece and are not returned,
+ * except `ar`, which callers may use to size their container.
+ */
+import { PALETTES_RGB, FIELDS, LENSES, MATERIALS, SUBSTRATES } from './generated/data.js';
+
+function unpackCol(v){
+  v = Math.max(0, Math.round(v));
+  return [Math.floor(v / 65536) % 256 / 255, Math.floor(v / 256) % 256 / 255, (v % 256) / 255];
+}
+function rgb01ToHex(c){
+  const p = (x) => {
+    const s = Math.max(0, Math.min(255, Math.round(x * 255))).toString(16);
+    return s.length < 2 ? '0' + s : s;
+  };
+  return '#' + p(c[0]) + p(c[1]) + p(c[2]);
+}
+const clampInt = (v, lo, hi) => Math.min(hi, Math.max(lo, Math.round(v)));
+/* Engine ids clamp against the real engine list, never a number typed in once. This was a
+   hardcoded 21 while the studio shipped 23 engines, so Topo (22) decoded as Cassini (21) in
+   every embed and every parseShareHash caller. */
+const FIELD_MAX = FIELDS.length - 1;
+/* and the lenses, for the identical reason: this was a literal 12 while the studio shipped
+   a 14th lens, so `ground` decoded as `modular` — a different piece, silently, in every
+   embed that used it. */
+const LENS_MAX = LENSES.length - 1;
+
+/**
+ * Parse a Fluid share hash (or a full share URL) into createFluid() params.
+ * Returns null when the hash is not a valid `#p=` piece.
+ */
+export function parseShareHash(hash){
+  let h = String(hash || '');
+  const at = h.indexOf('#p=');
+  if (at >= 0){ h = h.slice(at + 3); }
+  else if (h.indexOf('p=') === 0){ h = h.slice(2); }
+  else if (h.charAt(0) === '#'){ h = h.slice(1); }
+  const n = h.split(',').map(parseFloat);
+  if (n.length < 12 || n.some(isNaN)){ return null; }
+
+  const params = {
+    speed: n[0], zoom: n[1], warp: n[2], grain: n[3],
+    pixel: Math.round(n[4]), dot: Math.round(n[5]),
+    dots: Math.round(n[6]) ? 1 : 0,
+    seed: n[8],
+    ar: (n[11] >= 0.3 && n[11] <= 3) ? n[11] : 1,
+    field: n.length > 14 ? clampInt(n[14], 0, FIELD_MAX) : 0,
+    screen: n.length > 15 ? clampInt(n[15], 0, 4) : 0,
+    sym: n.length > 18 ? clampInt(n[18], 0, 12) : 0,
+    thresh: n.length > 24 ? Math.max(0, Math.min(1, 0.5 + n[24])) : 0.5,
+    material: n.length > 28 ? clampInt(n[28], 0, MATERIALS.length - 1) : 0,
+    lens: n.length > 29 ? clampInt(n[29], 0, LENS_MAX) : 0,
+    lensAmt: n.length > 30 ? Math.max(0, Math.min(1, n[30] / 100)) : 1,
+    substrate: n.length > 34 ? clampInt(n[34],0,SUBSTRATES.length-1) : 0,
+    materialAmt: n.length > 35 ? Math.max(0,Math.min(1,1+n[35]/100)) : 1,
+    textureScale: n.length > 36 ? Math.max(0.25,Math.min(4,1+n[36]/100)) : 1,
+    relief: n.length > 37 ? Math.max(0,Math.min(2,1+n[37]/100)) : 1,
+    substrateAmt: n.length > 38 ? Math.max(0,Math.min(1,0.55+n[38]/100)) : 0.55
+  };
+
+  const pal = clampInt(n[7], 0, 8);
+  if (pal === 8){
+    const stops = n.length > 23
+      ? [unpackCol(n[20]), unpackCol(n[21]), unpackCol(n[22]), unpackCol(n[23])]
+      : PALETTES_RGB[0];
+    params.colors = stops.map(rgb01ToHex);
+  } else {
+    params.palette = pal;
+  }
+
+  const layerMix = n.length > 27 ? Math.max(0, Math.min(1, n[27] / 100)) : 0;
+  if (layerMix > 0.001){
+    params.layer = {
+      field: n.length > 25 ? clampInt(n[25], 0, FIELD_MAX) : 0,
+      blend: n.length > 26 ? clampInt(n[26], 0, 5) : 0,
+      mix: layerMix
+    };
+    /* [31..33] — a 3rd layer blends onto the 2nd's result, so it only exists if the 2nd does */
+    const layerMix2 = n.length > 33 ? Math.max(0, Math.min(1, n[33] / 100)) : 0;
+    if (layerMix2 > 0.001){
+      params.layer2 = {
+        field: n.length > 31 ? clampInt(n[31], 0, FIELD_MAX) : 0,
+        blend: n.length > 32 ? clampInt(n[32], 0, 5) : 0,
+        mix: layerMix2
+      };
+    }
+  }
+  return params;
+}

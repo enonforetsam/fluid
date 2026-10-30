@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101112">
+<meta name="description" content="Turn photos and artwork into dithered images. Choose a pattern, a palette, and your pixel size, then export a PNG.">
+<title>Dither generator — Fluid</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dither.css">
+</head>
+<body class="dither-page">
+<a class="dither-skip" href="#ditherEditor">Skip to dither editor</a>
+<header class="site-header"><a class="brand" href="index.html" aria-label="Fluid home"><span class="fluid-wordmark" aria-hidden="true"></span></a><nav class="nav-links" aria-label="Main navigation"><a href="index.html">Explore</a><a href="studio.html">Studio</a><a href="dither.html" aria-current="page">Dither</a><a href="developers.html">Developers</a></nav><a class="studio-link" href="photo.html">Photo effects <span aria-hidden="true">↗</span></a></header>
+<main>
+<section class="intro dither-intro" aria-labelledby="ditherHeading"><div><p class="eyebrow">FLUID / DITHER GENERATOR</p><h1 id="ditherHeading">Less colour.<br><span>More character.</span></h1></div><div class="intro-copy"><p>Photos into patterns. Gradients into grain.<br>A whole other way to see your image.</p><div class="local-tag"><span aria-hidden="true">◇</span> Made on your device. Yours to keep.</div></div></section>
+<section class="workspace dither-workspace" id="ditherEditor" aria-label="Dither image editor" aria-busy="true">
+<div class="work-area">
+<div class="canvas-toolbar"><div class="file-label"><span class="file-icon" aria-hidden="true">▦</span><span id="ditherFileName">Anthurium study</span><span class="file-type" id="ditherFileType">SAMPLE</span></div><button class="text-button" id="ditherUpload">Upload image <span aria-hidden="true">↗</span></button></div>
+<div class="canvas-shell dither-canvas-shell" id="ditherDropZone">
+<div class="image-stage dither-stage" id="ditherStage">
+<canvas id="ditherArt" hidden aria-hidden="true"></canvas>
+<canvas id="ditherPreview" aria-label="Dithered image preview"></canvas>
+<img id="ditherOriginal" alt="Original image for comparison" hidden>
+<span class="image-label" id="ditherOriginalLabel" hidden>ORIGINAL</span>
+<div class="loading-state" id="ditherLoading" role="status">Preparing your dither…</div>
+</div>
+<div class="drop-hint" id="ditherDropHint" hidden>Drop your image here</div>
+</div>
+<div class="preview-tools dither-preview-tools"><div class="preview-actions"><button class="pill-button" id="ditherCompare" aria-pressed="false" disabled><span aria-hidden="true">◐</span> <span id="ditherCompareText">Show original</span></button><button class="text-button" id="ditherSample">Use sample</button></div><span class="meta" id="ditherDimensions">Preparing image</span></div>
+<p class="dither-canvas-note">Drop a JPG, PNG, or WebP onto the canvas. Up to 25 MB.</p>
+</div>
+<aside class="controls dither-controls" aria-label="Dither controls">
+<div class="controls-title"><div><p class="eyebrow">THE ART OF A LITTLE LESS</p><h2>Make every dot count.</h2></div><span class="count" aria-hidden="true">▦</span></div>
+<div class="select-row dither-algorithm"><label for="ditherAlgorithm">Dither style</label><select id="ditherAlgorithm"><option value="ordered4">Ordered · 4 × 4</option><option value="ordered8">Ordered · 8 × 8</option><option value="floyd">Floyd–Steinberg</option><option value="atkinson">Atkinson</option><option value="threshold">Threshold</option></select><p class="control-note" id="ditherAlgorithmNote">A repeating grid with a classic printed texture.</p></div>
+<fieldset class="dither-palettes"><legend>Colour palette</legend><div class="dither-preset-grid">
+<button class="dither-preset" data-palette="paper" aria-pressed="true"><span class="dither-swatch" data-swatch="paper" aria-hidden="true"></span>Newsprint</button>
+<button class="dither-preset" data-palette="terminal" aria-pressed="false"><span class="dither-swatch" data-swatch="terminal" aria-hidden="true"></span>Terminal</button>
+<button class="dither-preset" data-palette="cobalt" aria-pressed="false"><span class="dither-swatch" data-swatch="cobalt" aria-hidden="true"></span>Blueprint</button>
+<button class="dither-preset" data-palette="peach" aria-pressed="false"><span class="dither-swatch" data-swatch="peach" aria-hidden="true"></span>Afterglow</button>
+</div><div class="dither-colours"><label class="dither-colour" for="ditherInk"><span>Ink <output id="ditherInkValue" for="ditherInk">#18191b</output></span><input type="color" id="ditherInk" value="#18191b"></label><label class="dither-colour" for="ditherPaper"><span>Paper <output id="ditherPaperValue" for="ditherPaper">#f1efeb</output></span><input type="color" id="ditherPaper" value="#f1efeb"></label><button class="icon-button" id="ditherSwap" aria-label="Swap ink and paper colours" title="Swap colours">⇄</button></div></fieldset>
+<div class="adjustments dither-adjustments"><div class="section-heading"><h3>The finer details</h3><button class="text-button" id="ditherReset">Reset all</button></div>
+<div class="slider-row"><div><label for="ditherSize">Pixel size</label><output id="ditherSizeValue" for="ditherSize">3 px</output></div><input type="range" id="ditherSize" min="1" max="12" step="1" value="3"></div>
+<div class="slider-row"><div><label for="ditherBrightness">Brightness</label><output id="ditherBrightnessValue" for="ditherBrightness">0</output></div><input type="range" id="ditherBrightness" min="-100" max="100" value="0"></div>
+<div class="slider-row"><div><label for="ditherContrast">Contrast</label><output id="ditherContrastValue" for="ditherContrast">0</output></div><input type="range" id="ditherContrast" min="-100" max="100" value="0"></div>
+<div class="slider-row"><div><label for="ditherThreshold">Threshold</label><output id="ditherThresholdValue" for="ditherThreshold">50%</output></div><input type="range" id="ditherThreshold" min="0" max="255" value="128"></div>
+<label class="dither-toggle" for="ditherInvert"><input type="checkbox" id="ditherInvert"><span>Invert tones</span></label>
+</div>
+<div class="export-actions"><button class="button primary" id="ditherExport" disabled>Export dither PNG <span aria-hidden="true">↓</span></button><p class="control-note" id="ditherExportNote">Preparing your image. Export will be ready in a moment.</p></div>
+</aside>
+</section>
+<div class="status-message" id="ditherStatus" role="status" aria-live="polite"></div><div class="error-message" id="ditherError" role="alert" hidden></div>
+<noscript><p class="error-message">Turn on JavaScript to use the dither generator.</p></noscript>
+<section class="below-editor"><div><span class="step-number">01 / BRING AN IMAGE</span><h3>Start with something yours.</h3><p>Upload a photo, a logo, or a gradient. Transparent PNGs keep their transparency.</p></div><div><span class="step-number">02 / FIND THE TEXTURE</span><h3>Order. Scatter. Experiment.</h3><p>Try a crisp ordered grid or the softer grain of error diffusion. Pick two colours and dial it in.</p></div><div><span class="step-number">03 / KEEP THE PIXELS</span><h3>Ready for wherever’s next.</h3><p>Export a crisp PNG, up to 2048 pixels on the longest edge. Your original image stays untouched.</p></div></section>
+</main>
+<footer class="footer"><a class="brand" href="index.html" aria-label="Fluid home"><span class="fluid-wordmark" aria-hidden="true"></span></a><span>Keep experimenting.</span><a class="text-button" href="photo.html">Try photo effects <span aria-hidden="true">↗</span></a></footer>
+<input type="file" id="ditherInput" accept="image/jpeg,image/png,image/webp" hidden>
+<script type="module" src="dither.js"></script>
+</body></html>

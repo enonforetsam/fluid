@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Build with Fluid: 58 procedural looks, a native canvas API, the integrated studio, and a local Photo to Fire renderer.">
+    <title>Developers — Fluid</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body class="docs-page">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="Fluid home"><span class="fluid-wordmark" aria-hidden="true"></span></a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="./index.html">Explore</a>
+        <a href="./studio.html">Studio</a><a href="./dither.html">Dither</a>
+        <a href="./developers.html" aria-current="page">Developers</a>
+      </nav>
+      <a class="studio-link" href="./photo.html">Photo effects <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main class="docs-main">
+      <p class="eyebrow">FLUID / DEVELOPERS</p>
+      <h1>Make room for movement.</h1>
+      <p>Fluid brings 58 procedural looks together in eight collections. Explore the collection, shape a piece in the integrated studio, or draw it directly inside your own page with the bundled Fluid Core 3.3.0 library.</p>
+      <p><a class="button primary" href="./backgrounds.html">Try website backgrounds</a> <a class="button secondary" href="./catalogue.json">View the catalogue</a></p>
+
+      <section class="docs-section" aria-labelledby="native-heading">
+        <p class="eyebrow">01 / QUICK START</p>
+        <h2 id="native-heading">A living background. A few lines.</h2>
+        <p>Serve this site over HTTP and import the bundled native module. Give the container a size, choose a named look, and set a seed to keep its composition consistent. The library creates its canvas and manages animation and resizing.</p>
+        <pre class="code-block"><code>&lt;div id="background" style="width:100%;height:60vh"&gt;&lt;/div&gt;
+
+&lt;script type="module"&gt;
+  import { createFluid } from './vendor/fluid-core/src/index.js';
+
+  const art = createFluid(document.querySelector('#background'), {
+    look: 'MONSOON',
+    seed: 42
+  });
+
+  // In a component, call art.destroy() when it unmounts.
+  window.addEventListener('pagehide', (event) =&gt; {
+    if (!event.persisted) art.destroy();
+  });
+&lt;/script&gt;</code></pre>
+        <p>Keep the whole <code>vendor/fluid-core</code> folder when copying the library into another project; its entry point imports sibling modules. No package installation or API key is needed. WebGL is required, so provide a static fallback if initialization fails.</p>
+      </section>
+
+      <section class="docs-section" aria-labelledby="native-api-heading">
+        <p class="eyebrow">02 / NATIVE API</p>
+        <h2 id="native-api-heading">Start with a look. Make it yours.</h2>
+        <dl>
+          <dt><code>createFluid(element, options)</code></dt>
+          <dd>Mount a procedural canvas. Choose <code>look</code> and <code>seed</code>, or use field, palette, layer, material, substrate, and lens options.</dd>
+          <dt><code>art.set(options)</code></dt>
+          <dd>Update a piece in place. Selecting a new look resets its previous layers and material settings; include overrides in the same call.</dd>
+          <dt><code>art.pause()</code> / <code>art.play()</code></dt>
+          <dd>Control playback. The library also respects reduced motion by default and pauses when offscreen or in a hidden tab.</dd>
+          <dt><code>art.toDataURL()</code></dt>
+          <dd>Render a still and return a PNG data URL.</dd>
+          <dt><code>art.shareUrl('./studio.html')</code></dt>
+          <dd>Build a link to open the current procedural settings in this site's studio.</dd>
+          <dt><code>art.destroy()</code></dt>
+          <dd>Stop animation, disconnect observers, and remove the canvas when it is no longer needed.</dd>
+        </dl>
+        <p>The bundled version includes all 58 looks and 30 field engines. The <a href="./catalogue.json">shared catalogue</a> groups those looks into Living gradients, Fluid forms, Liquid metal, Print &amp; pixels, Patterns &amp; rhythm, Impossible spaces, Paint &amp; paper, and Surfaces &amp; street. See the <a href="./vendor/fluid-core/README.md">library guide</a> and <a href="./vendor/fluid-core/src/index.d.ts">TypeScript definitions</a> for the full option surface.</p>
+        <p>Fluid Core draws procedural artwork. Image melt, text and logo masks, cursor effects, and recording belong to the studio.</p>
+      </section>
+
+      <section class="docs-section" aria-labelledby="studio-heading">
+        <p class="eyebrow">03 / STUDIO OUTPUT</p>
+        <h2 id="studio-heading">From a live canvas to a finished piece.</h2>
+        <p>The <a href="./studio.html">integrated studio</a> includes PNG, JPG, and WebP still exports, share links, and embed options. Live clip recording uses MP4 or WebM according to browser support; offline MP4 export requires supported WebCodecs and is unavailable on iOS. Export resolution and performance depend on the browser and device.</p>
+        <p>Studio saved designs retain settings and a thumbnail, but do not retain the original photo. Share links carry settings, and standalone HTML exports reproduce procedural artwork; they do not include uploaded photos or text and logo masks. Keep the original source files when working with images.</p>
+      </section>
+
+      <section class="docs-section" aria-labelledby="start-heading">
+        <p class="eyebrow">04 / PHOTO → FIRE</p>
+        <h2 id="start-heading">An image, a canvas, a render loop.</h2>
+        <p>The separate Photo → Fire renderer turns a local image into animated fire with WebGL. Save <code>engine.js</code> beside an HTML file containing this example and serve the folder over HTTP. Choose an image to start; no build step, account, or API key is needed.</p>
+        <p><a class="button primary" href="./engine.js" download="engine.js">Download engine.js</a> <a class="button secondary" href="./photo.html">Open the photo editor</a></p>
+        <pre class="code-block"><code>&lt;input id="photo" type="file" accept="image/*"&gt;
+&lt;canvas id="fire" style="width:100%;height:60vh"&gt;&lt;/canvas&gt;
+
+&lt;script type="module"&gt;
+  import { FireRenderer } from './engine.js';
+
+  const canvas = document.querySelector('#fire');
+  const renderer = new FireRenderer(canvas);
+  let ready = false;
+  let frame;
+
+  renderer.setOptions({
+    intensity: 0.7, heat: 0.7, motion: 0.5, detail: 0.5,
+    color: 'ember', region: 'edges', paused: false
+  });
+
+  const resize = new ResizeObserver(() =&gt; {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    renderer.resize(
+      Math.max(1, Math.round(canvas.clientWidth * dpr)),
+      Math.max(1, Math.round(canvas.clientHeight * dpr))
+    );
+  });
+  resize.observe(canvas);
+
+  document.querySelector('#photo').addEventListener('change', async (event) =&gt; {
+    const file = event.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    try {
+      image.src = url;
+      await image.decode();
+      await renderer.setSource(image);
+      ready = true;
+    } catch (error) {
+      console.error('Could not open this image.', error);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  });
+
+  function animate(milliseconds) {
+    if (ready) renderer.render(milliseconds / 1000);
+    frame = requestAnimationFrame(animate);
+  }
+  frame = requestAnimationFrame(animate);
+
+  // Call when your app removes the canvas.
+  function cleanup() {
+    cancelAnimationFrame(frame);
+    resize.disconnect();
+    renderer.destroy();
+  }
+&lt;/script&gt;</code></pre>
+        <p><code>render()</code> expects seconds. The renderer does not start its own animation loop; keep calling it while the canvas is visible. Handle renderer initialization errors if WebGL is unavailable on the user's device.</p>
+      </section>
+
+      <section class="docs-section" aria-labelledby="api-heading">
+        <p class="eyebrow">05 / FIRE API</p>
+        <h2 id="api-heading">Small surface. Room to experiment.</h2>
+        <dl>
+          <dt><code>new FireRenderer(canvas)</code></dt>
+          <dd>Create a renderer for an HTML canvas.</dd>
+          <dt><code>setSource(imageElement)</code></dt>
+          <dd>Use a decoded <code>HTMLImageElement</code> as the source. Images from another origin need suitable CORS permission; local uploads avoid that requirement.</dd>
+          <dt><code>setOptions(options)</code></dt>
+          <dd>Set <code>intensity</code>, <code>heat</code>, <code>motion</code>, and <code>detail</code>. Choose <code>color: 'ember' | 'inferno' | 'blue'</code> and <code>region: 'edges' | 'all'</code>. Set <code>paused</code> to a boolean.</dd>
+          <dt><code>render(timeSeconds)</code></dt>
+          <dd>Draw one frame at the supplied time.</dd>
+          <dt><code>resize(width, height)</code></dt>
+          <dd>Set the drawing dimensions in pixels when your canvas changes size.</dd>
+          <dt><code>destroy()</code></dt>
+          <dd>Release renderer resources after stopping your animation loop.</dd>
+        </dl>
+      </section>
+
+      <section class="docs-section" aria-labelledby="files-heading">
+        <p class="eyebrow">06 / PHOTO PROJECTS</p>
+        <h2 id="files-heading">Create locally. Keep the result.</h2>
+        <p>The <a href="./photo.html">photo editor</a> provides image upload, fire controls, before/after comparison, and pause. Save a PNG still, record a WebM clip when your browser supports it, or download an editable <code>.fluid.json</code> project containing the image and effect settings.</p>
+        <p>Image processing happens on your device. The editor does not upload your selected image, and no sign-in is needed. A project file includes the image itself, so sharing that file also shares its image.</p>
+        <p>These image-inclusive projects belong to Photo → Fire and use a different format from the studio's saved designs. PNG, clip, and project exports belong to the photo editor; <code>FireRenderer</code> supplies the canvas effect and does not provide file management.</p>
+      </section>
+
+      <section class="docs-section" aria-labelledby="mcp-heading">
+        <p class="eyebrow">07 / MCP</p>
+        <h2 id="mcp-heading">Know which catalogue you're using.</h2>
+        <p>The existing production MCP endpoint at <a href="https://befluid.xyz/mcp">befluid.xyz/mcp</a> serves 42 procedural looks. It may not expose the additional Fluid 3.3 looks and material controls available in this site's 58-look catalogue and bundled native library.</p>
+        <p>That endpoint does not accept photo uploads or expose Photo → Fire. This site does not update the production endpoint, publish a local MCP server, or add photo-specific MCP tools. Use the native module for procedural backgrounds and <code>engine.js</code> for photo effects.</p>
+      </section>
+      <section class="docs-section" aria-labelledby="dither-api-heading">
+        <p class="eyebrow">08 / IMAGE DITHERING</p>
+        <h2 id="dither-api-heading">A different kind of texture.</h2>
+        <p><a href="./dither.html">Open the dither generator</a> to convert a local image into two colours. Try ordered 4×4 or 8×8 patterns, Floyd–Steinberg, Atkinson, or a clean threshold. Tune pixel size, brightness, contrast, ink and paper, then export a PNG.</p>
+        <p>The dependency-free <code>dither-core.js</code> module also works on its own. It takes an RGBA byte buffer and returns a new one. Dark tones become foreground ink; light tones become background paper. The source buffer is unchanged and alpha is preserved.</p>
+        <pre class="code-block"><code>import { ditherImage } from './dither-core.js';
+
+const source = context.getImageData(0, 0, width, height);
+const result = ditherImage(source, {
+  algorithm: 'floyd',
+  foreground: '#18191b',
+  background: '#f1efeb',
+  brightness: 0,
+  contrast: 0,
+  threshold: 128,
+  invert: false
+});
+context.putImageData(new ImageData(
+  result.data, result.width, result.height
+), 0, 0);</code></pre>
+        <p>Algorithm names are <code>ordered4</code>, <code>ordered8</code>, <code>floyd</code>, <code>atkinson</code> and <code>threshold</code>. Brightness and contrast range from −100 to 100; threshold ranges from 0 to 255. The generator runs processing in a worker, limits uploads to 25 MB / 40 megapixels, and caps export at 2048 pixels on the longest edge. Pixel-size resampling belongs to the editor, rather than the core function. No image is uploaded to a server.</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Fluid — Keep experimenting.</span>
+      <a href="./index.html">Explore the collection <span aria-hidden="true">↗</span></a>
+    </footer>
+  </body>
+</html>

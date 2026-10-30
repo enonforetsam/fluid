@@ -195,3 +195,10 @@ share link.
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+## Published app
+
+The public collection explorer, integrated 3.3 Studio, Photo → Fire, background builder and image dither generator live in `site/`. Run `npm run build:site` to prepare the explicit `.public/` asset package, then `npm run dev` for the complete Worker locally. The build keeps QA, internal project notes, scripts and repository metadata out of public assets, while retaining `/manual`, `/gallery`, `/dev`, social images and native package URLs. Root artwork share/embed hashes continue into `/studio` with their settings preserved.
+
+Publishing follows the existing master-branch GitHub Action, which builds assets and runs engine, dither and packaging tests before deployment. The original root studio remains the source for the existing 42-look API and offline engine tests; the bundled 58-look browser studio is served at `/studio`. This website release does not expand the API/MCP registry or deploy the separate hosted/community experiment.

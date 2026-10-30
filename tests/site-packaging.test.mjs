@@ -1,0 +1,122 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { lstat, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import vm from 'node:vm';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { buildSite, LEGACY_FILES, SITE_FILES } from '../scripts/build-site.mjs';
+
+const ROOT = fileURLToPath(new URL('../', import.meta.url));
+async function write(root, name, content) {
+  const file = path.join(root, name);
+  await mkdir(path.dirname(file), { recursive: true });
+  await writeFile(file, content);
+}
+async function fixture() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'fluid-site-packaging-'));
+  for (const file of LEGACY_FILES) await write(root, file, 'legacy ' + file);
+  await write(root, 'index.html', 'offline studio source');
+  await write(root, 'assets/og.png', new Uint8Array([1, 2, 3]));
+  await write(root, 'assets/gallery/example.jpg', new Uint8Array([4, 5, 6]));
+  await write(root, 'assets/.env', 'excluded');
+  await write(root, 'assets/private.json', 'excluded');
+  for (const file of SITE_FILES) await write(root, 'site/' + file, 'site ' + file);
+  await write(root, 'site/catalogue.json', JSON.stringify({ looks: [{ thumbnail: 'assets/look-thumbnails/example.webp' }] }));
+  await write(root, 'site/assets/look-thumbnails/example.webp', new Uint8Array([7, 8, 9]));
+  await write(root, 'site/PROJECT.md', 'private source context /Users/example/project');
+  await write(root, 'site/qa/private.json', '{"path":"/opt/private"}');
+  await write(root, 'site/scripts/private.js', 'const source = "/root/private";');
+  return root;
+}
+async function digest(root, names) {
+  const hash = createHash('sha256');
+  for (const name of names) hash.update(name).update(await readFile(path.join(root, name)));
+  return hash.digest('hex');
+}
+
+test('explicit packaging keeps new runtime, public guides and legacy URLs, and excludes private inputs', async () => {
+  const root = await fixture();
+  try {
+    const result = await buildSite({ rootDir: root });
+    assert.equal(await readFile(path.join(root, 'index.html'), 'utf8'), 'offline studio source');
+    assert.equal(await readFile(path.join(result.directory, 'index.html'), 'utf8'), 'site index.html');
+    for (const file of [...SITE_FILES, ...LEGACY_FILES, 'assets/og.png', 'assets/gallery/example.jpg', 'assets/look-thumbnails/example.webp', 'fluid-bg.js', 'assets/fluid-bg.iife.js', 'fluid-core/src/index.js', 'fluid-core/src/index.d.ts', 'docs/MATERIALS.md']) {
+      assert.ok((await lstat(path.join(result.directory, file))).isFile(), file);
+    }
+    for (const file of result.files) {
+      assert.ok(!/(?:^|\/)(?:qa|scripts|PROJECT\.md|\.env|private\.json)(?:\/|$)/.test(file), file);
+      const text = await readFile(path.join(result.directory, file), 'utf8');
+      assert.ok(!/\/Users\/|\/opt\/|\/root\//.test(text), file);
+    }
+    assert.equal(await readFile(path.join(result.directory, 'fluid-core/src/index.js'), 'utf8'), 'site vendor/fluid-core/src/index.js');
+    const first = await digest(result.directory, result.files);
+    await write(result.directory, 'stale.js', 'stale output');
+    const second = await buildSite({ rootDir: root });
+    assert.deepEqual(second.files, result.files);
+    assert.equal(await digest(second.directory, second.files), first);
+    assert.ok(!(await readdir(second.directory)).includes('stale.js'));
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('invalid public input preserves the previous output', async () => {
+  const root = await fixture();
+  try {
+    await write(root, '.public/previous.txt', 'keep previous build');
+    await write(root, 'site/dither.js', 'const leaked = "/Users/example/private";');
+    await assert.rejects(buildSite({ rootDir: root }), /Private filesystem reference/);
+    assert.equal(await readFile(path.join(root, '.public/previous.txt'), 'utf8'), 'keep previous build');
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('symlink output is rejected without deleting its destination', async () => {
+  const root = await fixture();
+  const outside = await mkdtemp(path.join(os.tmpdir(), 'fluid-unowned-'));
+  try {
+    await write(outside, 'untouched.txt', 'untouched');
+    await symlink(outside, path.join(root, '.public'), 'dir');
+    await assert.rejects(buildSite({ rootDir: root }), /Refusing to replace/);
+    assert.equal(await readFile(path.join(outside, 'untouched.txt'), 'utf8'), 'untouched');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test('legacy bridge preserves complete art hashes and query, while normal section anchors remain on Explore', async () => {
+  const code = await readFile(path.join(ROOT, 'site/legacy-links.js'), 'utf8');
+  for (const hash of ['#p=0.5,1,2&t=Hello%20world&tf=3&tb=112233', '#e=1,2,3']) {
+    const redirects = [];
+    const location = { hash, search: '?source=mcp&seed=42', replace: (url) => redirects.push(url) };
+    vm.runInNewContext(code, { location });
+    assert.deepEqual(redirects, ['/studio?source=mcp&seed=42' + hash]);
+  }
+  for (const hash of ['', '#collections', '#looks', '#ditherEditor', '#painter', '#example=42']) {
+    const redirects = [];
+    vm.runInNewContext(code, { location: { hash, search: '', replace: (url) => redirects.push(url) } });
+    assert.deepEqual(redirects, [], hash);
+  }
+  const html = await readFile(path.join(ROOT, 'site/index.html'), 'utf8');
+  assert.ok(html.indexOf('src="legacy-links.js"') > html.indexOf('<head>'));
+  assert.ok(html.indexOf('src="legacy-links.js"') < html.indexOf('</head>'));
+  assert.ok(html.indexOf('src="legacy-links.js"') < html.indexOf('type="module"'));
+  assert.match(html, /<script src="legacy-links\.js"><\/script>/);
+});
+
+test('published typography uses local variable Latin fonts with source and OFL notices', async () => {
+  const css = await readFile(path.join(ROOT, 'site/styles.css'), 'utf8');
+  assert.ok(!css.includes('fonts.googleapis.com'));
+  assert.match(css, /font-family:\s*['"]DM Sans['"]/);
+  assert.match(css, /font-family:\s*['"]Space Grotesk['"]/);
+  assert.equal((css.match(/font-weight:\s*400 700/g) || []).length, 2);
+  assert.equal((css.match(/font-display:\s*swap/g) || []).length, 2);
+  for (const file of ['dm-sans-latin-variable.woff2', 'space-grotesk-latin-variable.woff2']) {
+    const data = await readFile(path.join(ROOT, 'site/assets/fonts', file));
+    assert.equal(data.subarray(0, 4).toString(), 'wOF2', file);
+    assert.ok(data.length > 1000 && data.length < 100000, file);
+  }
+  for (const name of ['OFL-DM-Sans.txt', 'OFL-Space-Grotesk.txt']) {
+    assert.match(await readFile(path.join(ROOT, 'site/assets/fonts', name), 'utf8'), /SIL OPEN FONT LICENSE/);
+  }
+});

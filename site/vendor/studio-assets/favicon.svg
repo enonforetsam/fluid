@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <!-- thermal-optics iridescence: deep blue -> indigo -> magenta -> coral -> peach -->
+    <linearGradient id="fl" x1="6" y1="98" x2="94" y2="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0a2a8c"/>
+      <stop offset=".28" stop-color="#3a1f7a"/>
+      <stop offset=".54" stop-color="#c84fe0"/>
+      <stop offset=".78" stop-color="#ff6f8e"/>
+      <stop offset="1" stop-color="#ffd9a8"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx=".34" cy=".26" r=".75">
+      <stop offset="0" stop-color="#fff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile"><rect width="100" height="100" rx="24"/></clipPath>
+    <style>
+      .melt{transform-origin:50px 62px;animation:drift 3.8s ease-in-out infinite alternate}
+      .drop{transform-origin:33px 34px;animation:fall 2.6s ease-in-out infinite}
+      .dots{animation:pulse 2.4s ease-in-out infinite alternate}
+      @keyframes drift{
+        0%{transform:translateX(-5px) scaleX(1.08)}
+        100%{transform:translateX(5px) scaleX(.96)}
+      }
+      @keyframes fall{
+        0%,100%{transform:translateY(-4px) scale(.92)}
+        50%{transform:translateY(5px) scale(1.08)}
+      }
+      @keyframes pulse{
+        0%{opacity:.16}
+        100%{opacity:.34}
+      }
+      @media (prefers-reduced-motion: reduce){
+        .melt,.drop,.dots{animation:none}
+      }
+    </style>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <!-- near-black artboard, matching the app card -->
+    <rect width="100" height="100" fill="#07070c"/>
+
+    <!-- the melt: a liquid iridescent body with a wavy crest -->
+    <path class="melt" d="M-8,58 C8,46 24,46 38,52 C52,59 60,61 72,50 C86,39 98,42 108,48 L108,100 L-8,100 Z"
+          fill="url(#fl)"/>
+
+    <!-- a falling droplet above the surface -->
+    <path class="drop" d="M33,24 C27,33 27,41 33,44 C39,41 39,33 33,24 Z" fill="url(#fl)"/>
+
+    <!-- halftone dots knocked out of the liquid — Fluid's signature screen -->
+    <g class="dots" fill="#07070c" opacity=".22">
+      <circle cx="56" cy="76" r="3.4"/>
+      <circle cx="70" cy="82" r="2.6"/>
+      <circle cx="44" cy="84" r="2.6"/>
+      <circle cx="84" cy="74" r="2.2"/>
+      <circle cx="30" cy="74" r="2"/>
+    </g>
+
+    <!-- specular sheen -->
+    <rect width="100" height="100" fill="url(#sheen)"/>
+  </g>
+</svg>

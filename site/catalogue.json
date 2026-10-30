@@ -1,0 +1,4809 @@
+{
+  "renderer": "v3.3",
+  "preview": {
+    "seed": 42,
+    "time": 0,
+    "width": 800,
+    "height": 500
+  },
+  "collections": [
+    {
+      "id": "living-gradients",
+      "name": "Living gradients",
+      "description": "Soft colour fields, luminous curtains, and gradients with a pulse.",
+      "featured": [
+        "bloom",
+        "horizon",
+        "borealis",
+        "veil"
+      ],
+      "cover": "bloom"
+    },
+    {
+      "id": "fluid-forms",
+      "name": "Fluid forms",
+      "description": "Swirling currents, clouded colour, and organic shapes in motion.",
+      "featured": [
+        "afterglow",
+        "smoke",
+        "sumi",
+        "nebula"
+      ],
+      "cover": "afterglow"
+    },
+    {
+      "id": "liquid-metal",
+      "name": "Liquid metal",
+      "description": "Molten highlights and reflective surfaces, from gold to cool silver.",
+      "featured": [
+        "mercury",
+        "gilded",
+        "onyx"
+      ],
+      "cover": "mercury"
+    },
+    {
+      "id": "print-pixels",
+      "name": "Print & pixels",
+      "description": "Dithered colour, pixel grids, and halftone-like screens.",
+      "featured": [
+        "pixelbeam",
+        "ribbon",
+        "nova",
+        "vortex"
+      ],
+      "cover": "pixelbeam"
+    },
+    {
+      "id": "patterns-rhythm",
+      "name": "Patterns & rhythm",
+      "description": "Woven lines, repeating geometry, and patterns that find their rhythm.",
+      "featured": [
+        "filament",
+        "cymatic",
+        "tartan",
+        "mandala"
+      ],
+      "cover": "filament"
+    },
+    {
+      "id": "impossible-spaces",
+      "name": "Impossible spaces",
+      "description": "Folded perspectives and mathematical lenses that bend familiar patterns.",
+      "featured": [
+        "filigree",
+        "escher",
+        "shoreline",
+        "rosette"
+      ],
+      "cover": "filigree"
+    },
+    {
+      "id": "paint-paper",
+      "name": "Paint & paper",
+      "description": "Pigment washes, bristled strokes, and tactile marks on paper or canvas.",
+      "featured": [
+        "wildflower",
+        "cobalt-canvas",
+        "sumi-paper",
+        "impasto"
+      ],
+      "cover": "wildflower"
+    },
+    {
+      "id": "surfaces-street",
+      "name": "Surfaces & street",
+      "description": "Sprayed walls, mineral layers, glazed surfaces, and natural grain.",
+      "featured": [
+        "neon-wall",
+        "terrazzo-club",
+        "cedar",
+        "celadon"
+      ],
+      "cover": "neon-wall"
+    }
+  ],
+  "looks": [
+    {
+      "id": "borealis",
+      "name": "BOREALIS",
+      "humanTitle": "Borealis",
+      "collection": "living-gradients",
+      "description": "Soft aurora colour drifts through a warped noise field.",
+      "tags": [
+        "aurora",
+        "soft",
+        "atmospheric",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "BOREALIS",
+        "field": "noise",
+        "speed": 0.4,
+        "zoom": 2,
+        "warp": 3.5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 30,
+        "palette": "aurora",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "BOREALIS",
+        "field": 0,
+        "p": [
+          0.4,
+          2,
+          3.5,
+          0.03,
+          1,
+          10,
+          0,
+          0,
+          30,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/borealis.webp"
+    },
+    {
+      "id": "afterglow",
+      "name": "AFTERGLOW",
+      "humanTitle": "Afterglow",
+      "collection": "fluid-forms",
+      "description": "Warm sunset ribbons curl through a flowing colour field.",
+      "tags": [
+        "sunset",
+        "warm",
+        "swirls",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "AFTERGLOW",
+        "field": "flow",
+        "speed": 0.5,
+        "zoom": 1.6,
+        "warp": 4,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 21,
+        "palette": "sunset",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "AFTERGLOW",
+        "field": 1,
+        "p": [
+          0.5,
+          1.6,
+          4,
+          0.03,
+          1,
+          10,
+          0,
+          1,
+          21,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/afterglow.webp"
+    },
+    {
+      "id": "tide",
+      "name": "TIDE",
+      "humanTitle": "Tide",
+      "collection": "fluid-forms",
+      "description": "Deep blue currents open into pale aqua highlights.",
+      "tags": [
+        "ocean",
+        "blue",
+        "currents",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "TIDE",
+        "field": "flow",
+        "speed": 0.5,
+        "zoom": 1.5,
+        "warp": 5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 48,
+        "palette": "ocean",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "TIDE",
+        "field": 1,
+        "p": [
+          0.5,
+          1.5,
+          5,
+          0.03,
+          1,
+          10,
+          0,
+          2,
+          48,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/tide.webp"
+    },
+    {
+      "id": "twilight",
+      "name": "TWILIGHT",
+      "humanTitle": "Twilight",
+      "collection": "living-gradients",
+      "description": "Lavender and rose drift across a quiet, clouded field.",
+      "tags": [
+        "lavender",
+        "pastel",
+        "soft",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "TWILIGHT",
+        "field": "noise",
+        "speed": 0.35,
+        "zoom": 2.3,
+        "warp": 3,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 12,
+        "palette": "dusk",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "TWILIGHT",
+        "field": 0,
+        "p": [
+          0.35,
+          2.3,
+          3,
+          0.03,
+          1,
+          10,
+          0,
+          3,
+          12,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/twilight.webp"
+    },
+    {
+      "id": "magma",
+      "name": "MAGMA",
+      "humanTitle": "Magma",
+      "collection": "fluid-forms",
+      "description": "Ember reds and warm gold spread through dark organic forms.",
+      "tags": [
+        "ember",
+        "warm",
+        "organic",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MAGMA",
+        "field": "noise",
+        "speed": 0.45,
+        "zoom": 1.8,
+        "warp": 4.5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 52,
+        "palette": "ember",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "MAGMA",
+        "field": 0,
+        "p": [
+          0.45,
+          1.8,
+          4.5,
+          0.03,
+          1,
+          10,
+          0,
+          4,
+          52,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/magma.webp"
+    },
+    {
+      "id": "meridian",
+      "name": "MERIDIAN",
+      "humanTitle": "Meridian",
+      "collection": "living-gradients",
+      "description": "Fresh mint tones turn through gentle flowing contours.",
+      "tags": [
+        "mint",
+        "green",
+        "fresh",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MERIDIAN",
+        "field": "flow",
+        "speed": 0.5,
+        "zoom": 1.6,
+        "warp": 5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 66,
+        "palette": "mint",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "MERIDIAN",
+        "field": 1,
+        "p": [
+          0.5,
+          1.6,
+          5,
+          0.03,
+          1,
+          10,
+          0,
+          5,
+          66,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/meridian.webp"
+    },
+    {
+      "id": "nebula",
+      "name": "NEBULA",
+      "humanTitle": "Nebula",
+      "collection": "fluid-forms",
+      "description": "Iris-coloured cellular forms gather into luminous clusters.",
+      "tags": [
+        "violet",
+        "cells",
+        "luminous",
+        "cellular"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "NEBULA",
+        "field": "cellular",
+        "speed": 0.4,
+        "zoom": 1.9,
+        "warp": 7,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 8,
+        "dots": 0,
+        "seed": 40,
+        "palette": "iris",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "NEBULA",
+        "field": 2,
+        "p": [
+          0.4,
+          1.9,
+          7,
+          0.03,
+          1,
+          8,
+          0,
+          6,
+          40,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/nebula.webp"
+    },
+    {
+      "id": "plasma",
+      "name": "PLASMA",
+      "humanTitle": "Plasma",
+      "collection": "fluid-forms",
+      "description": "Strongly warped aurora currents coil into energetic swirls.",
+      "tags": [
+        "aurora",
+        "energetic",
+        "swirls",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "PLASMA",
+        "field": "flow",
+        "speed": 0.7,
+        "zoom": 1.2,
+        "warp": 8,
+        "grain": 0.04,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 71,
+        "palette": "aurora",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "PLASMA",
+        "field": 1,
+        "p": [
+          0.7,
+          1.2,
+          8,
+          0.04,
+          1,
+          10,
+          0,
+          0,
+          71,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/plasma.webp"
+    },
+    {
+      "id": "velvet",
+      "name": "VELVET",
+      "humanTitle": "Velvet",
+      "collection": "living-gradients",
+      "description": "Close, soft dusk tones create a smooth colour haze.",
+      "tags": [
+        "dusk",
+        "soft",
+        "muted",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "VELVET",
+        "field": "noise",
+        "speed": 0.3,
+        "zoom": 2.6,
+        "warp": 2,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 18,
+        "palette": "dusk",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "VELVET",
+        "field": 0,
+        "p": [
+          0.3,
+          2.6,
+          2,
+          0.02,
+          1,
+          10,
+          0,
+          3,
+          18,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/velvet.webp"
+    },
+    {
+      "id": "coral",
+      "name": "CORAL",
+      "humanTitle": "Coral",
+      "collection": "fluid-forms",
+      "description": "Sunset-coloured cells stretch into warm organic islands.",
+      "tags": [
+        "coral",
+        "warm",
+        "cells",
+        "cellular"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CORAL",
+        "field": "cellular",
+        "speed": 0.45,
+        "zoom": 1.8,
+        "warp": 7,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 33,
+        "palette": "sunset",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "CORAL",
+        "field": 2,
+        "p": [
+          0.45,
+          1.8,
+          7,
+          0.03,
+          1,
+          10,
+          0,
+          1,
+          33,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/coral.webp"
+    },
+    {
+      "id": "glacier",
+      "name": "GLACIER",
+      "humanTitle": "Glacier",
+      "collection": "living-gradients",
+      "description": "Pale ocean tones drift through cool blue folds.",
+      "tags": [
+        "blue",
+        "cool",
+        "soft",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "GLACIER",
+        "field": "noise",
+        "speed": 0.4,
+        "zoom": 2.2,
+        "warp": 3,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 25,
+        "palette": "ocean",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "GLACIER",
+        "field": 0,
+        "p": [
+          0.4,
+          2.2,
+          3,
+          0.03,
+          1,
+          10,
+          0,
+          2,
+          25,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/glacier.webp"
+    },
+    {
+      "id": "onyx",
+      "name": "ONYX",
+      "humanTitle": "Onyx",
+      "collection": "liquid-metal",
+      "description": "Warped cellular forms carry a reflective chrome palette.",
+      "tags": [
+        "chrome",
+        "reflective",
+        "cells",
+        "cellular"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "ONYX",
+        "field": "cellular",
+        "speed": 0.4,
+        "zoom": 1.9,
+        "warp": 8,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 8,
+        "dots": 0,
+        "seed": 60,
+        "palette": "chrome",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "ONYX",
+        "field": 2,
+        "p": [
+          0.4,
+          1.9,
+          8,
+          0.03,
+          1,
+          8,
+          0,
+          7,
+          60,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/onyx.webp"
+    },
+    {
+      "id": "weave",
+      "name": "WEAVE",
+      "humanTitle": "Weave",
+      "collection": "patterns-rhythm",
+      "description": "Mint-coloured gyroid bands cross into an organic weave.",
+      "tags": [
+        "woven",
+        "mint",
+        "bands",
+        "gyroid"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "WEAVE",
+        "field": "gyroid",
+        "speed": 0.4,
+        "zoom": 1.6,
+        "warp": 5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 40,
+        "palette": "mint",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "WEAVE",
+        "field": 3,
+        "p": [
+          0.4,
+          1.6,
+          5,
+          0.03,
+          1,
+          10,
+          0,
+          5,
+          40,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/weave.webp"
+    },
+    {
+      "id": "circuit",
+      "name": "CIRCUIT",
+      "humanTitle": "Circuit",
+      "collection": "patterns-rhythm",
+      "description": "Chrome maze lines weave through a repeating circuit pattern.",
+      "tags": [
+        "maze",
+        "chrome",
+        "geometric",
+        "truchet"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CIRCUIT",
+        "field": "truchet",
+        "speed": 0.3,
+        "zoom": 2,
+        "warp": 4,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 22,
+        "palette": "chrome",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "CIRCUIT",
+        "field": 4,
+        "p": [
+          0.3,
+          2,
+          4,
+          0.02,
+          1,
+          10,
+          0,
+          7,
+          22,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/circuit.webp"
+    },
+    {
+      "id": "ripple",
+      "name": "RIPPLE",
+      "humanTitle": "Ripple",
+      "collection": "patterns-rhythm",
+      "description": "Overlapping ocean-blue rings form interference patterns.",
+      "tags": [
+        "rings",
+        "blue",
+        "interference",
+        "interfere"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "RIPPLE",
+        "field": "interfere",
+        "speed": 0.5,
+        "zoom": 1.4,
+        "warp": 5,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 30,
+        "palette": "ocean",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "RIPPLE",
+        "field": 5,
+        "p": [
+          0.5,
+          1.4,
+          5,
+          0.03,
+          1,
+          10,
+          0,
+          2,
+          30,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/ripple.webp"
+    },
+    {
+      "id": "mandala",
+      "name": "MANDALA",
+      "humanTitle": "Mandala",
+      "collection": "patterns-rhythm",
+      "description": "Mirrored iris-coloured sectors create a shifting radial pattern.",
+      "tags": [
+        "radial",
+        "violet",
+        "symmetry",
+        "kaleido"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MANDALA",
+        "field": "kaleido",
+        "speed": 0.35,
+        "zoom": 1.5,
+        "warp": 6,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 55,
+        "palette": "iris",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "MANDALA",
+        "field": 6,
+        "p": [
+          0.35,
+          1.5,
+          6,
+          0.03,
+          1,
+          10,
+          0,
+          6,
+          55,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/mandala.webp"
+    },
+    {
+      "id": "strata",
+      "name": "STRATA",
+      "humanTitle": "Strata",
+      "collection": "patterns-rhythm",
+      "description": "Dusk-coloured parallel bands bend into layered rulings.",
+      "tags": [
+        "stripes",
+        "dusk",
+        "layered",
+        "lines"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "STRATA",
+        "field": "lines",
+        "speed": 0.3,
+        "zoom": 1.6,
+        "warp": 3,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 28,
+        "palette": "dusk",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "STRATA",
+        "field": 7,
+        "p": [
+          0.3,
+          1.6,
+          3,
+          0.02,
+          1,
+          10,
+          0,
+          3,
+          28,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/strata.webp"
+    },
+    {
+      "id": "mesh",
+      "name": "MESH",
+      "humanTitle": "Mesh",
+      "collection": "patterns-rhythm",
+      "description": "Crossed mint-coloured rulings form a clean moving lattice.",
+      "tags": [
+        "grid",
+        "mint",
+        "lattice"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MESH",
+        "field": "grid",
+        "speed": 0.3,
+        "zoom": 1.8,
+        "warp": 4,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 33,
+        "palette": "mint",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "MESH",
+        "field": 8,
+        "p": [
+          0.3,
+          1.8,
+          4,
+          0.02,
+          1,
+          10,
+          0,
+          5,
+          33,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/mesh.webp"
+    },
+    {
+      "id": "sunflower",
+      "name": "SUNFLOWER",
+      "humanTitle": "Sunflower",
+      "collection": "patterns-rhythm",
+      "description": "Golden spiral geometry gathers into a phyllotaxis pattern.",
+      "tags": [
+        "spiral",
+        "golden",
+        "radial"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SUNFLOWER",
+        "field": "golden",
+        "speed": 0.3,
+        "zoom": 1.4,
+        "warp": 5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 44,
+        "palette": "ember",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "SUNFLOWER",
+        "field": 9,
+        "p": [
+          0.3,
+          1.4,
+          5,
+          0.02,
+          1,
+          10,
+          0,
+          4,
+          44,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/sunflower.webp"
+    },
+    {
+      "id": "ribbon",
+      "name": "RIBBON",
+      "humanTitle": "Ribbon",
+      "collection": "print-pixels",
+      "description": "Ocean-coloured woven bands break into a dotted pixel screen.",
+      "tags": [
+        "halftone",
+        "blue",
+        "woven",
+        "gyroid"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "RIBBON",
+        "field": "gyroid",
+        "speed": 0.3,
+        "zoom": 1.55,
+        "warp": 4.8,
+        "grain": 0.02,
+        "pixel": 4,
+        "dot": 9,
+        "dots": 1,
+        "seed": 28,
+        "palette": "ocean",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "RIBBON",
+        "field": 3,
+        "p": [
+          0.3,
+          1.55,
+          4.8,
+          0.02,
+          4,
+          9,
+          1,
+          2,
+          28,
+          0,
+          0,
+          0.5625
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/ribbon.webp"
+    },
+    {
+      "id": "vortex",
+      "name": "VORTEX",
+      "humanTitle": "Vortex",
+      "collection": "print-pixels",
+      "description": "A mint kaleidoscope pulls a dotted screen into radial motion.",
+      "tags": [
+        "halftone",
+        "mint",
+        "radial",
+        "kaleido"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "VORTEX",
+        "field": "kaleido",
+        "speed": 0.34,
+        "zoom": 1.18,
+        "warp": 7.2,
+        "grain": 0.02,
+        "pixel": 6,
+        "dot": 10,
+        "dots": 1,
+        "seed": 61,
+        "palette": "mint",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "VORTEX",
+        "field": 6,
+        "p": [
+          0.34,
+          1.18,
+          7.2,
+          0.02,
+          6,
+          10,
+          1,
+          5,
+          61,
+          0,
+          0,
+          0.5625
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/vortex.webp"
+    },
+    {
+      "id": "abyss",
+      "name": "ABYSS",
+      "humanTitle": "Abyss",
+      "collection": "print-pixels",
+      "description": "Deep ocean noise becomes a dense, dark dotted field.",
+      "tags": [
+        "halftone",
+        "dark",
+        "blue",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "ABYSS",
+        "field": "noise",
+        "speed": 0.22,
+        "zoom": 2.25,
+        "warp": 7.6,
+        "grain": 0.03,
+        "pixel": 5,
+        "dot": 8,
+        "dots": 1,
+        "seed": 87,
+        "palette": "ocean",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "ABYSS",
+        "field": 0,
+        "p": [
+          0.22,
+          2.25,
+          7.6,
+          0.03,
+          5,
+          8,
+          1,
+          2,
+          87,
+          0,
+          0,
+          0.5625
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/abyss.webp"
+    },
+    {
+      "id": "nova",
+      "name": "NOVA",
+      "humanTitle": "Nova",
+      "collection": "print-pixels",
+      "description": "Chrome interference rings meet a crisp dotted screen.",
+      "tags": [
+        "halftone",
+        "chrome",
+        "rings",
+        "interfere"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "NOVA",
+        "field": "interfere",
+        "speed": 0.32,
+        "zoom": 1.18,
+        "warp": 6.4,
+        "grain": 0.02,
+        "pixel": 4,
+        "dot": 7,
+        "dots": 1,
+        "seed": 52,
+        "palette": "chrome",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "NOVA",
+        "field": 5,
+        "p": [
+          0.32,
+          1.18,
+          6.4,
+          0.02,
+          4,
+          7,
+          1,
+          7,
+          52,
+          0,
+          0,
+          0.5625
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/nova.webp"
+    },
+    {
+      "id": "pixelbeam",
+      "name": "PIXELBEAM",
+      "humanTitle": "Pixelbeam",
+      "collection": "print-pixels",
+      "description": "Ember-coloured flow resolves into a coarse dithered pattern.",
+      "tags": [
+        "dither",
+        "pixel",
+        "ember",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "PIXELBEAM",
+        "field": "flow",
+        "speed": 0.45,
+        "zoom": 1.6,
+        "warp": 4,
+        "grain": 0,
+        "pixel": 7,
+        "dot": 10,
+        "dots": 0,
+        "seed": 40,
+        "palette": "ember",
+        "screen": "dither",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.46,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "PIXELBEAM",
+        "field": 1,
+        "screen": 3,
+        "thresh": 0.46,
+        "p": [
+          0.45,
+          1.6,
+          4,
+          0,
+          7,
+          10,
+          0,
+          4,
+          40,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/pixelbeam.webp"
+    },
+    {
+      "id": "smoke",
+      "name": "SMOKE",
+      "humanTitle": "Smoke",
+      "collection": "fluid-forms",
+      "description": "Electric blue clouds billow across a deep midnight field.",
+      "tags": [
+        "blue",
+        "clouds",
+        "atmospheric",
+        "smoke"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SMOKE",
+        "field": "smoke",
+        "speed": 0.38,
+        "zoom": 1.3,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 30,
+        "colors": [
+          "#040414",
+          "#0a3a7a",
+          "#0484fc",
+          "#c2dbdc"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "SMOKE",
+        "field": 10,
+        "cols": [
+          "#040414",
+          "#0a3a7a",
+          "#0484fc",
+          "#c2dbdc"
+        ],
+        "p": [
+          0.38,
+          1.3,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          30,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/smoke.webp"
+    },
+    {
+      "id": "gilded",
+      "name": "GILDED",
+      "humanTitle": "Gilded",
+      "collection": "liquid-metal",
+      "description": "Broad molten gold folds catch bright amber highlights.",
+      "tags": [
+        "gold",
+        "molten",
+        "reflective",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "GILDED",
+        "field": "noise",
+        "speed": 0.28,
+        "zoom": 0.6,
+        "warp": 3.5,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 47,
+        "colors": [
+          "#0a0602",
+          "#6b3a05",
+          "#e8940f",
+          "#ffdf8a"
+        ],
+        "screen": "square",
+        "material": "molten",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "GILDED",
+        "field": 0,
+        "material": 5,
+        "cols": [
+          "#0a0602",
+          "#6b3a05",
+          "#e8940f",
+          "#ffdf8a"
+        ],
+        "p": [
+          0.28,
+          0.6,
+          3.5,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          47,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/gilded.webp"
+    },
+    {
+      "id": "mercury",
+      "name": "MERCURY",
+      "humanTitle": "Mercury",
+      "collection": "liquid-metal",
+      "description": "Cool silver and violet folds form a molten metal surface.",
+      "tags": [
+        "silver",
+        "molten",
+        "reflective",
+        "noise"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MERCURY",
+        "field": "noise",
+        "speed": 0.28,
+        "zoom": 0.7,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 61,
+        "colors": [
+          "#020204",
+          "#1c1a2e",
+          "#5a5670",
+          "#e8e0f2"
+        ],
+        "screen": "square",
+        "material": "molten",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "MERCURY",
+        "field": 0,
+        "material": 5,
+        "cols": [
+          "#020204",
+          "#1c1a2e",
+          "#5a5670",
+          "#e8e0f2"
+        ],
+        "p": [
+          0.28,
+          0.7,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          61,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/mercury.webp"
+    },
+    {
+      "id": "impasto",
+      "name": "IMPASTO",
+      "humanTitle": "Impasto",
+      "collection": "paint-paper",
+      "description": "Warm flowing colour picks up a thick painted surface.",
+      "tags": [
+        "paint",
+        "warm",
+        "textured",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "IMPASTO",
+        "field": "flow",
+        "speed": 0.22,
+        "zoom": 1.3,
+        "warp": 4.2,
+        "grain": 0,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 38,
+        "colors": [
+          "#1a0f2e",
+          "#7a2a4a",
+          "#e8763a",
+          "#f6e3b4"
+        ],
+        "screen": "square",
+        "material": "paint",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "IMPASTO",
+        "field": 1,
+        "material": 6,
+        "cols": [
+          "#1a0f2e",
+          "#7a2a4a",
+          "#e8763a",
+          "#f6e3b4"
+        ],
+        "p": [
+          0.22,
+          1.3,
+          4.2,
+          0,
+          1,
+          10,
+          0,
+          0,
+          38,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/impasto.webp"
+    },
+    {
+      "id": "bloom",
+      "name": "BLOOM",
+      "humanTitle": "Bloom",
+      "collection": "living-gradients",
+      "description": "Pink, orange, and yellow colour pools form a grainy mesh gradient.",
+      "tags": [
+        "mesh-gradient",
+        "grain",
+        "colourful",
+        "bloom"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "BLOOM",
+        "field": "bloom",
+        "speed": 0.35,
+        "zoom": 0.95,
+        "warp": 2.5,
+        "grain": 0.14,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 24,
+        "colors": [
+          "#c2b830",
+          "#e04a12",
+          "#e8489a",
+          "#f2ead8"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "BLOOM",
+        "field": 13,
+        "cols": [
+          "#c2b830",
+          "#e04a12",
+          "#e8489a",
+          "#f2ead8"
+        ],
+        "p": [
+          0.35,
+          0.95,
+          2.5,
+          0.14,
+          1,
+          10,
+          0,
+          0,
+          24,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/bloom.webp"
+    },
+    {
+      "id": "horizon",
+      "name": "HORIZON",
+      "humanTitle": "Horizon",
+      "collection": "living-gradients",
+      "description": "Violet fades into peach along a gently moving gradient sweep.",
+      "tags": [
+        "gradient",
+        "peach",
+        "violet",
+        "sweep"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "HORIZON",
+        "field": "sweep",
+        "speed": 0.3,
+        "zoom": 1.2,
+        "warp": 3.2,
+        "grain": 0.05,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 33,
+        "colors": [
+          "#0d0b2e",
+          "#552a8a",
+          "#f27059",
+          "#ffd9a0"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "HORIZON",
+        "field": 14,
+        "cols": [
+          "#0d0b2e",
+          "#552a8a",
+          "#f27059",
+          "#ffd9a0"
+        ],
+        "p": [
+          0.3,
+          1.2,
+          3.2,
+          0.05,
+          1,
+          10,
+          0,
+          0,
+          33,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/horizon.webp"
+    },
+    {
+      "id": "sumi",
+      "name": "SUMI",
+      "humanTitle": "Sumi",
+      "collection": "fluid-forms",
+      "description": "Iris-coloured ink swirls form combed marbling patterns.",
+      "tags": [
+        "marbling",
+        "violet",
+        "ink-like",
+        "marble"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SUMI",
+        "field": "marble",
+        "speed": 0.3,
+        "zoom": 1.5,
+        "warp": 5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 41,
+        "palette": "iris",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "SUMI",
+        "field": 15,
+        "p": [
+          0.3,
+          1.5,
+          5,
+          0.02,
+          1,
+          10,
+          0,
+          6,
+          41,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/sumi.webp"
+    },
+    {
+      "id": "tartan",
+      "name": "TARTAN",
+      "humanTitle": "Tartan",
+      "collection": "patterns-rhythm",
+      "description": "Warm crossed stripes create a woven plaid pattern.",
+      "tags": [
+        "plaid",
+        "woven",
+        "warm"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "TARTAN",
+        "field": "plaid",
+        "speed": 0.35,
+        "zoom": 1.4,
+        "warp": 3.5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 26,
+        "palette": "ember",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "TARTAN",
+        "field": 16,
+        "p": [
+          0.35,
+          1.4,
+          3.5,
+          0.02,
+          1,
+          10,
+          0,
+          4,
+          26,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/tartan.webp"
+    },
+    {
+      "id": "veil",
+      "name": "VEIL",
+      "humanTitle": "Veil",
+      "collection": "living-gradients",
+      "description": "Mint light hangs in softly shifting vertical curtains.",
+      "tags": [
+        "curtains",
+        "mint",
+        "luminous",
+        "curtain"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "VEIL",
+        "field": "curtain",
+        "speed": 0.4,
+        "zoom": 1.4,
+        "warp": 4,
+        "grain": 0.03,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 63,
+        "palette": "mint",
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "VEIL",
+        "field": 17,
+        "p": [
+          0.4,
+          1.4,
+          4,
+          0.03,
+          1,
+          10,
+          0,
+          5,
+          63,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/veil.webp"
+    },
+    {
+      "id": "filament",
+      "name": "FILAMENT",
+      "humanTitle": "Filament",
+      "collection": "patterns-rhythm",
+      "description": "Fine amber and violet threads trace times-table string art.",
+      "tags": [
+        "string-art",
+        "threads",
+        "amber",
+        "stitch"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "FILAMENT",
+        "field": "stitch",
+        "speed": 0.3,
+        "zoom": 0.95,
+        "warp": 5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 44,
+        "colors": [
+          "#070512",
+          "#4a1f7a",
+          "#e05c10",
+          "#ffe8b0"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "FILAMENT",
+        "field": 18,
+        "cols": [
+          "#070512",
+          "#4a1f7a",
+          "#e05c10",
+          "#ffe8b0"
+        ],
+        "p": [
+          0.3,
+          0.95,
+          5,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          44,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/filament.webp"
+    },
+    {
+      "id": "gyre",
+      "name": "GYRE",
+      "humanTitle": "Gyre",
+      "collection": "patterns-rhythm",
+      "description": "Nested polygons chase one another through a violet spiral.",
+      "tags": [
+        "polygons",
+        "spiral",
+        "violet",
+        "pursuit"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "GYRE",
+        "field": "pursuit",
+        "speed": 0.35,
+        "zoom": 1.15,
+        "warp": 4.5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 54,
+        "colors": [
+          "#0a0714",
+          "#3a2a7e",
+          "#b0489a",
+          "#ffe9b0"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "GYRE",
+        "field": 19,
+        "cols": [
+          "#0a0714",
+          "#3a2a7e",
+          "#b0489a",
+          "#ffe9b0"
+        ],
+        "p": [
+          0.35,
+          1.15,
+          4.5,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          54,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/gyre.webp"
+    },
+    {
+      "id": "cymatic",
+      "name": "CYMATIC",
+      "humanTitle": "Cymatic",
+      "collection": "patterns-rhythm",
+      "description": "Golden vibrating-plate figures reveal shifting nodal patterns.",
+      "tags": [
+        "nodal",
+        "golden",
+        "symmetry",
+        "chladni"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CYMATIC",
+        "field": "chladni",
+        "speed": 0.85,
+        "zoom": 1.3,
+        "warp": 4.2,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 57,
+        "colors": [
+          "#0b0907",
+          "#4a3418",
+          "#c99b3f",
+          "#fff4d8"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "CYMATIC",
+        "field": 20,
+        "cols": [
+          "#0b0907",
+          "#4a3418",
+          "#c99b3f",
+          "#fff4d8"
+        ],
+        "p": [
+          0.85,
+          1.3,
+          4.2,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          57,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/cymatic.webp"
+    },
+    {
+      "id": "cassini",
+      "name": "CASSINI",
+      "humanTitle": "Cassini",
+      "collection": "patterns-rhythm",
+      "description": "Blue and gold oval contours gather around paired centres.",
+      "tags": [
+        "contours",
+        "ovals",
+        "blue",
+        "cassini"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CASSINI",
+        "field": "cassini",
+        "speed": 0.4,
+        "zoom": 1.2,
+        "warp": 5.5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 41,
+        "colors": [
+          "#0a0f2e",
+          "#274690",
+          "#e8a33d",
+          "#fdf6e3"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "CASSINI",
+        "field": 21,
+        "cols": [
+          "#0a0f2e",
+          "#274690",
+          "#e8a33d",
+          "#fdf6e3"
+        ],
+        "p": [
+          0.4,
+          1.2,
+          5.5,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          41,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/cassini.webp"
+    },
+    {
+      "id": "escher",
+      "name": "ESCHER",
+      "humanTitle": "Escher",
+      "collection": "impossible-spaces",
+      "description": "A golden woven maze folds inward through a Droste lens.",
+      "tags": [
+        "droste",
+        "recursive",
+        "maze",
+        "truchet"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "ESCHER",
+        "field": "truchet",
+        "speed": 0.3,
+        "zoom": 1.4,
+        "warp": 3,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 52,
+        "colors": [
+          "#0c0a08",
+          "#4a3b23",
+          "#b98a3c",
+          "#f5ead2"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "droste",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "ESCHER",
+        "field": 4,
+        "lens": 4,
+        "cols": [
+          "#0c0a08",
+          "#4a3b23",
+          "#b98a3c",
+          "#f5ead2"
+        ],
+        "p": [
+          0.3,
+          1.4,
+          3,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          52,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/escher.webp"
+    },
+    {
+      "id": "filigree",
+      "name": "FILIGREE",
+      "humanTitle": "Filigree",
+      "collection": "impossible-spaces",
+      "description": "Violet and gold crystal geometry bends through a Julia lens.",
+      "tags": [
+        "julia",
+        "crystal",
+        "ornate"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "FILIGREE",
+        "field": "crystal",
+        "speed": 0.3,
+        "zoom": 1.45,
+        "warp": 3.5,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 71,
+        "colors": [
+          "#07030e",
+          "#22084a",
+          "#6a2a9c",
+          "#f5c34e"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "julia",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "FILIGREE",
+        "field": 11,
+        "lens": 6,
+        "cols": [
+          "#07030e",
+          "#22084a",
+          "#6a2a9c",
+          "#f5c34e"
+        ],
+        "p": [
+          0.3,
+          1.45,
+          3.5,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          71,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/filigree.webp"
+    },
+    {
+      "id": "shoreline",
+      "name": "SHORELINE",
+      "humanTitle": "Shoreline",
+      "collection": "impossible-spaces",
+      "description": "A Newton lens turns teal currents into branching coastal shapes.",
+      "tags": [
+        "newton",
+        "teal",
+        "branching",
+        "flow"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SHORELINE",
+        "field": "flow",
+        "speed": 0.35,
+        "zoom": 2.2,
+        "warp": 6,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 18,
+        "colors": [
+          "#03121c",
+          "#0e4664",
+          "#4fb3a8",
+          "#f2e2b6"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "newton",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "SHORELINE",
+        "field": 1,
+        "lens": 11,
+        "cols": [
+          "#03121c",
+          "#0e4664",
+          "#4fb3a8",
+          "#f2e2b6"
+        ],
+        "p": [
+          0.35,
+          2.2,
+          6,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          18,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/shoreline.webp"
+    },
+    {
+      "id": "rosette",
+      "name": "ROSETTE",
+      "humanTitle": "Rosette",
+      "collection": "impossible-spaces",
+      "description": "A modular lens rearranges a pale hexagonal lattice.",
+      "tags": [
+        "modular",
+        "hexagonal",
+        "pale",
+        "honeycomb"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "ROSETTE",
+        "field": "honeycomb",
+        "speed": 0.3,
+        "zoom": 0.9,
+        "warp": 4,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 63,
+        "colors": [
+          "#0b0d14",
+          "#2f3648",
+          "#8a8f99",
+          "#efe6d0"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "modular",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "ROSETTE",
+        "field": 12,
+        "lens": 12,
+        "cols": [
+          "#0b0d14",
+          "#2f3648",
+          "#8a8f99",
+          "#efe6d0"
+        ],
+        "p": [
+          0.3,
+          0.9,
+          4,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          63,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/rosette.webp"
+    },
+    {
+      "id": "relief",
+      "name": "RELIEF",
+      "humanTitle": "Relief",
+      "collection": "fluid-forms",
+      "description": "Rose-coloured elevation contours drift across a rugged field.",
+      "tags": [
+        "topography",
+        "contours",
+        "rose",
+        "topo"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "RELIEF",
+        "field": "topo",
+        "speed": 0.45,
+        "zoom": 1.6,
+        "warp": 4,
+        "grain": 0.02,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 34,
+        "colors": [
+          "#0b0709",
+          "#3d1c2a",
+          "#c2557e",
+          "#f6d5e2"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "none",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.55
+      },
+      "preset": {
+        "label": "RELIEF",
+        "field": 22,
+        "cols": [
+          "#0b0709",
+          "#3d1c2a",
+          "#c2557e",
+          "#f6d5e2"
+        ],
+        "p": [
+          0.45,
+          1.6,
+          4,
+          0.02,
+          1,
+          10,
+          0,
+          0,
+          34,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/relief.webp"
+    },
+    {
+      "id": "monsoon",
+      "name": "MONSOON",
+      "humanTitle": "Monsoon",
+      "collection": "paint-paper",
+      "description": "Blue-grey pigment pools spread over a warm paper surface.",
+      "tags": [
+        "watercolour",
+        "paper",
+        "blue-grey",
+        "wash"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "MONSOON",
+        "field": "wash",
+        "speed": 0.18,
+        "zoom": 1.2,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 18,
+        "colors": [
+          "#183b56",
+          "#537c91",
+          "#b0b9ae",
+          "#f1dfba"
+        ],
+        "screen": "square",
+        "material": "watercolor",
+        "substrate": "paper",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "MONSOON",
+        "field": 24,
+        "material": 7,
+        "substrate": 2,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#183b56",
+          "#537c91",
+          "#b0b9ae",
+          "#f1dfba"
+        ],
+        "p": [
+          0.18,
+          1.2,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          18,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/monsoon.webp"
+    },
+    {
+      "id": "wildflower",
+      "name": "WILDFLOWER",
+      "humanTitle": "Wildflower",
+      "collection": "paint-paper",
+      "description": "Rose and peach watercolour pools bloom across textured paper.",
+      "tags": [
+        "watercolour",
+        "paper",
+        "rose",
+        "wash"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "WILDFLOWER",
+        "field": "wash",
+        "speed": 0.18,
+        "zoom": 1.4,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 21,
+        "colors": [
+          "#462944",
+          "#a84e66",
+          "#da9977",
+          "#f4e8c5"
+        ],
+        "screen": "square",
+        "material": "watercolor",
+        "substrate": "paper",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.4,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "WILDFLOWER",
+        "field": 24,
+        "material": 7,
+        "substrate": 2,
+        "textureScale": 1.4,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#462944",
+          "#a84e66",
+          "#da9977",
+          "#f4e8c5"
+        ],
+        "p": [
+          0.18,
+          1.4,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          21,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/wildflower.webp"
+    },
+    {
+      "id": "back-alley",
+      "name": "BACK ALLEY",
+      "humanTitle": "Back Alley",
+      "collection": "surfaces-street",
+      "description": "Multicoloured sprayed gestures and drips sit on concrete.",
+      "tags": [
+        "graffiti",
+        "concrete",
+        "colourful",
+        "spray"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "BACK ALLEY",
+        "field": "spray",
+        "speed": 0.18,
+        "zoom": 1.1,
+        "warp": 5,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 24,
+        "colors": [
+          "#182735",
+          "#bb3e5a",
+          "#ffc64b",
+          "#75e1c9"
+        ],
+        "screen": "square",
+        "material": "graffiti",
+        "substrate": "concrete",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "BACK ALLEY",
+        "field": 25,
+        "material": 8,
+        "substrate": 3,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#182735",
+          "#bb3e5a",
+          "#ffc64b",
+          "#75e1c9"
+        ],
+        "p": [
+          0.18,
+          1.1,
+          5,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          24,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/back-alley.webp"
+    },
+    {
+      "id": "neon-wall",
+      "name": "NEON WALL",
+      "humanTitle": "Neon Wall",
+      "collection": "surfaces-street",
+      "description": "Violet, pink, and yellow spray marks spread across concrete.",
+      "tags": [
+        "graffiti",
+        "concrete",
+        "neon",
+        "spray"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "NEON WALL",
+        "field": "spray",
+        "speed": 0.18,
+        "zoom": 1.3,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 27,
+        "colors": [
+          "#15132e",
+          "#792eb1",
+          "#f75d8c",
+          "#fae574"
+        ],
+        "screen": "square",
+        "material": "graffiti",
+        "substrate": "concrete",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.4,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "NEON WALL",
+        "field": 25,
+        "material": 8,
+        "substrate": 3,
+        "textureScale": 1.4,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#15132e",
+          "#792eb1",
+          "#f75d8c",
+          "#fae574"
+        ],
+        "p": [
+          0.18,
+          1.3,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          27,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/neon-wall.webp"
+    },
+    {
+      "id": "oil-study",
+      "name": "OIL STUDY",
+      "humanTitle": "Oil Study",
+      "collection": "paint-paper",
+      "description": "Teal and ochre bristled strokes overlap on canvas.",
+      "tags": [
+        "paint",
+        "canvas",
+        "bristles",
+        "brushwork"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "OIL STUDY",
+        "field": "brushwork",
+        "speed": 0.18,
+        "zoom": 1.3,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 30,
+        "colors": [
+          "#182c30",
+          "#376a64",
+          "#c88343",
+          "#f1d6a5"
+        ],
+        "screen": "square",
+        "material": "paint",
+        "substrate": "canvas",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.3,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "OIL STUDY",
+        "field": 26,
+        "material": 6,
+        "substrate": 1,
+        "textureScale": 1.3,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#182c30",
+          "#376a64",
+          "#c88343",
+          "#f1d6a5"
+        ],
+        "p": [
+          0.18,
+          1.3,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          30,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/oil-study.webp"
+    },
+    {
+      "id": "cobalt-canvas",
+      "name": "COBALT CANVAS",
+      "humanTitle": "Cobalt Canvas",
+      "collection": "paint-paper",
+      "description": "Cobalt and pale blue brushwork builds over woven canvas.",
+      "tags": [
+        "paint",
+        "canvas",
+        "cobalt",
+        "brushwork"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "COBALT CANVAS",
+        "field": "brushwork",
+        "speed": 0.18,
+        "zoom": 1.1,
+        "warp": 6,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 33,
+        "colors": [
+          "#17244c",
+          "#2859a8",
+          "#73a3b2",
+          "#e5d4a2"
+        ],
+        "screen": "square",
+        "material": "paint",
+        "substrate": "canvas",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "COBALT CANVAS",
+        "field": 26,
+        "material": 6,
+        "substrate": 1,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#17244c",
+          "#2859a8",
+          "#73a3b2",
+          "#e5d4a2"
+        ],
+        "p": [
+          0.18,
+          1.1,
+          6,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          33,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/cobalt-canvas.webp"
+    },
+    {
+      "id": "charcoal-study",
+      "name": "CHARCOAL STUDY",
+      "humanTitle": "Charcoal Study",
+      "collection": "paint-paper",
+      "description": "Soft grey pigment takes on a charcoal texture over paper.",
+      "tags": [
+        "charcoal",
+        "paper",
+        "monochrome",
+        "wash"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CHARCOAL STUDY",
+        "field": "wash",
+        "speed": 0.18,
+        "zoom": 1.1,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 36,
+        "colors": [
+          "#202322",
+          "#585c55",
+          "#a9aaa0",
+          "#eee9d9"
+        ],
+        "screen": "square",
+        "material": "charcoal",
+        "substrate": "paper",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "CHARCOAL STUDY",
+        "field": 24,
+        "material": 9,
+        "substrate": 2,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#202322",
+          "#585c55",
+          "#a9aaa0",
+          "#eee9d9"
+        ],
+        "p": [
+          0.18,
+          1.1,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          36,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/charcoal-study.webp"
+    },
+    {
+      "id": "soft-chalk",
+      "name": "SOFT CHALK",
+      "humanTitle": "Soft Chalk",
+      "collection": "paint-paper",
+      "description": "Muted peach and slate colour pools carry a pastel paper texture.",
+      "tags": [
+        "pastel",
+        "paper",
+        "muted",
+        "bloom"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SOFT CHALK",
+        "field": "bloom",
+        "speed": 0.18,
+        "zoom": 1.2,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 39,
+        "colors": [
+          "#53656d",
+          "#b18783",
+          "#d9b79c",
+          "#efe0be"
+        ],
+        "screen": "square",
+        "material": "pastel",
+        "substrate": "paper",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.5,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "SOFT CHALK",
+        "field": 13,
+        "material": 10,
+        "substrate": 2,
+        "textureScale": 1.5,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#53656d",
+          "#b18783",
+          "#d9b79c",
+          "#efe0be"
+        ],
+        "p": [
+          0.18,
+          1.2,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          39,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/soft-chalk.webp"
+    },
+    {
+      "id": "sumi-paper",
+      "name": "SUMI PAPER",
+      "humanTitle": "Sumi Paper",
+      "collection": "paint-paper",
+      "description": "Dark ink marbling moves across a warm paper surface.",
+      "tags": [
+        "ink",
+        "paper",
+        "marbling",
+        "marble"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "SUMI PAPER",
+        "field": "marble",
+        "speed": 0.18,
+        "zoom": 1.5,
+        "warp": 5,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 42,
+        "colors": [
+          "#121b1b",
+          "#304346",
+          "#8b9a8d",
+          "#f0e9d3"
+        ],
+        "screen": "square",
+        "material": "ink",
+        "substrate": "paper",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "SUMI PAPER",
+        "field": 15,
+        "material": 11,
+        "substrate": 2,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#121b1b",
+          "#304346",
+          "#8b9a8d",
+          "#f0e9d3"
+        ],
+        "p": [
+          0.18,
+          1.5,
+          5,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          42,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/sumi-paper.webp"
+    },
+    {
+      "id": "canyon",
+      "name": "CANYON",
+      "humanTitle": "Canyon",
+      "collection": "surfaces-street",
+      "description": "Folded terracotta mineral bands reveal a stone texture.",
+      "tags": [
+        "stone",
+        "terracotta",
+        "mineral",
+        "strata"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CANYON",
+        "field": "strata",
+        "speed": 0.18,
+        "zoom": 1,
+        "warp": 6,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 45,
+        "colors": [
+          "#352527",
+          "#924d3e",
+          "#d39a67",
+          "#f1d9b4"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "stone",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.4,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "CANYON",
+        "field": 27,
+        "material": 0,
+        "substrate": 4,
+        "textureScale": 1.4,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#352527",
+          "#924d3e",
+          "#d39a67",
+          "#f1d9b4"
+        ],
+        "p": [
+          0.18,
+          1,
+          6,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          45,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/canyon.webp"
+    },
+    {
+      "id": "terrazzo-club",
+      "name": "TERRAZZO CLUB",
+      "humanTitle": "Terrazzo Club",
+      "collection": "surfaces-street",
+      "description": "Irregular coloured stone chips scatter through pale mortar.",
+      "tags": [
+        "terrazzo",
+        "stone",
+        "chips"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "TERRAZZO CLUB",
+        "field": "terrazzo",
+        "speed": 0.18,
+        "zoom": 1.4,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 48,
+        "colors": [
+          "#254f51",
+          "#b75f5b",
+          "#d4ac76",
+          "#f3ebd5"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "stone",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "TERRAZZO CLUB",
+        "field": 28,
+        "material": 0,
+        "substrate": 4,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#254f51",
+          "#b75f5b",
+          "#d4ac76",
+          "#f3ebd5"
+        ],
+        "p": [
+          0.18,
+          1.4,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          48,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/terrazzo-club.webp"
+    },
+    {
+      "id": "cedar",
+      "name": "CEDAR",
+      "humanTitle": "Cedar",
+      "collection": "surfaces-street",
+      "description": "Warm growth rings and knots follow flowing wood fibres.",
+      "tags": [
+        "wood",
+        "warm",
+        "grain",
+        "woodgrain"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CEDAR",
+        "field": "woodgrain",
+        "speed": 0.18,
+        "zoom": 1.2,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 51,
+        "colors": [
+          "#30231e",
+          "#78513a",
+          "#b88b57",
+          "#e8c99a"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "wood",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "CEDAR",
+        "field": 29,
+        "material": 0,
+        "substrate": 5,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#30231e",
+          "#78513a",
+          "#b88b57",
+          "#e8c99a"
+        ],
+        "p": [
+          0.18,
+          1.2,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          51,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/cedar.webp"
+    },
+    {
+      "id": "celadon",
+      "name": "CELADON",
+      "humanTitle": "Celadon",
+      "collection": "surfaces-street",
+      "description": "Soft green gyroid bands carry a ceramic glaze over plaster.",
+      "tags": [
+        "ceramic",
+        "plaster",
+        "green",
+        "gyroid"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "CELADON",
+        "field": "gyroid",
+        "speed": 0.18,
+        "zoom": 1.5,
+        "warp": 4,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 54,
+        "colors": [
+          "#153e3a",
+          "#457d72",
+          "#98bbaa",
+          "#e7dfbe"
+        ],
+        "screen": "square",
+        "material": "ceramic",
+        "substrate": "plaster",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.3,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "CELADON",
+        "field": 3,
+        "material": 12,
+        "substrate": 6,
+        "textureScale": 1.3,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#153e3a",
+          "#457d72",
+          "#98bbaa",
+          "#e7dfbe"
+        ],
+        "p": [
+          0.18,
+          1.5,
+          4,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          54,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/celadon.webp"
+    },
+    {
+      "id": "fresco",
+      "name": "FRESCO",
+      "humanTitle": "Fresco",
+      "collection": "surfaces-street",
+      "description": "Muted mineral bands take on a chalky plaster surface.",
+      "tags": [
+        "pastel",
+        "plaster",
+        "mineral",
+        "strata"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "FRESCO",
+        "field": "strata",
+        "speed": 0.18,
+        "zoom": 1.4,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 57,
+        "colors": [
+          "#5e5348",
+          "#9c7e68",
+          "#c8b196",
+          "#ede2ce"
+        ],
+        "screen": "square",
+        "material": "pastel",
+        "substrate": "plaster",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.8,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "FRESCO",
+        "field": 27,
+        "material": 10,
+        "substrate": 6,
+        "textureScale": 1.8,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#5e5348",
+          "#9c7e68",
+          "#c8b196",
+          "#ede2ce"
+        ],
+        "p": [
+          0.18,
+          1.4,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          57,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/fresco.webp"
+    },
+    {
+      "id": "terra-ink",
+      "name": "TERRA INK",
+      "humanTitle": "Terra Ink",
+      "collection": "surfaces-street",
+      "description": "Earth-toned folded strata carry an ink finish over stone.",
+      "tags": [
+        "ink",
+        "stone",
+        "earthy",
+        "strata"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "TERRA INK",
+        "field": "strata",
+        "speed": 0.18,
+        "zoom": 1.2,
+        "warp": 6,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 60,
+        "colors": [
+          "#26212b",
+          "#6f4443",
+          "#b87659",
+          "#e4c49b"
+        ],
+        "screen": "square",
+        "material": "ink",
+        "substrate": "stone",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "TERRA INK",
+        "field": 27,
+        "material": 11,
+        "substrate": 4,
+        "textureScale": 1,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#26212b",
+          "#6f4443",
+          "#b87659",
+          "#e4c49b"
+        ],
+        "p": [
+          0.18,
+          1.2,
+          6,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          60,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/terra-ink.webp"
+    },
+    {
+      "id": "gallery-linen",
+      "name": "GALLERY LINEN",
+      "humanTitle": "Gallery Linen",
+      "collection": "surfaces-street",
+      "description": "A warm neutral gradient reveals the weave of canvas.",
+      "tags": [
+        "canvas",
+        "neutral",
+        "woven",
+        "sweep"
+      ],
+      "inputs": [
+        "generated",
+        "text",
+        "logo"
+      ],
+      "renderModes": {
+        "native": [
+          "generated"
+        ],
+        "studio": [
+          "generated",
+          "text",
+          "logo"
+        ]
+      },
+      "params": {
+        "look": "GALLERY LINEN",
+        "field": "sweep",
+        "speed": 0.18,
+        "zoom": 1.2,
+        "warp": 3,
+        "grain": 0.015,
+        "pixel": 1,
+        "dot": 10,
+        "dots": 0,
+        "seed": 63,
+        "colors": [
+          "#6f7064",
+          "#a4a18c",
+          "#d3c8ad",
+          "#f2e9d4"
+        ],
+        "screen": "square",
+        "material": "none",
+        "substrate": "canvas",
+        "lens": "none",
+        "thresh": 0.5,
+        "lensAmt": 1,
+        "materialAmt": 1,
+        "textureScale": 1.8,
+        "relief": 1,
+        "substrateAmt": 0.65
+      },
+      "preset": {
+        "label": "GALLERY LINEN",
+        "field": 14,
+        "material": 0,
+        "substrate": 1,
+        "textureScale": 1.8,
+        "substrateAmt": 0.65,
+        "cols": [
+          "#6f7064",
+          "#a4a18c",
+          "#d3c8ad",
+          "#f2e9d4"
+        ],
+        "p": [
+          0.18,
+          1.2,
+          3,
+          0.015,
+          1,
+          10,
+          0,
+          0,
+          63,
+          0,
+          0,
+          1
+        ]
+      },
+      "renderer": "v3.3",
+      "seed": 42,
+      "previewTime": 0,
+      "previewAspect": 1.6,
+      "thumbnail": "./assets/look-thumbnails/gallery-linen.webp"
+    }
+  ]
+}
