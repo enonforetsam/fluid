@@ -12,3 +12,6 @@
 @media(prefers-reduced-motion:reduce){.components-page{--cp-dur:0ms}.components-page *, .components-page *::before,.components-page *::after{scroll-behavior:auto}.cp-demo *{animation:none!important;transition:none!important}}
 
 .cp-demo-link{display:inline-flex;gap:var(--s4);align-items:center;min-height:44px;color:var(--ink);font-size:var(--text-sm);margin-top:var(--s3)}
+
+/* Reserve room below every demo for its persistent interaction hint. */
+.cp-preview{padding-bottom:var(--s8)}
