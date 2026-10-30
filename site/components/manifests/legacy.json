@@ -1,0 +1,370 @@
+[
+  {
+    "id": "split-reveal",
+    "name": "Split Reveal",
+    "file": "SplitReveal",
+    "category": "Text",
+    "symbol": "Aa",
+    "description": "Words arrive one by one. A small entrance with room to breathe.",
+    "hint": "Change the words, then replay the entrance.",
+    "text": "Make room for motion.",
+    "amount": 700,
+    "min": 200,
+    "max": 1600,
+    "step": 50,
+    "control": "Duration",
+    "unit": "ms",
+    "props": [
+      [
+        "children",
+        "Text to reveal."
+      ],
+      [
+        "duration",
+        "Entrance duration in milliseconds. Default: 700."
+      ],
+      [
+        "replayKey",
+        "Change this value to replay the reveal."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "SplitReveal",
+    "defaults": {
+      "text": "Make room for motion.",
+      "amount": 700,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Duration \u00b7 ms",
+        "type": "range",
+        "min": 200,
+        "max": 1600,
+        "step": 50
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "wave-text",
+    "name": "Wave Text",
+    "file": "WaveText",
+    "category": "Text",
+    "symbol": "\u2248",
+    "description": "A gentle rhythm, letter by letter. For a few words worth watching.",
+    "hint": "A quiet loop. Pause it whenever you like.",
+    "text": "stay fluid.",
+    "amount": 2.4,
+    "min": 1,
+    "max": 6,
+    "step": 0.2,
+    "control": "Loop duration",
+    "unit": "s",
+    "props": [
+      [
+        "children",
+        "Text to set in motion."
+      ],
+      [
+        "duration",
+        "Wave duration in seconds. Default: 2.4."
+      ],
+      [
+        "paused",
+        "Pause the loop. Reduced motion is respected automatically."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "WaveText",
+    "defaults": {
+      "text": "stay fluid.",
+      "amount": 2.4,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Loop duration \u00b7 s",
+        "type": "range",
+        "min": 1,
+        "max": 6,
+        "step": 0.2
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "magnetic-button",
+    "name": "Magnetic Button",
+    "file": "MagneticButton",
+    "category": "Interaction",
+    "symbol": "\u2197",
+    "description": "A button with a little pull. It follows your pointer, then settles home.",
+    "hint": "Move your pointer over the button, or activate it with the keyboard.",
+    "text": "Make something",
+    "amount": 24,
+    "min": 0,
+    "max": 48,
+    "step": 2,
+    "control": "Magnetic pull",
+    "unit": "px",
+    "props": [
+      [
+        "children",
+        "The button label or content."
+      ],
+      [
+        "strength",
+        "Maximum pointer pull in pixels. Default: 24."
+      ],
+      [
+        "color",
+        "Accent colour. Default: #ff916a."
+      ],
+      [
+        "onClick / disabled / type",
+        "Standard native button behaviour."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "MagneticButton",
+    "defaults": {
+      "text": "Make something",
+      "amount": 24,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Magnetic pull \u00b7 px",
+        "type": "range",
+        "min": 0,
+        "max": 48,
+        "step": 2
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "spotlight-card",
+    "name": "Spotlight Card",
+    "file": "SpotlightCard",
+    "category": "Cards",
+    "symbol": "\u25ce",
+    "description": "A pocket of light that follows your curiosity. Content stays centre stage.",
+    "hint": "Move over the card. Keyboard focus lights it up too.",
+    "text": "Follow your curiosity.",
+    "amount": 0,
+    "control": null,
+    "props": [
+      [
+        "title",
+        "Card heading."
+      ],
+      [
+        "children",
+        "The content inside the card."
+      ],
+      [
+        "color",
+        "Spotlight accent colour. Default: #ff916a."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "SpotlightCard",
+    "defaults": {
+      "text": "Follow your curiosity.",
+      "amount": 0,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "tilt-card",
+    "name": "Tilt Card",
+    "file": "TiltCard",
+    "category": "Cards",
+    "symbol": "\u25c7",
+    "description": "An everyday surface with a little depth. Tilt it, catch the light, let it go.",
+    "hint": "Move over the card to explore its depth.",
+    "text": "A different angle.",
+    "amount": 12,
+    "min": 0,
+    "max": 24,
+    "step": 1,
+    "control": "Maximum tilt",
+    "unit": "\u00b0",
+    "props": [
+      [
+        "title",
+        "Card heading."
+      ],
+      [
+        "children",
+        "Card content."
+      ],
+      [
+        "maxTilt",
+        "Maximum rotation in degrees. Default: 12."
+      ],
+      [
+        "color",
+        "Accent colour. Default: #ff916a."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "TiltCard",
+    "defaults": {
+      "text": "A different angle.",
+      "amount": 12,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Maximum tilt \u00b7 \u00b0",
+        "type": "range",
+        "min": 0,
+        "max": 24,
+        "step": 1
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "loop-marquee",
+    "name": "Loop Marquee",
+    "file": "LoopMarquee",
+    "category": "Loops",
+    "symbol": "\u2192",
+    "description": "Ideas in a continuous line. A seamless loop that pauses when you linger.",
+    "hint": "Hover or focus the marquee to pause.",
+    "text": "MAKE \u00b7 PLAY \u00b7 REPEAT",
+    "amount": 22,
+    "min": 8,
+    "max": 48,
+    "step": 2,
+    "control": "Loop duration",
+    "unit": "s",
+    "props": [
+      [
+        "items",
+        "An array of text items."
+      ],
+      [
+        "duration",
+        "Loop duration in seconds. Default: 22."
+      ],
+      [
+        "reverse",
+        "Reverse the direction. Default: false."
+      ],
+      [
+        "paused",
+        "Pause the loop. Reduced motion stops it automatically."
+      ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "LoopMarquee",
+    "defaults": {
+      "text": "MAKE \u00b7 PLAY \u00b7 REPEAT",
+      "amount": 22,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Words \u00b7 separate with commas",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Loop duration \u00b7 s",
+        "type": "range",
+        "min": 8,
+        "max": 48,
+        "step": 2
+      },
+      {
+        "key": "reverse",
+        "label": "Reverse direction",
+        "type": "checkbox"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  }
+]

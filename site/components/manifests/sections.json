@@ -1,0 +1,392 @@
+[
+  {
+    "id": "creator-portfolio",
+    "name": "Creator Portfolio",
+    "file": "CreatorPortfolio",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "\u25b1",
+    "description": "A complete home for your work, experiments, and next collaboration.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "Offbeat Studio",
+      "title": "Make room for the unexpected.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "email": "hello@example.com"
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "email",
+        "label": "Contact email",
+        "type": "text"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site."
+  },
+  {
+    "id": "product-launch",
+    "name": "Product Launch",
+    "file": "ProductLaunch",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "\u25b1",
+    "description": "A focused product story, artwork scene, feature grid, and working FAQ.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "FORM",
+      "title": "Something worth looking closer at.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site."
+  },
+  {
+    "id": "music-release",
+    "name": "Music Release",
+    "file": "MusicRelease",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "\u25b1",
+    "description": "An audio-reactive release cover, local player, editable track links and live dates.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "AFTER HOURS",
+      "title": "Between colour and sound.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "audioSrc": "",
+      "trackText": "01 / First light\n02 / After hours\n03 / Home again",
+      "tourText": ""
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "audioSrc",
+        "label": "Release audio",
+        "type": "audio"
+      },
+      {
+        "key": "trackText",
+        "label": "Tracks \u00b7 label | optional HTTPS link, one per line",
+        "type": "textarea"
+      },
+      {
+        "key": "tourText",
+        "label": "Live dates \u00b7 date | city | optional HTTPS link",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ],
+      [
+        "trackText / tourText",
+        "Newline-separated tracks and live dates; external links allow HTTPS only."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Native local audio starts only on Play. The cover spectrum responds to actual Web Audio frequencies. Tracks and live dates accept optional HTTPS destinations; blank defaults do not invent external links. HTML export embeds current local image/audio assets and the same interactions."
+  },
+  {
+    "id": "editorial-story",
+    "name": "Editorial Story",
+    "file": "EditorialStory",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "\u25b1",
+    "description": "A chaptered visual essay with navigation and actual reading progress.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "FIELD NOTES",
+      "title": "A story worth slowing down for.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "chapterText": "A beginning\nA different perspective\nWhat stays with us"
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "chapterText",
+        "label": "Chapter titles \u00b7 one per line",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site."
+  }
+]

@@ -1,125 +1,97 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import SplitReveal from './src/SplitReveal.jsx';
-import WaveText from './src/WaveText.jsx';
-import MagneticButton from './src/MagneticButton.jsx';
-import SpotlightCard from './src/SpotlightCard.jsx';
-import TiltCard from './src/TiltCard.jsx';
-import LoopMarquee from './src/LoopMarquee.jsx';
+import React, {useCallback,useEffect,useRef,useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import registry from './registry.jsx';
 import catalogue from './catalogue.json';
+import {readSource,copyText,downloadText,downloadBlob,downloadExport,readMedia,locationPreset,presetUrl,sourceBundle} from './gallery-support.js';
 
-const CATEGORIES = ['All', 'Text', 'Cards', 'Interaction', 'Loops'];
-const COLOURS = [{name:'Afterglow',value:'#ff916a'},{name:'Lilac',value:'#c5b7ff'},{name:'Leaf',value:'#b6e7bc'},{name:'Sky',value:'#9fcbff'}];
-const sourceCache = new Map();
-function fromLocation() { return catalogue.find(item => item.id === new URLSearchParams(location.search).get('component')) || catalogue[3]; }
-function defaults(item) { return {text:item.text,amount:item.amount,color:COLOURS[0].value,reverse:false}; }
-function useReducedMotion() {
-  const [reduced,setReduced] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
-  useEffect(() => { const media=matchMedia('(prefers-reduced-motion: reduce)'); const update=()=>setReduced(media.matches);media.addEventListener('change',update);return()=>media.removeEventListener('change',update); },[]);
-  return reduced;
-}
-function marqueeItems(text) { const items=text.split(/[·,]/).map(item=>item.trim()).filter(Boolean);return items.length?items:['MAKE','PLAY','REPEAT']; }
-function usageFor(item,value) {
-  const text='{'+JSON.stringify(value.text)+'}'; let body;
-  if(item.id==='split-reveal')body=`<SplitReveal duration={${value.amount}}>${text}</SplitReveal>`;
-  if(item.id==='wave-text')body=`<WaveText duration={${value.amount}}>${text}</WaveText>`;
-  if(item.id==='magnetic-button')body=`<MagneticButton strength={${value.amount}} color="${value.color}"\n      onClick={() => console.log('Make something')}>\n      ${text}\n    </MagneticButton>`;
-  if(item.id==='spotlight-card')body=`<SpotlightCard title={${JSON.stringify(value.text)}} color="${value.color}">\n      <p>A little light for your next idea.</p>\n    </SpotlightCard>`;
-  if(item.id==='tilt-card')body=`<TiltCard title={${JSON.stringify(value.text)}} maxTilt={${value.amount}} color="${value.color}">\n      <p>See what happens from another angle.</p>\n    </TiltCard>`;
-  if(item.id==='loop-marquee')body=`<LoopMarquee items={${JSON.stringify(marqueeItems(value.text))}}\n      duration={${value.amount}} reverse={${value.reverse}} />`;
-  return `import ${item.file} from './${item.file}.jsx';\nimport './components.css';\n\nexport default function Example() {\n  return (\n    ${body}\n  );\n}\n`;
-}
-async function readSource(file,signal) {
-  if(sourceCache.has(file))return sourceCache.get(file);
-  const response=await fetch(file,{signal}); if(!response.ok)throw new Error('Source unavailable');
-  const value=await response.text(); if(/^\s*<!doctype/i.test(value))throw new Error('Source unavailable');
-  sourceCache.set(file,value);return value;
-}
-async function copyText(value) {
-  const active=document.activeElement;
-  try { if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(value);return;} }catch{}
-  const field=document.createElement('textarea');field.value=value;field.className='cp-fallback-copy';field.setAttribute('aria-label','Source to copy');document.body.append(field);field.focus();field.select();
-  let copied=false;try {copied=document.execCommand('copy');} finally {field.remove();active?.focus();}
-  if(!copied)throw new Error('Clipboard unavailable');
-}
-function downloadText(name,text) { const url=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000); }
-function Preview({item,value,replay,paused,onAction}) {
-  const props={color:value.color};
-  if(item.id==='split-reveal')return <SplitReveal key={replay} duration={value.amount} replayKey={replay}>{value.text}</SplitReveal>;
-  if(item.id==='wave-text')return <WaveText duration={value.amount} paused={paused}>{value.text}</WaveText>;
-  if(item.id==='magnetic-button')return <MagneticButton {...props} strength={paused?0:value.amount} onClick={onAction}>{value.text}</MagneticButton>;
-  if(item.id==='spotlight-card')return <SpotlightCard {...props} title={value.text}><p className="cp-demo-content">A little light for your next idea.<br/>Move closer. There is more to discover.</p><a className="cp-demo-link" href="studio.html">Start exploring <span aria-hidden="true">↗</span></a></SpotlightCard>;
-  if(item.id==='tilt-card')return <TiltCard {...props} title={value.text} maxTilt={paused?0:value.amount}><p className="cp-demo-content">A small shift.<br/>A whole new perspective.</p></TiltCard>;
-  return <LoopMarquee items={marqueeItems(value.text)} duration={value.amount} reverse={value.reverse} paused={paused}/>;
-}
-function App() {
-  const [item,setItem]=useState(fromLocation), [value,setValue]=useState(()=>defaults(fromLocation()));
-  const [category,setCategory]=useState('All'), [query,setQuery]=useState(''), [mode,setMode]=useState('preview'), [codeTab,setCodeTab]=useState('jsx');
-  const [source,setSource]=useState({status:'loading'}), [retry,setRetry]=useState(0), [replay,setReplay]=useState(0), [paused,setPaused]=useState(false);
-  const [message,setMessage]=useState(''), [copying,setCopying]=useState(false), [copied,setCopied]=useState(false);
-  const reduced=useReducedMotion(), requestRef=useRef(0), codePanelRef=useRef(null), currentRef=useRef('');
-  currentRef.current=item.id+'|'+codeTab;
-  useEffect(()=>{
-    const controller=new AbortController(), request=++requestRef.current;
-    setSource({status:'loading'});setCopied(false);setMessage('');
-    Promise.all([readSource(`components/src/${item.file}.jsx`,controller.signal),readSource('components/components.css',controller.signal)])
-      .then(([jsx,css])=>{if(request===requestRef.current)setSource({status:'ready',jsx,css});})
-      .catch(error=>{if(error.name!=='AbortError'&&request===requestRef.current)setSource({status:'error'});});
-    return()=>controller.abort();
-  },[item.id,retry]);
-  useEffect(()=>{const back=()=>{const next=fromLocation();setItem(next);setValue(defaults(next));setReplay(x=>x+1);setMessage('');};window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
-  useEffect(()=>{setCopied(false);},[codeTab,item.id,value.text,value.amount,value.color,value.reverse]);
-  const results=catalogue.filter(entry=>(category==='All'||entry.category===category)&&`${entry.name} ${entry.description} ${entry.category}`.toLowerCase().includes(query.trim().toLowerCase()));
-  const hasColour=['magnetic-button','spotlight-card','tilt-card'].includes(item.id), text=codeTab==='usage'?usageFor(item,value):source[codeTab]||'';
-  const codeReady=codeTab==='usage'||source.status==='ready', fileName=codeTab==='jsx'?`${item.file}.jsx`:codeTab==='css'?'components.css':`${item.file}Example.jsx`;
-  function select(next) {setItem(next);setValue(defaults(next));setReplay(x=>x+1);setMessage('');const url=new URL(location.href);url.searchParams.set('component',next.id);history.pushState({},'',url);}
-  function update(key,next) {setValue(old=>({...old,[key]:next}));if(item.id==='split-reveal'&&key==='text')setReplay(x=>x+1);}
-  function switchTabs(event,names,active,setter,prefix) {
-    const index=names.indexOf(active);let next;
-    if(event.key==='ArrowRight')next=names[(index+1)%names.length];if(event.key==='ArrowLeft')next=names[(index+names.length-1)%names.length];
-    if(event.key==='Home')next=names[0];if(event.key==='End')next=names.at(-1);
-    if(next){event.preventDefault();setter(next);document.getElementById(prefix+next)?.focus();}
+const TYPES=[['all','Everything'],['component','Components'],['tool','Creative tools'],['section','Page sections'],['experiment','Playground']];
+const THEMES=[{name:'Afterglow',color:'#f2aa86',secondary:'#a799e1',seed:42},{name:'Garden',color:'#b6e7bc',secondary:'#48675c',seed:83},{name:'Night swim',color:'#9fcbff',secondary:'#234e83',seed:121},{name:'Cherry',color:'#f4a2ae',secondary:'#73354c',seed:19}];
+const initial=locationPreset(catalogue);
+function useReducedMotion(){const [value,set]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);useEffect(()=>{const media=matchMedia('(prefers-reduced-motion: reduce)'),change=()=>set(media.matches);media.addEventListener('change',change);return()=>media.removeEventListener('change',change);},[]);return value;}
+function marqueeItems(text){return String(text||'').split(/[·,]/).map(value=>value.trim()).filter(Boolean);}
+function usageFor(item,value){
+  let body;
+  if(item.id==='split-reveal')body=`<SplitReveal duration={${value.amount}}>{${JSON.stringify(value.text)}}</SplitReveal>`;
+  else if(item.id==='wave-text')body=`<WaveText duration={${value.amount}}>{${JSON.stringify(value.text)}}</WaveText>`;
+  else if(item.id==='magnetic-button')body=`<MagneticButton strength={${value.amount}} color=${JSON.stringify(value.color)} onClick={() => console.log('Activated')}>{${JSON.stringify(value.text)}}</MagneticButton>`;
+  else if(item.id==='spotlight-card')body=`<SpotlightCard title={${JSON.stringify(value.text)}} color=${JSON.stringify(value.color)}><p>A little light for your next idea.</p></SpotlightCard>`;
+  else if(item.id==='tilt-card')body=`<TiltCard title={${JSON.stringify(value.text)}} maxTilt={${value.amount}} color=${JSON.stringify(value.color)}><p>A different perspective.</p></TiltCard>`;
+  else if(item.id==='loop-marquee')body=`<LoopMarquee items={${JSON.stringify(marqueeItems(value.text))}} duration={${value.amount}} reverse={${!!value.reverse}} />`;
+  else {
+    const props=Object.entries(value).filter(([key])=>!['paused','replayKey','onExportReady'].includes(key)).map(([key,val])=>`  ${key}={${JSON.stringify((/Src$/.test(key) && val)?('/your-'+(key.toLowerCase().includes('audio')?'audio.mp3':'image.png')):val)}}`).join('\n');
+    body=`<${item.file}${props?'\n'+props+'\n':''} />`;
   }
-  async function copy() {
-    if(!codeReady||copying)return;setCopying(true);setMessage('');const selected=currentRef.current;
-    try{await copyText(text);if(currentRef.current===selected){setCopied(true);setMessage(`${fileName} copied. Add it to your project with the CSS.`);}}
-    catch{setMessage('Could not access the clipboard. Download the file, or select the source to copy it.');codePanelRef.current?.focus();}
-    finally{setCopying(false);}
-  }
-  function action() {setMessage('That little pull is yours to keep. Copy MagneticButton.jsx and the CSS to use it.');}
-  return <div className="cp-workspace">
-    <aside className="cp-sidebar" aria-label="Browse components">
-      <label className="cp-search" htmlFor="componentSearch">Find your next detail<input id="componentSearch" type="search" placeholder="Find a component…" value={query} onChange={event=>setQuery(event.target.value)} autoComplete="off"/></label>
-      <div className="cp-category" role="group" aria-label="Component categories">{CATEGORIES.map(name=><button key={name} type="button" aria-pressed={category===name} onClick={()=>setCategory(name)}><span>{name}</span><span>{name==='All'?catalogue.length:catalogue.filter(entry=>entry.category===name).length}</span></button>)}</div>
-      <div className="cp-list-heading"><span>THE COLLECTION</span><span aria-live="polite">{results.length} / 6</span></div>
-      <nav className="cp-list" aria-label="Choose a component">{results.map(entry=><button key={entry.id} className="cp-component-button" type="button" aria-current={item.id===entry.id?'true':undefined} onClick={()=>select(entry)}><span className="cp-symbol" aria-hidden="true">{entry.symbol}</span>{entry.name}</button>)}{results.length===0&&<div className="cp-empty"><p>No components found. Try “card”, “text”, or clear your filters.</p><button className="cp-text-button" type="button" onClick={()=>{setQuery('');setCategory('All');}}>Clear search and filters ↗</button></div>}</nav>
-      <p className="cp-sidebar-note">Small pieces. Your own possibilities.<br/>React source + plain CSS.<br/><a href="components/LICENSE">Read the MIT license ↗</a></p>
-    </aside>
-    <section className="cp-detail" aria-labelledby="componentName">
-      <div className="cp-detail-top"><div><p className="eyebrow">{item.category.toUpperCase()} / REACT + CSS</p><h2 id="componentName">{item.name}</h2><p className="cp-description">{item.description}</p></div><span className="cp-index">{String(catalogue.indexOf(item)+1).padStart(2,'0')} / 06</span></div>
-      <div className="cp-surface">
-        <div className="cp-preview-toolbar"><div className="cp-tabs" role="tablist" aria-label="Component view">{['preview','code'].map(name=><button key={name} id={'view-'+name} type="button" role="tab" aria-selected={mode===name} aria-controls={'panel-'+name} tabIndex={mode===name?0:-1} onClick={()=>setMode(name)} onKeyDown={event=>switchTabs(event,['preview','code'],mode,setMode,'view-')}>{name==='preview'?'Preview':'Code'}</button>)}</div><div className="cp-toolbar-actions"><button className="cp-text-button" type="button" onClick={()=>setReplay(x=>x+1)} aria-label="Replay component preview">↻ Replay</button><button className="cp-text-button" type="button" aria-pressed={paused} onClick={()=>setPaused(x=>!x)}>{paused?'▷ Resume loops':'Ⅱ Pause loops'}</button></div></div>
-        {mode==='preview'?<div id="panel-preview" role="tabpanel" aria-labelledby="view-preview">
-          <div className="cp-preview"><div key={item.id} className="cp-demo" data-component={item.id} data-paused={paused||reduced}><Preview item={item} value={value} replay={replay} paused={paused||reduced} onAction={action}/></div><p className="cp-preview-hint">{item.hint}</p></div>
-          {reduced&&<p className="cp-motion-note">Your device prefers reduced motion. The preview stays still.</p>}
-          <div className="cp-controls"><div className="cp-controls-heading"><h3>MAKE IT YOURS</h3><button className="cp-text-button" type="button" onClick={()=>{setValue(defaults(item));setReplay(x=>x+1);setMessage('Controls reset.');}}>Reset ↺</button></div>
-            <label className="cp-field" htmlFor="componentText"><span>{item.id==='loop-marquee'?'Words · separate with commas':'Your words'}<output>{value.text.length}/80</output></span><input id="componentText" type="text" maxLength={80} value={value.text} onChange={event=>update('text',event.target.value)}/></label>
-            {item.control&&<label className="cp-field" htmlFor="componentAmount"><span>{item.control}<output htmlFor="componentAmount">{value.amount}{item.unit}</output></span><input id="componentAmount" type="range" min={item.min} max={item.max} step={item.step} value={value.amount} onChange={event=>update('amount',Number(event.target.value))}/></label>}
-            {hasColour&&<fieldset className="cp-swatches"><legend>Accent colour</legend><div className="cp-swatch-row">{COLOURS.map(colour=><button key={colour.value} className="cp-swatch" type="button" aria-label={colour.name+' accent'} aria-pressed={value.color===colour.value} onClick={()=>update('color',colour.value)} style={{'--swatch':colour.value}}><span aria-hidden="true"/></button>)}</div></fieldset>}
-            {item.id==='loop-marquee'&&<label className="cp-check"><input type="checkbox" checked={value.reverse} onChange={event=>update('reverse',event.target.checked)}/>Reverse direction</label>}
-          </div>
-        </div>:<div id="panel-code" role="tabpanel" aria-labelledby="view-code">
-          <div className="cp-code-toolbar"><div className="cp-tabs" role="tablist" aria-label="Source file">{['jsx','css','usage'].map(name=><button key={name} id={'source-'+name} type="button" role="tab" aria-selected={codeTab===name} aria-controls="sourcePanel" tabIndex={codeTab===name?0:-1} onClick={()=>setCodeTab(name)} onKeyDown={event=>switchTabs(event,['jsx','css','usage'],codeTab,setCodeTab,'source-')}>{name==='usage'?'Usage':name.toUpperCase()}</button>)}</div><div className="cp-code-actions"><button className="cp-text-button" type="button" aria-label={'Download '+fileName} disabled={!codeReady} onClick={()=>{downloadText(fileName,text);setMessage(fileName+' download started.');}}>Download ↓</button><button className="cp-copy" type="button" disabled={!codeReady||copying} aria-busy={copying} onClick={copy}>{copying?'Copying…':copied?'Copied ✓':'Copy source'}</button></div></div>
-          <div id="sourcePanel" role="tabpanel" aria-labelledby={'source-'+codeTab} className="cp-code-scroll" tabIndex={0} ref={codePanelRef}>
-            {codeReady?<pre><code>{text}</code></pre>:source.status==='error'?<div className="cp-source-error" role="alert"><p>We could not load this source file. Your preview still works.</p><button className="cp-copy" type="button" onClick={()=>setRetry(x=>x+1)}>Try again</button></div>:<p className="cp-loading" role="status">Loading the source…</p>}
-          </div>
-        </div>}
-        <div className={'cp-status'+(copied?' cp-copy-feedback':'')} role="status" aria-live="polite">{message||(mode==='code'?'The preview uses this exact React source. Copy the JSX and CSS, then check Usage.':'Original components. Ready for a little experimentation.')}</div>
-      </div>
-      <div className="cp-setup"><div><h3>01 / Take the source</h3><p>Open Code. Copy the component’s JSX and <code>components.css</code> into your React project. The CSS is shared across this collection.</p></div><div><h3>02 / Make it part of your idea</h3><p>Copy the Usage example and adjust the props. React is the only dependency. Next.js App Router: add <code>'use client';</code> as the first line of the component file.</p></div></div>
-      <div className="cp-props"><h3>A few things to play with</h3><table><thead><tr><th scope="col">Prop</th><th scope="col">What it does</th></tr></thead><tbody>{item.props.map(([name,description])=><tr key={name}><td>{name}</td><td>{description}</td></tr>)}</tbody></table></div>
-      <p className="cp-footer-note">Built for pointers, keyboards, and quieter motion. MIT licensed — keep the license with the source. No account or API key.</p>
-    </section>
-  </div>;
+  return `import ${item.file} from './components/src/${item.file}.jsx';\nimport './${item.css}';\n\nexport default function Example() {\n  return (\n    ${body}\n  );\n}\n`;
+}
+class PreviewBoundary extends React.Component{
+  state={error:false};static getDerivedStateFromError(){return {error:true};}
+  componentDidUpdate(previous){if(this.state.error&&previous.resetKey!==this.props.resetKey)this.setState({error:false});}
+  render(){return this.state.error?<div className="cp-source-error" role="alert"><p>This preview could not start. Replay it to try again.</p><button type="button" className="cp-copy" onClick={this.props.onRetry}>Try preview again</button></div>:this.props.children;}
+}
+function Preview({item,value,replay,paused,onAction,onExportReady}){
+  const Component=registry[item.id], props={...value,paused,replayKey:replay,onExportReady};
+  if(item.id==='split-reveal')return <span style={{color:value.color}}><Component key={replay} duration={value.amount} replayKey={replay}>{value.text}</Component></span>;
+  if(item.id==='wave-text')return <span style={{color:value.color}}><Component duration={value.amount} paused={paused}>{value.text}</Component></span>;
+  if(item.id==='magnetic-button')return <Component color={value.color} strength={paused?0:value.amount} onClick={onAction}>{value.text}</Component>;
+  if(item.id==='spotlight-card')return <Component color={value.color} title={value.text}><p className="cp-demo-content">A little light for your next idea.<br/>Move closer. There is more to discover.</p><a className="cp-demo-link" href="studio.html">Start exploring ↗</a></Component>;
+  if(item.id==='tilt-card')return <Component color={value.color} title={value.text} maxTilt={paused?0:value.amount}><p className="cp-demo-content">A small shift.<br/>A whole new perspective.</p></Component>;
+  if(item.id==='loop-marquee')return <Component items={marqueeItems(value.text)} duration={value.amount} reverse={value.reverse} paused={paused}/>;
+  return <Component {...props}/>;
+}
+function FileControl({control,value,onChange}){
+  const [message,setMessage]=useState(''),[busy,setBusy]=useState(false), generation=useRef(0);
+  useEffect(()=>()=>{generation.current++;},[]);
+  async function choose(event){const file=event.target.files?.[0];event.target.value='';if(!file)return;const request=++generation.current;setBusy(true);setMessage('Reading your file…');try{const next=await readMedia(file,control.type);if(request===generation.current){onChange(next);setMessage(file.name+' · stays in this browser');}}catch(error){if(request===generation.current)setMessage(error.message);}finally{if(request===generation.current)setBusy(false);}}
+  return <div className="cp-field cp-file-field"><label htmlFor={'control-'+control.key}>{control.label}</label><input id={'control-'+control.key} type="file" accept={control.type==='audio'?'audio/*':'.png,.jpg,.jpeg,.webp,.gif,.avif,.svg'} onChange={choose} disabled={busy}/><div className="cp-file-note" role="status">{message||(value?'Local file ready.':'Files stay local · up to 25 MB')}{value&&<button type="button" className="cp-text-button" onClick={()=>{generation.current++;setBusy(false);setMessage('Local file removed.');onChange('');}}>Remove file</button>}</div></div>;
+}
+function Control({control,value,update}){
+  const id='control-'+control.key, change=next=>update(control.key,next);
+  if(['image','audio'].includes(control.type))return <FileControl control={control} value={value} onChange={change}/>;
+  if(control.type==='checkbox')return <label className="cp-check" htmlFor={id}><input id={id} type="checkbox" checked={!!value} onChange={event=>change(event.target.checked)}/>{control.label}</label>;
+  return <label className="cp-field" htmlFor={id}><span>{control.label}{control.type==='range'&&<output htmlFor={id}>{value}{control.unit||''}</output>}</span>{control.type==='select'?<select id={id} value={value??''} onChange={event=>change(event.target.value)}>{control.options.map(option=><option key={option.value??option} value={option.value??option}>{option.label??option}</option>)}</select>:control.type==='textarea'?<textarea id={id} rows={3} maxLength={control.maxLength||2400} value={value??''} onChange={event=>change(event.target.value)}/>:<input id={id} type={control.type==='range'?'range':control.type==='color'?'color':'text'} value={value??''} min={control.min} max={control.max} step={control.step} maxLength={control.maxLength||180} onChange={event=>change(control.type==='range'?Number(event.target.value):event.target.value)}/>}</label>;
+}
+function App(){
+  const [item,setItem]=useState(initial.item),[value,setValue]=useState(initial.value),[type,setType]=useState('all'),[category,setCategory]=useState('All'),[query,setQuery]=useState('');
+  const [mode,setMode]=useState('preview'),[codeTab,setCodeTab]=useState('jsx'),[source,setSource]=useState({status:'loading'}),[retry,setRetry]=useState(0),[replay,setReplay]=useState(0),[remount,setRemount]=useState(0),[paused,setPaused]=useState(false);
+  const [api,setApi]=useState(null),[busy,setBusy]=useState(''),[message,setMessage]=useState(''),[copied,setCopied]=useState(false);
+  const reduced=useReducedMotion(),requestRef=useRef(0),current=useRef(''),codePanelRef=useRef(null),navigationRef=useRef(location.pathname+location.search);
+  current.current=item.id+'|'+codeTab;
+  const onExportReady=useCallback(next=>setApi(next),[]);
+  useEffect(()=>{const controller=new AbortController(),request=++requestRef.current;setSource({status:'loading'});setCopied(false);Promise.all([readSource(`components/src/${item.file}.jsx`,controller.signal),readSource(item.css,controller.signal)]).then(([jsx,css])=>{if(request===requestRef.current)setSource({status:'ready',jsx,css});}).catch(error=>{if(error.name!=='AbortError'&&request===requestRef.current)setSource({status:'error'});});return()=>controller.abort();},[item.id,retry]);
+  useEffect(()=>{const back=()=>{const signature=location.pathname+location.search;if(signature===navigationRef.current)return;navigationRef.current=signature;const next=locationPreset(catalogue);setItem(next.item);setValue(next.value);setRemount(x=>x+1);setApi(null);setMessage('');};window.addEventListener('popstate',back);return()=>window.removeEventListener('popstate',back);},[]);
+  useEffect(()=>{setCopied(false);try{const url=presetUrl(item,value);history.replaceState({},'',url);navigationRef.current=url.pathname+url.search;}catch{}},[item.id,value]);
+  const types=catalogue.filter(entry=>type==='all'||entry.type===type), categories=['All',...new Set(types.map(entry=>entry.category))];
+  const results=types.filter(entry=>(category==='All'||entry.category===category)&&`${entry.name} ${entry.description} ${entry.category} ${entry.type}`.toLowerCase().includes(query.trim().toLowerCase()));
+  const text=codeTab==='usage'?usageFor(item,value):source[codeTab]||'',codeReady=codeTab==='usage'||source.status==='ready',filename=codeTab==='jsx'?`${item.file}.jsx`:codeTab==='css'?item.css.split('/').at(-1):'Example.jsx';
+  function select(next){setItem(next);setValue({...next.defaults});setReplay(x=>x+1);setRemount(x=>x+1);setApi(null);setMessage('');setBusy('');setCopied(false);const url=presetUrl(next,next.defaults);history.pushState({},'',url);navigationRef.current=url.pathname+url.search;}
+  function update(key,next){setValue(old=>({...old,[key]:next}));if(item.id==='split-reveal'&&key==='text')setReplay(x=>x+1);}
+  function reset(){setValue({...item.defaults});setReplay(x=>x+1);setRemount(x=>x+1);setMessage('Controls reset.');}
+  function applyTheme(theme){setValue(old=>({...old,color:theme.color,secondary:theme.secondary,seed:theme.seed}));if(item.type!=='tool')setRemount(x=>x+1);setMessage(theme.name+' palette applied.');}
+  function switchTabs(event,names,active,setter,prefix){const index=names.indexOf(active);let next;if(event.key==='ArrowRight')next=names[(index+1)%names.length];if(event.key==='ArrowLeft')next=names[(index+names.length-1)%names.length];if(event.key==='Home')next=names[0];if(event.key==='End')next=names.at(-1);if(next){event.preventDefault();setter(next);document.getElementById(prefix+next)?.focus();}}
+  async function runAction(label,fn){if(busy)return;const selected=item.id;setBusy(label);setMessage('');try{const result=await fn();if(current.current.split('|')[0]===selected)setMessage(result||label+' ready.');}catch(error){if(current.current.split('|')[0]===selected)setMessage(error.message||'This action could not finish. Please try again.');}finally{setBusy('');}}
+  async function copy(){const selected=current.current;await runAction('Copy',async()=>{await copyText(text);if(current.current===selected)setCopied(true);return filename+' copied. Use the complete bundle when this source imports a helper.';});}
+  return <div className="cp-workspace"><aside className="cp-sidebar" aria-label="Browse the creative library">
+    <label className="cp-search" htmlFor="componentSearch">Find your next idea<input id="componentSearch" type="search" placeholder="Search 39 pieces…" value={query} onChange={event=>setQuery(event.target.value)} autoComplete="off"/></label>
+    <div className="cp-category" role="group" aria-label="Library types">{TYPES.map(([key,label])=><button key={key} type="button" aria-pressed={type===key} onClick={()=>{setType(key);setCategory('All');}}><span>{label}</span><span>{key==='all'?catalogue.length:catalogue.filter(entry=>entry.type===key).length}</span></button>)}</div>
+    <label className="cp-filter-label" htmlFor="categoryFilter">Explore by detail<select id="categoryFilter" value={category} onChange={event=>setCategory(event.target.value)}>{categories.map(name=><option key={name}>{name}</option>)}</select></label>
+    <div className="cp-list-heading"><span>THE COLLECTION</span><span aria-live="polite">{results.length} / {catalogue.length}</span></div>
+    <nav className="cp-list" aria-label="Choose a library piece">{results.map(entry=><button key={entry.id} className="cp-component-button" type="button" aria-current={item.id===entry.id?'true':undefined} onClick={()=>select(entry)}><span className="cp-symbol" aria-hidden="true">{entry.symbol}</span><span>{entry.name}<small>{entry.type==='tool'?'Creative tool':entry.type==='section'?'Page section':entry.type==='experiment'?'Playground':''}</small></span></button>)}{!results.length&&<div className="cp-empty"><p>No matches. Try another word, or clear the filters.</p><button type="button" className="cp-text-button" onClick={()=>{setQuery('');setType('all');setCategory('All');}}>Clear search and filters ↗</button></div>}</nav>
+    <p className="cp-sidebar-note">Small pieces. Your own possibilities.<br/>React source + plain CSS.<br/><a href="components/LICENSE">Read the MIT license ↗</a></p>
+  </aside><section className="cp-detail" aria-labelledby="componentName">
+    <div className="cp-detail-top"><div><p className="eyebrow">{item.category.toUpperCase()} / {TYPES.find(([key])=>key===item.type)?.[1].toUpperCase()}</p><h2 id="componentName">{item.name}</h2><p className="cp-description">{item.description}</p></div><span className="cp-index">{String(catalogue.indexOf(item)+1).padStart(2,'0')} / {catalogue.length}</span></div>
+    <div className="cp-theme-bar"><span>Carry a palette</span><div className="cp-theme-options" role="group" aria-label="Shared palettes">{THEMES.map(theme=><button type="button" key={theme.name} title={'Apply '+theme.name+' palette and seed'} onClick={()=>applyTheme(theme)} style={{'--theme-a':theme.color,'--theme-b':theme.secondary}}><i aria-hidden="true"/>{theme.name}</button>)}</div><button type="button" className="cp-text-button" disabled={!!busy} onClick={()=>runAction('Preset link',async()=>{await copyText(presetUrl(item,value).href);return item.type==='tool'?'Starting palette link copied. Use the tool exports to save its current artwork.':'Preset link copied. Local image and audio files are not included.';})}>{item.type==='tool'?'Copy starting palette link ↗':'Copy preset link ↗'}</button></div>
+    <div className="cp-surface"><div className="cp-preview-toolbar"><div className="cp-tabs" role="tablist" aria-label="Component view">{['preview','code'].map(name=><button key={name} id={'view-'+name} type="button" role="tab" aria-selected={mode===name} aria-controls={'panel-'+name} tabIndex={mode===name?0:-1} onClick={()=>setMode(name)} onKeyDown={event=>switchTabs(event,['preview','code'],mode,setMode,'view-')}>{name==='preview'?'Preview':'Code'}</button>)}</div><div className="cp-toolbar-actions"><button type="button" className="cp-text-button" onClick={()=>setReplay(x=>x+1)} aria-label="Replay component preview">↻ Replay</button><button type="button" className="cp-text-button" aria-pressed={paused} onClick={()=>setPaused(x=>!x)}>{paused?'▷ Resume loops':'Ⅱ Pause loops'}</button></div></div>
+      <div id="panel-preview" hidden={mode!=='preview'} role="tabpanel" aria-labelledby="view-preview"><div className={'cp-preview cp-preview-'+item.type}><div className="cp-demo" data-component={item.id} data-kind={item.type} data-paused={mode!=='preview'||paused||reduced}><PreviewBoundary key={item.id+'|'+remount} resetKey={replay} onRetry={()=>setRemount(x=>x+1)}><Preview item={item} value={value} replay={replay} paused={mode!=='preview'||paused||(reduced&&!['audio-reactive-art','music-release'].includes(item.id))} onAction={()=>setMessage('Activated. Add your own onClick handler in your project.')} onExportReady={onExportReady}/></PreviewBoundary></div><p className="cp-preview-hint">{item.hint}</p></div>
+        {reduced&&<p className="cp-motion-note">Your device prefers reduced motion. Automatic motion stays still; native controls remain available.</p>}
+        {!!item.capabilities?.length&&<div className="cp-export-bar"><span>Take what you make</span><div>{item.capabilities.map(format=><button key={format} type="button" className="cp-text-button" disabled={!api?.[format]||!!busy} aria-busy={busy===format} onClick={()=>runAction(format,async()=>{const name=await downloadExport(api[format]);return name+' downloaded.';})}>{busy===format?'Preparing…':format.toUpperCase()+' ↓'}</button>)}</div></div>}
+        <div className="cp-controls"><div className="cp-controls-heading"><h3>{item.type==='tool'?'YOUR WORKSPACE':'MAKE IT YOURS'}</h3><button type="button" className="cp-text-button" onClick={reset}>Reset ↺</button></div>{item.controls?.length?item.controls.map(control=><Control key={item.id+'|'+control.key+'|'+remount} control={control} value={value[control.key]} update={update}/>):<p className="cp-local-note">Use the controls inside this tool. Your images, audio, and artwork stay in this browser.</p>}</div>
+      </div><div id="panel-code" hidden={mode!=='code'} role="tabpanel" aria-labelledby="view-code"><div className="cp-code-toolbar"><div className="cp-tabs" role="tablist" aria-label="Source file">{['jsx','css','usage'].map(name=><button key={name} id={'source-'+name} type="button" role="tab" aria-selected={codeTab===name} aria-controls="sourcePanel" tabIndex={codeTab===name?0:-1} onClick={()=>setCodeTab(name)} onKeyDown={event=>switchTabs(event,['jsx','css','usage'],codeTab,setCodeTab,'source-')}>{name==='usage'?'Usage':name.toUpperCase()}</button>)}</div><div className="cp-code-actions"><button type="button" className="cp-text-button" disabled={!codeReady||!!busy} onClick={()=>{downloadText(filename,text);setMessage(filename+' download started.');}}>File ↓</button><button type="button" className="cp-copy" disabled={!codeReady||!!busy} aria-busy={busy==='Copy'} onClick={copy}>{copied?'Copied ✓':busy==='Copy'?'Copying…':'Copy source'}</button></div></div><div id="sourcePanel" role="tabpanel" aria-labelledby={'source-'+codeTab} className="cp-code-scroll" tabIndex={0} ref={codePanelRef}>{codeReady?<pre><code>{text}</code></pre>:source.status==='error'?<div className="cp-source-error" role="alert"><p>We could not load the source. The preview still works.</p><button type="button" className="cp-copy" onClick={()=>setRetry(x=>x+1)}>Try again</button></div>:<p className="cp-loading" role="status">Loading the source…</p>}</div><div className="cp-bundle-bar"><p>Get the component, its helpers, CSS, license and a usage example together.</p><button type="button" className="cp-copy" disabled={!!busy} aria-busy={busy==='Source bundle'} onClick={()=>runAction('Source bundle',async()=>{downloadBlob(item.id+'-fluid.zip',await sourceBundle(item,usageFor(item,value)));return 'Complete source bundle downloaded. Keep its folder structure.';})}>{busy==='Source bundle'?'Preparing…':'Complete source ZIP ↓'}</button></div></div>
+      <div className={'cp-status'+(copied?' cp-copy-feedback':'')} role="status" aria-live="polite">{message||(mode==='code'?'The preview runs this exact React source. Download the complete bundle to keep helper imports working.':'Make it yours. Your files stay local; exports are created in your browser.')}</div>
+    </div>
+    <div className="cp-setup"><div><h3>01 / Take the whole piece</h3><p>Open Code and download the complete source ZIP. Keep the folders together, then add the example to your React project.</p></div><div><h3>02 / Give it your own purpose</h3><p>Edit the words, images and links. React is the only framework dependency. Next.js App Router: add <code>'use client';</code> to your entry component.</p></div></div>
+    {!!item.notes&&<p className="cp-entry-note">{item.notes}</p>}
+    {!!item.props?.length&&<div className="cp-props"><h3>A few things to play with</h3><table><thead><tr><th scope="col">Prop</th><th scope="col">What it does</th></tr></thead><tbody>{item.props.map(([name,description])=><tr key={name}><td>{name}</td><td>{description}</td></tr>)}</tbody></table></div>}
+    <p className="cp-footer-note">Built for pointers, keyboards, and quieter motion. MIT licensed — keep the license with the source. No account or API key.</p>
+  </section></div>;
 }
 createRoot(document.getElementById('componentsRoot')).render(<React.StrictMode><App/></React.StrictMode>);

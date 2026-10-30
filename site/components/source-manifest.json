@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "entries": {
+    "split-reveal": [
+      "components/src/SplitReveal.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "wave-text": [
+      "components/src/WaveText.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "magnetic-button": [
+      "components/src/MagneticButton.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "spotlight-card": [
+      "components/src/SpotlightCard.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "tilt-card": [
+      "components/src/TiltCard.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "loop-marquee": [
+      "components/src/LoopMarquee.jsx",
+      "components/components.css",
+      "components/LICENSE"
+    ],
+    "fluid-hero": [
+      "components/src/FluidHero.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "living-logo": [
+      "components/src/LivingLogo.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "texture-text": [
+      "components/src/TextureText.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "ink-reveal": [
+      "components/src/InkImageReveal.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "living-border": [
+      "components/src/LivingBorder.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "glass-lens": [
+      "components/src/GlassLens.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "scroll-scenes": [
+      "components/src/ScrollScenes.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "artful-dividers": [
+      "components/src/ArtfulDividers.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "audio-reactive-art": [
+      "components/src/AudioReactiveArt.jsx",
+      "components/src/shared/art-kit.jsx",
+      "components/visual.css",
+      "components/LICENSE"
+    ],
+    "morphing-menu": [
+      "components/src/MorphingMenu.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "stacking-gallery": [
+      "components/src/StackingGallery.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "elastic-tabs": [
+      "components/src/ElasticTabs.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "image-trail": [
+      "components/src/ImageTrail.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "before-after-reveal": [
+      "components/src/BeforeAfterReveal.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "flow-timeline": [
+      "components/src/FlowTimeline.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "living-progress": [
+      "components/src/LivingProgress.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "atmosphere-states": [
+      "components/src/AtmosphereStates.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "peelable-sticker": [
+      "components/src/PeelableSticker.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "particle-portrait": [
+      "components/src/ParticlePortrait.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "paint-reveal": [
+      "components/src/PaintReveal.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "animated-poster": [
+      "components/src/AnimatedPoster.jsx",
+      "components/src/shared/interaction-utils.jsx",
+      "components/src/shared/interaction-poster.js",
+      "components/interactions.css",
+      "components/LICENSE"
+    ],
+    "palette-studio": [
+      "components/src/PaletteStudio.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "texture-lab": [
+      "components/src/TextureLab.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "divider-builder": [
+      "components/src/DividerBuilder.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "hero-composer": [
+      "components/src/HeroComposer.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-composition.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "logo-motion-studio": [
+      "components/src/LogoMotionStudio.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "motion-recipes": [
+      "components/src/MotionRecipes.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "social-preview-maker": [
+      "components/src/SocialPreviewMaker.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-composition.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "material-theme-pack": [
+      "components/src/MaterialThemePack.jsx",
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-art.js",
+      "components/tools.css",
+      "components/LICENSE"
+    ],
+    "creator-portfolio": [
+      "components/src/CreatorPortfolio.jsx",
+      "components/src/shared/section-kit.jsx",
+      "components/sections.css",
+      "components/LICENSE"
+    ],
+    "product-launch": [
+      "components/src/ProductLaunch.jsx",
+      "components/src/shared/section-kit.jsx",
+      "components/sections.css",
+      "components/LICENSE"
+    ],
+    "music-release": [
+      "components/src/MusicRelease.jsx",
+      "components/src/shared/section-kit.jsx",
+      "components/sections.css",
+      "components/LICENSE"
+    ],
+    "editorial-story": [
+      "components/src/EditorialStory.jsx",
+      "components/src/shared/section-kit.jsx",
+      "components/sections.css",
+      "components/LICENSE"
+    ]
+  }
+}

@@ -1,0 +1,833 @@
+[
+  {
+    "id": "fluid-hero",
+    "name": "Fluid Hero",
+    "file": "FluidHero",
+    "type": "component",
+    "category": "Art",
+    "symbol": "\u25d2",
+    "description": "A living artwork, a quiet headline and a real call to action.",
+    "hint": "Follow the link to the next chapter. Export a PNG or a self-contained HTML section.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "title": "A feeling worth following.",
+      "subtitle": "Independent ideas. Unexpected possibilities.",
+      "cta": "Explore the collection"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Supporting words",
+        "type": "text"
+      },
+      {
+        "key": "cta",
+        "label": "Link label",
+        "type": "text"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png",
+      "html"
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Accessible HTML copy over original Canvas2D materials."
+      ],
+      [
+        "cta / href",
+        "Native link label and destination."
+      ],
+      [
+        "look",
+        "Original ink, chrome or grain material."
+      ],
+      [
+        "onExportReady",
+        "Registers PNG and self-contained HTML exports."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Canvas2D materials are original Fluid components, separate from the 58-look WebGL engine. HTML export embeds a still background and editable copy."
+  },
+  {
+    "id": "living-logo",
+    "name": "Living Logo",
+    "file": "LivingLogo",
+    "type": "component",
+    "category": "Art",
+    "symbol": "\u25c9",
+    "description": "Fill your mark with moving ink, chrome or grain.",
+    "hint": "Try a transparent PNG or SVG logo; its alpha becomes the mask.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "chrome",
+      "text": "fluid",
+      "imageSrc": "",
+      "size": 80
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Fallback wordmark",
+        "type": "text"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Transparent logo \u00b7 SVG or PNG",
+        "type": "image"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "size",
+        "label": "Wordmark size",
+        "type": "range",
+        "min": 30,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Local transparent SVG/PNG data URL, decoded as an image."
+      ],
+      [
+        "text",
+        "Fallback wordmark when no logo is supplied."
+      ],
+      [
+        "look",
+        "Original ink, chrome or grain fill."
+      ],
+      [
+        "onExportReady",
+        "Registers a transparent 1200 \u00d7 600 PNG export."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "No SVG markup is injected. Opaque images mask their entire rectangle; use transparent artwork for a shaped logo."
+  },
+  {
+    "id": "texture-text",
+    "name": "Texture Text",
+    "file": "TextureText",
+    "type": "component",
+    "category": "Art",
+    "symbol": "Aa",
+    "description": "Put a little material into your headline.",
+    "hint": "Use up to four lines. Export transparent textured lettering.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "grain",
+      "text": "FEEL\nSOMETHING.",
+      "weight": 900
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Headline \u00b7 up to four lines",
+        "type": "textarea"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "weight",
+        "label": "Type weight",
+        "type": "range",
+        "min": 400,
+        "max": 900,
+        "step": 100
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "text",
+        "Up to four newline-separated lines."
+      ],
+      [
+        "weight",
+        "Canvas font weight from 400 to 900."
+      ],
+      [
+        "look / color / secondary",
+        "Original material and palette."
+      ],
+      [
+        "onExportReady",
+        "Registers a transparent 1200 \u00d7 800 PNG export."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The original text remains available to assistive technology as the canvas label. Uses the system Arial/sans-serif font."
+  },
+  {
+    "id": "ink-reveal",
+    "name": "Ink Reveal",
+    "file": "InkImageReveal",
+    "type": "component",
+    "category": "Images",
+    "symbol": "\u25cc",
+    "description": "Let an image arrive through spreading ink or scattered grain.",
+    "hint": "Replay to reveal again. Reduced motion shows the complete image.",
+    "css": "components/visual.css",
+    "defaults": {
+      "imageSrc": "",
+      "alt": "A quiet landscape revealed through ink",
+      "color": "#e9dbc6",
+      "secondary": "#48675c",
+      "seed": 42,
+      "mode": "ink",
+      "duration": 3
+    },
+    "controls": [
+      {
+        "key": "imageSrc",
+        "label": "Local image \u00b7 PNG, JPG, WebP or SVG",
+        "type": "image"
+      },
+      {
+        "key": "mode",
+        "label": "Reveal mask",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Spreading ink"
+          },
+          {
+            "value": "grain",
+            "label": "Scattered grain"
+          }
+        ]
+      },
+      {
+        "key": "duration",
+        "label": "Reveal time \u00b7 seconds",
+        "type": "range",
+        "min": 0.5,
+        "max": 8,
+        "step": 0.1
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc / alt",
+        "Local image data URL and accessible image description."
+      ],
+      [
+        "mode",
+        "Spreading ink polygon or deterministic grain tiles."
+      ],
+      [
+        "duration / replayKey",
+        "Reveal seconds and explicit replay trigger."
+      ],
+      [
+        "onExportReady",
+        "Exports the fully revealed 1200 \u00d7 800 image."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The sample is a generated local SVG illustration. PNG exports contain the finished reveal."
+  },
+  {
+    "id": "living-border",
+    "name": "Living Border",
+    "file": "LivingBorder",
+    "type": "component",
+    "category": "Motion",
+    "symbol": "\u25a3",
+    "description": "A moving edge for buttons, fields and small decisions.",
+    "hint": "Click the button to try real loading and success feedback. Tab into the field.",
+    "css": "components/visual.css",
+    "defaults": {
+      "label": "Make something happen",
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "speed": 5,
+      "state": "ready"
+    },
+    "controls": [
+      {
+        "key": "label",
+        "label": "Button label",
+        "type": "text"
+      },
+      {
+        "key": "speed",
+        "label": "Orbit time \u00b7 seconds",
+        "type": "range",
+        "min": 1,
+        "max": 15,
+        "step": 0.5
+      },
+      {
+        "key": "state",
+        "label": "Button state",
+        "type": "select",
+        "options": [
+          {
+            "value": "ready",
+            "label": "Ready \u00b7 interactive"
+          },
+          {
+            "value": "loading",
+            "label": "Loading"
+          },
+          {
+            "value": "success",
+            "label": "Success"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      }
+    ],
+    "capabilities": [
+      "css",
+      "html"
+    ],
+    "props": [
+      [
+        "label / onClick",
+        "Native button label and click callback."
+      ],
+      [
+        "state",
+        "Ready, loading or success; ready demonstrates a timed action."
+      ],
+      [
+        "speed / paused",
+        "Orbit seconds and animation playback."
+      ],
+      [
+        "onExportReady",
+        "Registers portable CSS and standalone interactive HTML."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The built-in action is a local 1.4 second interaction demonstration. Connect onClick to your application."
+  },
+  {
+    "id": "glass-lens",
+    "name": "Glass Lens",
+    "file": "GlassLens",
+    "type": "component",
+    "category": "Images",
+    "symbol": "\u25ce",
+    "description": "A movable glass that brings your image closer.",
+    "hint": "Move the pointer, drag with a finger, or focus the image and use the arrow keys.",
+    "css": "components/visual.css",
+    "defaults": {
+      "imageSrc": "",
+      "alt": "Mountain illustration under a magnifying glass",
+      "radius": 90,
+      "zoom": 1.8,
+      "color": "#f2aa86",
+      "secondary": "#a799e1"
+    },
+    "controls": [
+      {
+        "key": "imageSrc",
+        "label": "Local image \u00b7 PNG, JPG, WebP or SVG",
+        "type": "image"
+      },
+      {
+        "key": "radius",
+        "label": "Lens radius",
+        "type": "range",
+        "min": 30,
+        "max": 160,
+        "step": 1
+      },
+      {
+        "key": "zoom",
+        "label": "Magnification",
+        "type": "range",
+        "min": 1.1,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc / alt",
+        "Local image data URL and accessible description."
+      ],
+      [
+        "radius / zoom",
+        "Lens radius and real image magnification."
+      ],
+      [
+        "paused",
+        "Freezes pointer and keyboard movement."
+      ],
+      [
+        "onExportReady",
+        "Exports the image with the lens at its current position."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "A real Canvas2D magnifier with a glass highlight; it does not emulate physical refraction."
+  },
+  {
+    "id": "scroll-scenes",
+    "name": "Scroll Scenes",
+    "file": "ScrollScenes",
+    "type": "component",
+    "category": "Motion",
+    "symbol": "\u224b",
+    "description": "A little story whose colours change as you scroll.",
+    "hint": "Scroll inside the preview, or focus it and use Page Down. The page itself stays native.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "title": "A change of scenery."
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Opening headline",
+        "type": "text"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "props": [
+      [
+        "title",
+        "Opening scene headline."
+      ],
+      [
+        "color / secondary",
+        "Palette interpolates with actual contained scroll progress."
+      ],
+      [
+        "paused",
+        "Stops artwork loops while keeping native reading and scrolling."
+      ],
+      [
+        "onExportReady",
+        "Exports a self-contained HTML scroll story."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Three native scroll scenes; no wheel interception, global scroll handlers or page scroll locking."
+  },
+  {
+    "id": "artful-dividers",
+    "name": "Artful Dividers",
+    "file": "ArtfulDividers",
+    "type": "component",
+    "category": "Art",
+    "symbol": "\u2248",
+    "description": "A softer boundary between one idea and the next.",
+    "hint": "Change the profile, amplitude and palette. SVG and PNG exports have transparent surroundings.",
+    "css": "components/visual.css",
+    "defaults": {
+      "variant": "wave",
+      "amount": 65,
+      "flip": false,
+      "color": "#21483d",
+      "secondary": "#e9dbc6",
+      "seed": 42
+    },
+    "controls": [
+      {
+        "key": "variant",
+        "label": "Profile",
+        "type": "select",
+        "options": [
+          {
+            "value": "wave",
+            "label": "Wave"
+          },
+          {
+            "value": "contour",
+            "label": "Contour"
+          },
+          {
+            "value": "torn",
+            "label": "Torn paper"
+          },
+          {
+            "value": "ink",
+            "label": "Ink edge"
+          }
+        ]
+      },
+      {
+        "key": "amount",
+        "label": "Amplitude",
+        "type": "range",
+        "min": 15,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "key": "flip",
+        "label": "Flip vertically",
+        "type": "checkbox"
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "svg",
+      "png",
+      "html"
+    ],
+    "props": [
+      [
+        "variant",
+        "Wave, contour, torn paper or ink edge."
+      ],
+      [
+        "amount / seed",
+        "Profile amplitude and repeatable irregularity."
+      ],
+      [
+        "flip",
+        "Vertical reversal."
+      ],
+      [
+        "onExportReady",
+        "Registers vector SVG, transparent PNG and HTML exports."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Locally generated vector geometry. SVG is resolution independent; PNG export is 1200 \u00d7 220."
+  },
+  {
+    "id": "audio-reactive-art",
+    "name": "Audio Reactive Art",
+    "file": "AudioReactiveArt",
+    "type": "experiment",
+    "category": "Art",
+    "symbol": "\u266b",
+    "description": "Give a local audio file its own visual atmosphere.",
+    "hint": "Choose a file, then press Play. No microphone, autoplay or upload.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "audioSrc": "",
+      "sensitivity": 1.3
+    },
+    "controls": [
+      {
+        "key": "audioSrc",
+        "label": "Local audio \u00b7 MP3, WAV or OGG",
+        "type": "audio"
+      },
+      {
+        "key": "sensitivity",
+        "label": "Audio sensitivity",
+        "type": "range",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "audioSrc",
+        "Local audio data URL. Nothing plays until Play is pressed."
+      ],
+      [
+        "sensitivity",
+        "Scales actual Web Audio frequency magnitudes."
+      ],
+      [
+        "paused",
+        "Pauses playback and suspends its AudioContext."
+      ],
+      [
+        "onExportReady",
+        "Exports the current canvas frame as PNG."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Uses the real local-file frequency spectrum via Web Audio. Browser audio format support varies. Reduced motion keeps the artwork still while allowing explicit audio playback."
+  }
+]

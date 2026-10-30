@@ -1,0 +1,792 @@
+[
+  {
+    "id": "morphing-menu",
+    "name": "Morphing Menu",
+    "filebasename": "MorphingMenu",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "\u2197",
+    "description": "A visual collection menu that opens into real project links.",
+    "hint": "Explore opens the collection. Escape returns to the trigger.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A different point of view.",
+      "color": "#ff956f"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "items",
+        "Optional array of {label, href}; defaults link to original local collection sections."
+      ],
+      [
+        "title",
+        "Menu headline."
+      ],
+      [
+        "color",
+        "Accent colour."
+      ],
+      [
+        "paused",
+        "Stops entrance motion."
+      ],
+      [
+        "replayKey",
+        "Closes the menu when changed."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native links, arrow-key navigation, focus movement and Escape. Original sample SVGs are generated in the helper; no remote assets."
+  },
+  {
+    "id": "stacking-gallery",
+    "name": "Stacking Gallery",
+    "filebasename": "StackingGallery",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "\u25b1",
+    "description": "Project images overlap into a stack as the actual gallery scrolls.",
+    "hint": "Scroll inside the gallery. Arrow keys work when the gallery is focused.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Collected moments.",
+      "color": "#b9cba8",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "items",
+        "Optional {title, body, imageSrc, alt} array. Images should be validated local data URLs."
+      ],
+      [
+        "imageSrc",
+        "Optional image override for the first card."
+      ],
+      [
+        "paused",
+        "Disables optional motion."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Sticky cards in an accessible inner scroll container. No scroll-jacking or background listeners."
+  },
+  {
+    "id": "elastic-tabs",
+    "name": "Elastic Tabs",
+    "filebasename": "ElasticTabs",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "\u21e5",
+    "description": "A shared elastic marker follows keyboard-complete tabs and real content panels.",
+    "hint": "Use Left/Right, Home or End while a tab is focused.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Find your frequency.",
+      "color": "#d0c2ff"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "tabs",
+        "Optional array of {label, title, text, children}."
+      ],
+      [
+        "color",
+        "Active indicator colour."
+      ],
+      [
+        "paused",
+        "Makes the indicator change instantly."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native buttons with aria-selected, associated tab panels and roving tabindex. Generated image samples are local."
+  },
+  {
+    "id": "image-trail",
+    "name": "Image Trail",
+    "filebasename": "ImageTrail",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "\u2301",
+    "description": "A bounded trail of image frames follows pointer movement, taps or keyboard actions.",
+    "hint": "Move across the stage, tap it, or choose Add a frame.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Leave a little colour.",
+      "color": "#e4b3d1",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated PNG/JPG/WebP data URL; generated SVG samples are the fallback."
+      ],
+      [
+        "paused",
+        "Disables pointer-follow motion; taps and buttons remain usable."
+      ],
+      [
+        "replayKey",
+        "Clears existing frames."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Eight frames maximum, pointer updates throttled to 80ms. Reduced motion retains deliberate tap/button interaction."
+  },
+  {
+    "id": "before-after-reveal",
+    "name": "Before/After Reveal",
+    "filebasename": "BeforeAfterReveal",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "\u2194",
+    "description": "An actual range control reveals one image over another.",
+    "hint": "Drag anywhere on the image or use the arrow keys.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A shift in perspective.",
+      "color": "#ffcba6",
+      "imageSrc": "",
+      "afterSrc": "",
+      "initial": 50
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "afterSrc",
+        "label": "After image",
+        "type": "image"
+      },
+      {
+        "key": "initial",
+        "label": "Initial reveal",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Original image data URL."
+      ],
+      [
+        "afterSrc",
+        "Treated image data URL; grayscale treatment is used when omitted."
+      ],
+      [
+        "initial",
+        "Initial reveal percentage from 0 to 100."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native range supports touch and keyboard. The after image clips to the actual slider value. initial updates the reveal when changed."
+  },
+  {
+    "id": "flow-timeline",
+    "name": "Flow Timeline",
+    "filebasename": "FlowTimeline",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "\u2307",
+    "description": "A ribbon fills from real scroll progress through the milestones.",
+    "hint": "Scroll the milestone region; focus it to use arrow keys.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "From spark to something.",
+      "color": "#a8d9cb"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "milestones",
+        "Optional array of {title, text}."
+      ],
+      [
+        "color",
+        "Reading-progress ribbon colour."
+      ],
+      [
+        "paused",
+        "Preserves scroll interaction without extra motion."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Actual scrollTop / scrollable-height progress; no fake timed progress. ResizeObserver disconnects on unmount."
+  },
+  {
+    "id": "living-progress",
+    "name": "Living Progress",
+    "filebasename": "LivingProgress",
+    "type": "component",
+    "category": "Feedback",
+    "symbol": "\u25d5",
+    "description": "A liquid vessel displays your supplied determinate progress.",
+    "hint": "Use Progress in the controls; the fill always matches the supplied value.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A little further.",
+      "color": "#a8d9cb",
+      "progress": 64,
+      "label": "Project progress"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "label",
+        "label": "Progress label",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Liquid colour",
+        "type": "color"
+      },
+      {
+        "key": "progress",
+        "label": "Progress",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "progress",
+        "Actual numeric progress, clamped 0\u2013100. Connect it to a real task."
+      ],
+      [
+        "label",
+        "Accessible progressbar label."
+      ],
+      [
+        "onProgressChange",
+        "Optional callback; enables an internal interactive progress range."
+      ],
+      [
+        "paused",
+        "Stops decorative wave motion without changing the value."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Never advances itself or pretends to upload. The native aria-valuenow reflects the supplied progress. The wave is decorative."
+  },
+  {
+    "id": "atmosphere-states",
+    "name": "Atmosphere States",
+    "filebasename": "AtmosphereStates",
+    "type": "component",
+    "category": "Feedback",
+    "symbol": "\u25c7",
+    "description": "Deliberate empty, loading, success and error scenes with working state selection.",
+    "hint": "Choose a state. Wire onAction to the real action in your application.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Space for what is next.",
+      "color": "#b8c7fc",
+      "state": "empty"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "state",
+        "label": "State",
+        "type": "select",
+        "options": [
+          {
+            "value": "empty",
+            "label": "Empty"
+          },
+          {
+            "value": "loading",
+            "label": "Loading"
+          },
+          {
+            "value": "success",
+            "label": "Success"
+          },
+          {
+            "value": "error",
+            "label": "Error"
+          }
+        ]
+      }
+    ],
+    "props": [
+      [
+        "state",
+        "empty, loading, success or error; internal preview choices can override it."
+      ],
+      [
+        "onAction",
+        "Receives create, cancel or retry. Connect to your real application action."
+      ],
+      [
+        "paused",
+        "Stops the loading ornament."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "State preview only: no fake network calls or timed success. Native action buttons and announced error/status content."
+  },
+  {
+    "id": "peelable-sticker",
+    "name": "Peelable Sticker",
+    "filebasename": "PeelableSticker",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "\u25e9",
+    "description": "A draggable sticker corner uncovers a real message underneath.",
+    "hint": "Drag the corner, use its arrow keys, or move the peel slider.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "There is more underneath.",
+      "text": "A good idea is always worth uncovering.",
+      "sticker": "STAY CURIOUS",
+      "color": "#d9ee99",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Reveal headline",
+        "type": "text"
+      },
+      {
+        "key": "text",
+        "label": "Reveal text",
+        "type": "textarea"
+      },
+      {
+        "key": "sticker",
+        "label": "Sticker text",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Sticker colour",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "title",
+        "Underlying headline."
+      ],
+      [
+        "text",
+        "Underlying message."
+      ],
+      [
+        "sticker",
+        "Sticker face text."
+      ],
+      [
+        "imageSrc",
+        "Optional local image data URL for the sticker face."
+      ],
+      [
+        "replayKey",
+        "Restores the initial peel amount."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Pointer capture supports touch. Native range and corner Arrow/Home/End keys provide complete keyboard reveal. No remote assets."
+  },
+  {
+    "id": "particle-portrait",
+    "name": "Particle Portrait",
+    "filebasename": "ParticlePortrait",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "\u283f",
+    "description": "Your image becomes sampled colour particles that separate and reform.",
+    "hint": "Move across the particles or choose Scatter. Upload an image or logo, then save a PNG.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A thousand little possibilities.",
+      "color": "#e5c2ff",
+      "imageSrc": "",
+      "density": 44,
+      "scatter": 24
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "density",
+        "label": "Particle density",
+        "type": "range",
+        "min": 18,
+        "max": 65,
+        "step": 1
+      },
+      {
+        "key": "scatter",
+        "label": "Scatter distance",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated local data URL; internal upload accepts PNG, JPG or WebP up to 10 MB / 40 MP."
+      ],
+      [
+        "density",
+        "18\u201365 columns of actual sampled image particles."
+      ],
+      [
+        "scatter",
+        "Particle separation amount 0\u2013100."
+      ],
+      [
+        "paused",
+        "Stops the bounded 30fps loop; deliberate interactions still update."
+      ],
+      [
+        "onExportReady",
+        "Registers {png}; resolves an image/png Blob at 900 \u00d7 600."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "notes": "Canvas2D, at most about 2,900 particles. Transparent image pixels are omitted. Generated original SVG sample. PNG includes the current particle arrangement."
+  },
+  {
+    "id": "paint-reveal",
+    "name": "Paint Reveal",
+    "filebasename": "PaintReveal",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "\u2733",
+    "description": "Brush a real image through a local compositing mask, then export the result.",
+    "hint": "Drag to paint, add brush marks with a button, or reveal all. Reset clears the mask.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Make a mark.",
+      "color": "#7cc3b1",
+      "imageSrc": "",
+      "brush": 60
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "brush",
+        "label": "Brush size",
+        "type": "range",
+        "min": 12,
+        "max": 180,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated local image data URL; internal PNG/JPG/WebP upload capped at 10 MB / 40 MP."
+      ],
+      [
+        "brush",
+        "Brush diameter in export pixels, 12\u2013180."
+      ],
+      [
+        "replayKey",
+        "Clears the painted mask."
+      ],
+      [
+        "onExportReady",
+        "Registers {png}; exports the current revealed composition as a 900 \u00d7 600 PNG."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "notes": "Touch pointer capture and keyboard Add a brush mark / Reveal all. No continuous loop. PNG contains the current mask, including cover colour and revealed pixels."
+  },
+  {
+    "id": "animated-poster",
+    "name": "Animated Poster",
+    "filebasename": "AnimatedPoster",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "\u25a3",
+    "description": "Compose text, uploaded art and configurable motion into a portable animated poster.",
+    "hint": "Edit the headline and motion, then save PNG or image-inclusive animated HTML.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "STAY CURIOUS",
+      "text": "New shapes. New perspectives. An independent exploration of what comes next.",
+      "color": "#f4e6c6",
+      "secondary": "#b3d4cd",
+      "background": "#242334",
+      "motion": "orbit",
+      "speed": 1,
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "text",
+        "label": "Caption",
+        "type": "textarea"
+      },
+      {
+        "key": "color",
+        "label": "Type and orbit",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "background",
+        "label": "Paper colour",
+        "type": "color"
+      },
+      {
+        "key": "motion",
+        "label": "Motion",
+        "type": "select",
+        "options": [
+          {
+            "value": "orbit",
+            "label": "Orbit"
+          },
+          {
+            "value": "pulse",
+            "label": "Pulse"
+          },
+          {
+            "value": "drift",
+            "label": "Drift"
+          }
+        ]
+      },
+      {
+        "key": "speed",
+        "label": "Motion speed",
+        "type": "range",
+        "min": 0.1,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "title",
+        "Poster headline; composition fits up to three 85px lines."
+      ],
+      [
+        "text",
+        "Supporting copy, up to 180 characters."
+      ],
+      [
+        "motion",
+        "orbit, pulse or drift."
+      ],
+      [
+        "speed",
+        "Animation speed .1\u20133."
+      ],
+      [
+        "imageSrc",
+        "Validated local data URL; image is embedded in the HTML export."
+      ],
+      [
+        "paused",
+        "Pauses automatic animation."
+      ],
+      [
+        "onExportReady",
+        "Registers {png,html}. PNG is 900 \u00d7 600; HTML includes Canvas2D renderer, image and play/pause control."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx",
+      "components/src/shared/interaction-poster.js"
+    ],
+    "capabilities": [
+      "png",
+      "html"
+    ],
+    "notes": "30fps maximum with reduced-motion and hidden-tab pause. Standalone HTML works offline and carries your uploaded image. No video-recording claim or dependency."
+  }
+]

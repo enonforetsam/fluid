@@ -1,0 +1,73 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const {chromium}=await import(process.env.FLUID_QA_PLAYWRIGHT||'/opt/codex-workspaces/jalan-globe06/node_modules/playwright/index.mjs');
+const ROOT=fileURLToPath(new URL('../',import.meta.url)), BASE=process.env.FLUID_QA_BASE||'http://127.0.0.1:8895';
+const out=path.join(ROOT,'site/qa/creative-suite-20261030');await mkdir(out,{recursive:true});
+const catalogue=JSON.parse(await readFile(path.join(ROOT,'site/components/catalogue.json'),'utf8'));
+const manifest=JSON.parse(await readFile(path.join(ROOT,'site/components/source-manifest.json'),'utf8'));
+const browser=await chromium.launch({headless:true,executablePath:process.env.FLUID_QA_CHROME||'/root/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
+const page=await context.newPage(), errors=[], failures=[], checks=[];
+page.on('pageerror',error=>errors.push({url:page.url(),error:error.message}));
+async function check(name,fn){if(process.env.FLUID_QA_FILTER && !new RegExp(process.env.FLUID_QA_FILTER).test(name))return;try{const details=await fn();checks.push({name,status:'pass',details});}catch(error){failures.push({name,error:error.message});checks.push({name,status:'fail',error:error.message});}}
+async function open(item){await page.goto(BASE+'/components.html?component='+item.id);await page.locator('#componentName').waitFor();assert.equal(await page.locator('#componentName').innerText(),item.name);await page.locator('.cp-demo').scrollIntoViewIfNeeded();await page.waitForTimeout(70);assert.equal(await page.locator('.cp-demo .cp-source-error').count(),0,item.id+' preview error');}
+function unzipStored(buffer){const files=new Map();let p=0;while(buffer.readUInt32LE(p)===0x04034b50){const method=buffer.readUInt16LE(p+8),size=buffer.readUInt32LE(p+18),nameLength=buffer.readUInt16LE(p+26),extra=buffer.readUInt16LE(p+28),name=buffer.subarray(p+30,p+30+nameLength).toString();assert.equal(method,0);assert(!name.includes('..'));assert(!files.has(name));const start=p+30+nameLength+extra;files.set(name,buffer.subarray(start,start+size));p=start+size;}assert.equal(buffer.readUInt32LE(p),0x02014b50);assert.equal(buffer.readUInt32LE(buffer.length-22),0x06054b50);return files;}
+for(const item of catalogue)await check('mount/source/bundle/'+item.id,async()=>{
+  await open(item);await page.getByRole('tab',{name:'Code',exact:true}).click();await page.locator('#sourcePanel code').waitFor();
+  assert.equal(await page.locator('#sourcePanel code').textContent(),await readFile(path.join(ROOT,'site/components/src/'+item.file+'.jsx'),'utf8'));
+  await page.getByRole('tab',{name:'CSS',exact:true}).click();assert.equal(await page.locator('#sourcePanel code').textContent(),await readFile(path.join(ROOT,'site',item.css),'utf8'));
+  await page.getByRole('tab',{name:'Usage',exact:true}).click();const usage=await page.locator('#sourcePanel code').textContent();assert(usage.includes("import './"+item.css+"';"));
+  const downloadEvent=page.waitForEvent('download');await page.getByRole('button',{name:'Complete source ZIP ↓',exact:true}).click();const download=await downloadEvent, bytes=await readFile(await download.path()),files=unzipStored(bytes);
+  assert.equal(files.size,manifest.entries[item.id].length+2);
+  for(const name of manifest.entries[item.id])assert(files.get(name)?.equals(await readFile(path.join(ROOT,'site',name))),item.id+' '+name+' differs');
+  assert.equal(files.get('Example.jsx').toString(),usage);assert(files.get('README.md').toString().includes('React'));
+  await download.saveAs(path.join(out,item.id+'-source.zip'));
+  return {sourceFiles:files.size,zipBytes:bytes.length};
+});
+await check('filter/search/empty',async()=>{
+ await page.goto(BASE+'/components.html');await page.locator('#componentName').waitFor();assert.equal(await page.locator('.cp-component-button').count(),39);
+ await page.getByRole('button',{name:'Creative tools 8',exact:true}).click();assert.equal(await page.locator('.cp-component-button').count(),8);
+ await page.getByRole('button',{name:'Page sections 4',exact:true}).click();assert.equal(await page.locator('.cp-component-button').count(),4);
+ await page.getByRole('button',{name:'Playground 5',exact:true}).click();assert.equal(await page.locator('.cp-component-button').count(),5);
+ await page.locator('#componentSearch').fill('this-does-not-exist');assert.equal(await page.locator('.cp-component-button').count(),0);
+ await page.getByRole('button',{name:'Clear search and filters ↗'}).click();assert.equal(await page.locator('.cp-component-button').count(),39);
+});
+await check('shared-theme/preset/history/local-upload',async()=>{
+ await open(catalogue.find(item=>item.id==='fluid-hero'));await page.getByRole('button',{name:'Garden',exact:true}).click();assert.equal(await page.locator('#control-color').inputValue(),'#b6e7bc');
+ await page.locator('#control-title').fill('A shared idea <with> "quotes"');const url=page.url();await page.reload();assert.equal(await page.locator('#control-title').inputValue(),'A shared idea <with> "quotes"');assert.equal(await page.locator('#control-color').inputValue(),'#b6e7bc');
+ await page.locator('.cp-component-button').filter({hasText:'Texture Text'}).click();await page.goBack();assert.equal(await page.locator('#control-title').inputValue(),'A shared idea <with> "quotes"');
+ await page.goto(BASE+'/components.html?component=living-logo');await page.locator('#control-imageSrc').setInputFiles({name:'mark.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><circle cx="150" cy="100" r="80" fill="white"/></svg>')});await page.waitForFunction(()=>document.querySelector('.cp-file-note')?.textContent.includes('stays in this browser'));assert(!page.url().includes('data%3A'));
+ await page.locator('#control-imageSrc').setInputFiles({name:'bad.svg',mimeType:'image/svg+xml',buffer:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><script>window.bad=true</script></svg>')});await page.waitForFunction(()=>document.querySelector('.cp-file-note')?.textContent.includes('without scripts'));assert.equal(await page.evaluate(()=>window.bad),undefined);
+ await page.getByRole('button',{name:'Remove file',exact:true}).click();assert.equal(await page.locator('.cp-file-note').innerText(),'Local file removed.');return {preset:url,upload:'valid local SVG accepted; active SVG rejected; file removal works'};
+});
+await check('keyboard-source-tabs',async()=>{await page.getByRole('tab',{name:'Code',exact:true}).click();await page.getByRole('tab',{name:'JSX',exact:true}).focus();await page.keyboard.press('ArrowRight');assert.equal(await page.getByRole('tab',{name:'CSS',exact:true}).getAttribute('aria-selected'),'true');await page.keyboard.press('End');assert.equal(await page.getByRole('tab',{name:'Usage',exact:true}).getAttribute('aria-selected'),'true');});
+await check('source-failure-retry/clipboard-fallback/malformed-presets',async()=>{
+ for(const settings of ['null','[]','"words"']){await page.goto(BASE+'/components.html?component=living-logo&settings='+encodeURIComponent(settings));await page.locator('#componentName').waitFor();assert.equal(await page.locator('#componentName').innerText(),'Living Logo');}
+ await page.route('**/components/src/FluidHero.jsx',route=>route.fulfill({status:503,body:'Unavailable'}));await page.goto(BASE+'/components.html?component=fluid-hero');await page.getByRole('tab',{name:'Code',exact:true}).click();await page.getByRole('button',{name:'Try again',exact:true}).waitFor();await page.unroute('**/components/src/FluidHero.jsx');await page.getByRole('button',{name:'Try again',exact:true}).click();await page.locator('#sourcePanel code').waitFor();
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));await page.getByRole('button',{name:'Copy source',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.cp-status')?.textContent.includes('copied'));assert.equal(await page.locator('.cp-fallback-copy').count(),0);
+ await page.route('**/components/src/shared/art-kit.jsx',route=>route.fulfill({status:503,body:'Unavailable'}));await page.getByRole('button',{name:'Complete source ZIP ↓',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.cp-status')?.textContent.includes('could not be loaded'));await page.unroute('**/components/src/shared/art-kit.jsx');const event=page.waitForEvent('download');await page.getByRole('button',{name:'Complete source ZIP ↓',exact:true}).click();assert((await readFile(await (await event).path())).length>1000);
+});
+await check('editor-state/code-replay-theme/pending-upload-reset',async()=>{
+ await open(catalogue.find(item=>item.id==='hero-composer'));await page.getByLabel('Headline',{exact:true}).fill('An idea to keep');await page.getByRole('tab',{name:'Code',exact:true}).click();await page.getByRole('tab',{name:'Preview',exact:true}).click();assert.equal(await page.getByLabel('Headline',{exact:true}).inputValue(),'An idea to keep');await page.getByRole('button',{name:'Replay component preview',exact:true}).click();assert.equal(await page.getByLabel('Headline',{exact:true}).inputValue(),'An idea to keep');await page.getByRole('button',{name:'Garden',exact:true}).click();assert.equal(await page.getByLabel('Headline',{exact:true}).inputValue(),'An idea to keep');
+ await open(catalogue.find(item=>item.id==='ink-reveal'));await page.evaluate(()=>{const original=FileReader.prototype.readAsDataURL;FileReader.prototype.readAsDataURL=function(file){setTimeout(()=>original.call(this,file),300);};});await page.locator('#control-imageSrc').setInputFiles({name:'pending.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII=','base64')});await page.getByRole('button',{name:'Reset ↺',exact:true}).click();await page.waitForTimeout(650);assert.equal(await page.getByRole('button',{name:'Remove file',exact:true}).count(),0);assert((await page.locator('.cp-file-note').innerText()).includes('Files stay local'));
+});
+await check('interactions/keyboard-progress-feedback',async()=>{
+ await open(catalogue.find(item=>item.id==='morphing-menu'));await page.locator('.fi-menu .fi-toolbar button').click();assert.equal(await page.locator('.fi-menu-panel').getAttribute('hidden'),null);await page.keyboard.press('Escape');assert.equal(await page.locator('.fi-menu .fi-toolbar button').getAttribute('aria-expanded'),'false');
+ await open(catalogue.find(item=>item.id==='elastic-tabs'));const tabs=page.locator('.fi-component [role=tab]');await tabs.first().focus();await page.keyboard.press('ArrowRight');assert.equal(await tabs.nth(1).getAttribute('aria-selected'),'true');
+ await open(catalogue.find(item=>item.id==='before-after-reveal'));const slider=page.locator('.fi-compare-range');await slider.focus();await page.keyboard.press('End');assert.equal(await slider.inputValue(),'100');
+ await open(catalogue.find(item=>item.id==='living-progress'));await page.locator('#control-progress').fill('73');assert.equal(await page.locator('[role=progressbar]').getAttribute('aria-valuenow'),'73');
+ await open(catalogue.find(item=>item.id==='atmosphere-states'));await page.locator('.fi-state-choices').getByRole('button',{name:'error',exact:true}).click();assert.equal(await page.locator('.fi-state-scene').getAttribute('data-state'),'error');assert.equal(await page.locator('.fi-state-scene').getAttribute('role'),'alert');
+ await open(catalogue.find(item=>item.id==='peelable-sticker'));const peel=page.locator('.fi-sticker-grip');await peel.focus();await page.keyboard.press('End');assert.equal(await page.locator('.fi-sticker input[type=range]').inputValue(),'100');
+});
+for(const width of [320,390,768,1440])await check('responsive/all39/'+width,async()=>{
+ await page.setViewportSize({width,height:960});const overflow=[];
+ for(const item of catalogue){await open(item);const measure=await page.evaluate(()=>({viewport:innerWidth,width:document.documentElement.scrollWidth,body:document.body.scrollWidth}));if(measure.width>width+1||measure.body>width+1)overflow.push({id:item.id,...measure});}
+ assert.deepEqual(overflow,[]);return {entries:39};
+});
+await check('reduced-motion/pause',async()=>{await page.emulateMedia({reducedMotion:'reduce'});await open(catalogue.find(item=>item.id==='wave-text'));assert.equal(await page.locator('.cp-demo').getAttribute('data-paused'),'true');assert(await page.locator('.cp-motion-note').isVisible());const animations=await page.locator('.cp-demo').evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState==='running').length);assert.equal(animations,0);await page.emulateMedia({reducedMotion:'no-preference'});await page.getByRole('button',{name:'Ⅱ Pause loops',exact:true}).click();assert.equal(await page.locator('.cp-demo').getAttribute('data-paused'),'true');});
+await check('old-pages/navigation/geometry',async()=>{await page.setViewportSize({width:390,height:844});for(const file of ['index.html','studio.html','photo.html','backgrounds.html','dither.html','developers.html']){const response=await page.goto(BASE+'/'+file);assert.equal(response.status(),200);if(!['studio.html','backgrounds.html'].includes(file))assert.equal(await page.locator('.nav-links a[href$="components.html"]').count(),1,file+' components navigation');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),file+' overflow');}return {pages:6};});
+await check('runtime-errors',()=>assert.deepEqual(errors,[]));
+await page.setViewportSize({width:1440,height:1050});await page.emulateMedia({reducedMotion:'reduce'});await open(catalogue.find(item=>item.id==='fluid-hero'));await page.locator('.cp-detail').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(out,'gallery-desktop.png')});await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(out,'gallery-mobile.png')});
+await writeFile(path.join(out,process.env.FLUID_QA_FILTER?'integration-targeted.json':'integration.json'),JSON.stringify({observedAt:new Date().toISOString(),base:BASE,filter:process.env.FLUID_QA_FILTER||null,total:checks.length,passed:checks.length-failures.length,failures,errors,checks},null,2));await browser.close();console.log(JSON.stringify({total:checks.length,passed:checks.length-failures.length,failures,errors},null,2));if(failures.length)process.exitCode=1;

@@ -1,0 +1,10 @@
+import React,{useCallback,useRef} from 'react';
+import {useAnimatedCanvas,useImage,useExportReady,canvasPNG,cover,clamp} from './shared/art-kit.jsx';
+/** Organic clipping and deterministic grain masks; image never leaves the browser. */
+export default function InkImageReveal({imageSrc='',alt='A quiet landscape revealed through ink',color='#e9dbc6',secondary='#48675c',seed=42,mode='ink',duration=3,paused=false,replayKey=0,onExportReady}){
+  const canvas=useRef(null),{image,error}=useImage(imageSrc||undefined);
+  const draw=useCallback((ctx,w,h,t,reduced)=>{ctx.clearRect(0,0,w,h);ctx.fillStyle=color;ctx.fillRect(0,0,w,h);if(!image)return;const p=reduced?1:clamp(t/Math.max(.5,Number(duration)||3));if(p>=1){cover(ctx,image,0,0,w,h);return;}ctx.save();ctx.beginPath();if(mode==='grain'){for(let y=0;y<26;y++)for(let x=0;x<38;x++){const threshold=((Math.sin(x*12.99+y*78.2+Number(seed))*43758.54)%1+1)%1;if(threshold<p)ctx.rect(x*w/38,y*h/26,w/38+1,h/26+1);}}else{const radius=Math.hypot(w,h)*p*.72;for(let i=0;i<=90;i++){const a=i/90*Math.PI*2,r=radius*(1+.13*Math.sin(a*7+Number(seed))+.08*Math.sin(a*13+2));const x=w*.5+Math.cos(a)*r,y=h*.5+Math.sin(a)*r;if(!i)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();}ctx.clip();cover(ctx,image,0,0,w,h);ctx.restore();if(p<.03){ctx.fillStyle=secondary;ctx.beginPath();ctx.arc(w*.5,h*.5,4,0,Math.PI*2);ctx.fill();}},[image,color,secondary,seed,mode,duration]);
+  useAnimatedCanvas(canvas,draw,{paused,replayKey});
+  useExportReady(onExportReady,{png:()=>{if(!image)throw new Error('Wait for your image to finish loading.');const out=document.createElement('canvas');out.width=1200;out.height=800;draw(out.getContext('2d'),1200,800,Number(duration)||3,true);return canvasPNG(out,'ink-reveal.png');}});
+  return <figure className="fv-root fv-reveal"><div className="fv-reveal-frame"><canvas ref={canvas} className="fv-canvas" role="img" aria-label={alt}/>{!image&&<span className="fv-media-message" role="status">{error||'Decoding your image…'}</span>}</div><figcaption className="fv-caption">{error||'A slow arrival. A lasting impression.'}</figcaption></figure>;
+}

@@ -1,0 +1,16 @@
+import { useEffect, useState } from 'react';
+import { ToolShell, TextField, SelectField, RangeField, ImageField, useImageAsset, useCanvasDraw, useExportReady } from './shared/tool-core.jsx';
+import { PALETTES, canvasPNG } from './shared/tool-art.js';
+import { drawComposition, renderComposition } from './shared/tool-composition.js';
+
+/** Exact-size social artwork. Canvas text, palette, uploads and layouts are carried into the 1200×630 PNG. */
+export default function SocialPreviewMaker({seed:initialSeed=42,color,secondary,onExportReady}){
+  const [title,setTitle]=useState('A little art. A new perspective.'),[subtitle,setSubtitle]=useState('A creative toolkit for websites that feel like you.'),[label,setLabel]=useState('FLUID / CREATIVE TOOLS'),[footer,setFooter]=useState('befluid.xyz'),[palette,setPalette]=useState('Monsoon'),[art,setArt]=useState('bloom'),[layout,setLayout]=useState('split'),[font,setFont]=useState('sans'),[fontSize,setFontSize]=useState(78),[seed,setSeed]=useState(initialSeed);
+  useEffect(()=>setSeed(initialSeed),[initialSeed]);
+  const image=useImageAsset(),logo=useImageAsset(),settings={type:'social',color,secondary,title,subtitle,label,footer,palette,art,layout,font,fontSize,seed,width:1200,height:630};
+  const canvas=useCanvasDraw((ctx,w,h)=>drawComposition(ctx,w,h,settings,image.asset?.image,logo.asset?.image),[color,secondary,title,subtitle,label,footer,palette,art,layout,font,fontSize,seed,image.asset,logo.asset],1024,538);
+  const exports={png:()=>canvasPNG(renderComposition(settings,image.asset?.image,logo.asset?.image,1200,630),'fluid-social-1200x630.png'),json:()=>({filename:'fluid-social.json',mime:'application/json',data:JSON.stringify({...settings,sourceImage:image.asset?.src||null,logo:logo.asset?.src||null},null,2)})};useExportReady(onExportReady,exports);
+  return <ToolShell title="Social Preview Maker" description="Turn your website’s artwork and title into a social card. The PNG is always exactly 1200 × 630, with no external fonts or images to load." exports={exports} controls={<>
+    <TextField label="Title" value={title} onChange={setTitle} maxLength={100} multiline/><TextField label="Description" value={subtitle} onChange={setSubtitle} maxLength={140} multiline/><TextField label="Project label" value={label} onChange={setLabel} maxLength={56}/><TextField label="Footer / website" value={footer} onChange={setFooter} maxLength={60}/><SelectField label="Layout" value={layout} onChange={setLayout} options={['split','center']}/><SelectField label="Palette" value={palette} onChange={setPalette} options={Object.keys(PALETTES)}/><SelectField label="Artwork" value={art} onChange={setArt} options={['bloom','ink','chrome','contour','grain']}/><SelectField label="Title type" value={font} onChange={setFont} options={['sans','serif']}/><RangeField label="Title maximum size" value={fontSize} onChange={setFontSize} min={48} max={100} unit=" px"/><RangeField label="Artwork seed" value={seed} onChange={setSeed} min={1} max={999}/><ImageField label="Background image (optional)" upload={image}/><ImageField label="Logo (optional)" upload={logo}/>
+  </>}><canvas ref={canvas} role="img" aria-label="Social preview artwork"/><p className="ft-preview-caption">Exact export: 1200 × 630 PNG · all artwork rendered locally</p></ToolShell>;
+}

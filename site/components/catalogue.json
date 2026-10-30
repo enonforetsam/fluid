@@ -27,14 +27,42 @@
         "replayKey",
         "Change this value to replay the reveal."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "SplitReveal",
+    "defaults": {
+      "text": "Make room for motion.",
+      "amount": 700,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Duration · ms",
+        "type": "range",
+        "min": 200,
+        "max": 1600,
+        "step": 50
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
   },
   {
     "id": "wave-text",
     "name": "Wave Text",
     "file": "WaveText",
     "category": "Text",
-    "symbol": "\u2248",
+    "symbol": "≈",
     "description": "A gentle rhythm, letter by letter. For a few words worth watching.",
     "hint": "A quiet loop. Pause it whenever you like.",
     "text": "stay fluid.",
@@ -57,14 +85,42 @@
         "paused",
         "Pause the loop. Reduced motion is respected automatically."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "WaveText",
+    "defaults": {
+      "text": "stay fluid.",
+      "amount": 2.4,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Loop duration · s",
+        "type": "range",
+        "min": 1,
+        "max": 6,
+        "step": 0.2
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
   },
   {
     "id": "magnetic-button",
     "name": "Magnetic Button",
     "file": "MagneticButton",
     "category": "Interaction",
-    "symbol": "\u2197",
+    "symbol": "↗",
     "description": "A button with a little pull. It follows your pointer, then settles home.",
     "hint": "Move your pointer over the button, or activate it with the keyboard.",
     "text": "Make something",
@@ -91,14 +147,47 @@
         "onClick / disabled / type",
         "Standard native button behaviour."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "MagneticButton",
+    "defaults": {
+      "text": "Make something",
+      "amount": 24,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Magnetic pull · px",
+        "type": "range",
+        "min": 0,
+        "max": 48,
+        "step": 2
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
   },
   {
     "id": "spotlight-card",
     "name": "Spotlight Card",
     "file": "SpotlightCard",
     "category": "Cards",
-    "symbol": "\u25ce",
+    "symbol": "◎",
     "description": "A pocket of light that follows your curiosity. Content stays centre stage.",
     "hint": "Move over the card. Keyboard focus lights it up too.",
     "text": "Follow your curiosity.",
@@ -117,14 +206,39 @@
         "color",
         "Spotlight accent colour. Default: #ff916a."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "SpotlightCard",
+    "defaults": {
+      "text": "Follow your curiosity.",
+      "amount": 0,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
   },
   {
     "id": "tilt-card",
     "name": "Tilt Card",
     "file": "TiltCard",
     "category": "Cards",
-    "symbol": "\u25c7",
+    "symbol": "◇",
     "description": "An everyday surface with a little depth. Tilt it, catch the light, let it go.",
     "hint": "Move over the card to explore its depth.",
     "text": "A different angle.",
@@ -133,7 +247,7 @@
     "max": 24,
     "step": 1,
     "control": "Maximum tilt",
-    "unit": "\u00b0",
+    "unit": "°",
     "props": [
       [
         "title",
@@ -151,17 +265,50 @@
         "color",
         "Accent colour. Default: #ff916a."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "TiltCard",
+    "defaults": {
+      "text": "A different angle.",
+      "amount": 12,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Your words",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Maximum tilt · °",
+        "type": "range",
+        "min": 0,
+        "max": 24,
+        "step": 1
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
   },
   {
     "id": "loop-marquee",
     "name": "Loop Marquee",
     "file": "LoopMarquee",
     "category": "Loops",
-    "symbol": "\u2192",
+    "symbol": "→",
     "description": "Ideas in a continuous line. A seamless loop that pauses when you linger.",
     "hint": "Hover or focus the marquee to pause.",
-    "text": "MAKE \u00b7 PLAY \u00b7 REPEAT",
+    "text": "MAKE · PLAY · REPEAT",
     "amount": 22,
     "min": 8,
     "max": 48,
@@ -185,6 +332,2462 @@
         "paused",
         "Pause the loop. Reduced motion stops it automatically."
       ]
-    ]
+    ],
+    "type": "component",
+    "css": "components/components.css",
+    "filebasename": "LoopMarquee",
+    "defaults": {
+      "text": "MAKE · PLAY · REPEAT",
+      "amount": 22,
+      "color": "#ff916a",
+      "reverse": false
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Words · separate with commas",
+        "type": "text",
+        "maxLength": 80
+      },
+      {
+        "key": "amount",
+        "label": "Loop duration · s",
+        "type": "range",
+        "min": 8,
+        "max": 48,
+        "step": 2
+      },
+      {
+        "key": "reverse",
+        "label": "Reverse direction",
+        "type": "checkbox"
+      }
+    ],
+    "dependencies": [],
+    "capabilities": [],
+    "notes": "Original Fluid React component. Keep the shared CSS and MIT license with the source."
+  },
+  {
+    "id": "fluid-hero",
+    "name": "Fluid Hero",
+    "file": "FluidHero",
+    "type": "component",
+    "category": "Art",
+    "symbol": "◒",
+    "description": "A living artwork, a quiet headline and a real call to action.",
+    "hint": "Follow the link to the next chapter. Export a PNG or a self-contained HTML section.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "title": "A feeling worth following.",
+      "subtitle": "Independent ideas. Unexpected possibilities.",
+      "cta": "Explore the collection"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Supporting words",
+        "type": "text"
+      },
+      {
+        "key": "cta",
+        "label": "Link label",
+        "type": "text"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png",
+      "html"
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Accessible HTML copy over original Canvas2D materials."
+      ],
+      [
+        "cta / href",
+        "Native link label and destination."
+      ],
+      [
+        "look",
+        "Original ink, chrome or grain material."
+      ],
+      [
+        "onExportReady",
+        "Registers PNG and self-contained HTML exports."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Canvas2D materials are original Fluid components, separate from the 58-look WebGL engine. HTML export embeds a still background and editable copy.",
+    "filebasename": "FluidHero"
+  },
+  {
+    "id": "living-logo",
+    "name": "Living Logo",
+    "file": "LivingLogo",
+    "type": "component",
+    "category": "Art",
+    "symbol": "◉",
+    "description": "Fill your mark with moving ink, chrome or grain.",
+    "hint": "Try a transparent PNG or SVG logo; its alpha becomes the mask.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "chrome",
+      "text": "fluid",
+      "imageSrc": "",
+      "size": 80
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Fallback wordmark",
+        "type": "text"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Transparent logo · SVG or PNG",
+        "type": "image"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "size",
+        "label": "Wordmark size",
+        "type": "range",
+        "min": 30,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Local transparent SVG/PNG data URL, decoded as an image."
+      ],
+      [
+        "text",
+        "Fallback wordmark when no logo is supplied."
+      ],
+      [
+        "look",
+        "Original ink, chrome or grain fill."
+      ],
+      [
+        "onExportReady",
+        "Registers a transparent 1200 × 600 PNG export."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "No SVG markup is injected. Opaque images mask their entire rectangle; use transparent artwork for a shaped logo.",
+    "filebasename": "LivingLogo"
+  },
+  {
+    "id": "texture-text",
+    "name": "Texture Text",
+    "file": "TextureText",
+    "type": "component",
+    "category": "Art",
+    "symbol": "Aa",
+    "description": "Put a little material into your headline.",
+    "hint": "Use up to four lines. Export transparent textured lettering.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "grain",
+      "text": "FEEL\nSOMETHING.",
+      "weight": 900
+    },
+    "controls": [
+      {
+        "key": "text",
+        "label": "Headline · up to four lines",
+        "type": "textarea"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "weight",
+        "label": "Type weight",
+        "type": "range",
+        "min": 400,
+        "max": 900,
+        "step": 100
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "text",
+        "Up to four newline-separated lines."
+      ],
+      [
+        "weight",
+        "Canvas font weight from 400 to 900."
+      ],
+      [
+        "look / color / secondary",
+        "Original material and palette."
+      ],
+      [
+        "onExportReady",
+        "Registers a transparent 1200 × 800 PNG export."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The original text remains available to assistive technology as the canvas label. Uses the system Arial/sans-serif font.",
+    "filebasename": "TextureText"
+  },
+  {
+    "id": "ink-reveal",
+    "name": "Ink Reveal",
+    "file": "InkImageReveal",
+    "type": "component",
+    "category": "Images",
+    "symbol": "◌",
+    "description": "Let an image arrive through spreading ink or scattered grain.",
+    "hint": "Replay to reveal again. Reduced motion shows the complete image.",
+    "css": "components/visual.css",
+    "defaults": {
+      "imageSrc": "",
+      "alt": "A quiet landscape revealed through ink",
+      "color": "#e9dbc6",
+      "secondary": "#48675c",
+      "seed": 42,
+      "mode": "ink",
+      "duration": 3
+    },
+    "controls": [
+      {
+        "key": "imageSrc",
+        "label": "Local image · PNG, JPG, WebP or SVG",
+        "type": "image"
+      },
+      {
+        "key": "mode",
+        "label": "Reveal mask",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Spreading ink"
+          },
+          {
+            "value": "grain",
+            "label": "Scattered grain"
+          }
+        ]
+      },
+      {
+        "key": "duration",
+        "label": "Reveal time · seconds",
+        "type": "range",
+        "min": 0.5,
+        "max": 8,
+        "step": 0.1
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc / alt",
+        "Local image data URL and accessible image description."
+      ],
+      [
+        "mode",
+        "Spreading ink polygon or deterministic grain tiles."
+      ],
+      [
+        "duration / replayKey",
+        "Reveal seconds and explicit replay trigger."
+      ],
+      [
+        "onExportReady",
+        "Exports the fully revealed 1200 × 800 image."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The sample is a generated local SVG illustration. PNG exports contain the finished reveal.",
+    "filebasename": "InkImageReveal"
+  },
+  {
+    "id": "living-border",
+    "name": "Living Border",
+    "file": "LivingBorder",
+    "type": "component",
+    "category": "Motion",
+    "symbol": "▣",
+    "description": "A moving edge for buttons, fields and small decisions.",
+    "hint": "Click the button to try real loading and success feedback. Tab into the field.",
+    "css": "components/visual.css",
+    "defaults": {
+      "label": "Make something happen",
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "speed": 5,
+      "state": "ready"
+    },
+    "controls": [
+      {
+        "key": "label",
+        "label": "Button label",
+        "type": "text"
+      },
+      {
+        "key": "speed",
+        "label": "Orbit time · seconds",
+        "type": "range",
+        "min": 1,
+        "max": 15,
+        "step": 0.5
+      },
+      {
+        "key": "state",
+        "label": "Button state",
+        "type": "select",
+        "options": [
+          {
+            "value": "ready",
+            "label": "Ready · interactive"
+          },
+          {
+            "value": "loading",
+            "label": "Loading"
+          },
+          {
+            "value": "success",
+            "label": "Success"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      }
+    ],
+    "capabilities": [
+      "css",
+      "html"
+    ],
+    "props": [
+      [
+        "label / onClick",
+        "Native button label and click callback."
+      ],
+      [
+        "state",
+        "Ready, loading or success; ready demonstrates a timed action."
+      ],
+      [
+        "speed / paused",
+        "Orbit seconds and animation playback."
+      ],
+      [
+        "onExportReady",
+        "Registers portable CSS and standalone interactive HTML."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "The built-in action is a local 1.4 second interaction demonstration. Connect onClick to your application.",
+    "filebasename": "LivingBorder"
+  },
+  {
+    "id": "glass-lens",
+    "name": "Glass Lens",
+    "file": "GlassLens",
+    "type": "component",
+    "category": "Images",
+    "symbol": "◎",
+    "description": "A movable glass that brings your image closer.",
+    "hint": "Move the pointer, drag with a finger, or focus the image and use the arrow keys.",
+    "css": "components/visual.css",
+    "defaults": {
+      "imageSrc": "",
+      "alt": "Mountain illustration under a magnifying glass",
+      "radius": 90,
+      "zoom": 1.8,
+      "color": "#f2aa86",
+      "secondary": "#a799e1"
+    },
+    "controls": [
+      {
+        "key": "imageSrc",
+        "label": "Local image · PNG, JPG, WebP or SVG",
+        "type": "image"
+      },
+      {
+        "key": "radius",
+        "label": "Lens radius",
+        "type": "range",
+        "min": 30,
+        "max": 160,
+        "step": 1
+      },
+      {
+        "key": "zoom",
+        "label": "Magnification",
+        "type": "range",
+        "min": 1.1,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "imageSrc / alt",
+        "Local image data URL and accessible description."
+      ],
+      [
+        "radius / zoom",
+        "Lens radius and real image magnification."
+      ],
+      [
+        "paused",
+        "Freezes pointer and keyboard movement."
+      ],
+      [
+        "onExportReady",
+        "Exports the image with the lens at its current position."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "A real Canvas2D magnifier with a glass highlight; it does not emulate physical refraction.",
+    "filebasename": "GlassLens"
+  },
+  {
+    "id": "scroll-scenes",
+    "name": "Scroll Scenes",
+    "file": "ScrollScenes",
+    "type": "component",
+    "category": "Motion",
+    "symbol": "≋",
+    "description": "A little story whose colours change as you scroll.",
+    "hint": "Scroll inside the preview, or focus it and use Page Down. The page itself stays native.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "title": "A change of scenery."
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Opening headline",
+        "type": "text"
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "props": [
+      [
+        "title",
+        "Opening scene headline."
+      ],
+      [
+        "color / secondary",
+        "Palette interpolates with actual contained scroll progress."
+      ],
+      [
+        "paused",
+        "Stops artwork loops while keeping native reading and scrolling."
+      ],
+      [
+        "onExportReady",
+        "Exports a self-contained HTML scroll story."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Three native scroll scenes; no wheel interception, global scroll handlers or page scroll locking.",
+    "filebasename": "ScrollScenes"
+  },
+  {
+    "id": "artful-dividers",
+    "name": "Artful Dividers",
+    "file": "ArtfulDividers",
+    "type": "component",
+    "category": "Art",
+    "symbol": "≈",
+    "description": "A softer boundary between one idea and the next.",
+    "hint": "Change the profile, amplitude and palette. SVG and PNG exports have transparent surroundings.",
+    "css": "components/visual.css",
+    "defaults": {
+      "variant": "wave",
+      "amount": 65,
+      "flip": false,
+      "color": "#21483d",
+      "secondary": "#e9dbc6",
+      "seed": 42
+    },
+    "controls": [
+      {
+        "key": "variant",
+        "label": "Profile",
+        "type": "select",
+        "options": [
+          {
+            "value": "wave",
+            "label": "Wave"
+          },
+          {
+            "value": "contour",
+            "label": "Contour"
+          },
+          {
+            "value": "torn",
+            "label": "Torn paper"
+          },
+          {
+            "value": "ink",
+            "label": "Ink edge"
+          }
+        ]
+      },
+      {
+        "key": "amount",
+        "label": "Amplitude",
+        "type": "range",
+        "min": 15,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "key": "flip",
+        "label": "Flip vertically",
+        "type": "checkbox"
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "svg",
+      "png",
+      "html"
+    ],
+    "props": [
+      [
+        "variant",
+        "Wave, contour, torn paper or ink edge."
+      ],
+      [
+        "amount / seed",
+        "Profile amplitude and repeatable irregularity."
+      ],
+      [
+        "flip",
+        "Vertical reversal."
+      ],
+      [
+        "onExportReady",
+        "Registers vector SVG, transparent PNG and HTML exports."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Locally generated vector geometry. SVG is resolution independent; PNG export is 1200 × 220.",
+    "filebasename": "ArtfulDividers"
+  },
+  {
+    "id": "audio-reactive-art",
+    "name": "Audio Reactive Art",
+    "file": "AudioReactiveArt",
+    "type": "experiment",
+    "category": "Art",
+    "symbol": "♫",
+    "description": "Give a local audio file its own visual atmosphere.",
+    "hint": "Choose a file, then press Play. No microphone, autoplay or upload.",
+    "css": "components/visual.css",
+    "defaults": {
+      "color": "#f2aa86",
+      "secondary": "#a799e1",
+      "seed": 42,
+      "look": "ink",
+      "audioSrc": "",
+      "sensitivity": 1.3
+    },
+    "controls": [
+      {
+        "key": "audioSrc",
+        "label": "Local audio · MP3, WAV or OGG",
+        "type": "audio"
+      },
+      {
+        "key": "sensitivity",
+        "label": "Audio sensitivity",
+        "type": "range",
+        "min": 0.2,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "look",
+        "label": "Material",
+        "type": "select",
+        "options": [
+          {
+            "value": "ink",
+            "label": "Ink"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome"
+          },
+          {
+            "value": "grain",
+            "label": "Grain"
+          }
+        ]
+      },
+      {
+        "key": "color",
+        "label": "Primary colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "props": [
+      [
+        "audioSrc",
+        "Local audio data URL. Nothing plays until Play is pressed."
+      ],
+      [
+        "sensitivity",
+        "Scales actual Web Audio frequency magnitudes."
+      ],
+      [
+        "paused",
+        "Pauses playback and suspends its AudioContext."
+      ],
+      [
+        "onExportReady",
+        "Exports the current canvas frame as PNG."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/art-kit.jsx"
+    ],
+    "notes": "Uses the real local-file frequency spectrum via Web Audio. Browser audio format support varies. Reduced motion keeps the artwork still while allowing explicit audio playback.",
+    "filebasename": "AudioReactiveArt"
+  },
+  {
+    "id": "morphing-menu",
+    "name": "Morphing Menu",
+    "filebasename": "MorphingMenu",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "↗",
+    "description": "A visual collection menu that opens into real project links.",
+    "hint": "Explore opens the collection. Escape returns to the trigger.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A different point of view.",
+      "color": "#ff956f"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "items",
+        "Optional array of {label, href}; defaults link to original local collection sections."
+      ],
+      [
+        "title",
+        "Menu headline."
+      ],
+      [
+        "color",
+        "Accent colour."
+      ],
+      [
+        "paused",
+        "Stops entrance motion."
+      ],
+      [
+        "replayKey",
+        "Closes the menu when changed."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native links, arrow-key navigation, focus movement and Escape. Original sample SVGs are generated in the helper; no remote assets.",
+    "file": "MorphingMenu"
+  },
+  {
+    "id": "stacking-gallery",
+    "name": "Stacking Gallery",
+    "filebasename": "StackingGallery",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "▱",
+    "description": "Project images overlap into a stack as the actual gallery scrolls.",
+    "hint": "Scroll inside the gallery. Arrow keys work when the gallery is focused.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Collected moments.",
+      "color": "#b9cba8",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "items",
+        "Optional {title, body, imageSrc, alt} array. Images should be validated local data URLs."
+      ],
+      [
+        "imageSrc",
+        "Optional image override for the first card."
+      ],
+      [
+        "paused",
+        "Disables optional motion."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Sticky cards in an accessible inner scroll container. No scroll-jacking or background listeners.",
+    "file": "StackingGallery"
+  },
+  {
+    "id": "elastic-tabs",
+    "name": "Elastic Tabs",
+    "filebasename": "ElasticTabs",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "⇥",
+    "description": "A shared elastic marker follows keyboard-complete tabs and real content panels.",
+    "hint": "Use Left/Right, Home or End while a tab is focused.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Find your frequency.",
+      "color": "#d0c2ff"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "tabs",
+        "Optional array of {label, title, text, children}."
+      ],
+      [
+        "color",
+        "Active indicator colour."
+      ],
+      [
+        "paused",
+        "Makes the indicator change instantly."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native buttons with aria-selected, associated tab panels and roving tabindex. Generated image samples are local.",
+    "file": "ElasticTabs"
+  },
+  {
+    "id": "image-trail",
+    "name": "Image Trail",
+    "filebasename": "ImageTrail",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "⌁",
+    "description": "A bounded trail of image frames follows pointer movement, taps or keyboard actions.",
+    "hint": "Move across the stage, tap it, or choose Add a frame.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Leave a little colour.",
+      "color": "#e4b3d1",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated PNG/JPG/WebP data URL; generated SVG samples are the fallback."
+      ],
+      [
+        "paused",
+        "Disables pointer-follow motion; taps and buttons remain usable."
+      ],
+      [
+        "replayKey",
+        "Clears existing frames."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Eight frames maximum, pointer updates throttled to 80ms. Reduced motion retains deliberate tap/button interaction.",
+    "file": "ImageTrail"
+  },
+  {
+    "id": "before-after-reveal",
+    "name": "Before/After Reveal",
+    "filebasename": "BeforeAfterReveal",
+    "type": "component",
+    "category": "Galleries",
+    "symbol": "↔",
+    "description": "An actual range control reveals one image over another.",
+    "hint": "Drag anywhere on the image or use the arrow keys.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A shift in perspective.",
+      "color": "#ffcba6",
+      "imageSrc": "",
+      "afterSrc": "",
+      "initial": 50
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "afterSrc",
+        "label": "After image",
+        "type": "image"
+      },
+      {
+        "key": "initial",
+        "label": "Initial reveal",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Original image data URL."
+      ],
+      [
+        "afterSrc",
+        "Treated image data URL; grayscale treatment is used when omitted."
+      ],
+      [
+        "initial",
+        "Initial reveal percentage from 0 to 100."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Native range supports touch and keyboard. The after image clips to the actual slider value. initial updates the reveal when changed.",
+    "file": "BeforeAfterReveal"
+  },
+  {
+    "id": "flow-timeline",
+    "name": "Flow Timeline",
+    "filebasename": "FlowTimeline",
+    "type": "component",
+    "category": "Navigation",
+    "symbol": "⌇",
+    "description": "A ribbon fills from real scroll progress through the milestones.",
+    "hint": "Scroll the milestone region; focus it to use arrow keys.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "From spark to something.",
+      "color": "#a8d9cb"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      }
+    ],
+    "props": [
+      [
+        "milestones",
+        "Optional array of {title, text}."
+      ],
+      [
+        "color",
+        "Reading-progress ribbon colour."
+      ],
+      [
+        "paused",
+        "Preserves scroll interaction without extra motion."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Actual scrollTop / scrollable-height progress; no fake timed progress. ResizeObserver disconnects on unmount.",
+    "file": "FlowTimeline"
+  },
+  {
+    "id": "living-progress",
+    "name": "Living Progress",
+    "filebasename": "LivingProgress",
+    "type": "component",
+    "category": "Feedback",
+    "symbol": "◕",
+    "description": "A liquid vessel displays your supplied determinate progress.",
+    "hint": "Use Progress in the controls; the fill always matches the supplied value.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A little further.",
+      "color": "#a8d9cb",
+      "progress": 64,
+      "label": "Project progress"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "label",
+        "label": "Progress label",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Liquid colour",
+        "type": "color"
+      },
+      {
+        "key": "progress",
+        "label": "Progress",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "progress",
+        "Actual numeric progress, clamped 0–100. Connect it to a real task."
+      ],
+      [
+        "label",
+        "Accessible progressbar label."
+      ],
+      [
+        "onProgressChange",
+        "Optional callback; enables an internal interactive progress range."
+      ],
+      [
+        "paused",
+        "Stops decorative wave motion without changing the value."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Never advances itself or pretends to upload. The native aria-valuenow reflects the supplied progress. The wave is decorative.",
+    "file": "LivingProgress"
+  },
+  {
+    "id": "atmosphere-states",
+    "name": "Atmosphere States",
+    "filebasename": "AtmosphereStates",
+    "type": "component",
+    "category": "Feedback",
+    "symbol": "◇",
+    "description": "Deliberate empty, loading, success and error scenes with working state selection.",
+    "hint": "Choose a state. Wire onAction to the real action in your application.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Space for what is next.",
+      "color": "#b8c7fc",
+      "state": "empty"
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "state",
+        "label": "State",
+        "type": "select",
+        "options": [
+          {
+            "value": "empty",
+            "label": "Empty"
+          },
+          {
+            "value": "loading",
+            "label": "Loading"
+          },
+          {
+            "value": "success",
+            "label": "Success"
+          },
+          {
+            "value": "error",
+            "label": "Error"
+          }
+        ]
+      }
+    ],
+    "props": [
+      [
+        "state",
+        "empty, loading, success or error; internal preview choices can override it."
+      ],
+      [
+        "onAction",
+        "Receives create, cancel or retry. Connect to your real application action."
+      ],
+      [
+        "paused",
+        "Stops the loading ornament."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "State preview only: no fake network calls or timed success. Native action buttons and announced error/status content.",
+    "file": "AtmosphereStates"
+  },
+  {
+    "id": "peelable-sticker",
+    "name": "Peelable Sticker",
+    "filebasename": "PeelableSticker",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "◩",
+    "description": "A draggable sticker corner uncovers a real message underneath.",
+    "hint": "Drag the corner, use its arrow keys, or move the peel slider.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "There is more underneath.",
+      "text": "A good idea is always worth uncovering.",
+      "sticker": "STAY CURIOUS",
+      "color": "#d9ee99",
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Reveal headline",
+        "type": "text"
+      },
+      {
+        "key": "text",
+        "label": "Reveal text",
+        "type": "textarea"
+      },
+      {
+        "key": "sticker",
+        "label": "Sticker text",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Sticker colour",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "title",
+        "Underlying headline."
+      ],
+      [
+        "text",
+        "Underlying message."
+      ],
+      [
+        "sticker",
+        "Sticker face text."
+      ],
+      [
+        "imageSrc",
+        "Optional local image data URL for the sticker face."
+      ],
+      [
+        "replayKey",
+        "Restores the initial peel amount."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [],
+    "notes": "Pointer capture supports touch. Native range and corner Arrow/Home/End keys provide complete keyboard reveal. No remote assets.",
+    "file": "PeelableSticker"
+  },
+  {
+    "id": "particle-portrait",
+    "name": "Particle Portrait",
+    "filebasename": "ParticlePortrait",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "⠿",
+    "description": "Your image becomes sampled colour particles that separate and reform.",
+    "hint": "Move across the particles or choose Scatter. Upload an image or logo, then save a PNG.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "A thousand little possibilities.",
+      "color": "#e5c2ff",
+      "imageSrc": "",
+      "density": 44,
+      "scatter": 24
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "density",
+        "label": "Particle density",
+        "type": "range",
+        "min": 18,
+        "max": 65,
+        "step": 1
+      },
+      {
+        "key": "scatter",
+        "label": "Scatter distance",
+        "type": "range",
+        "min": 0,
+        "max": 100,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated local data URL; internal upload accepts PNG, JPG or WebP up to 10 MB / 40 MP."
+      ],
+      [
+        "density",
+        "18–65 columns of actual sampled image particles."
+      ],
+      [
+        "scatter",
+        "Particle separation amount 0–100."
+      ],
+      [
+        "paused",
+        "Stops the bounded 30fps loop; deliberate interactions still update."
+      ],
+      [
+        "onExportReady",
+        "Registers {png}; resolves an image/png Blob at 900 × 600."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "notes": "Canvas2D, at most about 2,900 particles. Transparent image pixels are omitted. Generated original SVG sample. PNG includes the current particle arrangement.",
+    "file": "ParticlePortrait"
+  },
+  {
+    "id": "paint-reveal",
+    "name": "Paint Reveal",
+    "filebasename": "PaintReveal",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "✳",
+    "description": "Brush a real image through a local compositing mask, then export the result.",
+    "hint": "Drag to paint, add brush marks with a button, or reveal all. Reset clears the mask.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "Make a mark.",
+      "color": "#7cc3b1",
+      "imageSrc": "",
+      "brush": 60
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Accent",
+        "type": "color"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      },
+      {
+        "key": "brush",
+        "label": "Brush size",
+        "type": "range",
+        "min": 12,
+        "max": 180,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "imageSrc",
+        "Validated local image data URL; internal PNG/JPG/WebP upload capped at 10 MB / 40 MP."
+      ],
+      [
+        "brush",
+        "Brush diameter in export pixels, 12–180."
+      ],
+      [
+        "replayKey",
+        "Clears the painted mask."
+      ],
+      [
+        "onExportReady",
+        "Registers {png}; exports the current revealed composition as a 900 × 600 PNG."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx"
+    ],
+    "capabilities": [
+      "png"
+    ],
+    "notes": "Touch pointer capture and keyboard Add a brush mark / Reveal all. No continuous loop. PNG contains the current mask, including cover colour and revealed pixels.",
+    "file": "PaintReveal"
+  },
+  {
+    "id": "animated-poster",
+    "name": "Animated Poster",
+    "filebasename": "AnimatedPoster",
+    "type": "experiment",
+    "category": "Play",
+    "symbol": "▣",
+    "description": "Compose text, uploaded art and configurable motion into a portable animated poster.",
+    "hint": "Edit the headline and motion, then save PNG or image-inclusive animated HTML.",
+    "css": "components/interactions.css",
+    "defaults": {
+      "title": "STAY CURIOUS",
+      "text": "New shapes. New perspectives. An independent exploration of what comes next.",
+      "color": "#f4e6c6",
+      "secondary": "#b3d4cd",
+      "background": "#242334",
+      "motion": "orbit",
+      "speed": 1,
+      "imageSrc": ""
+    },
+    "controls": [
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "text",
+        "label": "Caption",
+        "type": "textarea"
+      },
+      {
+        "key": "color",
+        "label": "Type and orbit",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Secondary colour",
+        "type": "color"
+      },
+      {
+        "key": "background",
+        "label": "Paper colour",
+        "type": "color"
+      },
+      {
+        "key": "motion",
+        "label": "Motion",
+        "type": "select",
+        "options": [
+          {
+            "value": "orbit",
+            "label": "Orbit"
+          },
+          {
+            "value": "pulse",
+            "label": "Pulse"
+          },
+          {
+            "value": "drift",
+            "label": "Drift"
+          }
+        ]
+      },
+      {
+        "key": "speed",
+        "label": "Motion speed",
+        "type": "range",
+        "min": 0.1,
+        "max": 3,
+        "step": 0.1
+      },
+      {
+        "key": "imageSrc",
+        "label": "Image",
+        "type": "image"
+      }
+    ],
+    "props": [
+      [
+        "title",
+        "Poster headline; composition fits up to three 85px lines."
+      ],
+      [
+        "text",
+        "Supporting copy, up to 180 characters."
+      ],
+      [
+        "motion",
+        "orbit, pulse or drift."
+      ],
+      [
+        "speed",
+        "Animation speed .1–3."
+      ],
+      [
+        "imageSrc",
+        "Validated local data URL; image is embedded in the HTML export."
+      ],
+      [
+        "paused",
+        "Pauses automatic animation."
+      ],
+      [
+        "onExportReady",
+        "Registers {png,html}. PNG is 900 × 600; HTML includes Canvas2D renderer, image and play/pause control."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/interaction-utils.jsx",
+      "components/src/shared/interaction-poster.js"
+    ],
+    "capabilities": [
+      "png",
+      "html"
+    ],
+    "notes": "30fps maximum with reduced-motion and hidden-tab pause. Standalone HTML works offline and carries your uploaded image. No video-recording claim or dependency.",
+    "file": "AnimatedPoster"
+  },
+  {
+    "id": "palette-studio",
+    "name": "Palette Studio",
+    "file": "PaletteStudio",
+    "type": "tool",
+    "category": "Colour",
+    "symbol": "◒",
+    "description": "Five colours become a usable website palette, with measured WCAG contrast.",
+    "hint": "Choose a look, upload an image or edit the swatches. Export current CSS tokens and the measured palette.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa"
+    },
+    "controls": [],
+    "props": [
+      [
+        "palette",
+        "Initial palette: Ember, Monsoon, Saffron, Orchid or Moss."
+      ],
+      [
+        "onExportReady",
+        "Current CSS/JSON export functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "css",
+      "json"
+    ],
+    "notes": "Five Fluid starting palettes. Image extraction uses visible pixels in a bounded local sample; text tokens choose the highest-contrast light/dark foreground. AA means at least 4.5:1 for normal text. All uploads stay local.",
+    "filebasename": "PaletteStudio"
+  },
+  {
+    "id": "texture-lab",
+    "name": "Texture Lab",
+    "file": "TextureLab",
+    "type": "tool",
+    "category": "Texture",
+    "symbol": "▧",
+    "description": "Paper, grain, halftone, contour and print textures for any surface.",
+    "hint": "Tune the marks. Download a 512–2048 px PNG, repeatable SVG, or CSS background.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#201c22",
+      "secondary": "#fff3df",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "png",
+      "svg",
+      "css",
+      "json"
+    ],
+    "notes": "All five texture treatments are generated locally and deterministically. SVG/CSS contain their complete artwork. PNG is rendered at the chosen square resolution. Paper uses an inline SVG turbulence filter; no external assets.",
+    "filebasename": "TextureLab"
+  },
+  {
+    "id": "divider-builder",
+    "name": "Divider Builder",
+    "file": "DividerBuilder",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "≈",
+    "description": "Shape a wave, arc, torn edge or stepped section transition.",
+    "hint": "Change the height, complexity and two section colours. Take the exact SVG or React component.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#a79bfa",
+      "secondary": "#fff3df",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "svg",
+      "jsx",
+      "json"
+    ],
+    "notes": "React export is a standalone JSX component with current geometry embedded. SVG is decorative and portable. Seed affects the torn-paper edge; complexity affects wave, torn and steps.",
+    "filebasename": "DividerBuilder"
+  },
+  {
+    "id": "hero-composer",
+    "name": "Hero Composer",
+    "file": "HeroComposer",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "↗",
+    "description": "Artwork, a logo, a headline and a call to action become a complete section.",
+    "hint": "Edit the words and layout; download a working offline page or a 1440 × 900 PNG.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-composition.js"
+    ],
+    "capabilities": [
+      "html",
+      "png",
+      "json"
+    ],
+    "notes": "HTML includes semantic text, an accessible link, artwork, uploads and current settings. It works offline and has a mobile layout. PNG is a still composition. Image uploads are normalized to 2048 px; transparent logos are preferred. Unsafe link protocols fall back to #details.",
+    "filebasename": "HeroComposer"
+  },
+  {
+    "id": "logo-motion-studio",
+    "name": "Logo Motion Studio",
+    "file": "LogoMotionStudio",
+    "type": "tool",
+    "category": "Motion",
+    "symbol": "✳",
+    "description": "Living chrome, ink and grain inside your wordmark or transparent logo.",
+    "hint": "Type a word or upload a transparent image. Take a PNG still and a real animated offline HTML embed.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "paused",
+        "Pause the canvas animation. Hidden tabs, offscreen previews and reduced motion also pause it."
+      ],
+      [
+        "replayKey",
+        "Change to restart the material animation."
+      ],
+      [
+        "seed",
+        "Initial artwork seed, default 42."
+      ],
+      [
+        "onExportReady",
+        "Current PNG/HTML/JSON functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "png",
+      "html",
+      "json"
+    ],
+    "notes": "The current 768 × 432 frame exports as PNG, with optional transparency. HTML embeds the chosen material and mask and animates them with CSS, including pause and reduced-motion controls. It is an animated interpretation of the canvas material, not a video. SVG uploads accept simple local paths/shapes/gradients only; opaque images make rectangular masks.",
+    "filebasename": "LogoMotionStudio"
+  },
+  {
+    "id": "motion-recipes",
+    "name": "Motion Recipes",
+    "file": "MotionRecipes",
+    "type": "tool",
+    "category": "Motion",
+    "symbol": "↝",
+    "description": "Coordinate entrances, scroll rhythm and hover/focus feedback.",
+    "hint": "Scroll the preview and focus a card. Download a complete React + CSS recipe or self-contained HTML.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#e4d2bc",
+      "secondary": "#ffb189"
+    },
+    "controls": [],
+    "props": [
+      [
+        "paused",
+        "Show content immediately and stop transitions."
+      ],
+      [
+        "replayKey",
+        "Change to replay observed entrances."
+      ],
+      [
+        "onExportReady",
+        "Current JSX/CSS/HTML/JSON functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "jsx",
+      "css",
+      "html",
+      "json"
+    ],
+    "notes": "React and CSS downloads work together; HTML includes everything. IntersectionObserver entrances use the scroll region; all observers/listeners are released on unmount. Reduced motion, hidden tabs and paused React props reveal all content without transitions. No scroll blocking or network calls.",
+    "filebasename": "MotionRecipes"
+  },
+  {
+    "id": "social-preview-maker",
+    "name": "Social Preview Maker",
+    "file": "SocialPreviewMaker",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "▰",
+    "description": "Make a matching social card from your title, palette and artwork.",
+    "hint": "Compose the title and artwork, then download an exact 1200 × 630 PNG.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#88cbef",
+      "secondary": "#c7a6ed",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-composition.js"
+    ],
+    "capabilities": [
+      "png",
+      "json"
+    ],
+    "notes": "PNG dimensions are fixed at 1200 × 630. All text and images are rasterized locally using system sans or Georgia; no font downloads or external assets. Optional image/logo uploads and all settings are retained in the JSON project.",
+    "filebasename": "SocialPreviewMaker"
+  },
+  {
+    "id": "material-theme-pack",
+    "name": "Material Theme Pack",
+    "file": "MaterialThemePack",
+    "type": "tool",
+    "category": "Colour",
+    "symbol": "◈",
+    "description": "One palette and texture across typography, cards, forms and backgrounds.",
+    "hint": "Try the local project form, then take the complete theme CSS and working offline page.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa"
+    },
+    "controls": [],
+    "props": [
+      [
+        "palette",
+        "Initial palette: Ember, Monsoon, Saffron, Orchid or Moss."
+      ],
+      [
+        "onExportReady",
+        "Current CSS/HTML/JSON export functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "css",
+      "html",
+      "json"
+    ],
+    "notes": "Five palettes with measured automatic text colours. Texture strength and radius carry into the CSS and offline page. The sample form confirms a local action and never sends data. Background texture is embedded in CSS.",
+    "filebasename": "MaterialThemePack"
+  },
+  {
+    "id": "creator-portfolio",
+    "name": "Creator Portfolio",
+    "file": "CreatorPortfolio",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "▱",
+    "description": "A complete home for your work, experiments, and next collaboration.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "Offbeat Studio",
+      "title": "Make room for the unexpected.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "email": "hello@example.com"
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "email",
+        "label": "Contact email",
+        "type": "text"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site.",
+    "filebasename": "CreatorPortfolio"
+  },
+  {
+    "id": "product-launch",
+    "name": "Product Launch",
+    "file": "ProductLaunch",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "▱",
+    "description": "A focused product story, artwork scene, feature grid, and working FAQ.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "FORM",
+      "title": "Something worth looking closer at.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site.",
+    "filebasename": "ProductLaunch"
+  },
+  {
+    "id": "music-release",
+    "name": "Music Release",
+    "file": "MusicRelease",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "▱",
+    "description": "An audio-reactive release cover, local player, editable track links and live dates.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "AFTER HOURS",
+      "title": "Between colour and sound.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "audioSrc": "",
+      "trackText": "01 / First light\n02 / After hours\n03 / Home again",
+      "tourText": ""
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "audioSrc",
+        "label": "Release audio",
+        "type": "audio"
+      },
+      {
+        "key": "trackText",
+        "label": "Tracks · label | optional HTTPS link, one per line",
+        "type": "textarea"
+      },
+      {
+        "key": "tourText",
+        "label": "Live dates · date | city | optional HTTPS link",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ],
+      [
+        "trackText / tourText",
+        "Newline-separated tracks and live dates; external links allow HTTPS only."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Native local audio starts only on Play. The cover spectrum responds to actual Web Audio frequencies. Tracks and live dates accept optional HTTPS destinations; blank defaults do not invent external links. HTML export embeds current local image/audio assets and the same interactions.",
+    "filebasename": "MusicRelease"
+  },
+  {
+    "id": "editorial-story",
+    "name": "Editorial Story",
+    "file": "EditorialStory",
+    "type": "section",
+    "category": "Page Sections",
+    "symbol": "▱",
+    "description": "A chaptered visual essay with navigation and actual reading progress.",
+    "hint": "Scroll inside this page preview. Navigation and native controls are working.",
+    "css": "components/sections.css",
+    "defaults": {
+      "brand": "FIELD NOTES",
+      "title": "A story worth slowing down for.",
+      "subtitle": "Independent ideas, considered details, and a little curiosity.",
+      "imageSrc": "",
+      "color": "#ff916a",
+      "secondary": "#9fcbff",
+      "seed": 42,
+      "chapterText": "A beginning\nA different perspective\nWhat stays with us"
+    },
+    "controls": [
+      {
+        "key": "brand",
+        "label": "Brand / artist",
+        "type": "text"
+      },
+      {
+        "key": "title",
+        "label": "Headline",
+        "type": "text"
+      },
+      {
+        "key": "subtitle",
+        "label": "Introduction",
+        "type": "textarea"
+      },
+      {
+        "key": "chapterText",
+        "label": "Chapter titles · one per line",
+        "type": "textarea"
+      },
+      {
+        "key": "imageSrc",
+        "label": "Cover or project image",
+        "type": "image"
+      },
+      {
+        "key": "color",
+        "label": "Accent colour",
+        "type": "color"
+      },
+      {
+        "key": "secondary",
+        "label": "Second colour",
+        "type": "color"
+      },
+      {
+        "key": "seed",
+        "label": "Artwork seed",
+        "type": "range",
+        "min": 1,
+        "max": 999,
+        "step": 1
+      }
+    ],
+    "props": [
+      [
+        "title / subtitle",
+        "Your headline and introduction."
+      ],
+      [
+        "brand",
+        "Your studio, product, publication, or artist name."
+      ],
+      [
+        "imageSrc",
+        "Optional cover/project image; generated artwork is the default."
+      ],
+      [
+        "color / secondary / seed",
+        "A shared material palette and artwork seed."
+      ],
+      [
+        "onExportReady",
+        "Optional HTML export registration callback."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/section-kit.jsx"
+    ],
+    "capabilities": [
+      "html"
+    ],
+    "notes": "Includes a working standalone HTML export. Export uses system fonts and the current image/audio assets; edit sample copy and links for your own site.",
+    "filebasename": "EditorialStory"
   }
 ]

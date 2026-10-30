@@ -1,0 +1,106 @@
+/* Original Fluid interaction collection. React only. Import this file once.
+   Scoped defaults make every downloadable component independent of Fluid's gallery. */
+.fi-component{--fi-color:#b8d6c8;--fi-ink:#f5eee6;--fi-muted:#b7b7bc;--fi-surface:#17191e;--fi-line:#3d4148;--fi-ease:cubic-bezier(.2,.8,.2,1);box-sizing:border-box;min-width:0;width:100%;max-width:100%;color:var(--fi-ink);font-family:inherit;line-height:1.5}
+.fi-component *,.fi-component *::before,.fi-component *::after{box-sizing:border-box}
+.fi-component [hidden]{display:none!important}
+.fi-component .fi-title{font:600 clamp(1.5rem,3vw,2.5rem)/1.12 inherit;font-family:inherit;font-weight:600;font-size:clamp(1.5rem,3vw,2.5rem);line-height:1.12;letter-spacing:-.045em;color:var(--fi-ink);margin:0 0 20px;overflow-wrap:anywhere}
+.fi-component h4{font:600 clamp(1.25rem,2vw,1.8rem)/1.2 inherit;font-family:inherit;font-weight:600;font-size:clamp(1.25rem,2vw,1.8rem);line-height:1.2;letter-spacing:-.035em;color:var(--fi-ink);margin:8px 0 12px;overflow-wrap:anywhere}
+.fi-component p{margin:0 0 16px;color:var(--fi-muted);font-size:.875rem;line-height:1.6;overflow-wrap:anywhere}
+.fi-component .fi-eyebrow{display:block;margin:0;font-size:.625rem;font-weight:600;letter-spacing:.13em;line-height:1.5;color:var(--fi-muted);overflow-wrap:anywhere}
+.fi-component .fi-note{font-size:.75rem;line-height:1.6;color:var(--fi-muted);margin:12px 0 0;overflow-wrap:anywhere}
+.fi-component .fi-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:16px 0 0;min-width:0}
+.fi-component .fi-toolbar>.fi-title{flex:1 1 180px;margin:0}
+.fi-component .fi-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-width:44px;min-height:44px;max-width:100%;margin:0;padding:10px 16px;border:1px solid var(--fi-line);border-radius:999px;background:#24272d;color:var(--fi-ink);font:500 .75rem/1.4 inherit;font-family:inherit;font-size:.75rem;font-weight:500;line-height:1.4;text-decoration:none;text-align:center;cursor:pointer;overflow-wrap:anywhere;position:relative}
+.fi-component .fi-button:hover:not(:disabled){background:#34383f}
+.fi-component .fi-button:active:not(:disabled){transform:translateY(1px)}
+.fi-component .fi-button:disabled{opacity:.5;cursor:not-allowed}
+.fi-component .fi-primary{background:#f1e9df;color:#202126;border-color:transparent}
+.fi-component .fi-primary:hover:not(:disabled){background:#d7d0c7}
+.fi-component :is(button,a,input,select,[tabindex]):focus-visible{outline:2px solid #f7f1e9;outline-offset:4px}
+.fi-component .fi-text-link{display:inline-flex;align-items:center;min-height:44px;color:var(--fi-color);text-decoration:underline;text-underline-offset:4px}
+.fi-component .fi-field{display:flex;flex-direction:column;gap:8px;font-size:.75rem;color:var(--fi-muted);margin-top:16px;min-width:0}
+.fi-component input[type=range]{width:100%;min-height:44px;margin:0;accent-color:var(--fi-color);cursor:pointer}
+.fi-component .fi-upload{max-width:100%;min-width:0}
+.fi-component .fi-upload label{overflow:hidden}
+.fi-component .fi-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.fi-component .fi-upload:focus-within label{outline:2px solid #f7f1e9;outline-offset:4px}
+.fi-component .fi-canvas{display:block;width:100%;height:auto;aspect-ratio:3/2;border:1px solid var(--fi-line);border-radius:16px;background:#111417}
+/* A menu opens in document flow. Focus returns to its trigger on Escape. */
+.fi-menu{padding:24px;border:1px solid var(--fi-line);border-radius:20px;background:var(--fi-surface)}
+.fi-menu>.fi-toolbar{margin:0 0 32px;justify-content:space-between}
+.fi-menu-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fi-menu-panel a{min-width:0;display:block;border:1px solid var(--fi-line);border-radius:12px;overflow:hidden;color:var(--fi-ink);text-decoration:none;min-height:44px}
+.fi-menu-panel img{width:100%;height:120px;object-fit:cover;display:block}
+.fi-menu-panel a>span{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px;font-size:.875rem;overflow-wrap:anywhere}
+.fi-menu-panel small{color:var(--fi-muted);font-size:.625rem}
+.fi-menu-panel b{margin-left:auto;font-weight:400}
+.fi-menu[data-motion=true] .fi-menu-panel{animation:fi-menu-enter 300ms var(--fi-ease) both}
+.fi-menu-destinations section{padding:24px;border:1px solid var(--fi-line);border-radius:12px;background:#23262e}
+@keyframes fi-menu-enter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* Sticky cards visibly overlap while the real inner scroll container moves. */
+.fi-stack-scroll{height:410px;overflow:auto;overscroll-behavior:contain;position:relative;padding:0 8px 0 0;scrollbar-color:var(--fi-line) transparent;border-radius:16px;margin-top:16px}
+.fi-stack-card{position:sticky;min-height:310px;margin:0 0 32px;border:1px solid var(--fi-line);border-radius:16px;background:var(--fi-surface);overflow:hidden;box-shadow:0 -4px 20px #0005}
+.fi-stack-card img{display:block;width:100%;height:200px;object-fit:cover}
+.fi-stack-card>div{padding:20px}
+.fi-stack-card h4{margin:8px 0}.fi-stack-card p{margin:0}
+.fi-stack-end{position:relative;min-height:300px;padding:52px 24px 24px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:16px;background:#101317}
+/* Equal-width native tab buttons keep the moving indicator proportional. */
+.fi-tab-list{display:grid;grid-template-columns:repeat(var(--fi-count),minmax(0,1fr));position:relative;isolation:isolate;padding:4px;background:#101216;border:1px solid var(--fi-line);border-radius:999px;margin-bottom:20px}
+.fi-tab-list>button{position:relative;min-height:44px;min-width:0;padding:10px 6px;border:0;border-radius:999px;background:transparent;color:var(--fi-muted);font:inherit;font-size:.75rem;cursor:pointer;overflow-wrap:anywhere}
+.fi-tab-list>button[aria-selected=true]{color:#1d2125;font-weight:600}
+.fi-tab-list>button:hover{color:var(--fi-ink)}.fi-tab-list>button[aria-selected=true]:hover{color:#1d2125}
+.fi-tab-indicator{position:absolute;z-index:-1;left:4px;top:4px;bottom:4px;width:calc((100% - 8px)/var(--fi-count));border-radius:999px;background:var(--fi-color);transform:translateX(calc(var(--fi-active)*100%))}
+.fi-tabs[data-motion=true] .fi-tab-indicator{transition:transform 440ms cubic-bezier(.3,1.4,.4,1)}
+.fi-tab-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center;padding:20px;border:1px solid var(--fi-line);border-radius:16px;background:var(--fi-surface)}
+.fi-tab-panel img{width:100%;height:200px;object-fit:cover;border-radius:10px}.fi-tab-panel p{margin:0}
+/* The trail never creates more than eight decorative images or escapes its region. */
+.fi-trail-area{position:relative;isolation:isolate;display:flex;min-height:340px;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;border:1px solid var(--fi-line);border-radius:20px;background:#1c2029;overflow:hidden;touch-action:pan-y}
+.fi-trail .fi-title{max-width:380px;pointer-events:none}.fi-trail-area p{pointer-events:none}
+.fi-trail-image{position:absolute;z-index:-1;width:clamp(80px,22%,150px);aspect-ratio:3/2;object-fit:cover;border:5px solid #efebe4;border-bottom-width:16px;box-shadow:0 8px 24px #0004;transform:translate(-50%,-50%) rotate(var(--fi-rotate));pointer-events:none}
+.fi-trail[data-motion=true] .fi-trail-image{animation:fi-trail-enter 250ms var(--fi-ease) both}
+@keyframes fi-trail-enter{from{opacity:0;transform:translate(-50%,-40%) rotate(0deg) scale(.8)}to{opacity:1;transform:translate(-50%,-50%) rotate(var(--fi-rotate)) scale(1)}}
+/* The native range occupies the actual image so dragging anywhere works on touch. */
+.fi-compare-stage{position:relative;width:100%;aspect-ratio:3/2;border:1px solid var(--fi-line);border-radius:16px;overflow:hidden;background:#1b1e24}
+.fi-compare-stage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.fi-compare-treated{filter:grayscale(1) contrast(1.35)}
+.fi-compare-line{position:absolute;top:0;bottom:0;width:2px;background:#fff;transform:translateX(-1px);pointer-events:none}
+.fi-compare-line>b{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:44px;height:44px;display:grid;place-items:center;border-radius:50%;border:2px solid #fff;background:#1a1d24;color:#fff;font-size:20px}
+.fi-compare-label{position:absolute;left:16px;top:16px;padding:4px 10px;border-radius:99px;background:#101216dd;color:#fff;font-size:.625rem;pointer-events:none}.fi-compare-label.fi-right{left:auto;right:16px}
+.fi-component .fi-compare-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize;touch-action:pan-y}
+.fi-compare-stage:focus-within{outline:2px solid #fff;outline-offset:4px}
+/* The progress ribbon is filled from the scrollTop / scrollable-height ratio. */
+.fi-timeline-scroll{height:380px;overflow:auto;overscroll-behavior:contain;scrollbar-color:var(--fi-line) transparent;border:1px solid var(--fi-line);border-radius:16px;padding:24px;margin-top:16px;background:var(--fi-surface)}
+.fi-timeline-content{position:relative}.fi-timeline-content ol{list-style:none;margin:0;padding:0}
+.fi-timeline-content li{position:relative;min-height:220px;padding:0 0 48px 52px}.fi-timeline-content li:last-child{padding-bottom:120px}
+.fi-timeline-dot{position:absolute;top:0;left:0;width:30px;height:30px;border:1px solid var(--fi-line);border-radius:50%;background:#262b32;color:var(--fi-muted);display:grid;place-items:center;font-size:.625rem}
+.fi-timeline-content li[data-reached=true] .fi-timeline-dot{background:var(--fi-color);color:#1d2425;border-color:var(--fi-color)}
+.fi-timeline-track{position:absolute;top:15px;bottom:180px;left:14px;width:2px;background:var(--fi-line)}.fi-timeline-track>span{position:absolute;inset:0;background:var(--fi-color);transform-origin:top}
+.fi-timeline-content p{max-width:38ch}
+/* A determinate liquid vessel: movement decorates the exact supplied fill. */
+.fi-progress{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px;border:1px solid var(--fi-line);border-radius:20px;background:var(--fi-surface)}
+.fi-progress>.fi-title{margin:12px 0 24px}.fi-progress-vessel{position:relative;isolation:isolate;width:220px;max-width:100%;aspect-ratio:1;border:1px solid #69717c;box-shadow:inset 0 0 0 8px #1c2129;border-radius:50%;overflow:hidden;background:#101418;display:grid;place-items:center}
+.fi-progress-liquid{position:absolute;z-index:-1;inset:0;background:var(--fi-color);transform:translateY(calc(100% - var(--fi-progress)))}
+.fi-progress-liquid>span{position:absolute;width:250%;height:250%;left:-75%;top:-243%;border-radius:43%;background:#101418}.fi-progress-liquid>span+span{border-radius:46%;opacity:.4;transform:rotate(35deg)}
+.fi-progress[data-motion=true] .fi-progress-liquid>span{animation:fi-liquid 8s linear infinite}.fi-progress[data-motion=true] .fi-progress-liquid>span+span{animation-duration:11s;animation-direction:reverse}
+.fi-progress-vessel>strong{font-size:3.5rem;font-weight:500;color:white;text-shadow:0 1px 3px #000,0 0 8px #000;line-height:1;letter-spacing:-.06em}.fi-progress-vessel small{font-size:1.5rem;letter-spacing:-.04em}
+.fi-progress .fi-field{width:100%}
+@keyframes fi-liquid{to{transform:rotate(360deg)}}
+/* Real states are selected explicitly; no timers imitate an asynchronous result. */
+.fi-state-choices{display:flex;flex-wrap:wrap;gap:8px}.fi-state-choices .fi-button[aria-pressed=true]{border-color:var(--fi-color);background:#353a43}
+.fi-state-scene{position:relative;isolation:isolate;overflow:hidden;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin-top:16px;padding:32px 24px;border:1px solid var(--fi-line);border-radius:20px;background:var(--fi-surface)}
+.fi-state-scene h4{max-width:24ch}.fi-state-scene p{max-width:36ch}.fi-state-symbol{font-size:2.5rem;line-height:1.1;color:var(--fi-color);margin:12px 0 20px}
+.fi-state-orbit{position:absolute;z-index:-1;width:210px;height:210px;border:1px solid #ffffff15;border-radius:50%;transform:rotate(-25deg) scaleX(1.5)}
+.fi-states[data-motion=true] [data-state=loading] .fi-state-symbol{animation:fi-state-load 1.8s linear infinite}
+@keyframes fi-state-load{to{transform:rotate(360deg)}}
+/* Both the draggable corner and native slider reveal the same real underlying content. */
+.fi-sticker-stage{height:330px;position:relative;isolation:isolate;border:1px solid var(--fi-line);border-radius:20px;background:#262a36;overflow:hidden}
+.fi-sticker-message{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px}.fi-sticker-message .fi-title{font-size:2rem}.fi-sticker-message p{max-width:28ch}
+.fi-sticker-sheet{position:absolute;inset:0;background:var(--fi-color);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#202827}
+.fi-sticker-sheet>strong{position:relative;z-index:1;font-size:clamp(2.3rem,6vw,4.5rem);line-height:.95;letter-spacing:-.07em;text-align:center;max-width:10ch;overflow-wrap:anywhere;transform:rotate(-8deg)}
+.fi-sticker-sheet>.fi-eyebrow{position:relative;z-index:1;color:#202827;margin-top:28px}.fi-sticker-sheet>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.25}
+.fi-component .fi-sticker-grip{position:absolute;top:calc(50% - 24px);width:48px;height:48px;display:grid;place-items:center;touch-action:none;border:1px solid #fff7;border-radius:50%;color:#fff;background:#262a36;box-shadow:0 4px 12px #0004;font:inherit;font-size:1.5rem;cursor:grab}
+.fi-sticker-grip:active{cursor:grabbing}.fi-sticker[data-motion=true] .fi-sticker-grip{transition:transform 120ms var(--fi-ease)}.fi-sticker-grip:hover{transform:scale(1.08)}
+.fi-paint-canvas{cursor:crosshair;touch-action:none}
+@media(max-width:520px){.fi-menu{padding:20px}.fi-menu-panel{grid-template-columns:1fr}.fi-menu-panel a{display:grid;grid-template-columns:80px minmax(0,1fr)}.fi-menu-panel img{height:72px}.fi-menu-panel a>span{padding:12px}.fi-tab-panel{grid-template-columns:1fr;padding:16px;gap:16px}.fi-tab-panel img{height:150px}.fi-trail-area{padding:24px;min-height:300px}.fi-timeline-scroll{padding:20px 16px}.fi-timeline-content li{padding-left:44px}.fi-stack-card img{height:170px}.fi-sticker-message .fi-title{font-size:1.6rem}.fi-progress{padding:20px}}
+@media(prefers-reduced-motion:reduce){.fi-component *,.fi-component *::before,.fi-component *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.fi-progress[data-complete=true] .fi-progress-liquid>span{display:none}

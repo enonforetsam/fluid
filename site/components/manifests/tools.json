@@ -1,0 +1,381 @@
+[
+  {
+    "id": "palette-studio",
+    "name": "Palette Studio",
+    "file": "PaletteStudio",
+    "type": "tool",
+    "category": "Colour",
+    "symbol": "◒",
+    "description": "Five colours become a usable website palette, with measured WCAG contrast.",
+    "hint": "Choose a look, upload an image or edit the swatches. Export current CSS tokens and the measured palette.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa"
+    },
+    "controls": [],
+    "props": [
+      [
+        "palette",
+        "Initial palette: Ember, Monsoon, Saffron, Orchid or Moss."
+      ],
+      [
+        "onExportReady",
+        "Current CSS/JSON export functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "css",
+      "json"
+    ],
+    "notes": "Five Fluid starting palettes. Image extraction uses visible pixels in a bounded local sample; text tokens choose the highest-contrast light/dark foreground. AA means at least 4.5:1 for normal text. All uploads stay local."
+  },
+  {
+    "id": "texture-lab",
+    "name": "Texture Lab",
+    "file": "TextureLab",
+    "type": "tool",
+    "category": "Texture",
+    "symbol": "▧",
+    "description": "Paper, grain, halftone, contour and print textures for any surface.",
+    "hint": "Tune the marks. Download a 512–2048 px PNG, repeatable SVG, or CSS background.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#201c22",
+      "secondary": "#fff3df",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "png",
+      "svg",
+      "css",
+      "json"
+    ],
+    "notes": "All five texture treatments are generated locally and deterministically. SVG/CSS contain their complete artwork. PNG is rendered at the chosen square resolution. Paper uses an inline SVG turbulence filter; no external assets."
+  },
+  {
+    "id": "divider-builder",
+    "name": "Divider Builder",
+    "file": "DividerBuilder",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "≈",
+    "description": "Shape a wave, arc, torn edge or stepped section transition.",
+    "hint": "Change the height, complexity and two section colours. Take the exact SVG or React component.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#a79bfa",
+      "secondary": "#fff3df",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "svg",
+      "jsx",
+      "json"
+    ],
+    "notes": "React export is a standalone JSX component with current geometry embedded. SVG is decorative and portable. Seed affects the torn-paper edge; complexity affects wave, torn and steps."
+  },
+  {
+    "id": "hero-composer",
+    "name": "Hero Composer",
+    "file": "HeroComposer",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "↗",
+    "description": "Artwork, a logo, a headline and a call to action become a complete section.",
+    "hint": "Edit the words and layout; download a working offline page or a 1440 × 900 PNG.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-composition.js"
+    ],
+    "capabilities": [
+      "html",
+      "png",
+      "json"
+    ],
+    "notes": "HTML includes semantic text, an accessible link, artwork, uploads and current settings. It works offline and has a mobile layout. PNG is a still composition. Image uploads are normalized to 2048 px; transparent logos are preferred. Unsafe link protocols fall back to #details."
+  },
+  {
+    "id": "logo-motion-studio",
+    "name": "Logo Motion Studio",
+    "file": "LogoMotionStudio",
+    "type": "tool",
+    "category": "Motion",
+    "symbol": "✳",
+    "description": "Living chrome, ink and grain inside your wordmark or transparent logo.",
+    "hint": "Type a word or upload a transparent image. Take a PNG still and a real animated offline HTML embed.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "paused",
+        "Pause the canvas animation. Hidden tabs, offscreen previews and reduced motion also pause it."
+      ],
+      [
+        "replayKey",
+        "Change to restart the material animation."
+      ],
+      [
+        "seed",
+        "Initial artwork seed, default 42."
+      ],
+      [
+        "onExportReady",
+        "Current PNG/HTML/JSON functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "png",
+      "html",
+      "json"
+    ],
+    "notes": "The current 768 × 432 frame exports as PNG, with optional transparency. HTML embeds the chosen material and mask and animates them with CSS, including pause and reduced-motion controls. It is an animated interpretation of the canvas material, not a video. SVG uploads accept simple local paths/shapes/gradients only; opaque images make rectangular masks."
+  },
+  {
+    "id": "motion-recipes",
+    "name": "Motion Recipes",
+    "file": "MotionRecipes",
+    "type": "tool",
+    "category": "Motion",
+    "symbol": "↝",
+    "description": "Coordinate entrances, scroll rhythm and hover/focus feedback.",
+    "hint": "Scroll the preview and focus a card. Download a complete React + CSS recipe or self-contained HTML.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#e4d2bc",
+      "secondary": "#ffb189"
+    },
+    "controls": [],
+    "props": [
+      [
+        "paused",
+        "Show content immediately and stop transitions."
+      ],
+      [
+        "replayKey",
+        "Change to replay observed entrances."
+      ],
+      [
+        "onExportReady",
+        "Current JSX/CSS/HTML/JSON functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "jsx",
+      "css",
+      "html",
+      "json"
+    ],
+    "notes": "React and CSS downloads work together; HTML includes everything. IntersectionObserver entrances use the scroll region; all observers/listeners are released on unmount. Reduced motion, hidden tabs and paused React props reveal all content without transitions. No scroll blocking or network calls."
+  },
+  {
+    "id": "social-preview-maker",
+    "name": "Social Preview Maker",
+    "file": "SocialPreviewMaker",
+    "type": "tool",
+    "category": "Composition",
+    "symbol": "▰",
+    "description": "Make a matching social card from your title, palette and artwork.",
+    "hint": "Compose the title and artwork, then download an exact 1200 × 630 PNG.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#88cbef",
+      "secondary": "#c7a6ed",
+      "seed": 42
+    },
+    "controls": [],
+    "props": [
+      [
+        "onExportReady",
+        "Optional callback receives the current export functions; receives null on unmount."
+      ],
+      [
+        "seed",
+        "Initial deterministic artwork seed. Default: 42."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js",
+      "components/src/shared/tool-composition.js"
+    ],
+    "capabilities": [
+      "png",
+      "json"
+    ],
+    "notes": "PNG dimensions are fixed at 1200 × 630. All text and images are rasterized locally using system sans or Georgia; no font downloads or external assets. Optional image/logo uploads and all settings are retained in the JSON project."
+  },
+  {
+    "id": "material-theme-pack",
+    "name": "Material Theme Pack",
+    "file": "MaterialThemePack",
+    "type": "tool",
+    "category": "Colour",
+    "symbol": "◈",
+    "description": "One palette and texture across typography, cards, forms and backgrounds.",
+    "hint": "Try the local project form, then take the complete theme CSS and working offline page.",
+    "css": "components/tools.css",
+    "defaults": {
+      "color": "#fa8356",
+      "secondary": "#a79bfa"
+    },
+    "controls": [],
+    "props": [
+      [
+        "palette",
+        "Initial palette: Ember, Monsoon, Saffron, Orchid or Moss."
+      ],
+      [
+        "onExportReady",
+        "Current CSS/HTML/JSON export functions; null on unmount."
+      ],
+      [
+        "color",
+        "Initial primary artwork/ink/card colour; shared palette compatible."
+      ],
+      [
+        "secondary",
+        "Initial secondary artwork/paper/focus colour; shared palette compatible."
+      ]
+    ],
+    "dependencies": [
+      "components/src/shared/tool-core.jsx",
+      "components/src/shared/tool-art.js",
+      "components/src/shared/tool-upload.js"
+    ],
+    "capabilities": [
+      "css",
+      "html",
+      "json"
+    ],
+    "notes": "Five palettes with measured automatic text colours. Texture strength and radius carry into the CSS and offline page. The sample form confirms a local action and never sends data. Background texture is embedded in CSS."
+  }
+]

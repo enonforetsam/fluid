@@ -1,13 +1,15 @@
 import { lstat, mkdir, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { collectComponentSources, validateComponentCatalogue, validatePublicComponentPath } from './build-components.mjs';
 
 const DEFAULT_ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const SITE_FILES = Object.freeze([
   'index.html', 'studio.html', 'photo.html', 'backgrounds.html', 'developers.html', 'dither.html',
   'components.html', 'components.css',
   'components/gallery.js', 'components/gallery.js.LEGAL.txt', 'components/components.css',
-  'components/catalogue.json', 'components/LICENSE',
+  'components/catalogue.json', 'components/source-manifest.json', 'components/LICENSE',
+  'components/visual.css', 'components/interactions.css', 'components/tools.css', 'components/sections.css',
   'components/src/SplitReveal.jsx', 'components/src/WaveText.jsx', 'components/src/MagneticButton.jsx',
   'components/src/SpotlightCard.jsx', 'components/src/TiltCard.jsx', 'components/src/LoopMarquee.jsx',
   'styles.css', 'explore.css', 'dither.css',
@@ -78,6 +80,22 @@ export async function buildSite({ rootDir = DEFAULT_ROOT } = {}) {
     if (PUBLIC_ASSET_EXTENSIONS.has(path.extname(name).toLowerCase())) files.set(name, await safeRead(root, name));
   }
   for (const name of SITE_FILES) files.set(name, await safeRead(site, name));
+  const componentCatalogue = validateComponentCatalogue(JSON.parse(files.get('components/catalogue.json').toString('utf8')));
+  const declared = JSON.parse(files.get('components/source-manifest.json').toString('utf8'));
+  if (declared?.version !== 1 || !declared.entries || typeof declared.entries !== 'object' || Array.isArray(declared.entries)) throw new Error('Invalid component source manifest.');
+  const componentIds = componentCatalogue.map(item => item.id);
+  if (Object.keys(declared.entries).length !== componentIds.length || Object.keys(declared.entries).some(id => !componentIds.includes(id))) throw new Error('Component source manifest does not match the catalogue.');
+  for (const id of componentIds) {
+    const entries = declared.entries[id];
+    if (!Array.isArray(entries) || !entries.length || new Set(entries).size !== entries.length) throw new Error('Invalid component source entry: ' + id);
+    entries.forEach(validatePublicComponentPath);
+  }
+  // Recompute the graph from source. A stale manifest cannot widen publication.
+  const expected = await collectComponentSources({ siteDir: site, catalogue: componentCatalogue });
+  for (const id of componentIds) {
+    if (JSON.stringify(declared.entries[id]) !== JSON.stringify(expected.manifest.entries[id])) throw new Error('Stale or incomplete component source manifest: ' + id);
+    for (const name of declared.entries[id]) if (!files.has(name)) files.set(name, await safeRead(site, name));
+  }
   const thumbnails = (await filesBelow(site, 'assets/look-thumbnails')).filter((name) => name.endsWith('.webp'));
   const catalogue = JSON.parse(files.get('catalogue.json').toString('utf8'));
   const looks = catalogue.looks;
